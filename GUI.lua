@@ -192,7 +192,7 @@ function GUI:CreateImageButton (parent, width, height, img, pus, hlt, handler)
   end
   btn:SetNormalTexture (img)
   btn:SetPushedTexture (pus)
-  btn:SetHighlightTexture (hlt)
+  --btn:SetHighlightTexture (hlt)
   btn:SetWidth (width)
   btn:SetHeight (height)
   if handler then
