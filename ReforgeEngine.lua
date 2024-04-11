@@ -1007,7 +1007,7 @@ function ReforgeLite:Compute ()
   end
 end
 
-local ErrorFrame = CreateFrame ("Frame", "ReforgeLiteErrorFrame", UIParent)
+local ErrorFrame = CreateFrame ("Frame", "ReforgeLiteErrorFrame", UIParent, "BackdropTemplate")
 ErrorFrame:Hide ()
 ErrorFrame:SetPoint ("CENTER")
 ErrorFrame:SetFrameStrata ("TOOLTIP")

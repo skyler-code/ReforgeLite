@@ -25,7 +25,7 @@ end
 local L = ReforgeLiteLocale
 local GUI = ReforgeLiteGUI
 
-ReforgeLite = CreateFrame ("Frame", nil, UIParent)
+ReforgeLite = CreateFrame ("Frame", nil, UIParent, "BackdropTemplate")
 ReforgeLite:Hide ()
 ReforgeLiteDB = nil
 local AddonPath = "Interface\\AddOns\\ReforgeLite\\"
@@ -1333,7 +1333,7 @@ function ReforgeLite:CreateOptionList ()
 
   self:UpdateStatWeightList ()
 
-  self.quality = CreateFrame ("Slider", nil, self.content)
+  self.quality = CreateFrame ("Slider", nil, self.content, "BackdropTemplate")
   self:SetAnchor (self.quality, "LEFT", self.computeButton, "RIGHT", 15, 0)
   self.quality:SetOrientation ("HORIZONTAL")
   self.quality:SetWidth (150)
@@ -1846,7 +1846,7 @@ end
 
 function ReforgeLite:ShowMethodWindow ()
   if self.methodWindow == nil then
-    self.methodWindow = CreateFrame ("Frame", nil, UIParent)
+    self.methodWindow = CreateFrame ("Frame", nil, UIParent, "BackdropTemplate")
     self.methodWindow:SetFrameStrata ("DIALOG")
     self.methodWindow:SetFrameLevel (ReforgeLite:GetFrameLevel () + 10)
     self.methodWindow:ClearAllPoints ()
