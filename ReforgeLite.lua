@@ -1723,6 +1723,7 @@ end
 
 function ReforgeLite:GetReforgeID (item)
   local id = tonumber (item:match ("item:%d+:%d+:%d+:%d+:%d+:%d+:%-?%d+:%-?%d+:%d+:(%d+)"))
+  id = 0
   return (id ~= 0 and (id - self.REFORGE_TABLE_BASE) or nil)
 end
 
