@@ -695,8 +695,7 @@ function ReforgeLite:CreateFrame (title, width, height)
   self:ClearAllPoints ()
   self:SetWidth (self.db.windowWidth)
   self:SetHeight (self.db.windowHeight)
-  self:SetMinResize (780, 500)
-  self:SetMaxResize (1000, 800)
+  self:SetResizeBounds(780, 500, 1000, 800)
   if self.db.windowX and self.db.windowY then
     self:SetPoint ("TOPLEFT", UIParent, "BOTTOMLEFT", self.db.windowX, self.db.windowY)
   else
