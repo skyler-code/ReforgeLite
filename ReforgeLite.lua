@@ -1783,7 +1783,6 @@ local itemStatsLocale = {
 
 local ignoredSlots = {[INVSLOT_TABARD]=true,[INVSLOT_BODY]=true}
 function ReforgeLite:GetReforgeID (slotId)
-  print(slotId)
   if ignoredSlots[slotId] then return end
   local reforgeInfo = reforgeIDs[slotId]
   if reforgeInfo and reforgeInfo > 0 then
@@ -2199,7 +2198,6 @@ function ReforgeLite:DoReforgeUpdate ()
                 id = id + 1
               end
               if self.reforgeTable[s][1] == self.pdb.method.items[i].src and self.reforgeTable[s][2] == self.pdb.method.items[i].dst then
-                print(id)
                 C_Reforge.ReforgeItem (id)
                 return
               end
