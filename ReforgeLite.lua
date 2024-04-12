@@ -375,7 +375,7 @@ end
 ReforgeLite.tankingStats["DRUID"] = ReforgeLite.tankingStats["DEATHKNIGHT"]
 
 ReforgeLite.REFORGE_TABLE_BASE = 112
-ReforgeLite.reforgeTable = {
+local reforgeTable = {
   {1, 2}, {1, 3}, {1, 4}, {1, 5}, {1, 6}, {1, 7}, {1, 8},
   {2, 1}, {2, 3}, {2, 4}, {2, 5}, {2, 6}, {2, 7}, {2, 8},
   {3, 1}, {3, 2}, {3, 4}, {3, 5}, {3, 6}, {3, 7}, {3, 8},
@@ -385,6 +385,7 @@ ReforgeLite.reforgeTable = {
   {7, 1}, {7, 2}, {7, 3}, {7, 4}, {7, 5}, {7, 6}, {7, 8},
   {8, 1}, {8, 2}, {8, 3}, {8, 4}, {8, 5}, {8, 6}, {8, 7},
 }
+ReforgeLite.reforgeTable = reforgeTable
 
 local REFORGE_COEFF = 0.4
 ReforgeLite.spiritBonus = (select (2, UnitRace ("player")) == "Human" and 1.03 or 1)
@@ -1740,8 +1741,8 @@ ReforgeLite.STATS = {
 
 ]]--
 
-function ReforgeLite:GetReforgeTableIndex(stat1, stat2)
-  for k,v in ipairs(self.reforgeTable) do
+local function GetReforgeTableIndex(stat1, stat2)
+  for k,v in ipairs(reforgeTable) do
     if v[1] == stat1 and v[2] == stat2 then
       return k
     end
@@ -1773,10 +1774,11 @@ local itemStatsLocale = {
     local currentReforge, itemID, name, quality, bound, cost = C_Reforge.GetReforgeItemInfo();
     if currentReforge and currentReforge > 0 then
       local srcName, srcStat, srcValue, destName, destStat, destValue = C_Reforge.GetReforgeOptionInfo(currentReforge)
-      reforgeID = ReforgeLite:GetReforgeTableIndex(itemStatsLocale[srcName], itemStatsLocale[destName])
+      reforgeID = GetReforgeTableIndex(itemStatsLocale[srcName], itemStatsLocale[destName])
     end
-    rawset(self, key, reforgeID)
+    C_Reforge.SetReforgeFromCursorItem()
     ClearCursor()
+    rawset(self, key, reforgeID)
     return reforgeID
   end
 })
