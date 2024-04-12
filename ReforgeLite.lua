@@ -2215,7 +2215,6 @@ end
 function ReforgeLite:SetUpHooks ()
   GameTooltip:HookScript ("OnTooltipSetItem", self.OnTooltipSetItem)
   ItemRefTooltip:HookScript ("OnTooltipSetItem", self.OnTooltipSetItem)
-  hooksecurefunc (ShoppingTooltip1, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
   -- hooksecurefunc (ShoppingTooltip1, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
   -- hooksecurefunc (ShoppingTooltip2, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
   -- hooksecurefunc (ShoppingTooltip3, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
