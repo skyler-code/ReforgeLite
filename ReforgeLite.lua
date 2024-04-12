@@ -268,18 +268,6 @@ ReforgeLite.itemStats = {
   RatingStat (8, "ITEM_MOD_MASTERY_RATING_SHORT", "Mastery", CR_MASTERY)
 }
 
-local itemStatsLocale = {
-  [_G["ITEM_MOD_SPIRIT_SHORT"]] = "ITEM_MOD_SPIRIT_SHORT",
-  [_G["ITEM_MOD_DODGE_RATING_SHORT"]] = "ITEM_MOD_DODGE_RATING_SHORT",
-  [_G["ITEM_MOD_PARRY_RATING_SHORT"]] = "ITEM_MOD_PARRY_RATING_SHORT",
-  [_G["ITEM_MOD_HIT_RATING_SHORT"]] = "ITEM_MOD_HIT_RATING",
-  [_G["ITEM_MOD_CRIT_RATING_SHORT"]] = "ITEM_MOD_CRIT_RATING",
-  [_G["ITEM_MOD_HASTE_RATING_SHORT"]] = "ITEM_MOD_HASTE_RATING",
-  [_G["ITEM_MOD_EXPERTISE_RATING_SHORT"]] = "ITEM_MOD_EXPERTISE_RATING",
-  [_G["ITEM_MOD_MASTERY_RATING_SHORT"]] = "ITEM_MOD_MASTERY_RATING_SHORT",
-
-}
-
 ReforgeLite.STATS = {
   SPIRIT = 1, DODGE = 2, PARRY = 3, HIT = 4, CRIT = 5, HASTE = 6, EXP = 7, MASTERY = 8, SPELLHIT = 9, CRITBLOCK = 1
 }
@@ -1734,23 +1722,80 @@ function ReforgeLite:UpdateContentSize ()
   self:SetScript ("OnUpdate", self.FixScroll)
 end
 
-function ReforgeLite:GetReforgeIDByInventorySlot (slotId)
-  PickupInventoryItem(slotId)
-  C_Reforge.SetReforgeFromCursorItem();
-	GameTooltip:Hide();
-  
-	local currentReforge, itemID, name, quality, bound, cost = C_Reforge.GetReforgeItemInfo();
-  if currentReforge > 0 then
-    local srcName, srcStat, srcValue, destName, destStat, destValue = C_Reforge.GetReforgeOptionInfo(currentReforge)
-    return itemStatsLocale[srcName], itemStatsLocale[destName]
+--[[
+{
+  {1, 2}, {1, 3}, {1, 4}, {1, 5}, {1, 6}, {1, 7}, {1, 8},
+  {2, 1}, {2, 3}, {2, 4}, {2, 5}, {2, 6}, {2, 7}, {2, 8},
+  {3, 1}, {3, 2}, {3, 4}, {3, 5}, {3, 6}, {3, 7}, {3, 8},
+  {4, 1}, {4, 2}, {4, 3}, {4, 5}, {4, 6}, {4, 7}, {4, 8},
+  {5, 1}, {5, 2}, {5, 3}, {5, 4}, {5, 6}, {5, 7}, {5, 8},
+  {6, 1}, {6, 2}, {6, 3}, {6, 4}, {6, 5}, {6, 7}, {6, 8},
+  {7, 1}, {7, 2}, {7, 3}, {7, 4}, {7, 5}, {7, 6}, {7, 8},
+  {8, 1}, {8, 2}, {8, 3}, {8, 4}, {8, 5}, {8, 6}, {8, 7},
+}
+
+ReforgeLite.STATS = {
+  SPIRIT = 1, DODGE = 2, PARRY = 3, HIT = 4, CRIT = 5, HASTE = 6, EXP = 7, MASTERY = 8, SPELLHIT = 9, CRITBLOCK = 1
+}
+
+]]--
+
+function ReforgeLite:GetReforgeTableIndex(stat1, stat2)
+  for k,v in ipairs(self.reforgeTable) do
+    if v[1] == stat1 and v[2] == stat2 then
+      return k
+    end
   end
 end
 
-function ReforgeLite:GetReforgeID (item)
-  local id = tonumber (item:match ("item:%d+:%d+:%d+:%d+:%d+:%d+:%-?%d+:%-?%d+:%d+:(%d+)"))
-  id = 0
-  return (id ~= 0 and (id - self.REFORGE_TABLE_BASE) or nil)
+
+local itemStatsLocale = {
+  [_G["ITEM_MOD_SPIRIT_SHORT"]] = 1,
+  [_G["ITEM_MOD_DODGE_RATING_SHORT"]] = 2,
+  [_G["ITEM_MOD_PARRY_RATING_SHORT"]] = 3,
+  [_G["ITEM_MOD_HIT_RATING_SHORT"]] = 4,
+  [_G["ITEM_MOD_CRIT_RATING_SHORT"]] = 5,
+  [_G["ITEM_MOD_HASTE_RATING_SHORT"]] = 6,
+  [_G["ITEM_MOD_EXPERTISE_RATING_SHORT"]] = 7,
+  [_G["ITEM_MOD_MASTERY_RATING_SHORT"]] = 8,
+
+}
+
+
+ reforgeIDs = setmetatable({}, {
+  __index = function(self, key)
+    if not ReforgingFrame or not ReforgingFrame:IsShown () then return end
+    PickupInventoryItem(key)
+    C_Reforge.SetReforgeFromCursorItem()
+    GameTooltip:Hide()
+    
+    local reforgeID = -1
+    local currentReforge, itemID, name, quality, bound, cost = C_Reforge.GetReforgeItemInfo();
+    if currentReforge and currentReforge > 0 then
+      local srcName, srcStat, srcValue, destName, destStat, destValue = C_Reforge.GetReforgeOptionInfo(currentReforge)
+      reforgeID = ReforgeLite:GetReforgeTableIndex(itemStatsLocale[srcName], itemStatsLocale[destName])
+    end
+    rawset(self, key, reforgeID)
+    ClearCursor()
+    return reforgeID
+  end
+})
+
+local ignoredSlots = {[INVSLOT_TABARD]=true,[INVSLOT_BODY]=true}
+function ReforgeLite:GetReforgeID (slotId)
+  print(slotId)
+  if ignoredSlots[slotId] then return end
+  local reforgeInfo = reforgeIDs[slotId]
+  if reforgeInfo and reforgeInfo > 0 then
+    return reforgeIDs[slotId]
+  end
 end
+
+-- function ReforgeLite:GetReforgeID (item)
+--   local id = tonumber (item:match ("item:%d+:%d+:%d+:%d+:%d+:%d+:%-?%d+:%-?%d+:%d+:(%d+)"))
+--   id = 0
+--   return (id ~= 0 and (id - self.REFORGE_TABLE_BASE) or nil)
+-- end
 
 function GetUnitItemLevel (unit)
   local itemLevel = 0
@@ -1774,7 +1819,6 @@ function ReforgeLite:UpdateItems ()
   local itemLevel = GetUnitItemLevel ("player")
   for i, v in ipairs (self.itemData) do
     local item = GetInventoryItemLink ("player", v.slotId)
-    local itemId = GetInventoryItemID("player", v.slotId)
     local texture = GetInventoryItemTexture ("player", v.slotId)
     local stats = {}
     local reforgeSrc, reforgeDst = nil, nil
@@ -1782,9 +1826,9 @@ function ReforgeLite:UpdateItems ()
       v.item = item
       v.texture:SetTexture (texture)
       stats = GetItemStats (item)
-      reforgeSrc, reforgeDst = self:GetReforgeIDByInventorySlot (v.slotId)
-      if reforgeSrc then
-        --reforgeSrc, reforgeDst = self.itemStats[self.reforgeTable[reforge][1]].name, self.itemStats[self.reforgeTable[reforge][2]].name
+      reforge = self:GetReforgeID (v.slotId)
+      if reforge then
+        reforgeSrc, reforgeDst = self.itemStats[self.reforgeTable[reforge][1]].name, self.itemStats[self.reforgeTable[reforge][2]].name
         local amount = math.floor ((stats[reforgeSrc] or 0) * 0.4)
         stats[reforgeSrc] = (stats[reforgeSrc] or 0) - amount
         stats[reforgeDst] = (stats[reforgeDst] or 0) + amount
@@ -2045,12 +2089,12 @@ function ReforgeLite:ShowMethodWindow ()
   self:UpdateMethodChecks ()
   self.methodWindow:Show ()
 end
-function ReforgeLite:IsReforgeMatching (item, reforge, override)
+function ReforgeLite:IsReforgeMatching (item, slotId, reforge, override)
   if override == 1 then
     return true
   end
 
-  local oreforge = self:GetReforgeID (item)
+  local oreforge = self:GetReforgeID (slotId)
 
   if override == -1 then
     return reforge == oreforge
@@ -2098,7 +2142,7 @@ function ReforgeLite:UpdateMethodChecks ()
       v.item = item
       local texture = GetInventoryItemTexture ("player", v.slotId)
       v.texture:SetTexture (texture or v.slotTexture)
-      if item == nil or self:IsReforgeMatching (item, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
+      if item == nil or self:IsReforgeMatching (item, v.slotId, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
         v.check:SetChecked (true)
       else
         if item then
@@ -2139,22 +2183,23 @@ function ReforgeLite:DoReforgeUpdate ()
       if i ~= 0 then
         local slot = self.methodWindow.items[i].slotId
         local item = GetInventoryItemLink ("player", slot)
-        if item and not self:IsReforgeMatching (item, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
+        if item and not self:IsReforgeMatching (item, slot, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
           if self.reforgingNow ~= i then
             PickupInventoryItem (slot)
             C_Reforge.SetReforgeFromCursorItem ()
             self.reforgingNow = i
           end
-          if self:GetReforgeID (item) then
+          if self:GetReforgeID (slot) then
             C_Reforge.ReforgeItem (0)
           elseif self.pdb.method.items[i].reforge then
-            local id = 0
+            local id = -1
             local stats = GetItemStats (item)
             for s = 1, #self.reforgeTable do
               if (stats[self.itemStats[self.reforgeTable[s][1]].name] or 0) ~= 0 and (stats[self.itemStats[self.reforgeTable[s][2]].name] or 0) == 0 then
                 id = id + 1
               end
               if self.reforgeTable[s][1] == self.pdb.method.items[i].src and self.reforgeTable[s][2] == self.pdb.method.items[i].dst then
+                print(id)
                 C_Reforge.ReforgeItem (id)
                 return
               end
@@ -2213,8 +2258,8 @@ function ReforgeLite.OnTooltipSetItem (tip)
   end
 end
 function ReforgeLite:SetUpHooks ()
-  GameTooltip:HookScript ("OnTooltipSetItem", self.OnTooltipSetItem)
-  ItemRefTooltip:HookScript ("OnTooltipSetItem", self.OnTooltipSetItem)
+  --GameTooltip:HookScript ("OnTooltipSetItem", self.OnTooltipSetItem)
+  --ItemRefTooltip:HookScript ("OnTooltipSetItem", self.OnTooltipSetItem)
   -- hooksecurefunc (ShoppingTooltip1, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
   -- hooksecurefunc (ShoppingTooltip2, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
   -- hooksecurefunc (ShoppingTooltip3, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
@@ -2241,6 +2286,9 @@ function ReforgeLite:OnEvent (event, ...)
     if self.methodWindow then
       self.methodWindow:Hide ()
     end
+  end
+  if event == "FORGE_MASTER_CLOSED" then
+    wipe(reforgeIDs)
   end
   if event == "FORGE_MASTER_OPENED" or event == "FORGE_MASTER_CLOSED" then
     self:QueueUpdate ()

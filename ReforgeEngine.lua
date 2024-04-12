@@ -191,7 +191,7 @@ function ReforgeLite:UpdateMethodStats (method)
   for i = 1, #method.items do
     local item = GetInventoryItemLink ("player", self.itemData[i].slotId)
     local stats = (item and GetItemStats (item) or {})
-    local reforge = (item and self:GetReforgeID (item))
+    local reforge = (item and self:GetReforgeID (self.itemData[i].slotId))
     if reforge then
       local src, dst = self.reforgeTable[reforge][1], self.reforgeTable[reforge][2]
       local amount = math.floor ((stats[self.itemStats[src].name] or 0) * REFORGE_COEFF)
@@ -260,7 +260,7 @@ function ReforgeLite:ResetMethod ()
     method.items[i] = {}
     local item = GetInventoryItemLink ("player", self.itemData[i].slotId)
     local stats = (item and GetItemStats (item) or {})
-    local reforge = (item and self:GetReforgeID (item))
+    local reforge = (item and self:GetReforgeID (self.itemData[i].slotId))
     if reforge then
       method.items[i].reforge = reforge
       method.items[i].src = self.reforgeTable[reforge][1]
@@ -350,7 +350,7 @@ function ReforgeLite:GetItemReforgeOptions (item, data, slot)
     local link = GetInventoryItemLink ("player", self.itemData[slot].slotId)
     local src, dst = nil, nil
     if link then
-      local reforge = self:GetReforgeID (link)
+      local reforge = self:GetReforgeID (self.itemData[slot].slotId)
       if reforge then
         src = self.reforgeTable[reforge][1]
         dst = self.reforgeTable[reforge][2]
@@ -461,7 +461,7 @@ function ReforgeLite:InitReforgeClassic ()
   local reforgedSpirit = 0
   for i = 1, #data.method.items do
     local item = GetInventoryItemLink ("player", self.itemData[i].slotId)
-    local reforge = (item and self:GetReforgeID (item))
+    local reforge = (item and self:GetReforgeID (self.itemData[i].slotId))
     if reforge then
       local src, dst = self.reforgeTable[reforge][1], self.reforgeTable[reforge][2]
       local amount = math.floor (method.items[i].stats[src] * REFORGE_COEFF)
@@ -546,7 +546,7 @@ function ReforgeLite:GetItemReforgeOptionsS2H (item, data, slot)
     local link = GetInventoryItemLink ("player", self.itemData[slot].slotId)
     local srcstat, dststat, delta1, delta2, dscore = nil, nil, 0, 0, 0
     if link then
-      local reforge = self:GetReforgeID (link)
+      local reforge = self:GetReforgeID (self.itemData[slot].slotId)
       if reforge then
         srcstat = self.reforgeTable[reforge][1]
         dststat = self.reforgeTable[reforge][2]
@@ -660,7 +660,7 @@ function ReforgeLite:InitReforgeS2H ()
   end
   for i = 1, #data.method.items do
     local item = GetInventoryItemLink ("player", self.itemData[i].slotId)
-    local reforge = (item and self:GetReforgeID (item))
+    local reforge = (item and self:GetReforgeID (self.itemData[i].slotId))
     if reforge then
       local src, dst = self.reforgeTable[reforge][1], self.reforgeTable[reforge][2]
       local amount = math.floor (method.items[i].stats[src] * REFORGE_COEFF)
@@ -713,7 +713,7 @@ function ReforgeLite:GetItemReforgeOptionsTank (item, data, slot)
     local link = GetInventoryItemLink ("player", self.itemData[slot].slotId)
     local srcstat, dststat, delta1, delta2, dscore = nil, nil, 0, 0, 0
     if link then
-      local reforge = self:GetReforgeID (link)
+      local reforge = self:GetReforgeID (self.itemData[slot].slotId)
       if reforge then
         srcstat = self.reforgeTable[reforge][1]
         dststat = self.reforgeTable[reforge][2]
@@ -825,7 +825,7 @@ function ReforgeLite:InitReforgeTank ()
   end
   for i = 1, #data.method.items do
     local item = GetInventoryItemLink ("player", self.itemData[i].slotId)
-    local reforge = (item and self:GetReforgeID (item))
+    local reforge = (item and self:GetReforgeID (self.itemData[i].slotId))
     if reforge then
       local src, dst = self.reforgeTable[reforge][1], self.reforgeTable[reforge][2]
       local amount = math.floor (method.items[i].stats[src] * REFORGE_COEFF)
