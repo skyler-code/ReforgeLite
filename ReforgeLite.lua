@@ -261,12 +261,25 @@ ReforgeLite.itemStats = {
   },
   RatingStat (2, "ITEM_MOD_DODGE_RATING_SHORT", "Dodge", CR_DODGE),
   RatingStat (3, "ITEM_MOD_PARRY_RATING_SHORT", "Parry", CR_PARRY),
-  RatingStat (4, "ITEM_MOD_HIT_RATING_SHORT", "Hit", CR_HIT_SPELL, CR_HIT_RANGED),
-  RatingStat (5, "ITEM_MOD_CRIT_RATING_SHORT", "Crit", CR_CRIT_SPELL, CR_CRIT_RANGED),
-  RatingStat (6, "ITEM_MOD_HASTE_RATING_SHORT", "Haste", CR_HASTE_SPELL, CR_HASTE_RANGED),
-  RatingStat (7, "ITEM_MOD_EXPERTISE_RATING_SHORT", "Exp", CR_EXPERTISE),
+  RatingStat (4, "ITEM_MOD_HIT_RATING", "Hit", CR_HIT_SPELL, CR_HIT_RANGED),
+  RatingStat (5, "ITEM_MOD_CRIT_RATING", "Crit", CR_CRIT_SPELL, CR_CRIT_RANGED),
+  RatingStat (6, "ITEM_MOD_HASTE_RATING", "Haste", CR_HASTE_SPELL, CR_HASTE_RANGED),
+  RatingStat (7, "ITEM_MOD_EXPERTISE_RATING", "Exp", CR_EXPERTISE),
   RatingStat (8, "ITEM_MOD_MASTERY_RATING_SHORT", "Mastery", CR_MASTERY)
 }
+
+local itemStatsLocale = {
+  [_G["ITEM_MOD_SPIRIT_SHORT"]] = "ITEM_MOD_SPIRIT_SHORT",
+  [_G["ITEM_MOD_DODGE_RATING_SHORT"]] = "ITEM_MOD_DODGE_RATING_SHORT",
+  [_G["ITEM_MOD_PARRY_RATING_SHORT"]] = "ITEM_MOD_PARRY_RATING_SHORT",
+  [_G["ITEM_MOD_HIT_RATING_SHORT"]] = "ITEM_MOD_HIT_RATING",
+  [_G["ITEM_MOD_CRIT_RATING_SHORT"]] = "ITEM_MOD_CRIT_RATING",
+  [_G["ITEM_MOD_HASTE_RATING_SHORT"]] = "ITEM_MOD_HASTE_RATING",
+  [_G["ITEM_MOD_EXPERTISE_RATING_SHORT"]] = "ITEM_MOD_EXPERTISE_RATING",
+  [_G["ITEM_MOD_MASTERY_RATING_SHORT"]] = "ITEM_MOD_MASTERY_RATING_SHORT",
+
+}
+
 ReforgeLite.STATS = {
   SPIRIT = 1, DODGE = 2, PARRY = 3, HIT = 4, CRIT = 5, HASTE = 6, EXP = 7, MASTERY = 8, SPELLHIT = 9, CRITBLOCK = 1
 }
@@ -1721,6 +1734,18 @@ function ReforgeLite:UpdateContentSize ()
   self:SetScript ("OnUpdate", self.FixScroll)
 end
 
+function ReforgeLite:GetReforgeIDByInventorySlot (slotId)
+  PickupInventoryItem(slotId)
+  C_Reforge.SetReforgeFromCursorItem();
+	GameTooltip:Hide();
+  
+	local currentReforge, itemID, name, quality, bound, cost = C_Reforge.GetReforgeItemInfo();
+  if currentReforge > 0 then
+    local srcName, srcStat, srcValue, destName, destStat, destValue = C_Reforge.GetReforgeOptionInfo(currentReforge)
+    return itemStatsLocale[srcName], itemStatsLocale[destName]
+  end
+end
+
 function ReforgeLite:GetReforgeID (item)
   local id = tonumber (item:match ("item:%d+:%d+:%d+:%d+:%d+:%d+:%-?%d+:%-?%d+:%d+:(%d+)"))
   id = 0
@@ -1749,6 +1774,7 @@ function ReforgeLite:UpdateItems ()
   local itemLevel = GetUnitItemLevel ("player")
   for i, v in ipairs (self.itemData) do
     local item = GetInventoryItemLink ("player", v.slotId)
+    local itemId = GetInventoryItemID("player", v.slotId)
     local texture = GetInventoryItemTexture ("player", v.slotId)
     local stats = {}
     local reforgeSrc, reforgeDst = nil, nil
@@ -1756,9 +1782,9 @@ function ReforgeLite:UpdateItems ()
       v.item = item
       v.texture:SetTexture (texture)
       stats = GetItemStats (item)
-      local reforge = self:GetReforgeID (item)
-      if reforge then
-        reforgeSrc, reforgeDst = self.itemStats[self.reforgeTable[reforge][1]].name, self.itemStats[self.reforgeTable[reforge][2]].name
+      reforgeSrc, reforgeDst = self:GetReforgeIDByInventorySlot (v.slotId)
+      if reforgeSrc then
+        --reforgeSrc, reforgeDst = self.itemStats[self.reforgeTable[reforge][1]].name, self.itemStats[self.reforgeTable[reforge][2]].name
         local amount = math.floor ((stats[reforgeSrc] or 0) * 0.4)
         stats[reforgeSrc] = (stats[reforgeSrc] or 0) - amount
         stats[reforgeDst] = (stats[reforgeDst] or 0) + amount
@@ -2116,11 +2142,11 @@ function ReforgeLite:DoReforgeUpdate ()
         if item and not self:IsReforgeMatching (item, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
           if self.reforgingNow ~= i then
             PickupInventoryItem (slot)
-            SetReforgeFromCursorItem ()
+            C_Reforge.SetReforgeFromCursorItem ()
             self.reforgingNow = i
           end
           if self:GetReforgeID (item) then
-            ReforgeItem (0)
+            C_Reforge.ReforgeItem (0)
           elseif self.pdb.method.items[i].reforge then
             local id = 0
             local stats = GetItemStats (item)
@@ -2129,7 +2155,7 @@ function ReforgeLite:DoReforgeUpdate ()
                 id = id + 1
               end
               if self.reforgeTable[s][1] == self.pdb.method.items[i].src and self.reforgeTable[s][2] == self.pdb.method.items[i].dst then
-                ReforgeItem (id)
+                C_Reforge.ReforgeItem (id)
                 return
               end
             end
@@ -2152,7 +2178,7 @@ function ReforgeLite:DoReforge ()
     if self.curReforgeItem then
       self.curReforgeItem = nil
       ClearCursor ()
-      SetReforgeFromCursorItem ()
+      C_Reforge.SetReforgeFromCursorItem ()
       ClearCursor ()
       self.reforgingNow = nil
       self.methodWindow.reforge:SetScript ("OnUpdate", nil)
@@ -2190,11 +2216,12 @@ function ReforgeLite:SetUpHooks ()
   GameTooltip:HookScript ("OnTooltipSetItem", self.OnTooltipSetItem)
   ItemRefTooltip:HookScript ("OnTooltipSetItem", self.OnTooltipSetItem)
   hooksecurefunc (ShoppingTooltip1, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
-  hooksecurefunc (ShoppingTooltip2, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
-  hooksecurefunc (ShoppingTooltip3, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
-  hooksecurefunc (ItemRefShoppingTooltip1, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
-  hooksecurefunc (ItemRefShoppingTooltip2, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
-  hooksecurefunc (ItemRefShoppingTooltip3, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
+  -- hooksecurefunc (ShoppingTooltip1, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
+  -- hooksecurefunc (ShoppingTooltip2, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
+  -- hooksecurefunc (ShoppingTooltip3, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
+  -- hooksecurefunc (ItemRefShoppingTooltip1, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
+  -- hooksecurefunc (ItemRefShoppingTooltip2, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
+  -- hooksecurefunc (ItemRefShoppingTooltip3, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
 end
 
 --------------------------------------------------------------------------
