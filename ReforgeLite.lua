@@ -1,6 +1,6 @@
 -- ReforgeLite v1.10 by d07.RiV (Iroared)
 -- All rights reserved
-
+local addonName = ...
 local function DeepCopy (t, cache)
   if type (t) ~= "table" then
     return t
@@ -28,7 +28,7 @@ local GUI = ReforgeLiteGUI
 ReforgeLite = CreateFrame ("Frame", nil, UIParent, "BackdropTemplate")
 ReforgeLite:Hide ()
 ReforgeLiteDB = nil
-local AddonPath = "Interface\\AddOns\\ReforgeLite\\"
+local AddonPath = "Interface\\AddOns\\" .. addonName .. "\\"
 local DefaultDB = {
   itemSize = 24,
   windowWidth = 800,
