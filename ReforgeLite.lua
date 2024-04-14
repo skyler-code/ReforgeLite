@@ -1762,26 +1762,41 @@ local itemStatsLocale = {
 
 }
 
+local function getCurrentReforgeInfo()
+  local reforgeID = -1
+  local currentReforge, itemID, name, quality, bound, cost = C_Reforge.GetReforgeItemInfo();
+  if currentReforge and currentReforge > 0 then
+    local srcName, srcStat, srcValue, destName, destStat, destValue = C_Reforge.GetReforgeOptionInfo(currentReforge)
+    reforgeID = GetReforgeTableIndex(itemStatsLocale[srcName], itemStatsLocale[destName])
+  end
+  return reforgeID, itemID
+end
 
- reforgeIDs = setmetatable({}, {
+
+ local reforgeIDs = setmetatable({}, {
   __index = function(self, key)
     if not ReforgingFrame or not ReforgingFrame:IsShown () then return end
     PickupInventoryItem(key)
     C_Reforge.SetReforgeFromCursorItem()
     GameTooltip:Hide()
     
-    local reforgeID = -1
-    local currentReforge, itemID, name, quality, bound, cost = C_Reforge.GetReforgeItemInfo();
-    if currentReforge and currentReforge > 0 then
-      local srcName, srcStat, srcValue, destName, destStat, destValue = C_Reforge.GetReforgeOptionInfo(currentReforge)
-      reforgeID = GetReforgeTableIndex(itemStatsLocale[srcName], itemStatsLocale[destName])
-    end
+    local reforgeID = getCurrentReforgeInfo();
     C_Reforge.SetReforgeFromCursorItem()
     ClearCursor()
     rawset(self, key, reforgeID)
     return reforgeID
   end
 })
+
+function ReforgeLite:UpdateCurrentReforge()
+  if self.reforgingNow then
+    local currentItemId = GetInventoryItemID("player", self.reforgingNow)
+    local windowReforgeId, itemID = getCurrentReforgeInfo()
+    if windowReforgeId and itemID == currentItemId then
+      reforgeIDs[self.reforgingNow] = windowReforgeId
+    end
+  end
+end
 
 local ignoredSlots = {[INVSLOT_TABARD]=true,[INVSLOT_BODY]=true}
 function ReforgeLite:GetReforgeID (slotId)
@@ -2185,10 +2200,10 @@ function ReforgeLite:DoReforgeUpdate ()
         local slot = self.methodWindow.items[i].slotId
         local item = GetInventoryItemLink ("player", slot)
         if item and not self:IsReforgeMatching (item, slot, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
-          if self.reforgingNow ~= i then
+          if self.reforgingNow ~= slot then
             PickupInventoryItem (slot)
             C_Reforge.SetReforgeFromCursorItem ()
-            self.reforgingNow = i
+            self.reforgingNow = slot
           end
           if self:GetReforgeID (slot) then
             C_Reforge.ReforgeItem (0)
@@ -2229,6 +2244,9 @@ function ReforgeLite:DoReforge ()
       self.methodWindow.reforge:SetScript ("OnUpdate", nil)
       self.methodWindow.reforge:SetText (L["Reforge"])
     else
+      ClearCursor ()
+      C_Reforge.SetReforgeFromCursorItem ()
+      ClearCursor ()
       self.curReforgeItem = 0
       self.methodWindow.reforge:SetScript ("OnUpdate", function (self) ReforgeLite:DoReforgeUpdate () end)
       self.methodWindow.reforge:SetText (L["Cancel"])
@@ -2293,6 +2311,9 @@ function ReforgeLite:OnEvent (event, ...)
   if event == "FORGE_MASTER_OPENED" or event == "FORGE_MASTER_CLOSED" then
     self:QueueUpdate ()
   end
+  if event == "FORGE_MASTER_ITEM_CHANGED" then
+    self:UpdateCurrentReforge()
+  end
 end
 
 local ReforgeLiteTimer = CreateFrame ("Frame")
@@ -2320,6 +2341,7 @@ function ReforgeLite:ADDON_LOADED (addon)
     self:RegisterEvent ("PLAYER_EQUIPMENT_CHANGED")
     self:RegisterEvent ("FORGE_MASTER_OPENED")
     self:RegisterEvent ("FORGE_MASTER_CLOSED")
+    self:RegisterEvent("FORGE_MASTER_ITEM_CHANGED")
     
     ReforgeLiteTimer:SetScript ("OnUpdate", ReforgeLiteTimer.OnUpdate)
 
