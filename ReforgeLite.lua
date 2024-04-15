@@ -407,6 +407,7 @@ function ReforgeLite:GetCapScore (cap, value)
   score = score + self.pdb.weights[cap.stat] * value
   return score
 end
+
 function ReforgeLite:GetStatScore (stat, value)
   if self.pdb.tankingModel then
     return self.pdb.weights[stat] * value
@@ -692,8 +693,7 @@ function ReforgeLite:FixScroll ()
   end
 end
 
-function ReforgeLite:CreateFrame (title, width, height)
-  local title = "Reforge Lite"
+function ReforgeLite:CreateFrame ()
   self:SetFrameStrata ("DIALOG")
   self:ClearAllPoints ()
   self:SetWidth (self.db.windowWidth)
@@ -738,7 +738,7 @@ function ReforgeLite:CreateFrame (title, width, height)
   self.title = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   self.title:SetPoint ("TOPLEFT", self, "TOPLEFT", 6, -15)
   self.title:SetTextColor (1, 1, 1)
-  self.title:SetText (title)
+  self.title:SetText (addonName)
 
   self.close = CreateFrame ("Button", nil, self)
   self.close:SetNormalTexture ("Interface\\Buttons\\UI-Panel-MinimizeButton-Up.blp")
@@ -1724,24 +1724,6 @@ function ReforgeLite:UpdateContentSize ()
   self:SetScript ("OnUpdate", self.FixScroll)
 end
 
---[[
-{
-  {1, 2}, {1, 3}, {1, 4}, {1, 5}, {1, 6}, {1, 7}, {1, 8},
-  {2, 1}, {2, 3}, {2, 4}, {2, 5}, {2, 6}, {2, 7}, {2, 8},
-  {3, 1}, {3, 2}, {3, 4}, {3, 5}, {3, 6}, {3, 7}, {3, 8},
-  {4, 1}, {4, 2}, {4, 3}, {4, 5}, {4, 6}, {4, 7}, {4, 8},
-  {5, 1}, {5, 2}, {5, 3}, {5, 4}, {5, 6}, {5, 7}, {5, 8},
-  {6, 1}, {6, 2}, {6, 3}, {6, 4}, {6, 5}, {6, 7}, {6, 8},
-  {7, 1}, {7, 2}, {7, 3}, {7, 4}, {7, 5}, {7, 6}, {7, 8},
-  {8, 1}, {8, 2}, {8, 3}, {8, 4}, {8, 5}, {8, 6}, {8, 7},
-}
-
-ReforgeLite.STATS = {
-  SPIRIT = 1, DODGE = 2, PARRY = 3, HIT = 4, CRIT = 5, HASTE = 6, EXP = 7, MASTERY = 8, SPELLHIT = 9, CRITBLOCK = 1
-}
-
-]]--
-
 local function GetReforgeTableIndex(stat1, stat2)
   for k,v in ipairs(reforgeTable) do
     if v[1] == stat1 and v[2] == stat2 then
@@ -1808,7 +1790,6 @@ end
 
 -- function ReforgeLite:GetReforgeID (item)
 --   local id = tonumber (item:match ("item:%d+:%d+:%d+:%d+:%d+:%d+:%-?%d+:%-?%d+:%d+:(%d+)"))
---   id = 0
 --   return (id ~= 0 and (id - self.REFORGE_TABLE_BASE) or nil)
 -- end
 
@@ -1933,7 +1914,7 @@ function ReforgeLite:ShowMethodWindow ()
   if self.methodWindow == nil then
     self.methodWindow = CreateFrame ("Frame", nil, UIParent, "BackdropTemplate")
     self.methodWindow:SetFrameStrata ("DIALOG")
-    self.methodWindow:SetFrameLevel (ReforgeLite:GetFrameLevel () + 10)
+    self.methodWindow:SetFrameLevel (self:GetFrameLevel () + 10)
     self.methodWindow:ClearAllPoints ()
     self.methodWindow:SetWidth (300)
     self.methodWindow:SetHeight (520)
@@ -1975,7 +1956,7 @@ function ReforgeLite:ShowMethodWindow ()
     self.methodWindow.title = self.methodWindow:CreateFontString (nil, "OVERLAY", "GameFontNormal")
     self.methodWindow.title:SetPoint ("TOPLEFT", self.methodWindow, "TOPLEFT", 6, -15)
     self.methodWindow.title:SetTextColor (1, 1, 1)
-    self.methodWindow.title:SetText ("ReforgeLite Output")
+    self.methodWindow.title:SetText (addonName.." Output")
 
     self.methodWindow.close = CreateFrame ("Button", nil, self.methodWindow)
     self.methodWindow.close:SetNormalTexture ("Interface\\Buttons\\UI-Panel-MinimizeButton-Up.blp")
@@ -2326,7 +2307,7 @@ function ReforgeLiteTimer:OnUpdate (epsilon)
 end
 
 function ReforgeLite:ADDON_LOADED (addon)
-  if addon == "ReforgeLite" then
+  if addon == addonName then
     self:UpgradeDB ()
     self.db = ReforgeLiteDB
     self.pdb = ReforgeLiteDB.profiles[self.dbkey]
