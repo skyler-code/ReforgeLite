@@ -259,8 +259,8 @@ ReforgeLite.itemStats = {
       return (orig and method.orig_stats and method.orig_stats[1]) or method.stats[1]
     end
   },
-  RatingStat (2, "ITEM_MOD_DODGE_RATING_SHORT", "Dodge", CR_DODGE),
-  RatingStat (3, "ITEM_MOD_PARRY_RATING_SHORT", "Parry", CR_PARRY),
+  RatingStat (2, "ITEM_MOD_DODGE_RATING", "Dodge", CR_DODGE),
+  RatingStat (3, "ITEM_MOD_PARRY_RATING", "Parry", CR_PARRY),
   RatingStat (4, "ITEM_MOD_HIT_RATING", "Hit", CR_HIT_SPELL, CR_HIT_RANGED),
   RatingStat (5, "ITEM_MOD_CRIT_RATING", "Crit", CR_CRIT_SPELL, CR_CRIT_RANGED),
   RatingStat (6, "ITEM_MOD_HASTE_RATING", "Haste", CR_HASTE_SPELL, CR_HASTE_RANGED),
