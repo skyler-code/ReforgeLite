@@ -1750,17 +1750,15 @@ local function GetReforgeTableIndex(stat1, stat2)
   end
 end
 
-
 local itemStatsLocale = {
-  [_G["ITEM_MOD_SPIRIT_SHORT"]] = 1,
-  [_G["ITEM_MOD_DODGE_RATING_SHORT"]] = 2,
-  [_G["ITEM_MOD_PARRY_RATING_SHORT"]] = 3,
-  [_G["ITEM_MOD_HIT_RATING_SHORT"]] = 4,
-  [_G["ITEM_MOD_CRIT_RATING_SHORT"]] = 5,
-  [_G["ITEM_MOD_HASTE_RATING_SHORT"]] = 6,
-  [_G["ITEM_MOD_EXPERTISE_RATING_SHORT"]] = 7,
-  [_G["ITEM_MOD_MASTERY_RATING_SHORT"]] = 8,
-
+  [6]  = 1, -- SPIRIT
+  [13] = 2, -- DODGE
+  [14] = 3, -- PARRY
+  [31] = 4, -- HIT
+  [32] = 5, -- CRIT
+  [36] = 6, -- HASTE
+  [37] = 7, -- EXPERTISE
+  [49] = 8, -- MASTERY
 }
 
 local function getCurrentReforgeInfo()
@@ -1768,7 +1766,7 @@ local function getCurrentReforgeInfo()
   local currentReforge, itemID, name, quality, bound, cost = C_Reforge.GetReforgeItemInfo();
   if currentReforge and currentReforge > UNFORGE_INDEX then
     local srcName, srcStat, srcValue, destName, destStat, destValue = C_Reforge.GetReforgeOptionInfo(currentReforge)
-    reforgeID = GetReforgeTableIndex(itemStatsLocale[srcName], itemStatsLocale[destName])
+    reforgeID = GetReforgeTableIndex(itemStatsLocale[srcStat], itemStatsLocale[destStat])
   end
   return reforgeID, itemID
 end
