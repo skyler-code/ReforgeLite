@@ -1766,7 +1766,7 @@ local itemStatsLocale = {
 local function getCurrentReforgeInfo()
   local reforgeID = -1
   local currentReforge, itemID, name, quality, bound, cost = C_Reforge.GetReforgeItemInfo();
-  if currentReforge and currentReforge > 0 then
+  if currentReforge and currentReforge > UNFORGE_INDEX then
     local srcName, srcStat, srcValue, destName, destStat, destValue = C_Reforge.GetReforgeOptionInfo(currentReforge)
     reforgeID = GetReforgeTableIndex(itemStatsLocale[srcName], itemStatsLocale[destName])
   end
