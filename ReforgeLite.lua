@@ -98,6 +98,7 @@ ReforgeLite.dbkey = UnitName ("player") .. " - " .. GetRealmName ()
 local _, playerClass = UnitClass ("player")
 local _, playerRace = UnitRace ("player")
 local missChance = (playerRace == "NIGHTELF" and 7 or 5)
+local UNFORGE_INDEX = -1
 
 function ReforgeLite:UpgradeDBCaps (caps)
   for i = 1, #caps do
@@ -2206,9 +2207,9 @@ function ReforgeLite:DoReforgeUpdate ()
             self.reforgingNow = slot
           end
           if self:GetReforgeID (slot) then
-            C_Reforge.ReforgeItem (0)
+            C_Reforge.ReforgeItem (UNFORGE_INDEX)
           elseif self.pdb.method.items[i].reforge then
-            local id = -1
+            local id = UNFORGE_INDEX
             local stats = GetItemStats (item)
             for s = 1, #self.reforgeTable do
               if (stats[self.itemStats[self.reforgeTable[s][1]].name] or 0) ~= 0 and (stats[self.itemStats[self.reforgeTable[s][2]].name] or 0) == 0 then
