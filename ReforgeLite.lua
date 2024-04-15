@@ -1774,7 +1774,7 @@ local function getCurrentReforgeInfo()
 end
 
 
- local reforgeIDs = setmetatable({}, {
+local reforgeIDs = setmetatable({}, {
   __index = function(self, key)
     if not ReforgingFrame or not ReforgingFrame:IsShown () then return end
     PickupInventoryItem(key)
