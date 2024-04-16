@@ -1757,7 +1757,7 @@ local function GetReforgeItemInfo()
   return reforgeId, itemId
 end
 
-local reforgeIDs = setmetatable({}, {
+local reforgeIDMeta = {
   __index = function(self, key)
     if not ReforgingFrame or not ReforgingFrame:IsShown() or not GetInventoryItemID("player", key) then return end
     local itemGUID = type(key) == "number" and C_Item.GetItemGUID({equipmentSlotIndex = key}) or key
@@ -1775,10 +1775,7 @@ local reforgeIDs = setmetatable({}, {
     rawset(self, itemGUID, reforgeId)
     return reforgeId
   end
-})
-ReforgeLite.reforgeIDs = reforgeIDs
-
---ReforgeLite.reforgeIDs[C_Item.GetItemGUID({equipmentSlotIndex = 16})]
+}
 
 function ReforgeLite:UpdateCurrentReforge()
   if self.reforgingNow then
@@ -1786,7 +1783,7 @@ function ReforgeLite:UpdateCurrentReforge()
     local windowReforgeId, itemID = GetReforgeItemInfo()
     if itemID == currentItemId then
       local itemGUID = C_Item.GetItemGUID({equipmentSlotIndex = self.reforgingNow})
-      rawset(reforgeIDs, itemGUID, windowReforgeId)
+      rawset(self.pdb.reforgeIDs, itemGUID, windowReforgeId)
     end
   end
 end
@@ -1810,7 +1807,7 @@ end
 local ignoredSlots = {[INVSLOT_TABARD]=true,[INVSLOT_BODY]=true}
 function ReforgeLite:GetReforgeID (slotId)
   if ignoredSlots[slotId] then return end
-  local reforgeInfo = reforgeIDs[slotId]
+  local reforgeInfo = self.pdb.reforgeIDs[slotId]
   if reforgeInfo and reforgeInfo >= 0 then
     return reforgeInfo
   end
@@ -2303,7 +2300,7 @@ function ReforgeLite:PLAYER_EQUIPMENT_CHANGED(slotId)
     if GetInventoryItemID("player",slotId) then
       local itemGUID = C_Item.GetItemGUID({equipmentSlotIndex = slotId})
       if itemGUID then
-        rawset(reforgeIDs, itemGUID, nil)
+        rawset(self.pdb.reforgeIDs, itemGUID, nil)
       end
     end
   end
@@ -2351,6 +2348,8 @@ function ReforgeLite:ADDON_LOADED (addon)
     self:UpgradeDB ()
     self.db = ReforgeLiteDB
     self.pdb = ReforgeLiteDB.profiles[self.dbkey]
+
+    self.pdb.reforgeIDs = setmetatable(self.pdb.reforgeIDs or {}, reforgeIDMeta)
 
     self:InitPresets ()
     self:CreateFrame ()
