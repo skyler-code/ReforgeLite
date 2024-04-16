@@ -1911,7 +1911,7 @@ end
 --------------------------------------------------------------------------
 
 function ReforgeLite:ShowMethodWindow ()
-  if self.methodWindow == nil then
+  if not self.methodWindow then
     self.methodWindow = CreateFrame ("Frame", nil, UIParent, "BackdropTemplate")
     self.methodWindow:SetFrameStrata ("DIALOG")
     self.methodWindow:SetFrameLevel (self:GetFrameLevel () + 10)
@@ -1995,7 +1995,8 @@ function ReforgeLite:ShowMethodWindow ()
       self.methodWindow.items[i]:SetScript ("OnEnter", function (self)
         GameTooltip:SetOwner (self, "ANCHORLEFT")
         if self.item then
-          GameTooltip:SetHyperlink (self.item)
+          local slotId = GetInventorySlotInfo(v)
+          GameTooltip:SetInventoryItem("player", slotId)
         else
           local text = _G[strupper (self.slot)]
           if self.checkRelic then
