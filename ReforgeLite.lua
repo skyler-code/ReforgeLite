@@ -1745,13 +1745,15 @@ local function GetReforgeTableIndex(stat1, stat2)
 end
 
 local function GetReforgeItemInfo()
-  local reforgeId = UNFORGE_INDEX
-  local currentReforge, itemId, name, quality, bound, cost = C_Reforge.GetReforgeItemInfo();
-  if currentReforge and currentReforge > UNFORGE_INDEX then
-    local srcName, srcStat, srcValue, destName, destStat, destValue = C_Reforge.GetReforgeOptionInfo(currentReforge)
-    reforgeId = GetReforgeTableIndex(itemStatsLocale[srcStat], itemStatsLocale[destStat])
+  local currentReforge, itemId, name, quality, bound, cost = C_Reforge.GetReforgeItemInfo()
+  if itemId then
+    local reforgeId = UNFORGE_INDEX
+    if currentReforge and currentReforge > UNFORGE_INDEX then
+      local srcName, srcStat, srcValue, destName, destStat, destValue = C_Reforge.GetReforgeOptionInfo(currentReforge)
+      reforgeId = GetReforgeTableIndex(itemStatsLocale[srcStat], itemStatsLocale[destStat])
+    end
+    return reforgeId, itemId
   end
-  return reforgeId, itemId
 end
 
 local reforgeIDs = setmetatable({}, {
@@ -1768,13 +1770,15 @@ local reforgeIDs = setmetatable({}, {
     return reforgeId
   end
 })
+ReforgeLite.reforgeIDs = reforgeIDs
 
 function ReforgeLite:UpdateCurrentReforge()
   if self.reforgingNow then
     local currentItemId = GetInventoryItemID("player", self.reforgingNow)
     local windowReforgeId, itemID = GetReforgeItemInfo()
     if windowReforgeId and itemID == currentItemId then
-      rawset(reforgeIDs, self.reforgingNow, windowReforgeId)
+      local itemGUID = C_Item.GetItemGUID({equipmentSlotIndex = self.reforgingNow})
+      rawset(reforgeIDs, itemGUID, windowReforgeId)
     end
   end
 end
@@ -1798,9 +1802,10 @@ end
 local ignoredSlots = {[INVSLOT_TABARD]=true,[INVSLOT_BODY]=true}
 function ReforgeLite:GetReforgeID (slotId)
   if ignoredSlots[slotId] then return end
-  local reforgeInfo = reforgeIDs[slotId]
+  local itemGUID = C_Item.GetItemGUID({equipmentSlotIndex = slotId})
+  local reforgeInfo = reforgeIDs[itemGUID]
   if reforgeInfo and reforgeInfo > 0 then
-    return reforgeIDs[slotId]
+    return reforgeInfo
   end
 end
 
@@ -2306,9 +2311,6 @@ function ReforgeLite:OnEvent (event, ...)
     if self.methodWindow then
       self.methodWindow:Hide ()
     end
-  end
-  if event == "FORGE_MASTER_CLOSED" then
-    wipe(reforgeIDs)
   end
   if event == "FORGE_MASTER_OPENED" or event == "FORGE_MASTER_CLOSED" then
     self:QueueUpdate ()
