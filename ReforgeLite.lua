@@ -1744,7 +1744,7 @@ local function GetReforgeTableIndex(stat1, stat2)
   end
 end
 
-local function GetReforgeItemInfo()
+function GetReforgeItemInfo()
   local currentReforge, itemId, name, quality, bound, cost = C_Reforge.GetReforgeItemInfo()
   if itemId then
     local reforgeId = UNFORGE_INDEX
@@ -1759,6 +1759,11 @@ end
 local reforgeIDs = setmetatable({}, {
   __index = function(self, key)
     if not ReforgingFrame or not ReforgingFrame:IsShown() or not GetInventoryItemID("player", key) then return end
+    local itemGUID = type(key) == "number" and C_Item.GetItemGUID({equipmentSlotIndex = key}) or key
+    if rawget(self, itemGUID) then
+      return rawget(self, itemGUID)
+    end
+
     PickupInventoryItem(key)
     C_Reforge.SetReforgeFromCursorItem()
     GameTooltip:Hide()
@@ -1766,17 +1771,19 @@ local reforgeIDs = setmetatable({}, {
     local reforgeId = GetReforgeItemInfo();
     C_Reforge.SetReforgeFromCursorItem()
     ClearCursor()
-    rawset(self, key, reforgeId)
+    rawset(self, itemGUID, reforgeId)
     return reforgeId
   end
 })
 ReforgeLite.reforgeIDs = reforgeIDs
 
+--ReforgeLite.reforgeIDs[C_Item.GetItemGUID({equipmentSlotIndex = 16})]
+
 function ReforgeLite:UpdateCurrentReforge()
   if self.reforgingNow then
     local currentItemId = GetInventoryItemID("player", self.reforgingNow)
     local windowReforgeId, itemID = GetReforgeItemInfo()
-    if windowReforgeId and itemID == currentItemId then
+    if itemID == currentItemId then
       local itemGUID = C_Item.GetItemGUID({equipmentSlotIndex = self.reforgingNow})
       rawset(reforgeIDs, itemGUID, windowReforgeId)
     end
@@ -1802,9 +1809,8 @@ end
 local ignoredSlots = {[INVSLOT_TABARD]=true,[INVSLOT_BODY]=true}
 function ReforgeLite:GetReforgeID (slotId)
   if ignoredSlots[slotId] then return end
-  local itemGUID = C_Item.GetItemGUID({equipmentSlotIndex = slotId})
-  local reforgeInfo = reforgeIDs[itemGUID]
-  if reforgeInfo and reforgeInfo > 0 then
+  local reforgeInfo = reforgeIDs[slotId]
+  if reforgeInfo and reforgeInfo >= 0 then
     return reforgeInfo
   end
 end
@@ -2234,6 +2240,7 @@ function ReforgeLite:DoReforgeUpdate ()
   self.methodWindow.reforge:SetScript ("OnUpdate", nil)
   self.methodWindow.reforge:SetText (L["Reforge"])
 end
+
 function ReforgeLite:DoReforge ()
   if self.pdb.method and self.methodWindow and ReforgingFrame and ReforgingFrame:IsShown () then
     if self.curReforgeItem then
@@ -2291,7 +2298,12 @@ end
 
 function ReforgeLite:PLAYER_EQUIPMENT_CHANGED(slotId)
   if ReforgingFrame and ReforgingFrame:IsShown() then
-    rawset(reforgeIDs, slotId, nil)
+    if GetInventoryItemID("player",slotId) then
+      local itemGUID = C_Item.GetItemGUID({equipmentSlotIndex = slotId})
+      if itemGUID then
+        rawset(reforgeIDs, itemGUID, nil)
+      end
+    end
   end
 end
 
