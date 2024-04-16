@@ -1756,7 +1756,7 @@ end
 
 local reforgeIDs = setmetatable({}, {
   __index = function(self, key)
-    if not ReforgingFrame or not ReforgingFrame:IsShown () then return end
+    if not ReforgingFrame or not ReforgingFrame:IsShown () or not GetInventoryItemID("player", key) then return end
     PickupInventoryItem(key)
     C_Reforge.SetReforgeFromCursorItem()
     GameTooltip:Hide()
