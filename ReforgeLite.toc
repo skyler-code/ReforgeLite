@@ -1,14 +1,9 @@
 ## Interface: 40400
-## Author: d07.RiV (Iroared)
-## Title: ReforgeLite
+## Author: d07.RiV (Iroared) (Continued by Brues)
+## Title: ReforgeLite Classic
 ## Notes: Calculates optimal reforging for given weights/caps.
 ## Version: 1.10
 ## SavedVariables: ReforgeLiteDB
-## Dependencies: 
-## X-Curse-Packaged-Version: v1.10
-## X-Curse-Project-Name: ReforgeLite
-## X-Curse-Project-ID: reforgelite
-## X-Curse-Repository-ID: wow/reforgelite/mainline
 
 Localization.lua
 GUI.lua

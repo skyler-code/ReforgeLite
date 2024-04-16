@@ -1,6 +1,7 @@
 -- ReforgeLite v1.10 by d07.RiV (Iroared)
 -- All rights reserved
 local addonName = ...
+local addonTitle = GetAddOnMetadata(addonName, "title")
 local function DeepCopy (t, cache)
   if type (t) ~= "table" then
     return t
@@ -750,7 +751,7 @@ function ReforgeLite:CreateFrame ()
   self.title = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   self.title:SetPoint ("TOPLEFT", self, "TOPLEFT", 6, -15)
   self.title:SetTextColor (1, 1, 1)
-  self.title:SetText (addonName)
+  self.title:SetText (addonTitle)
 
   self.close = CreateFrame ("Button", nil, self)
   self.close:SetNormalTexture ("Interface\\Buttons\\UI-Panel-MinimizeButton-Up.blp")
@@ -1983,7 +1984,7 @@ function ReforgeLite:ShowMethodWindow ()
     self.methodWindow.title = self.methodWindow:CreateFontString (nil, "OVERLAY", "GameFontNormal")
     self.methodWindow.title:SetPoint ("TOPLEFT", self.methodWindow, "TOPLEFT", 6, -15)
     self.methodWindow.title:SetTextColor (1, 1, 1)
-    self.methodWindow.title:SetText (addonName.." Output")
+    self.methodWindow.title:SetText (addonTitle.." Output")
 
     self.methodWindow.close = CreateFrame ("Button", nil, self.methodWindow)
     self.methodWindow.close:SetNormalTexture ("Interface\\Buttons\\UI-Panel-MinimizeButton-Up.blp")
@@ -2365,7 +2366,7 @@ function ReforgeLite:ADDON_LOADED (addon)
     
     ReforgeLiteTimer:SetScript ("OnUpdate", function(self, ...) self:OnUpdate(...) end)
 
-    SlashCmdList["ReforgeLite"] = function (cmd) self:OnCommand (cmd) end
+    SlashCmdList[addonName] = function (cmd) self:OnCommand (cmd) end
     SLASH_ReforgeLite1 = "/reforge"
   end
 end
