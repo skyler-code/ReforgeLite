@@ -1759,11 +1759,12 @@ end
 
 local reforgeIDMeta = {
   __index = function(self, key)
-    if not ReforgingFrame or not ReforgingFrame:IsShown() or not GetInventoryItemID("player", key) then return end
+    if not GetInventoryItemID("player", key) then return end
     local itemGUID = type(key) == "number" and C_Item.GetItemGUID({equipmentSlotIndex = key}) or key
     if rawget(self, itemGUID) then
       return rawget(self, itemGUID)
     end
+    if not ReforgingFrame or not ReforgingFrame:IsShown() then return end
 
     PickupInventoryItem(key)
     C_Reforge.SetReforgeFromCursorItem()
