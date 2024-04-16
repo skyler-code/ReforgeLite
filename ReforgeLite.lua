@@ -1744,7 +1744,7 @@ local function GetReforgeTableIndex(stat1, stat2)
   end
 end
 
- function GetReforgeItemInfo()
+local function GetReforgeItemInfo()
   local reforgeId = UNFORGE_INDEX
   local currentReforge, itemId, name, quality, bound, cost = C_Reforge.GetReforgeItemInfo();
   if currentReforge and currentReforge > UNFORGE_INDEX then
