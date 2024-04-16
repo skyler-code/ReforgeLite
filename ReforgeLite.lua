@@ -1744,16 +1744,16 @@ local function GetReforgeTableIndex(stat1, stat2)
   end
 end
 
-function GetReforgeItemInfo()
+local function GetReforgeItemInfo()
+  local reforgeId = UNFORGE_INDEX
   local currentReforge, itemId, name, quality, bound, cost = C_Reforge.GetReforgeItemInfo()
   if itemId then
-    local reforgeId = UNFORGE_INDEX
     if currentReforge and currentReforge > UNFORGE_INDEX then
       local srcName, srcStat, srcValue, destName, destStat, destValue = C_Reforge.GetReforgeOptionInfo(currentReforge)
       reforgeId = GetReforgeTableIndex(itemStatsLocale[srcStat], itemStatsLocale[destStat])
     end
-    return reforgeId, itemId
   end
+  return reforgeId, itemId
 end
 
 local reforgeIDs = setmetatable({}, {
@@ -2157,6 +2157,7 @@ function ReforgeLite:IsReforgeMatching (item, slotId, reforge, override)
   end
   return true
 end
+
 function ReforgeLite:UpdateMethodChecks ()
   if self.methodWindow and self.pdb.method then
     local cost = 0
