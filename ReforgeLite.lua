@@ -2323,14 +2323,14 @@ function ReforgeLite:ADDON_LOADED (addon)
     self:RegisterEvent ("FORGE_MASTER_CLOSED")
     self:RegisterEvent("FORGE_MASTER_ITEM_CHANGED")
     
-    ReforgeLiteTimer:SetScript ("OnUpdate", ReforgeLiteTimer.OnUpdate)
+    ReforgeLiteTimer:SetScript ("OnUpdate", function(self, ...) self:OnUpdate(...) end)
 
-    SlashCmdList["ReforgeLite"] = function (cmd) ReforgeLite:OnCommand (cmd) end
+    SlashCmdList["ReforgeLite"] = function (cmd) self:OnCommand (cmd) end
     SLASH_ReforgeLite1 = "/reforge"
   end
 end
 
-ReforgeLite:SetScript ("OnEvent", ReforgeLite.OnEvent)
+ReforgeLite:SetScript ("OnEvent", function(self, ...) self:OnEvent(...) end)
 ReforgeLite:RegisterEvent ("ADDON_LOADED")
 
 function ReforgeLite:OnCommand (cmd)
