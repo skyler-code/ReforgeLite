@@ -2196,7 +2196,7 @@ function ReforgeLite:DoReforgeUpdate ()
         local slot = self.methodWindow.items[i].slotId
         local item = GetInventoryItemLink ("player", slot)
         if item and not self:IsReforgeMatching (item, slot, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
-          if self.reforgingNow ~= slot then
+          if (self.reforgingNow or {}).itemGUID ~= C_Item.GetItemGUID({ equipmentSlotIndex = slot }) then
             PickupInventoryItem (slot)
             C_Reforge.SetReforgeFromCursorItem ()
           end
