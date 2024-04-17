@@ -1819,26 +1819,7 @@ end
 --   return (id ~= 0 and (id - self.REFORGE_TABLE_BASE) or nil)
 -- end
 
-function GetUnitItemLevel (unit)
-  local itemLevel = 0
-  local slots = {}
-  for i, v in ipairs (ReforgeLite.itemData) do
-    local item = GetInventoryItemLink (unit, v.slotId)
-    local iLevel, equipSlot = 0, nil
-    if item then
-      _, _, _, iLevel, _, _, _, _, equipSlot = GetItemInfo (item)
-    end
-    slots[i] = {level = iLevel, slot = equipSlot}
-    itemLevel = itemLevel + iLevel
-  end
-  if slots[16].slot == nil and slots[15].slot == "INVTYPE_2HWEAPON" then
-    itemLevel = itemLevel + slots[15].level
-  end
-  return itemLevel / 17
-end
-
 function ReforgeLite:UpdateItems ()
-  local itemLevel = GetUnitItemLevel ("player")
   for i, v in ipairs (self.itemData) do
     local item = GetInventoryItemLink ("player", v.slotId)
     local texture = GetInventoryItemTexture ("player", v.slotId)
@@ -1887,8 +1868,8 @@ function ReforgeLite:UpdateItems ()
       end
     end
   end
-  itemLevel = math.floor (itemLevel + 0.5)
-  self.itemLevel:SetText (L["Item level"] .. ": " .. itemLevel)
+
+  self.itemLevel:SetText (L["Item level"] .. ": " .. floor(select(2,GetAverageItemLevel())))
 
   self.s2hFactor = 0
   local _, unitClass = UnitClass ("player")
