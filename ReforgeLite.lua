@@ -2277,17 +2277,6 @@ end
 
 --------------------------------------------------------------------------
 
-function ReforgeLite:PLAYER_EQUIPMENT_CHANGED(slotId)
-  if ReforgingFrame and ReforgingFrame:IsShown() then
-    if GetInventoryItemID("player",slotId) then
-      local itemGUID = C_Item.GetItemGUID({equipmentSlotIndex = slotId})
-      if itemGUID then
-        rawset(self.pdb.reforgeIDs, itemGUID, nil)
-      end
-    end
-  end
-end
-
 function ReforgeLite:OnEvent (event, ...)
   if self[event] then
     self[event] (self, ...)
