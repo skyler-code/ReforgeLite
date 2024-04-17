@@ -1780,24 +1780,31 @@ local reforgeIDMeta = {
 
 function ReforgeLite:UpdateCurrentReforge()
   if self.reforgingNow then
-    local currentItemId = GetInventoryItemID("player", self.reforgingNow)
     local windowReforgeId, itemID = GetReforgeItemInfo()
-    if itemID == currentItemId then
-      local itemGUID = C_Item.GetItemGUID({equipmentSlotIndex = self.reforgingNow})
-      rawset(self.pdb.reforgeIDs, itemGUID, windowReforgeId)
+    if itemID == self.reforgingNow.itemId then
+      rawset(self.pdb.reforgeIDs, self.reforgingNow.itemGUID, windowReforgeId)
     end
   end
 end
 
 function ReforgeLite:FORGE_MASTER_SET_ITEM()
-  local reforgeId, itemId = GetReforgeItemInfo()
-  if itemId then
-    local slotId
+  local _, currentReforgeItemId = GetReforgeItemInfo()
+  if currentReforgeItemId then
     for k,v in ipairs(self.itemSlots) do
-      slotId = GetInventorySlotInfo(v)
-      if IsInventoryItemLocked(slotId) and GetInventoryItemID("player", slotId) == itemId then
-        self.reforgingNow = slotId
+      local slotId = GetInventorySlotInfo(v)
+      local inventoryItemId = GetInventoryItemID("player", slotId)
+      if inventoryItemId == currentReforgeItemId and IsInventoryItemLocked(slotId) then
+        self.reforgingNow = { itemId = inventoryItemId, itemGUID = C_Item.GetItemGUID({ equipmentSlotIndex = slotId }) }
         break
+      end
+    end
+    for bagID = 0, NUM_BAG_FRAMES do
+      for slotIndex = 1, C_Container.GetContainerNumSlots(bagID) do
+        local itemInfo = C_Container.GetContainerItemInfo(bagID, slotIndex) or {}
+        if itemInfo.isLocked and itemInfo.itemID == currentReforgeItemId then
+          self.reforgingNow = { itemId = itemInfo.itemID, itemGUID = C_Item.GetItemGUID({ bagID = bagID, slotIndex = slotIndex }) }
+          break
+        end
       end
     end
   else
