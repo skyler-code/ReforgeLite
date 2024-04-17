@@ -1781,7 +1781,7 @@ local reforgeIDMeta = {
 function ReforgeLite:UpdateCurrentReforge()
   if self.reforgingNow then
     local windowReforgeId, itemID = GetReforgeItemInfo()
-    if itemID == self.reforgingNow.itemId then
+    if itemID == self.reforgingNow.itemId and rawget(self.pdb.reforgeIDs, self.reforgingNow.itemGUID) ~= windowReforgeId then
       rawset(self.pdb.reforgeIDs, self.reforgingNow.itemGUID, windowReforgeId)
     end
   end
@@ -1807,6 +1807,7 @@ function ReforgeLite:FORGE_MASTER_SET_ITEM()
         end
       end
     end
+    self:UpdateCurrentReforge()
   else
     self.reforgingNow = nil
   end
