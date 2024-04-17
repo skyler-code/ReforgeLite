@@ -148,26 +148,31 @@ local ExpHardCap = 6
 local AtLeast = 1
 local AtMost = 2
 
-local MeleeCaps = {
-  {
-    stat = StatHit,
-    points = {
-      {
-        method = AtLeast,
-        preset = MeleeHitCap
-      }
-    }
-  },
-  {
-    stat = StatExp,
-    points = {
-      {
-        method = AtLeast,
-        preset = ExpSoftCap
-      }
+local HitCap = {
+  stat = StatHit,
+  points = {
+    {
+      method = AtLeast,
+      preset = MeleeHitCap
     }
   }
 }
+
+local SoftExpCap = {
+  stat = StatExp,
+  points = {
+    {
+      method = AtLeast,
+      preset = ExpSoftCap
+    }
+  }
+}
+
+local MeleeCaps = {
+  HitCap,
+  SoftExpCap
+}
+
 local RangedCaps = {
   {
     stat = StatHit,
@@ -237,10 +242,18 @@ ReforgeLite.presets = {
       },
     },
     ["Unholy"] = {
-      weights = {
-        0, 0, 0, 200, 110, 160, 130, 150
+      ["Normal"] = {
+        weights = {
+          0, 0, 0, 200, 130, 160, 100, 110
+        },
+        caps = { HitCap },
       },
-      caps = MeleeCaps,
+      ["W/ Gurthalak"] = {
+        weights = {
+          0, 0, 0, 200, 120, 160, 100, 130
+        },
+        caps = { HitCap },
+      },
     },
   },
   ["DRUID"] = {
