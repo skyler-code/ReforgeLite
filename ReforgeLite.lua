@@ -309,9 +309,7 @@ ReforgeLite.tankingStats = {
       mgetter = function (method)
         return method.stats.dodge or 0
       end,
-      getter = function ()
-        return GetDodgeChance ()
-      end
+      getter = GetDodgeChance
     },
     [ReforgeLite.STATS.PARRY] = {
       tip = PARRY,
@@ -320,9 +318,7 @@ ReforgeLite.tankingStats = {
       mgetter = function (method)
         return method.stats.parry or 0
       end,
-      getter = function ()
-        return GetDodgeChance ()
-      end
+      getter = GetDodgeChance
     },
     [ReforgeLite.STATS.MASTERY] = {
       tip = BLOCK,
@@ -344,9 +340,7 @@ ReforgeLite.tankingStats = {
       mgetter = function (method)
         return method.stats.dodge or 0
       end,
-      getter = function ()
-        return GetDodgeChance ()
-      end
+      getter = GetDodgeChance
     },
     [ReforgeLite.STATS.PARRY] = {
       tip = PARRY,
@@ -355,9 +349,7 @@ ReforgeLite.tankingStats = {
       mgetter = function (method)
         return method.stats.parry or 0
       end,
-      getter = function ()
-        return GetDodgeChance ()
-      end
+      getter = GetDodgeChance
     },
     [ReforgeLite.STATS.MASTERY] = {
       tip = BLOCK,
@@ -377,17 +369,13 @@ ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.DODGE].percent = true
 ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.DODGE].mgetter = function (method)
   return method.stats.dodge
 end
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.DODGE].getter = function ()
-  return GetDodgeChance ()
-end
+ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.DODGE].getter = GetDodgeChance
 ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.PARRY].long = PARRY_CHANCE
 ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.PARRY].percent = true
 ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.PARRY].mgetter = function (method)
   return method.stats.parry
 end
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.PARRY].getter = function ()
-  return GetParryChance ()
-end
+ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.PARRY].getter = GetParryChance
 
 ReforgeLite.tankingStats["DRUID"] = ReforgeLite.tankingStats["DEATHKNIGHT"]
 
@@ -2130,15 +2118,13 @@ function ReforgeLite:UpdateMethodChecks ()
       v.item = item
       local texture = GetInventoryItemTexture ("player", v.slotId)
       v.texture:SetTexture (texture or v.slotTexture)
-      if item == nil or self:IsReforgeMatching (v.slotId, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
+      if not item or self:IsReforgeMatching (v.slotId, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
         v.check:SetChecked (true)
       else
-        if item then
-          anyDiffer = true
-        end
+        anyDiffer = true
         v.check:SetChecked (false)
         if self.pdb.method.items[i].reforge then
-          local itemCost = (item and select (11, GetItemInfo (item)) or 0)
+          local itemCost = select (11, GetItemInfo (item)) or 0
           cost = cost + (itemCost > 0 and itemCost or 100000)
         end
       end
