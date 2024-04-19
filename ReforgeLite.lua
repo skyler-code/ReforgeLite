@@ -2078,7 +2078,7 @@ function ReforgeLite:ShowMethodWindow ()
   self:UpdateMethodChecks ()
   self.methodWindow:Show ()
 end
-function ReforgeLite:IsReforgeMatching (item, slotId, reforge, override)
+function ReforgeLite:IsReforgeMatching (slotId, reforge, override)
   if override == 1 then
     return true
   end
@@ -2089,7 +2089,7 @@ function ReforgeLite:IsReforgeMatching (item, slotId, reforge, override)
     return reforge == oreforge
   end
 
-  local stats = GetItemStats (item)
+  local stats = GetItemStats(GetInventoryItemLink("player", slotId))
 
   local deltas = {}
   for i = 1, #self.itemStats do
@@ -2130,7 +2130,7 @@ function ReforgeLite:UpdateMethodChecks ()
       v.item = item
       local texture = GetInventoryItemTexture ("player", v.slotId)
       v.texture:SetTexture (texture or v.slotTexture)
-      if item == nil or self:IsReforgeMatching (item, v.slotId, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
+      if item == nil or self:IsReforgeMatching (v.slotId, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
         v.check:SetChecked (true)
       else
         if item then
@@ -2170,7 +2170,7 @@ function ReforgeLite:DoReforgeUpdate ()
       if i ~= 0 then
         local slot = self.methodWindow.items[i].slotId
         local item = GetInventoryItemLink ("player", slot)
-        if item and not self:IsReforgeMatching (item, slot, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
+        if item and not self:IsReforgeMatching (slot, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
           if self.reforgingNow ~= slot then
             self.reforgingNow = slot
             PickupInventoryItem (slot)
