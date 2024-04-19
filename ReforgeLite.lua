@@ -230,7 +230,7 @@ ReforgeLite.itemSlots = {
   "SecondaryHandSlot",
   "RangedSlot"
 }
-local function RatingStat (i, name_, tip_, id_, hid_)
+
 local function RatingStat (i, name_, tip_, id_, hid_, short)
   if hid_ then
     local _, class = UnitClass ("player")
