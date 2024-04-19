@@ -439,13 +439,13 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
   end
 
   t.GetCellY = function (self, i)
-    local n = math.ceil (i)
+    local n = ceil (i)
     if n < 0 then n = 0 end
     if n > self.rows then n = self.rows end
     return - (self.rowPos[n] + (self.rowPos[n - 1] - self.rowPos[n]) * (n - i))
   end
   t.GetCellX = function (self, j)
-    local n = math.ceil (j)
+    local n = ceil (j)
     if n < 0 then n = 0 end
     if n > self.cols then n = self.cols end
     return self.colPos[n] + (self.colPos[n - 1] - self.colPos[n]) * (n - j)

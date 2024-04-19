@@ -134,7 +134,7 @@ function ReforgeLite:GetBuffBonuses ()
   local strength = cur_strength
   local extra_strength = 0
   local dodge_bonus = 0
-  local parry_bonus = math.floor ((strength - cur_strength) * 0.27)
+  local parry_bonus = floor ((strength - cur_strength) * 0.27)
   local mastery_bonus = 0
   for i = 1, #self.itemData do
     local bonus = itemBonuses[GetInventoryItemID ("player", self.itemData[i].slotId)]
@@ -167,8 +167,8 @@ function ReforgeLite:GetBuffBonuses ()
   if self.pdb.buffs.kings and not cur_buffs[1] then
     strength = strength * 1.05
   end
-  strength = math.floor (strength)
-  parry_bonus = parry_bonus + math.floor ((strength - cur_strength) * 0.27)
+  strength = floor (strength)
+  parry_bonus = parry_bonus + floor ((strength - cur_strength) * 0.27)
   if self.pdb.buffs.flask == 2 and cur_buffs[3] ~= 2 then
     mastery_bonus = mastery_bonus + 225
     if AlchemyCanCraft () then
@@ -199,20 +199,20 @@ function ReforgeLite:UpdateMethodStats (method)
     local reforge = (item and self:GetReforgeID (self.itemData[i].slotId))
     if reforge then
       local src, dst = self.reforgeTable[reforge][1], self.reforgeTable[reforge][2]
-      local amount = math.floor ((stats[self.itemStats[src].name] or 0) * REFORGE_COEFF)
+      local amount = floor ((stats[self.itemStats[src].name] or 0) * REFORGE_COEFF)
       method.stats[src] = method.stats[src] + amount
       method.stats[dst] = method.stats[dst] - amount
     end
     if method.items[i].src and method.items[i].dst then
-      method.items[i].amount = math.floor ((stats[self.itemStats[method.items[i].src].name] or 0) * REFORGE_COEFF)
+      method.items[i].amount = floor ((stats[self.itemStats[method.items[i].src].name] or 0) * REFORGE_COEFF)
       method.stats[method.items[i].src] = method.stats[method.items[i].src] - method.items[i].amount
       method.stats[method.items[i].dst] = method.stats[method.items[i].dst] + method.items[i].amount
     end
   end
-  method.stats[self.STATS.SPIRIT] = math.floor (method.stats[self.STATS.SPIRIT] * self.spiritBonus + 0.5)
+  method.stats[self.STATS.SPIRIT] = floor (method.stats[self.STATS.SPIRIT] * self.spiritBonus + 0.5)
   if self.s2hFactor and self.s2hFactor > 0 then
     method.stats[self.STATS.HIT] = method.stats[self.STATS.HIT] +
-      math.floor ((method.stats[self.STATS.SPIRIT] - oldspi) * self.s2hFactor / 100 + 0.5)
+      floor ((method.stats[self.STATS.SPIRIT] - oldspi) * self.s2hFactor / 100 + 0.5)
   end
   if method.tankingModel then
     local dodge_bonus, parry_bonus, mastery_bonus = self:GetBuffBonuses ()
@@ -246,7 +246,7 @@ function ReforgeLite:FinalizeReforge (data)
   for i = 1, #method.items do
     method.items[i].reforge = nil
     if method.items[i].src and method.items[i].dst then
-      local amount = math.floor (method.items[i].stats[method.items[i].src] * REFORGE_COEFF)
+      local amount = floor (method.items[i].stats[method.items[i].src] * REFORGE_COEFF)
       for j = 1, #self.reforgeTable do
         if self.reforgeTable[j][1] == method.items[i].src and self.reforgeTable[j][2] == method.items[i].dst then
           method.items[i].reforge = j
@@ -268,8 +268,7 @@ function ReforgeLite:ResetMethod ()
     local reforge = (item and self:GetReforgeID (self.itemData[i].slotId))
     if reforge then
       method.items[i].reforge = reforge
-      method.items[i].src = self.reforgeTable[reforge][1]
-      method.items[i].dst = self.reforgeTable[reforge][2]
+      method.items[i].src, method.items[i].dst = unpack(self.reforgeTable[reforge])
     end
   end
   method.tankingModel = self.pdb.tankingModel
@@ -302,9 +301,9 @@ end
 function ReforgeLite:MakeReforgeOption (item, data, src, dst)
   local delta1, delta2, dscore = 0, 0, 0
   if src then
-    local amount = math.floor (item.stats[src] * REFORGE_COEFF)
+    local amount = floor (item.stats[src] * REFORGE_COEFF)
     if src == self.STATS.SPIRIT then
-      amount = math.floor (amount * self.spiritBonus + math.random ())
+      amount = floor (amount * self.spiritBonus + random ())
     end
     if src == data.caps[1].stat then
       delta1 = delta1 - amount
@@ -314,9 +313,9 @@ function ReforgeLite:MakeReforgeOption (item, data, src, dst)
       dscore = dscore - data.weights[src] * amount
       if self.s2hFactor and self.s2hFactor > 0 then
         if data.caps[1].stat == self.STATS.HIT then
-          delta1 = delta1 - math.floor (amount * self.s2hFactor / 100 + math.random ())
+          delta1 = delta1 - floor (amount * self.s2hFactor / 100 + random ())
         elseif data.caps[2].stat == self.STATS.HIT then
-          delta2 = delta2 - math.floor (amount * self.s2hFactor / 100 + math.random ())
+          delta2 = delta2 - floor (amount * self.s2hFactor / 100 + random ())
         end
       end
     else
@@ -324,9 +323,9 @@ function ReforgeLite:MakeReforgeOption (item, data, src, dst)
     end
   end
   if dst then
-    local amount = math.floor (item.stats[src] * REFORGE_COEFF)
+    local amount = floor (item.stats[src] * REFORGE_COEFF)
     if dst == self.STATS.SPIRIT then
-      amount = math.floor (amount * self.spiritBonus + math.random ())
+      amount = floor (amount * self.spiritBonus + random ())
     end
     if dst == data.caps[1].stat then
       delta1 = delta1 + amount
@@ -336,9 +335,9 @@ function ReforgeLite:MakeReforgeOption (item, data, src, dst)
       dscore = dscore + data.weights[dst] * amount
       if self.s2hFactor and self.s2hFactor > 0 then
         if data.caps[1].stat == self.STATS.HIT then
-          delta1 = delta1 + math.floor (amount * self.s2hFactor / 100 + math.random ())
+          delta1 = delta1 + floor (amount * self.s2hFactor / 100 + random ())
         elseif data.caps[2].stat == self.STATS.HIT then
-          delta2 = delta2 + math.floor (amount * self.s2hFactor / 100 + math.random ())
+          delta2 = delta2 + floor (amount * self.s2hFactor / 100 + random ())
         end
       end
     else
@@ -394,7 +393,7 @@ function ReforgeLite:GetItemReforgeOptions (item, data, slot)
     local worstScore = 0
     for i = 1, #self.itemStats do
       if item.stats[i] > 0 and i ~= data.caps[1].stat and i ~= data.caps[2].stat then
-        local score = (data.weights[best] - data.weights[i]) * math.floor (item.stats[i] * REFORGE_COEFF)
+        local score = (data.weights[best] - data.weights[i]) * floor (item.stats[i] * REFORGE_COEFF)
         if score > worstScore then
           worstScore = score
           worst = i
@@ -414,7 +413,7 @@ function ReforgeLite:GetItemReforgeOptions (item, data, slot)
       if item.stats[data.caps[s].stat] == 0 then
         for i = 1, #self.itemStats do
           if item.stats[i] > 0 then
-            local amount = math.floor (item.stats[i] * REFORGE_COEFF)
+            local amount = floor (item.stats[i] * REFORGE_COEFF)
             local srcweight = (i == data.caps[3 - s].stat and 0 or data.weights[i])
             table.insert (opt, {src = i, dst = data.caps[s].stat,
               ["d" .. s] = amount, ["d" .. (3 - s)] = (i == data.caps[3 - s].stat and -amount or 0), score = -amount * srcweight})
@@ -422,7 +421,7 @@ function ReforgeLite:GetItemReforgeOptions (item, data, slot)
         end
       end
       if item.stats[data.caps[s].stat] > 0 and best then
-        local amount = math.floor (item.stats[data.caps[s].stat] * REFORGE_COEFF)
+        local amount = floor (item.stats[data.caps[s].stat] * REFORGE_COEFF)
         table.insert (opt, {src = data.caps[s].stat, dst = best,
           d1 = (s == 1 and -amount or 0), d2 = (s == 2 and -amount or 0), score = data.weights[best] * amount})
       end
@@ -468,7 +467,7 @@ function ReforgeLite:InitReforgeClassic ()
     local reforge = (item and self:GetReforgeID (self.itemData[i].slotId))
     if reforge then
       local src, dst = self.reforgeTable[reforge][1], self.reforgeTable[reforge][2]
-      local amount = math.floor (method.items[i].stats[src] * REFORGE_COEFF)
+      local amount = floor (method.items[i].stats[src] * REFORGE_COEFF)
       data.initial[src] = data.initial[src] + amount
       data.initial[dst] = data.initial[dst] - amount
       if src == self.STATS.SPIRIT then
@@ -479,7 +478,7 @@ function ReforgeLite:InitReforgeClassic ()
     end
   end
   if self.s2hFactor and self.s2hFactor > 0 then
-    data.initial[self.STATS.HIT] = data.initial[self.STATS.HIT] - math.floor (reforgedSpirit * self.spiritBonus * self.s2hFactor / 100 + 0.5)
+    data.initial[self.STATS.HIT] = data.initial[self.STATS.HIT] - floor (reforgedSpirit * self.spiritBonus * self.s2hFactor / 100 + 0.5)
   end
   if data.caps[1].stat > 0 then
     data.caps[1].init = data.initial[data.caps[1].stat]
@@ -553,7 +552,7 @@ function ReforgeLite:GetItemReforgeOptionsS2H (item, data, slot)
       local reforge = self:GetReforgeID (self.itemData[slot].slotId)
       if reforge then
         srcstat, dststat = unpack(self.reforgeTable[reforge])
-        local amount = math.floor (item.stats[srcstat] * REFORGE_COEFF)
+        local amount = floor (item.stats[srcstat] * REFORGE_COEFF)
         if srcstat == self.STATS.HIT then
           delta1 = delta1 - amount
         elseif srcstat == self.STATS.SPIRIT then
@@ -584,7 +583,7 @@ function ReforgeLite:GetItemReforgeOptionsS2H (item, data, slot)
     local worstScore = 0
     for i = 1, #self.itemStats do
       if item.stats[i] > 0 and i ~= self.STATS.HIT and i ~= self.STATS.SPIRIT then
-        local score = (data.weights[best] - data.weights[i]) * math.floor (item.stats[i] * REFORGE_COEFF)
+        local score = (data.weights[best] - data.weights[i]) * floor (item.stats[i] * REFORGE_COEFF)
         if score > worstScore then
           worstScore = score
           worst = i
@@ -602,25 +601,25 @@ function ReforgeLite:GetItemReforgeOptionsS2H (item, data, slot)
   if item.stats[self.STATS.HIT] == 0 then
     for i = 1, #self.itemStats do
       if item.stats[i] > 0 then
-        local amount = math.floor (item.stats[i] * REFORGE_COEFF)
+        local amount = floor (item.stats[i] * REFORGE_COEFF)
         table.insert (opt, {src = i, dst = self.STATS.HIT, d1 = amount, d2 = (i == self.STATS.SPIRIT and -amount or 0),
           score = -amount * (i == self.STATS.SPIRIT and 0 or data.weights[i])})
       end
     end
   elseif best then
-    local amount = math.floor (item.stats[self.STATS.HIT] * REFORGE_COEFF)
+    local amount = floor (item.stats[self.STATS.HIT] * REFORGE_COEFF)
     table.insert (opt, {src = self.STATS.HIT, dst = best, d1 = -amount, d2 = 0, score = data.weights[best] * amount})
   end
   if item.stats[self.STATS.SPIRIT] == 0 then
     for i = 1, #self.itemStats do
       if item.stats[i] > 0 then
-        local amount = math.floor (item.stats[i] * REFORGE_COEFF)
+        local amount = floor (item.stats[i] * REFORGE_COEFF)
         table.insert (opt, {src = i, dst = self.STATS.SPIRIT, d1 = (i == self.STATS.HIT and -amount or 0), d2 = amount,
           score = -amount * (i == self.STATS.HIT and 0 or data.weights[i])})
       end
     end
   elseif best then
-    local amount = math.floor (item.stats[self.STATS.SPIRIT] * REFORGE_COEFF)
+    local amount = floor (item.stats[self.STATS.SPIRIT] * REFORGE_COEFF)
     table.insert (opt, {src = self.STATS.SPIRIT, dst = best, d1 = 0, d2 = -amount, score = data.weights[best] * amount})
   end
   return opt
@@ -666,19 +665,19 @@ function ReforgeLite:InitReforgeS2H ()
     local reforge = (item and self:GetReforgeID (self.itemData[i].slotId))
     if reforge then
       local src, dst = unpack(self.reforgeTable[reforge])
-      local amount = math.floor (method.items[i].stats[src] * REFORGE_COEFF)
+      local amount = floor (method.items[i].stats[src] * REFORGE_COEFF)
       data.initial[src] = data.initial[src] + amount
       data.initial[dst] = data.initial[dst] - amount
     end
   end
-  data.initial[self.STATS.HIT] = data.initial[self.STATS.HIT] - math.floor (self.itemStats[self.STATS.SPIRIT].getter () * self.s2hFactor / 100 + 0.5)
+  data.initial[self.STATS.HIT] = data.initial[self.STATS.HIT] - floor (self.itemStats[self.STATS.SPIRIT].getter () * self.s2hFactor / 100 + 0.5)
   data.cap.init = data.initial[self.STATS.HIT]
-  data.spi = math.floor (data.initial[self.STATS.SPIRIT] + 0.5)
+  data.spi = floor (data.initial[self.STATS.SPIRIT] + 0.5)
   for i = 1, #data.method.items do
     data.cap.init = data.cap.init + data.method.items[i].stats[self.STATS.HIT]
     data.spi = data.spi + data.method.items[i].stats[self.STATS.SPIRIT]
   end
-  data.initial[self.STATS.SPIRIT] = math.floor (data.initial[self.STATS.SPIRIT] * self.spiritBonus + 0.5)
+  data.initial[self.STATS.SPIRIT] = floor (data.initial[self.STATS.SPIRIT] * self.spiritBonus + 0.5)
   
   data.caps = {{stat = self.STATS.HIT, init = data.cap.init}, {stat = self.STATS.SPIRIT, init = data.spi}}
 
@@ -697,8 +696,8 @@ function ReforgeLite:ChooseReforgeS2H (data, reforgeOptions, scores, codes)
       hit = hit + reforgeOptions[i][b].d1
       spi = spi + reforgeOptions[i][b].d2
     end
-    spi = math.floor (spi * self.spiritBonus + 0.5)
-    hit = hit + math.floor (spi * self.s2hFactor / 100 + 0.5)
+    spi = floor (spi * self.spiritBonus + 0.5)
+    hit = hit + floor (spi * self.s2hFactor / 100 + 0.5)
     local allow = self:CapAllows (data.cap, hit) and 1 or 2
     score = score + self:GetCapScore (data.cap, hit) + data.weights[self.STATS.SPIRIT] * spi
     if bestCode[allow] == nil or score > bestScore[allow] then
@@ -719,7 +718,7 @@ function ReforgeLite:GetItemReforgeOptionsTank (item, data, slot)
       local reforge = self:GetReforgeID (self.itemData[slot].slotId)
       if reforge then
         srcstat, dststat = unpack(self.reforgeTable[reforge])
-        local amount = math.floor (item.stats[srcstat] * REFORGE_COEFF)
+        local amount = floor (item.stats[srcstat] * REFORGE_COEFF)
         if srcstat == self.STATS.DODGE then
           delta1 = delta1 - amount
         elseif srcstat == self.STATS.PARRY then
@@ -750,7 +749,7 @@ function ReforgeLite:GetItemReforgeOptionsTank (item, data, slot)
     local worstScore = 0
     for i = 1, #self.itemStats do
       if item.stats[i] > 0 and i ~= self.STATS.DODGE and i ~= self.STATS.PARRY then
-        local score = (data.weights[best] - data.weights[i]) * math.floor (item.stats[i] * REFORGE_COEFF)
+        local score = (data.weights[best] - data.weights[i]) * floor (item.stats[i] * REFORGE_COEFF)
         if score > worstScore then
           worstScore = score
           worst = i
@@ -768,25 +767,25 @@ function ReforgeLite:GetItemReforgeOptionsTank (item, data, slot)
   if item.stats[self.STATS.DODGE] == 0 then
     for i = 1, #self.itemStats do
       if item.stats[i] > 0 then
-        local amount = math.floor (item.stats[i] * REFORGE_COEFF)
+        local amount = floor (item.stats[i] * REFORGE_COEFF)
         table.insert (opt, {src = i, dst = self.STATS.DODGE, d1 = amount, d2 = (i == self.STATS.PARRY and -amount or 0),
           score = -amount * (i == self.STATS.PARRY and 0 or data.weights[i])})
       end
     end
   elseif best then
-    local amount = math.floor (item.stats[self.STATS.DODGE] * REFORGE_COEFF)
+    local amount = floor (item.stats[self.STATS.DODGE] * REFORGE_COEFF)
     table.insert (opt, {src = self.STATS.DODGE, dst = best, d1 = -amount, d2 = 0, score = data.weights[best] * amount})
   end
   if item.stats[self.STATS.PARRY] == 0 then
     for i = 1, #self.itemStats do
       if item.stats[i] > 0 then
-        local amount = math.floor (item.stats[i] * REFORGE_COEFF)
+        local amount = floor (item.stats[i] * REFORGE_COEFF)
         table.insert (opt, {src = i, dst = self.STATS.PARRY, d1 = (i == self.STATS.DODGE and -amount or 0), d2 = amount,
           score = -amount * (i == self.STATS.DODGE and 0 or data.weights[i])})
       end
     end
   elseif best then
-    local amount = math.floor (item.stats[self.STATS.PARRY] * REFORGE_COEFF)
+    local amount = floor (item.stats[self.STATS.PARRY] * REFORGE_COEFF)
     table.insert (opt, {src = self.STATS.PARRY, dst = best, d1 = 0, d2 = -amount, score = data.weights[best] * amount})
   end
   return opt
@@ -830,7 +829,7 @@ function ReforgeLite:InitReforgeTank ()
     local reforge = (item and self:GetReforgeID (self.itemData[i].slotId))
     if reforge then
       local src, dst = unpack(self.reforgeTable[reforge])
-      local amount = math.floor (method.items[i].stats[src] * REFORGE_COEFF)
+      local amount = floor (method.items[i].stats[src] * REFORGE_COEFF)
       data.initial[src] = data.initial[src] + amount
       data.initial[dst] = data.initial[dst] - amount
     end
@@ -934,7 +933,7 @@ StaticPopupDialogs["REFORGELITE_COMPUTEERROR"] = {
 function ReforgeLite:ComputeReforgeCore (data, reforgeOptions)
   local TABLE_SIZE = 10000
   local scores, codes = {}, {}
-  local linit = math.floor (data.caps[1].init / REFORGE_CHEAT + math.random ()) + math.floor (data.caps[2].init / REFORGE_CHEAT + math.random ()) * TABLE_SIZE
+  local linit = floor (data.caps[1].init / REFORGE_CHEAT + random ()) + floor (data.caps[2].init / REFORGE_CHEAT + random ()) * TABLE_SIZE
   scores[linit] = 0
   codes[linit] = ""
   for i = 1, #self.itemData do
@@ -944,17 +943,17 @@ function ReforgeLite:ComputeReforgeCore (data, reforgeOptions)
     for k, score in pairs (scores) do
       local code = codes[k]
       local s1 = k % TABLE_SIZE
-      local s2 = math.floor (k / TABLE_SIZE)
+      local s2 = floor (k / TABLE_SIZE)
       for j = 1, #opt do
         local o = opt[j]
         local nscore = score + o.score
-        local nk = s1 + math.floor (o.d1 / REFORGE_CHEAT + math.random ()) + (s2 + math.floor (o.d2 / REFORGE_CHEAT + math.random ())) * TABLE_SIZE
+        local nk = s1 + floor (o.d1 / REFORGE_CHEAT + random ()) + (s2 + floor (o.d2 / REFORGE_CHEAT + random ())) * TABLE_SIZE
         if newscores[nk] == nil or nscore > newscores[nk] then
           if newscores[nk] == nil then
             count = count + 1
           end
           newscores[nk] = nscore
-          newcodes[nk] = code .. string.char (j)
+          newcodes[nk] = code .. strchar (j)
         end
       end
     end

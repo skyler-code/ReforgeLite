@@ -449,7 +449,7 @@ function ReforgeLite:ParsePawnString (pawn)
     factor = 100
   end
   for k, v in pairs (raw) do
-    raw[k] = math.floor (v * factor + 0.5)
+    raw[k] = floor (v * factor + 0.5)
   end
 
   local weights = {}
@@ -635,9 +635,9 @@ local function SetTextDelta (text, value, cur, override, percent)
     text:SetTextColor (1, 0.4, 0.4)
   end
   if percent then
-    text:SetText (string.format ("%+.2f%%", value - cur))
+    text:SetText (format ("%+.2f%%", value - cur))
   else
-    text:SetText (string.format ("%+d", value - cur))
+    text:SetText (format ("%+d", value - cur))
   end
 end
 
@@ -651,7 +651,7 @@ function ReforgeLite:SetScroll (value)
   if viewheight > height then
     offset = 0
   else
-    offset = math.floor ((height - viewheight) / 1000 * value)
+    offset = floor ((height - viewheight) / 1000 * value)
   end
   self.content:ClearAllPoints ()
   self.content:SetPoint ("TOPLEFT", 0, offset)
@@ -1009,7 +1009,7 @@ function ReforgeLite:UpdateCapPreset (i, point)
     self.statCaps.cells[row][3]:SetTextColor (0.5, 0.5, 0.5)
     self.statCaps.cells[row][3]:EnableMouse (false)
     self.statCaps.cells[row][3]:ClearFocus ()
-    self.pdb.caps[i].points[point].value = math.ceil (self.capPresets[preset].getter ())
+    self.pdb.caps[i].points[point].value = ceil (self.capPresets[preset].getter ())
   else
     self.statCaps.cells[row][3]:SetTextColor (1, 1, 1)
     self.statCaps.cells[row][3]:EnableMouse (true)
@@ -1103,7 +1103,7 @@ function ReforgeLite:UpdateStatWeightList ()
   end
   self.statWeights:ClearCells ()
   self.statWeights.inputs = {}
-  rows = math.ceil (rows / 2) + extraRows
+  rows = ceil (rows / 2) + extraRows
   while self.statWeights.rows > rows do
     self.statWeights:DeleteRow (1)
   end
@@ -1141,7 +1141,7 @@ function ReforgeLite:UpdateStatWeightList ()
   local pos = 0
   for i, v in pairs (stats) do
     pos = pos + 1
-    local col = math.floor ((pos - 1) / (self.statWeights.rows - extraRows))
+    local col = floor ((pos - 1) / (self.statWeights.rows - extraRows))
     local row = pos - col * (self.statWeights.rows - extraRows) + extraRows
     col = 1 + 2 * col
 
@@ -1264,7 +1264,7 @@ function ReforgeLite:CreateOptionList ()
     self:SetAnchor (self.tankingModel, "TOPLEFT", self.pawnButton, "BOTTOMLEFT", 0, -8)
   end
 
-  self.statWeights = GUI:CreateTable (math.ceil (#self.itemStats / 2), 4)
+  self.statWeights = GUI:CreateTable (ceil (#self.itemStats / 2), 4)
   self:SetAnchor (self.statWeights, "TOPLEFT", self.tankingModel or self.pawnButton, "BOTTOMLEFT", 0, -8)
   self.statWeights:SetPoint ("RIGHT", self.content, "RIGHT", -5, 0)
   self.statWeightsCategory:AddFrame (self.statWeights)
@@ -1496,7 +1496,7 @@ function ReforgeLite:GetCurrentScore ()
       end
       score = score + block * self.pdb.weights[self.STATS.MASTERY] + (mastery * 1.5) * self.pdb.weights[self.STATS.CRITBLOCK]
     elseif playerClass == "PALADIN" then
-      local mastery = GetMastery ()
+      local master y = GetMastery ()
       local block = 5 + mastery * 2.25
       if missChance + dodge + parry + block > unhit then
         block = unhit - missChance - dodge - parry - block
@@ -1601,7 +1601,7 @@ function ReforgeLite:UpdateMethodCategory ()
     self.methodTank.PrintLine = function (m, text, ...)
       m.counter = m.counter + 1
       m[m.counter]:Show ()
-      m[m.counter]:SetText (string.format (text, ...))
+      m[m.counter]:SetText (format (text, ...))
     end
   end
 
@@ -1666,7 +1666,7 @@ function ReforgeLite:RefreshMethodStats (relax)
       self.methodStats.score:Show ()
       self.methodStats.scoreDelta:Show ()]]
 
-      self.methodStats.score:SetText (math.floor (score + 0.5))
+      self.methodStats.score:SetText (floor (score + 0.5))
       SetTextDelta (self.methodStats.scoreDelta, score, self:GetCurrentScore ())
 --      local pos = 0
 --      for i, v in pairs (stats) do
@@ -1676,9 +1676,9 @@ function ReforgeLite:RefreshMethodStats (relax)
 
         local mvalue = v.mgetter (self.pdb.method)
         if v.percent then
-          self.methodStats[i].value:SetText (string.format ("%.2f%%", mvalue))
+          self.methodStats[i].value:SetText (format ("%.2f%%", mvalue))
         else
-          self.methodStats[i].value:SetText (string.format ("%d", mvalue))
+          self.methodStats[i].value:SetText (format ("%d", mvalue))
         end
         local override = nil
         mvalue = v.mgetter (self.pdb.method, true)
@@ -1704,7 +1704,7 @@ function ReforgeLite:RefreshMethodStats (relax)
   if self.pdb.storedMethod then
     self:UpdateMethodStats (self.pdb.storedMethod)
     local storedScore = self:GetMethodScore (self.pdb.storedMethod)
-    self.storedScore.score:SetText (string.format ("%d (", storedScore))
+    self.storedScore.score:SetText (format ("%d (", storedScore))
     SetTextDelta (self.storedScore.delta, storedScore, self:GetCurrentScore ())
   end
 end
@@ -1809,7 +1809,7 @@ function ReforgeLite:UpdateItems ()
       if reforge then
         local srcId, dstId = unpack(reforgeTable[reforge])
         reforgeSrc, reforgeDst = self.itemStats[srcId].name, self.itemStats[dstId].name
-        local amount = math.floor ((stats[reforgeSrc] or 0) * 0.4)
+        local amount = floor ((stats[reforgeSrc] or 0) * 0.4)
         stats[reforgeSrc] = (stats[reforgeSrc] or 0) - amount
         stats[reforgeDst] = (stats[reforgeDst] or 0) + amount
       end
@@ -2055,7 +2055,7 @@ function ReforgeLite:ShowMethodWindow ()
       v.texture:SetTexture (v.slotTexture)
     end
     if self.pdb.method.items[i].reforge then
-      v.reforge:SetText (string.format ("%d %s > %s", self.pdb.method.items[i].amount,
+      v.reforge:SetText (format ("%d %s > %s", self.pdb.method.items[i].amount,
         self.itemStats[self.pdb.method.items[i].src].long, self.itemStats[self.pdb.method.items[i].dst].long))
       v.reforge:SetTextColor (1, 1, 1)
     else
@@ -2221,7 +2221,7 @@ function ReforgeLite.OnTooltipSetItem (tip)
     local srcId, destId = unpack(reforgeTable[reforge])
     local src = ReforgeLite.itemStats[srcId].long
     local dst = ReforgeLite.itemStats[destId].long
-    tip:AddLine(string.format ("%s (%s > %s)", REFORGED, src, dst), GREEN_FONT_COLOR.r, GREEN_FONT_COLOR.g, GREEN_FONT_COLOR.b)
+    tip:AddLine(format ("%s (%s > %s)", REFORGED, src, dst), GREEN_FONT_COLOR.r, GREEN_FONT_COLOR.g, GREEN_FONT_COLOR.b)
     tip:Show()
     -- local regions = {tip:GetRegions ()}
     -- for _, region in pairs (regions) do
@@ -2229,7 +2229,7 @@ function ReforgeLite.OnTooltipSetItem (tip)
     --     if region:GetText () == REFORGED then
     --       local src = ReforgeLite.itemStats[ReforgeLite.reforgeTable[reforge][1]].long
     --       local dst = ReforgeLite.itemStats[ReforgeLite.reforgeTable[reforge][2]].long
-    --       region:SetText (string.format ("%s (%s > %s)", REFORGED, src, dst))
+    --       region:SetText (format ("%s (%s > %s)", REFORGED, src, dst))
     --     end
     --   end
     -- end

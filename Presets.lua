@@ -56,12 +56,12 @@ function ReforgeLite:GetSpellHitBonus ()
   return GetSpellHitModifier () or 0
 end
 function ReforgeLite:GetExpertiseBonus ()
-  return GetExpertise () - math.floor (GetCombatRatingBonus (CR_EXPERTISE))
+  return GetExpertise () - floor (GetCombatRatingBonus (CR_EXPERTISE))
 end
 function ReforgeLite:GetNeededMeleeHit ()
   local diff = self.pdb.targetLevel
   if diff <= 2 then
-    return math.max (0, 5 + 0.5 * diff)
+    return max (0, 5 + 0.5 * diff)
   else
     return 2 + 2 * diff
   end
@@ -69,21 +69,21 @@ end
 function ReforgeLite:GetNeededSpellHit ()
   local diff = self.pdb.targetLevel
   if diff <= 2 then
-    return math.max (0, 4 + diff)
+    return max (0, 4 + diff)
   else
     return 11 * diff - 16
   end
 end
 function ReforgeLite:GetNeededExpertiseSoft ()
   local diff = self.pdb.targetLevel
-  return math.ceil (math.max (0, 5 + 0.5 * diff) / 0.25)
+  return ceil (max (0, 5 + 0.5 * diff) / 0.25)
 end
 function ReforgeLite:GetNeededExpertiseHard ()
   local diff = self.pdb.targetLevel
   if diff <= 2 then
-    return math.ceil (math.max (0, 5 + 0.5 * diff) / 0.25)
+    return ceil (max (0, 5 + 0.5 * diff) / 0.25)
   else
-    return math.ceil (14 / 0.25)
+    return ceil (14 / 0.25)
   end
 end
 
