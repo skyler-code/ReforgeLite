@@ -211,9 +211,38 @@ ReforgeLite.presets = {
         },
         caps = MeleeCaps,
       },
-      ["Dual Wielding"] = {
+      ["Dual Wielding (Oblit)"] = {
         weights = {
           0, 0, 0, 229, 116, 147, 164, 144
+        },
+        caps = {
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtLeast,
+                preset = MeleeHitCap,
+                after = 106,
+              },
+              {
+                preset = MeleeDWHitCap,
+              },
+            },
+          },
+          {
+            stat = StatExp,
+            points = {
+              {
+                method = AtLeast,
+                preset = ExpSoftCap,
+              },
+            },
+          },
+        },
+      },
+      ["Dual Wielding (Masterfrost)"] = {
+        weights = {
+          0, 0, 0, 229, 116, 144, 164, 147
         },
         caps = {
           {
