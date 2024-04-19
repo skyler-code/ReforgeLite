@@ -1837,7 +1837,7 @@ local function parseTooltip(tip)
       if stat then
         if not existingStats[v.name] then
           destStat = k
-        elseif existingStats[v.name] - stat > 0 then
+        elseif existingStats[v.name] - tonumber(stat) > 0 then
           srcStat = k
         end
       end
