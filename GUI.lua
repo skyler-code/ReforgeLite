@@ -252,7 +252,6 @@ end
 -------------------------------------------------------------------------------
 
 function GUI:CreateHLine (x1, x2, y, w, color, parent)
-  DevTools_Dump(color)
   parent = parent or self.defaultParent
   local line = parent:CreateTexture (nil, "ARTWORK")
   line:SetDrawLayer ("ARTWORK")
