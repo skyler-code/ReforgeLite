@@ -1456,8 +1456,8 @@ end
 function ReforgeLite:FillSettings ()
   self.settings:SetCell (1, 0, GUI:CreateCheckButton (self.settings, L["Open window when reforging"],
     self.db.openOnReforge, function (val) self.db.openOnReforge = val end), "LEFT")
-  self.settings:SetCell (2, 0, GUI:CreateCheckButton (self.settings, L["Show reforged stats in item tooltips"],
-    self.db.updateTooltip, function (val) self.db.updateTooltip = val end), "LEFT")
+  -- self.settings:SetCell (2, 0, GUI:CreateCheckButton (self.settings, L["Show reforged stats in item tooltips"],
+  --   self.db.updateTooltip, function (val) self.db.updateTooltip = val end), "LEFT")
 
   self.settings:SetCellText (3, 0, L["Target level"], "LEFT", nil, "GameFontNormal")
   self.settings:SetCell (3, 1, GUI:CreateEditBox (self.settings, 50, 30, self.pdb.targetLevel,
