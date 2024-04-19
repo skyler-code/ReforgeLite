@@ -837,7 +837,7 @@ function ReforgeLite:CreateFrame ()
 
   self.scrollBg = self.scrollBar:CreateTexture (nil, "BACKGROUND")
   self.scrollBg:SetAllPoints (self.scrollBar)
-  self.scrollBg:SetTexture (0, 0, 0, 0.4)
+  self.scrollBg:SetColorTexture (0, 0, 0, 0.4)
 
   self.content = CreateFrame ("Frame", nil, self.scrollFrame)
   self.scrollFrame:SetScrollChild (self.content)
