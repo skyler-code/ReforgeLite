@@ -68,6 +68,8 @@ function GetPlayerBuffs ()
         food = 1
       elseif id == 87545 then -- 90 strength food
         food = 4
+      elseif id == 57371 then -- 40 strength food
+        food = 5
       elseif id == 79472 then -- 300 strength flask
         flask = 1
       elseif id == 79635 then -- 225 mastery elixir
@@ -154,6 +156,9 @@ function ReforgeLite:GetBuffBonuses ()
   end
   if self.pdb.buffs.food == 4 and cur_buffs[4] ~= 4 then
     extra_strength = extra_strength + 90
+  end
+  if self.pdb.buffs.food == 5 and cur_buffs[4] ~= 5 then
+    extra_strength = extra_strength + 40
   end
   if cur_buffs[1] then
     extra_strength = extra_strength * 1.05

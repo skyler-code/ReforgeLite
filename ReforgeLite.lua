@@ -1140,7 +1140,7 @@ function ReforgeLite:UpdateStatWeightList ()
     self.statWeights.buffs.food = GUI:CreateDropdown (self.statWeights,
       {{value = 0, name = L["Other/No food"]}, {value = 1, name = "90" .. ITEM_MOD_MASTERY_RATING_SHORT},
        {value = 2, name = "90" .. ITEM_MOD_DODGE_RATING_SHORT}, {value = 3, name = "90" .. ITEM_MOD_PARRY_RATING_SHORT},
-       {value = 4, name = "90" .. ITEM_MOD_STRENGTH_SHORT}}, self.pdb.buffs.food or 0, function (val)
+       {value = 4, name = "90" .. ITEM_MOD_STRENGTH_SHORT},{value = 5, name = "40" .. ITEM_MOD_STRENGTH_SHORT}}, self.pdb.buffs.food or 0, function (val)
       self.pdb.buffs.food = (val ~= 0 and val)
       self:RefreshMethodStats ()
     end, 125)
