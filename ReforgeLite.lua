@@ -2043,13 +2043,9 @@ function ReforgeLite:ShowMethodWindow ()
     self.methodWindow.reforgeTip:SetFrameLevel (self.methodWindow.reforge:GetFrameLevel () + 5)
     self.methodWindow.reforgeTip:Hide ()
 
-    self.methodWindow.costTip = self.methodWindow:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-    self.methodWindow.costTip:SetPoint ("LEFT", self.methodWindow.reforge, "RIGHT", 8, 0)
-    self.methodWindow.costTip:SetTextColor (1, 1, 1)
-    self.methodWindow.costTip:SetText (L["Cost"] .. ":")
     self.methodWindow.cost = CreateFrame ("Frame", "ReforgeLiteReforgeCost", self.methodWindow, "SmallMoneyFrameTemplate")
     MoneyFrame_SetType (self.methodWindow.cost, "REFORGE")
-    self.methodWindow.cost:SetPoint ("BOTTOMLEFT", self.methodWindow.costTip, "BOTTOMRIGHT", 5, 0)
+    self.methodWindow.cost:SetPoint ("LEFT", self.methodWindow.reforge, "RIGHT", 5, 0)
   end
 
   for i = 1, #self.itemSlots do
@@ -2154,12 +2150,10 @@ function ReforgeLite:UpdateMethodChecks ()
         self.methodWindow.reforge:Disable ()
         self.methodWindow.reforgeTip:Show ()
       end
-      self.methodWindow.costTip:Show ()
       self.methodWindow.cost:Show ()
     else
       self.methodWindow.reforge:Disable ()
       self.methodWindow.reforgeTip:Hide ()
-      self.methodWindow.costTip:Hide ()
       self.methodWindow.cost:Hide ()
     end
     MoneyFrame_Update (self.methodWindow.cost, cost)
