@@ -210,11 +210,11 @@ function GUI:CreateColorPicker (parent, width, height, color, handler)
   box:EnableMouse (true)
   box.texture = box:CreateTexture (nil, "OVERLAY")
   box.texture:SetAllPoints ()
-  box.texture:SetTexture (unpack (color))
+  box.texture:SetColorTexture (unpack (color))
   box.glow = box:CreateTexture (nil, "BACKGROUND")
   box.glow:SetPoint ("TOPLEFT", -2, 2)
   box.glow:SetPoint ("BOTTOMRIGHT", 2, -2)
-  box.glow:SetTexture (1, 1, 1, 0.3)
+  box.glow:SetColorTexture (1, 1, 1, 0.3)
   box.glow:Hide ()
 
   box:SetScript ("OnEnter", function () box.glow:Show () end)
@@ -228,7 +228,7 @@ function GUI:CreateColorPicker (parent, width, height, color, handler)
     ColorPickerFrame.opacityFunc = nil
     ColorPickerFrame.func = function ()
       color[1], color[2], color[3] = ColorPickerFrame:GetColorRGB ()
-      box.texture:SetTexture (unpack (color))
+      box.texture:SetColorTexture (unpack (color))
       if handler then
         handler ()
       end
@@ -236,7 +236,7 @@ function GUI:CreateColorPicker (parent, width, height, color, handler)
     ColorPickerFrame:SetColorRGB (color[1], color[2], color[3])
     ColorPickerFrame.cancelFunc = function ()
       color[1], color[2], color[3] = unpack (ColorPickerFrame.previousValues)
-      box.texture:SetTexture (unpack (color))
+      box.texture:SetColorTexture (unpack (color))
       if handler then
         handler ()
       end
