@@ -270,7 +270,7 @@ ReforgeLite.itemStats = {
   RatingStat (5, "ITEM_MOD_CRIT_RATING", "Crit", CR_CRIT_SPELL, CR_CRIT_RANGED),
   RatingStat (6, "ITEM_MOD_HASTE_RATING", "Haste", CR_HASTE_SPELL, CR_HASTE_RANGED),
   RatingStat (7, "ITEM_MOD_EXPERTISE_RATING", "Exp", CR_EXPERTISE),
-  RatingStat (8, "ITEM_MOD_MASTERY_RATING_SHORT", "Mastery", CR_MASTERY)
+  RatingStat (8, "ITEM_MOD_MASTERY_RATING_SHORT", "Mastery", CR_MASTERY, nil, true)
 }
 
 ReforgeLite.STATS = {
