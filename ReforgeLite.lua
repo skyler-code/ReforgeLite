@@ -2305,10 +2305,12 @@ function ReforgeLite.OnTooltipSetItem (tip)
     --       region:SetText (string.format ("%s (%s > %s)", REFORGED, src, dst))
     --     end
     --   end
+    -- end
   end
 end
 
 function ReforgeLite:SetUpHooks ()
+  GameTooltip:HookScript ("OnTooltipSetItem", self.OnTooltipSetItem)
   --ItemRefTooltip:HookScript ("OnTooltipSetItem", self.OnTooltipSetItem)
   -- hooksecurefunc (ShoppingTooltip1, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
   -- hooksecurefunc (ShoppingTooltip2, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
