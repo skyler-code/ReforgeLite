@@ -2102,7 +2102,7 @@ function ReforgeLite:ShowMethodWindow ()
     self.methodWindow.costTip:SetTextColor (1, 1, 1)
     self.methodWindow.costTip:SetText (L["Cost"] .. ":")
     self.methodWindow.cost = CreateFrame ("Frame", "ReforgeLiteReforgeCost", self.methodWindow, "SmallMoneyFrameTemplate")
-    MoneyFrame_SetType (self.methodWindow.cost, "STATIC")
+    MoneyFrame_SetType (self.methodWindow.cost, "REFORGE")
     self.methodWindow.cost:SetPoint ("BOTTOMLEFT", self.methodWindow.costTip, "BOTTOMRIGHT", 5, 0)
   end
 
