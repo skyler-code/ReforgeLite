@@ -1798,7 +1798,7 @@ end
 function ReforgeLite:GetReforgeID (slotId)
   local reforgeId = reforgeIdCache[slotId]
   if reforgeId and reforgeId > UNFORGE_INDEX then
-    return reforgeIdCache[slotId]
+    return reforgeId
   end
 end
 
