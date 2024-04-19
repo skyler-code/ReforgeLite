@@ -240,8 +240,8 @@ local function RatingStat (i, name_, tip_, id_, hid_, short)
   end
   return {
     name = name_,
-    tip = L[tip_],
-    long = L[tip_ .. "Long"],
+    tip = tip_,
+    long = tip_,
     getter = function ()
       return (GetCombatRating (id_))
     end,
@@ -254,8 +254,8 @@ end
 ReforgeLite.itemStats = {
   {
     name = "ITEM_MOD_SPIRIT_SHORT",
-    tip = L["Spirit"],
-    long = L["SpiritLong"],
+    tip = ITEM_MOD_SPIRIT_SHORT,
+    long = ITEM_MOD_SPIRIT_SHORT,
     getter = function ()
       return (select (2, UnitStat ("player", 5)))
     end,
@@ -264,13 +264,13 @@ ReforgeLite.itemStats = {
     end,
     parser = "+(.+) " .. _G["ITEM_MOD_SPIRIT_SHORT"]
   },
-  RatingStat (2, "ITEM_MOD_DODGE_RATING", "Dodge", CR_DODGE),
-  RatingStat (3, "ITEM_MOD_PARRY_RATING", "Parry", CR_PARRY),
-  RatingStat (4, "ITEM_MOD_HIT_RATING", "Hit", CR_HIT_SPELL, CR_HIT_RANGED),
-  RatingStat (5, "ITEM_MOD_CRIT_RATING", "Crit", CR_CRIT_SPELL, CR_CRIT_RANGED),
-  RatingStat (6, "ITEM_MOD_HASTE_RATING", "Haste", CR_HASTE_SPELL, CR_HASTE_RANGED),
-  RatingStat (7, "ITEM_MOD_EXPERTISE_RATING", "Exp", CR_EXPERTISE),
-  RatingStat (8, "ITEM_MOD_MASTERY_RATING_SHORT", "Mastery", CR_MASTERY, nil, true)
+  RatingStat (2, "ITEM_MOD_DODGE_RATING", STAT_DODGE, CR_DODGE),
+  RatingStat (3, "ITEM_MOD_PARRY_RATING", STAT_PARRY, CR_PARRY),
+  RatingStat (4, "ITEM_MOD_HIT_RATING", HIT, CR_HIT_SPELL, CR_HIT_RANGED),
+  RatingStat (5, "ITEM_MOD_CRIT_RATING", CRIT_ABBR, CR_CRIT_SPELL, CR_CRIT_RANGED),
+  RatingStat (6, "ITEM_MOD_HASTE_RATING", STAT_HASTE, CR_HASTE_SPELL, CR_HASTE_RANGED),
+  RatingStat (7, "ITEM_MOD_EXPERTISE_RATING", STAT_EXPERTISE, CR_EXPERTISE),
+  RatingStat (8, "ITEM_MOD_MASTERY_RATING_SHORT", STAT_MASTERY, CR_MASTERY, nil, true)
 }
 
 ReforgeLite.STATS = {
@@ -303,8 +303,8 @@ ReforgeLite.tankingStats = {
       end
     },
     [ReforgeLite.STATS.DODGE] = {
-      tip = L["Dodge"],
-      long = L["Dodge chance"],
+      tip = STAT_DODGE,
+      long = DODGE_CHANCE,
       percent = true,
       mgetter = function (method)
         return method.stats.dodge or 0
@@ -314,8 +314,8 @@ ReforgeLite.tankingStats = {
       end
     },
     [ReforgeLite.STATS.PARRY] = {
-      tip = L["Parry"],
-      long = L["Parry chance"],
+      tip = PARRY,
+      long = PARRY_CHANCE,
       percent = true,
       mgetter = function (method)
         return method.stats.parry or 0
@@ -325,8 +325,8 @@ ReforgeLite.tankingStats = {
       end
     },
     [ReforgeLite.STATS.MASTERY] = {
-      tip = L["Block"],
-      long = L["Block chance"],
+      tip = BLOCK,
+      long = BLOCK_CHANCE,
       percent = true,
       mgetter = function (method)
         return method.stats.block or 0
@@ -338,8 +338,8 @@ ReforgeLite.tankingStats = {
   },
   ["PALADIN"] = {
     [ReforgeLite.STATS.DODGE] = {
-      tip = L["Dodge"],
-      long = L["Dodge chance"],
+      tip = DODGE,
+      long = DODGE_CHANCE,
       percent = true,
       mgetter = function (method)
         return method.stats.dodge or 0
@@ -349,8 +349,8 @@ ReforgeLite.tankingStats = {
       end
     },
     [ReforgeLite.STATS.PARRY] = {
-      tip = L["Parry"],
-      long = L["Parry chance"],
+      tip = PARRY,
+      long = PARRY_CHANCE,
       percent = true,
       mgetter = function (method)
         return method.stats.parry or 0
@@ -360,8 +360,8 @@ ReforgeLite.tankingStats = {
       end
     },
     [ReforgeLite.STATS.MASTERY] = {
-      tip = L["Block"],
-      long = L["Block chance"],
+      tip = BLOCK,
+      long = BLOCK_CHANCE,
       percent = true,
       mgetter = function (method)
         return method.stats.block or 0
@@ -372,7 +372,7 @@ ReforgeLite.tankingStats = {
     }
   },
 }
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.DODGE].long = L["Dodge chance"]
+ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.DODGE].long = DODGE_CHANCE
 ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.DODGE].percent = true
 ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.DODGE].mgetter = function (method)
   return method.stats.dodge
@@ -380,7 +380,7 @@ end
 ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.DODGE].getter = function ()
   return GetDodgeChance ()
 end
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.PARRY].long = L["Parry chance"]
+ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.PARRY].long = PARRY_CHANCE
 ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.PARRY].percent = true
 ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.PARRY].mgetter = function (method)
   return method.stats.parry
@@ -860,7 +860,7 @@ function ReforgeLite:CreateItemTable ()
   self.itemLevel = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   self.itemLevel:SetPoint ("TOPLEFT", self, "TOPLEFT", 12, -40)
   self.itemLevel:SetTextColor (1, 1, 0.8)
-  self.itemLevel:SetText (L["Item level"] .. ": 0")
+  self.itemLevel:SetText (STAT_AVERAGE_ITEM_LEVEL .. ": 0")
   
   self.itemTable = GUI:CreateTable (#self.itemSlots + 1, #self.itemStats, self.db.itemSize, self.db.itemSize + 4, {0.5, 0.5, 0.5, 1}, self)
   self.itemTable:SetPoint ("TOPLEFT", self.itemLevel, "BOTTOMLEFT", 0, -10)
@@ -1124,11 +1124,11 @@ function ReforgeLite:UpdateStatWeightList ()
   end
   if self.pdb.tankingModel then
     self.statWeights.buffs = {}
-    self.statWeights.buffs.kings = GUI:CreateCheckButton (self.statWeights, L["All Stats"], self.pdb.buffs.kings, function (val)
+    self.statWeights.buffs.kings = GUI:CreateCheckButton (self.statWeights, GetSpellInfo(20217), self.pdb.buffs.kings, function (val)
       self.pdb.buffs.kings = val
       self:RefreshMethodStats ()
     end)
-    self.statWeights.buffs.strength = GUI:CreateCheckButton (self.statWeights, L["Strength/Agility"], self.pdb.buffs.strength, function (val)
+    self.statWeights.buffs.strength = GUI:CreateCheckButton (self.statWeights, GetSpellInfo(57330), self.pdb.buffs.strength, function (val)
       self.pdb.buffs.strength = val
       self:RefreshMethodStats ()
     end)
@@ -1227,7 +1227,7 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory:AddFrame (self.savePresetButton)
   self.savePresetButton:SetWidth (114)
   self.savePresetButton:SetHeight (22)
-  self.savePresetButton:SetText (L["Save"])
+  self.savePresetButton:SetText (SAVE)
   self.savePresetButton:SetScript ("OnClick", function (self)
     StaticPopup_Show ("REFORGE_LITE_SAVE_PRESET")
   end)
@@ -1237,7 +1237,7 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory:AddFrame (self.deletePresetButton)
   self.deletePresetButton:SetWidth (114)
   self.deletePresetButton:SetHeight (22)
-  self.deletePresetButton:SetText (L["Delete"])
+  self.deletePresetButton:SetText (DELETE)
   self.deletePresetButton:SetScript ("OnClick", function ()
     if next (self.db.customPresets) then
       ToggleDropDownMenu (1, nil, self.presetDelMenu, self.deletePresetButton:GetName (), 0, 0)
@@ -1290,7 +1290,7 @@ function ReforgeLite:CreateOptionList ()
   self.statCaps:SetColumnWidth (1, 100)
   self.statCaps:SetColumnWidth (3, 50)
   self.statCaps:SetColumnWidth (4, 50)
-  local statList = {{value = 0, name = L["None"]}}
+  local statList = {{value = 0, name = NONE}}
   for i, v in ipairs (self.itemStats) do
     table.insert (statList, {value = i, name = v.long})
   end
@@ -1373,7 +1373,7 @@ function ReforgeLite:CreateOptionList ()
   self.quality.label = self.quality:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   self.quality.label:SetPoint ("BOTTOM", self.quality, "TOP", 0, 0)
   self.quality.label:SetTextColor (1, 1, 1)
-  self.quality.label:SetText (L["Speed"])
+  self.quality.label:SetText (SPEED)
   self.quality.lowtext = self.quality:CreateFontString (nil, "ARTWORK", "GameFontHighlightSmall")
   self.quality.lowtext:SetPoint ("TOPLEFT", self.quality, "BOTTOMLEFT", 2, 3)
   self.quality.lowtext:SetText ("1")
@@ -1417,7 +1417,7 @@ function ReforgeLite:CreateOptionList ()
   self.storedRestore = CreateFrame ("Button", "ReforgeLiteStoredRestore", self.content, "UIPanelButtonTemplate")
   self.storedRestore:SetWidth (114)
   self.storedRestore:SetHeight (22)
-  self.storedRestore:SetText (L["Restore"])
+  self.storedRestore:SetText (REFORGE_RESTORE)
   self.storedRestore:SetScript ("OnClick", function (self)
     ReforgeLite:RestoreStoredMethod ()
   end)
@@ -1434,7 +1434,7 @@ function ReforgeLite:CreateOptionList ()
     self:ClearStoredMethod ()
   end
 
-  self.settingsCategory = self:CreateCategory (L["Settings"])
+  self.settingsCategory = self:CreateCategory (SETTINGS)
   self:SetAnchor (self.settingsCategory, "TOPLEFT", self.storedClear, "BOTTOMLEFT", 0, -10)
   self.settings = GUI:CreateTable (6, 1, nil, 200)
   self.settingsCategory:AddFrame (self.settings)
@@ -1462,7 +1462,7 @@ function ReforgeLite:FillSettings ()
   self.settings:SetCell (2, 0, GUI:CreateCheckButton (self.settings, L["Show reforged stats in item tooltips"],
     self.db.updateTooltip, function (val) self.db.updateTooltip = val end), "LEFT")
 
-  self.settings:SetCellText (3, 0, L["Target level"], "LEFT", nil, "GameFontNormal")
+  self.settings:SetCellText (3, 0, STAT_TARGET_LEVEL, "LEFT", nil, "GameFontNormal")
   self.settings:SetCell (3, 1, GUI:CreateEditBox (self.settings, 50, 30, self.pdb.targetLevel,
     function (val) self.pdb.targetLevel = val self:UpdateItems () end), "LEFT")
 
@@ -1568,7 +1568,7 @@ function ReforgeLite:UpdateMethodCategory ()
     self.methodShow = CreateFrame ("Button", "ReforgeLiteMethodShowButton", self.content, "UIPanelButtonTemplate")
     self.methodShow:SetWidth (114)
     self.methodShow:SetHeight (22)
-    self.methodShow:SetText (L["Show"])
+    self.methodShow:SetText (SHOW)
     self.methodShow:SetScript ("OnClick", function (self)
       ReforgeLite:ShowMethodWindow ()
     end)
@@ -1578,7 +1578,7 @@ function ReforgeLite:UpdateMethodCategory ()
     self.methodReset = CreateFrame ("Button", "ReforgeLiteMethodResetButton", self.content, "UIPanelButtonTemplate")
     self.methodReset:SetWidth (114)
     self.methodReset:SetHeight (22)
-    self.methodReset:SetText (L["Reset"])
+    self.methodReset:SetText (RESET)
     self.methodReset:SetScript ("OnClick", function (self)
       ReforgeLite:ResetMethod ()
     end)
@@ -1637,12 +1637,12 @@ function ReforgeLite:RefreshMethodStats (relax)
         self.methodTank:Show2 ()
         self.methodTank:ClearLines ()
         local ctc = missChance
-        self.methodTank:PrintLine ("%s: %.2f%%", L["Dodge chance"], self.pdb.method.stats.dodge or 0)
+        self.methodTank:PrintLine ("%s: %.2f%%", DODGE_CHANCE, self.pdb.method.stats.dodge or 0)
         ctc = ctc + (self.pdb.method.stats.dodge or 0)
-        self.methodTank:PrintLine ("%s: %.2f%%", L["Parry chance"], self.pdb.method.stats.parry or 0)
+        self.methodTank:PrintLine ("%s: %.2f%%", PARRY_CHANCE, self.pdb.method.stats.parry or 0)
         ctc = ctc + (self.pdb.method.stats.parry or 0)
         if playerClass == "WARRIOR" or playerClass == "PALADIN" then
-          self.methodTank:PrintLine ("%s: %.2f%%", L["Block chance"], (self.pdb.method.stats.block or 0) +
+          self.methodTank:PrintLine ("%s: %.2f%%", BLOCK_CHANCE, (self.pdb.method.stats.block or 0) +
                                                                       (self.pdb.method.stats.overcap or 0))
           ctc = ctc + (self.pdb.method.stats.block or 0) + (self.pdb.method.stats.overcap or 0)
         end
@@ -1858,7 +1858,7 @@ function ReforgeLite:UpdateItems ()
     end
   end
 
-  self.itemLevel:SetText (L["Item level"] .. ": " .. floor(select(2,GetAverageItemLevel())))
+  self.itemLevel:SetText (STAT_AVERAGE_ITEM_LEVEL .. ": " .. floor(select(2,GetAverageItemLevel())))
 
   self.s2hFactor = 0
   local _, unitClass = UnitClass ("player")
@@ -2032,7 +2032,7 @@ function ReforgeLite:ShowMethodWindow ()
     self.methodWindow.reforge:SetWidth (114)
     self.methodWindow.reforge:SetHeight (22)
     self.methodWindow.reforge:SetPoint ("BOTTOMLEFT", self.methodWindow, "BOTTOMLEFT", 12, 12)
-    self.methodWindow.reforge:SetText (L["Reforge"])
+    self.methodWindow.reforge:SetText (REFORGE)
     self.methodWindow.reforge:SetScript ("OnClick", function (self)
       ReforgeLite:DoReforge ()
     end)
@@ -2198,7 +2198,7 @@ function ReforgeLite:DoReforgeUpdate ()
             end
             self.curReforgeItem = nil
             self.methodWindow.reforge:SetScript ("OnUpdate", nil)
-            self.methodWindow.reforge:SetText (L["Reforge"])
+            self.methodWindow.reforge:SetText (REFORGE)
           end
           return
         end
@@ -2208,7 +2208,7 @@ function ReforgeLite:DoReforgeUpdate ()
   end
   self.curReforgeItem = nil
   self.methodWindow.reforge:SetScript ("OnUpdate", nil)
-  self.methodWindow.reforge:SetText (L["Reforge"])
+  self.methodWindow.reforge:SetText (REFORGE)
 end
 
 function ReforgeLite:DoReforge ()
@@ -2219,14 +2219,14 @@ function ReforgeLite:DoReforge ()
       C_Reforge.SetReforgeFromCursorItem ()
       ClearCursor ()
       self.methodWindow.reforge:SetScript ("OnUpdate", nil)
-      self.methodWindow.reforge:SetText (L["Reforge"])
+      self.methodWindow.reforge:SetText (REFORGE)
     else
       ClearCursor ()
       C_Reforge.SetReforgeFromCursorItem ()
       ClearCursor ()
       self.curReforgeItem = 0
       self.methodWindow.reforge:SetScript ("OnUpdate", function (self) ReforgeLite:DoReforgeUpdate () end)
-      self.methodWindow.reforge:SetText (L["Cancel"])
+      self.methodWindow.reforge:SetText (CANCEL)
     end
   end
 end

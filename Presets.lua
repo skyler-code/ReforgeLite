@@ -90,7 +90,7 @@ end
 ReforgeLite.capPresets = {
   {
     value = 1,
-    name = L["Manual"],
+    name = TRACKER_SORT_MANUAL,
     getter = nil
   },
   {
@@ -205,13 +205,13 @@ ReforgeLite.presets = {
       },
     },
     ["Frost"] = {
-      ["2H Weapon"] = {
+      [ENCHSLOT_2HWEAPON] = {
         weights = {
           0, 0, 0, 201, 115, 129, 163, 126
         },
         caps = MeleeCaps,
       },
-      ["Dual Wielding (Oblit)"] = {
+      [GetSpellInfo(674) .. " (Oblit)"] = {
         weights = {
           0, 0, 0, 229, 116, 147, 164, 144
         },
@@ -240,7 +240,7 @@ ReforgeLite.presets = {
           },
         },
       },
-      ["Dual Wielding (Masterfrost)"] = {
+      [GetSpellInfo(674) .. " (Masterfrost)"] = {
         weights = {
           0, 0, 0, 229, 116, 144, 164, 147
         },
@@ -271,13 +271,13 @@ ReforgeLite.presets = {
       },
     },
     ["Unholy"] = {
-      ["Normal"] = {
+      [PLAYER_DIFFICULTY1] = {
         weights = {
           0, 0, 0, 200, 130, 160, 100, 110
         },
         caps = { HitCap },
       },
-      ["W/ Gurthalak"] = {
+      [C_Item.GetItemNameByID(78478) or "Gurthalak, Voice of the Deeps"] = {
         weights = {
           0, 0, 0, 200, 120, 160, 100, 130
         },
@@ -760,7 +760,7 @@ ReforgeLite.presets = {
       },
     },
     ["Fury"] = {
-      ["Titan's Grip"] = {
+      [GetSpellInfo(46917)] = { -- Titan's Grip
         weights = {
           0, 0, 0, 200, 150, 100, 180, 130
         },
@@ -794,7 +794,7 @@ ReforgeLite.presets = {
           },
         },
       },
-      ["Single-Minded Fury"] = {
+      [GetSpellInfo(81099)] = { -- Single-Minded Fury
         weights = {
           0, 0, 0, 200, 150, 100, 180, 130
         },
@@ -841,7 +841,7 @@ ReforgeLite.presets = {
 }
 
 function ReforgeLite:InitPresets ()
-  self.presets["Custom"] = self.db.customPresets
+  self.presets[CUSTOM] = self.db.customPresets
   
   if PawnVersion then
     local PawnMap = {
