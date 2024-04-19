@@ -252,10 +252,11 @@ end
 -------------------------------------------------------------------------------
 
 function GUI:CreateHLine (x1, x2, y, w, color, parent)
+  DevTools_Dump(color)
   parent = parent or self.defaultParent
   local line = parent:CreateTexture (nil, "ARTWORK")
   line:SetDrawLayer ("ARTWORK")
-  line:SetTexture (color[1], color[2], color[3], color[4])
+  line:SetColorTexture (color[1], color[2], color[3], color[4])
   if x1 > x2 then
     x1, x2 = x2, x1
   end
@@ -280,7 +281,7 @@ function GUI:CreateVLine (x, y1, y2, w, color, parent)
   parent = parent or self.defaultParent
   local line = parent:CreateTexture (nil, "ARTWORK")
   line:SetDrawLayer ("ARTWORK")
-  line:SetTexture (color[1], color[2], color[3], color[4])
+  line:SetColorTexture (color[1], color[2], color[3], color[4])
   if y1 > y2 then
     y1, y2 = y2, y1
   end
