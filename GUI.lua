@@ -220,30 +220,25 @@ function GUI:CreateColorPicker (parent, width, height, color, handler)
   box:SetScript ("OnEnter", function () box.glow:Show () end)
   box:SetScript ("OnLeave", function () box.glow:Hide () end)
   box:SetScript ("OnMouseDown", function ()
-    ColorPickerFrame:Hide ()
-
-    ColorPickerFrame.previousValues = {unpack (color)}
-
-    ColorPickerFrame.hasOpacity = false
-    ColorPickerFrame.opacityFunc = nil
-    ColorPickerFrame.func = function ()
-      color[1], color[2], color[3] = ColorPickerFrame:GetColorRGB ()
-      box.texture:SetColorTexture (unpack (color))
-      if handler then
-        handler ()
+    ColorPickerFrame:SetupColorPickerAndShow({
+      r = color[1],
+      g = color[2],
+      b = color[3],
+      swatchFunc = function()
+        color[1], color[2], color[3] = ColorPickerFrame:GetColorRGB()
+        box.texture:SetColorTexture (unpack (color))
+        if handler then
+          handler()
+        end
+      end,
+      cancelFunc = function()
+        color[1], color[2], color[3] = ColorPickerFrame:GetPreviousValues()
+        box.texture:SetColorTexture (unpack (color))
+        if handler then
+          handler()
+        end
       end
-    end
-    ColorPickerFrame:SetColorRGB (color[1], color[2], color[3])
-    ColorPickerFrame.cancelFunc = function ()
-      color[1], color[2], color[3] = unpack (ColorPickerFrame.previousValues)
-      box.texture:SetColorTexture (unpack (color))
-      if handler then
-        handler ()
-      end
-    end
-
-    ColorPickerFrame:SetPoint ("CENTER")
-    ColorPickerFrame:Show ()
+    })
   end)
 
   return box
