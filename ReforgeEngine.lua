@@ -357,8 +357,7 @@ function ReforgeLite:GetItemReforgeOptions (item, data, slot)
     if link then
       local reforge = self:GetReforgeID (self.itemData[slot].slotId)
       if reforge then
-        src = self.reforgeTable[reforge][1]
-        dst = self.reforgeTable[reforge][2]
+        src, dst = unpack(self.reforgeTable[reforge])
       end
     end
     return { self:MakeReforgeOption (item, data, src, dst) }
@@ -553,8 +552,7 @@ function ReforgeLite:GetItemReforgeOptionsS2H (item, data, slot)
     if link then
       local reforge = self:GetReforgeID (self.itemData[slot].slotId)
       if reforge then
-        srcstat = self.reforgeTable[reforge][1]
-        dststat = self.reforgeTable[reforge][2]
+        srcstat, dststat = unpack(self.reforgeTable[reforge])
         local amount = math.floor (item.stats[srcstat] * REFORGE_COEFF)
         if srcstat == self.STATS.HIT then
           delta1 = delta1 - amount
@@ -667,7 +665,7 @@ function ReforgeLite:InitReforgeS2H ()
     local item = GetInventoryItemLink ("player", self.itemData[i].slotId)
     local reforge = (item and self:GetReforgeID (self.itemData[i].slotId))
     if reforge then
-      local src, dst = self.reforgeTable[reforge][1], self.reforgeTable[reforge][2]
+      local src, dst = unpack(self.reforgeTable[reforge])
       local amount = math.floor (method.items[i].stats[src] * REFORGE_COEFF)
       data.initial[src] = data.initial[src] + amount
       data.initial[dst] = data.initial[dst] - amount
@@ -720,8 +718,7 @@ function ReforgeLite:GetItemReforgeOptionsTank (item, data, slot)
     if link then
       local reforge = self:GetReforgeID (self.itemData[slot].slotId)
       if reforge then
-        srcstat = self.reforgeTable[reforge][1]
-        dststat = self.reforgeTable[reforge][2]
+        srcstat, dststat = unpack(self.reforgeTable[reforge])
         local amount = math.floor (item.stats[srcstat] * REFORGE_COEFF)
         if srcstat == self.STATS.DODGE then
           delta1 = delta1 - amount
@@ -832,7 +829,7 @@ function ReforgeLite:InitReforgeTank ()
     local item = GetInventoryItemLink ("player", self.itemData[i].slotId)
     local reforge = (item and self:GetReforgeID (self.itemData[i].slotId))
     if reforge then
-      local src, dst = self.reforgeTable[reforge][1], self.reforgeTable[reforge][2]
+      local src, dst = unpack(self.reforgeTable[reforge])
       local amount = math.floor (method.items[i].stats[src] * REFORGE_COEFF)
       data.initial[src] = data.initial[src] + amount
       data.initial[dst] = data.initial[dst] - amount

@@ -1867,14 +1867,15 @@ function ReforgeLite:UpdateItems ()
     local item = GetInventoryItemLink ("player", v.slotId)
     local texture = GetInventoryItemTexture ("player", v.slotId)
     local stats = {}
-    local reforgeSrc, reforgeDst = nil, nil
+    local reforgeSrc, reforgeDst
     if texture then
       v.item = item
       v.texture:SetTexture (texture)
       stats = GetItemStats (item)
       reforge = self:GetReforgeID (v.slotId)
       if reforge then
-        reforgeSrc, reforgeDst = self.itemStats[self.reforgeTable[reforge][1]].name, self.itemStats[self.reforgeTable[reforge][2]].name
+        local srcId, dstId = unpack(self.reforgeTable[reforge])
+        reforgeSrc, reforgeDst = self.itemStats[srcId].name, self.itemStats[dstId].name
         local amount = math.floor ((stats[reforgeSrc] or 0) * 0.4)
         stats[reforgeSrc] = (stats[reforgeSrc] or 0) - amount
         stats[reforgeDst] = (stats[reforgeDst] or 0) + amount
@@ -2155,23 +2156,21 @@ function ReforgeLite:IsReforgeMatching (item, slotId, reforge, override)
   end
 
   if oreforge then
-    local osrc = self.reforgeTable[oreforge][1]
-    local odst = self.reforgeTable[oreforge][2]
-    local oamount = math.floor ((stats[self.itemStats[osrc].name] or 0) * REFORGE_COEFF)
+    local osrc, odst = unpack(self.reforgeTable[oreforge])
+    local oamount = floor ((stats[self.itemStats[osrc].name] or 0) * REFORGE_COEFF)
     deltas[osrc] = deltas[osrc] + oamount
     deltas[odst] = deltas[odst] - oamount
   end
 
   if reforge then
-    local src = self.reforgeTable[reforge][1]
-    local dst = self.reforgeTable[reforge][2]
-    local amount = math.floor ((stats[self.itemStats[src].name] or 0) * REFORGE_COEFF)
+    local src, dst = unpack(self.reforgeTable[reforge])
+    local amount = floor ((stats[self.itemStats[src].name] or 0) * REFORGE_COEFF)
     deltas[src] = deltas[src] - amount
     deltas[dst] = deltas[dst] + amount
   end
 
-  deltas[self.STATS.SPIRIT] = math.floor (deltas[self.STATS.SPIRIT] * self.spiritBonus + 0.5)
-  deltas[self.STATS.HIT] = deltas[self.STATS.HIT] + math.floor (deltas[self.STATS.SPIRIT] * self.s2hFactor / 100 + 0.5)
+  deltas[self.STATS.SPIRIT] = floor (deltas[self.STATS.SPIRIT] * self.spiritBonus + 0.5)
+  deltas[self.STATS.HIT] = deltas[self.STATS.HIT] + floor (deltas[self.STATS.SPIRIT] * self.s2hFactor / 100 + 0.5)
 
   for i = 1, #self.itemStats do
     if self:GetStatScore (i, self.pdb.method.stats[i]) ~= self:GetStatScore (i, self.pdb.method.stats[i] - deltas[i]) then
