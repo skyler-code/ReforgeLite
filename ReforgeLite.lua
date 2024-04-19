@@ -1746,6 +1746,7 @@ local function GetReforgeTableIndex(stat1, stat2)
       return k
     end
   end
+  return UNFORGE_INDEX
 end
 
 local function SearchTooltipForReforgeID(tip)
@@ -1771,19 +1772,34 @@ local function SearchTooltipForReforgeID(tip)
 end
 
 local reforgeIdTooltip
-function GetReforgeIdForInventorySlot(inventorySlotId)
+local ignoredSlots = {[INVSLOT_TABARD]=true,[INVSLOT_BODY]=true}
+function GetReforgeIdForInventorySlot(slotId)
+    if ignoredSlots[slotId] then return end
     if not reforgeIdTooltip then
         reforgeIdTooltip = CreateFrame("GameTooltip", addonName.."Tooltip", nil, "GameTooltipTemplate")
         reforgeIdTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
     end
-    reforgeIdTooltip:SetInventoryItem("player", inventorySlotId)
+    reforgeIdTooltip:SetInventoryItem("player", slotId)
     return SearchTooltipForReforgeID(reforgeIdTooltip)
 end
 
-local ignoredSlots = {[INVSLOT_TABARD]=true,[INVSLOT_BODY]=true}
+local reforgeIdCache = setmetatable({}, {
+  __index = function(self, key)
+    local reforgeId = GetReforgeIdForInventorySlot(key)
+    rawset(self, key, reforgeId)
+    return reforgeId
+  end
+})
+
+function ReforgeLite:PLAYER_EQUIPMENT_CHANGED(slotId)
+  rawset(reforgeIdCache, slotId, nil)
+end
+
 function ReforgeLite:GetReforgeID (slotId)
-  if ignoredSlots[slotId] then return end
-  return GetReforgeIdForInventorySlot(slotId)
+  local reforgeId = reforgeIdCache[slotId]
+  if reforgeId and reforgeId > UNFORGE_INDEX then
+    return reforgeIdCache[slotId]
+  end
 end
 
 -- function ReforgeLite:GetReforgeID (item)
@@ -2220,7 +2236,7 @@ end
 function ReforgeLite.OnTooltipSetItem (tip)
   if not ReforgeLite.db.updateTooltip then return end
   local reforge = SearchTooltipForReforgeID(tip)
-  if reforge then
+  if reforge and reforge > UNFORGE_INDEX then
     local srcId, destId = unpack(reforgeTable[reforge])
     local src = ReforgeLite.itemStats[srcId].long
     local dst = ReforgeLite.itemStats[destId].long
@@ -2273,6 +2289,7 @@ function ReforgeLite:OnEvent (event, ...)
     self:QueueUpdate ()
   end
   if event == "FORGE_MASTER_ITEM_CHANGED" then
+    wipe(reforgeIdCache)
     self:UpdateItems ()
     self:QueueUpdate ()
   end
