@@ -2138,7 +2138,8 @@ function ReforgeLite:UpdateMethodChecks ()
         end
         v.check:SetChecked (false)
         if self.pdb.method.items[i].reforge then
-          cost = cost + (item and select (11, GetItemInfo (item)) or 0)
+          local itemCost = (item and select (11, GetItemInfo (item)) or 0)
+          cost = cost + (itemCost > 0 and itemCost or 100000)
         end
       end
     end
