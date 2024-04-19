@@ -1748,7 +1748,7 @@ local function GetReforgeTableIndex(stat1, stat2)
   end
 end
 
-local function parseTooltip(tip)
+local function SearchTooltipForReforgeID(tip)
   local _, item = tip:GetItem()
   local existingStats = GetItemStats(item)
   local srcStat, destStat
@@ -1777,7 +1777,7 @@ function GetReforgeIdForInventorySlot(inventorySlotId)
         reforgeIdTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
     end
     reforgeIdTooltip:SetInventoryItem("player", inventorySlotId)
-    return parseTooltip(reforgeIdTooltip)
+    return SearchTooltipForReforgeID(reforgeIdTooltip)
 end
 
 local ignoredSlots = {[INVSLOT_TABARD]=true,[INVSLOT_BODY]=true}
@@ -2219,7 +2219,7 @@ end
 
 function ReforgeLite.OnTooltipSetItem (tip)
   if not ReforgeLite.db.updateTooltip then return end
-  local reforge = parseTooltip(tip)
+  local reforge = SearchTooltipForReforgeID(tip)
   if reforge then
     local srcId, destId = unpack(reforgeTable[reforge])
     local src = ReforgeLite.itemStats[srcId].long
