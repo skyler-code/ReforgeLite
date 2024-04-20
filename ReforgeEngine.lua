@@ -46,10 +46,7 @@ function PlayerHasBuff (id)
   end
 end
 function GetPlayerBuffs ()
-  local kings = nil
-  local strength = nil
-  local flask = nil
-  local food = nil
+  local kings, strength, flask, food
   local i = 1
   while true do
     local id = select (10, UnitAura ("player", i))
@@ -146,7 +143,14 @@ function ReforgeLite:GetBuffBonuses ()
     end
   end
   if self.pdb.buffs.strength and not cur_buffs[2] then
-    extra_strength = extra_strength + 549
+    local playerLevel = UnitLevel("player")
+    if playerLevel > 81 then
+      extra_strength = extra_strength + 549
+    elseif playerLevel == 81 then
+      extra_strength = extra_strength + 378
+    else
+      extra_strength = extra_strength + 155
+    end
   end
   if self.pdb.buffs.flask == 1 and cur_buffs[3] ~= 1 then
     extra_strength = extra_strength + 300
