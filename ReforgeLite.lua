@@ -2255,6 +2255,16 @@ end
 
 --------------------------------------------------------------------------
 
+function ReforgeLite:FORGE_MASTER_ITEM_CHANGED()
+  if self.reforgeSent then
+    self.reforgeSent = nil
+  else -- panic cause user is changing forges on their own
+    wipe(reforgeIdCache)
+  end
+  self:UpdateItems ()
+  self:QueueUpdate ()
+end
+
 function ReforgeLite:OnEvent (event, ...)
   if self[event] then
     self[event] (self, ...)
@@ -2274,15 +2284,6 @@ function ReforgeLite:OnEvent (event, ...)
   end
   if event == "FORGE_MASTER_OPENED" or event == "FORGE_MASTER_CLOSED" then
     self.reforgeSent = nil
-    self:QueueUpdate ()
-  end
-  if event == "FORGE_MASTER_ITEM_CHANGED" then
-    if self.reforgeSent then
-      self.reforgeSent = nil
-    else -- panic cause user is changing forges on their own
-      wipe(reforgeIdCache)
-    end
-    self:UpdateItems ()
     self:QueueUpdate ()
   end
 end
