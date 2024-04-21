@@ -1496,7 +1496,7 @@ function ReforgeLite:GetCurrentScore ()
       end
       score = score + block * self.pdb.weights[self.STATS.MASTERY] + (mastery * 1.5) * self.pdb.weights[self.STATS.CRITBLOCK]
     elseif playerClass == "PALADIN" then
-      local master y = GetMastery ()
+      local mastery = GetMastery ()
       local block = 5 + mastery * 2.25
       if missChance + dodge + parry + block > unhit then
         block = unhit - missChance - dodge - parry - block
