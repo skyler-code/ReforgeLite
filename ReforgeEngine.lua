@@ -76,16 +76,6 @@ function GetPlayerBuffs ()
     i = i + 1
   end
 end
-function AlchemyCanCraft (id)
-  local prof1, prof2 = GetProfessions ()
-  if prof2 and select (7, GetProfessionInfo (prof2)) == 171 then
-    prof1 = prof2
-  end
-  if prof1 and select (7, GetProfessionInfo (prof1)) == 171 then
-    return true
-  end
-  return false
-end
 function ReforgeLite:DiminishStat (rating, stat)
   return rating > 0 and 1 / (0.0152366 + 0.956 / (rating / self:RatingPerPoint (stat))) or 0
 end
@@ -158,7 +148,7 @@ function ReforgeLite:GetBuffBonuses ()
   end
   if self.pdb.buffs.flask == 1 and cur_buffs[3] ~= 1 then
     extra_strength = extra_strength + 300
-    if AlchemyCanCraft () then
+    if IsPlayerSpell(80723) then
       extra_strength = extra_strength + 80
     end
   end
@@ -179,7 +169,7 @@ function ReforgeLite:GetBuffBonuses ()
   parry_bonus = parry_bonus + floor ((strength - cur_strength) * 0.27)
   if self.pdb.buffs.flask == 2 and cur_buffs[3] ~= 2 then
     mastery_bonus = mastery_bonus + 225
-    if AlchemyCanCraft () then
+    if IsPlayerSpell(80497) then
       mastery_bonus = mastery_bonus + 40
     end
   end
