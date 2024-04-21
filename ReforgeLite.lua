@@ -2054,9 +2054,9 @@ function ReforgeLite:ShowMethodWindow ()
       v.item = nil
       v.texture:SetTexture (v.slotTexture)
     end
-    if self.pdb.method.items[i].reforge then
-      v.reforge:SetText (format ("%d %s > %s", self.pdb.method.items[i].amount,
-        self.itemStats[self.pdb.method.items[i].src].long, self.itemStats[self.pdb.method.items[i].dst].long))
+    local slotInfo = self.pdb.method.items[i]
+    if slotInfo.reforge then
+      v.reforge:SetText (format ("%d %s > %s", slotInfo.amount, self.itemStats[slotInfo.src].long, self.itemStats[slotInfo.dst].long))
       v.reforge:SetTextColor (1, 1, 1)
     else
       v.reforge:SetText (L["No reforge"])
