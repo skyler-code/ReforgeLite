@@ -248,7 +248,7 @@ local function RatingStat (i, name_, tip_, id_, hid_, short)
     mgetter = function (method, orig)
       return (orig and method.orig_stats and method.orig_stats[i]) or method.stats[i]
     end,
-    parser = short == true and ("+(.+) " .. _G[name_]) or nil
+    parser = short and "^+(%d+) " .. _G[name_].."$" or nil
   }
 end
 ReforgeLite.itemStats = {
@@ -262,7 +262,7 @@ ReforgeLite.itemStats = {
     mgetter = function (method, orig)
       return (orig and method.orig_stats and method.orig_stats[1]) or method.stats[1]
     end,
-    parser = "+(.+) " .. _G["ITEM_MOD_SPIRIT_SHORT"]
+    parser = "^+(%d+) " .. _G["ITEM_MOD_SPIRIT_SHORT"].."$"
   },
   RatingStat (2, "ITEM_MOD_DODGE_RATING", STAT_DODGE, CR_DODGE),
   RatingStat (3, "ITEM_MOD_PARRY_RATING", STAT_PARRY, CR_PARRY),
