@@ -356,7 +356,8 @@ ReforgeLite.presets = {
           points = {
             {
               preset = 1,
-              value = 2005,
+              method = AtLeast,
+              value = UnitLevel("player") == 80 and 1017 or 2005,
               after = 135,
             },
           },
