@@ -1879,7 +1879,17 @@ function ReforgeLite:UpdateItems ()
   self:UpdateBuffs ()
   self:RefreshMethodStats ()
 end
-function ReforgeLite:QueueUpdate ()
+
+local queueUpdateEvents = {
+  ["COMBAT_RATING_UPDATE"] = true,
+  ["MASTERY_UPDATE"] = true,
+  ["PLAYER_EQUIPMENT_CHANGED"] = true,
+  ["FORGE_MASTER_OPENED"] = true,
+  ["FORGE_MASTER_CLOSED"] = true,
+  ["FORGE_MASTER_ITEM_CHANGED"] = true,
+}
+
+function ReforgeLite:QueueUpdate()
   self:SetScript ("OnUpdate", function (self)
     self:SetScript ("OnUpdate", nil)
     self:UpdateItems ()
@@ -2262,29 +2272,32 @@ function ReforgeLite:FORGE_MASTER_ITEM_CHANGED()
     wipe(reforgeIdCache)
   end
   self:UpdateItems ()
-  self:QueueUpdate ()
+end
+
+function ReforgeLite:FORGE_MASTER_OPENED()
+  if self.db.openOnReforge and (not self.methodWindow or not self.methodWindow:IsShown()) then
+    self:UpdateItems()
+    self:Show()
+  end
+  self.reforgeSent = nil
+end
+
+function ReforgeLite:FORGE_MASTER_CLOSED()
+  if self.db.openOnReforge then
+    self:Hide()
+    if self.methodWindow then
+      self.methodWindow:Hide()
+    end
+  end
+  self.reforgeSent = nil
 end
 
 function ReforgeLite:OnEvent (event, ...)
   if self[event] then
-    self[event] (self, ...)
+    self[event](self, ...)
   end
-  if event == "COMBAT_RATING_UPDATE" or event == "MASTERY_UPDATE" or event == "PLAYER_EQUIPMENT_CHANGED" then
-    self:QueueUpdate ()
-  end
-  if event == "FORGE_MASTER_OPENED" and self.db.openOnReforge and (self.methodWindow == nil or not self.methodWindow:IsShown ()) then
-    self:UpdateItems ()
-    self:Show ()
-  end
-  if event == "FORGE_MASTER_CLOSED" and self.db.openOnReforge then
-    self:Hide ()
-    if self.methodWindow then
-      self.methodWindow:Hide ()
-    end
-  end
-  if event == "FORGE_MASTER_OPENED" or event == "FORGE_MASTER_CLOSED" then
-    self.reforgeSent = nil
-    self:QueueUpdate ()
+  if queueUpdateEvents[event] then
+    self:QueueUpdate()
   end
 end
 
@@ -2310,12 +2323,9 @@ function ReforgeLite:ADDON_LOADED (addon)
     self:CreateFrame ()
     self:FixScroll ()
 
-    self:RegisterEvent ("COMBAT_RATING_UPDATE")
-    self:RegisterEvent ("MASTERY_UPDATE")
-    self:RegisterEvent ("PLAYER_EQUIPMENT_CHANGED")
-    self:RegisterEvent ("FORGE_MASTER_OPENED")
-    self:RegisterEvent ("FORGE_MASTER_CLOSED")
-    self:RegisterEvent("FORGE_MASTER_ITEM_CHANGED")
+    for event in pairs(queueUpdateEvents) do
+      self:RegisterEvent(event)
+    end
     
     ReforgeLiteTimer:SetScript ("OnUpdate", function(self, ...) self:OnUpdate(...) end)
 
