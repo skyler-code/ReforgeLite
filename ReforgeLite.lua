@@ -2277,7 +2277,11 @@ function ReforgeLite:OnEvent (event, ...)
     self:QueueUpdate ()
   end
   if event == "FORGE_MASTER_ITEM_CHANGED" then
-    self.reforgeSent = nil
+    if self.reforgeSent then
+      self.reforgeSent = nil
+    else -- panic cause user is changing forges on their own
+      wipe(reforgeIdCache)
+    end
     self:UpdateItems ()
     self:QueueUpdate ()
   end
