@@ -1860,7 +1860,7 @@ function ReforgeLite:UpdateItems ()
     local pts = select(5, GetTalentInfo (1, 9, false, false))
     self.s2hFactor = (pts == 3 and 100 or pts * 33)
   elseif unitClass == "PALADIN" then
-    local _, _, _, _, pts = GetTalentInfo (1, 11, false, false)
+    local pts = select(5, GetTalentInfo (1, 4, false, false))
     self.s2hFactor = pts * 50
   end
   if self.s2hFactor and self.s2hFactor > 0 then
