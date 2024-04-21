@@ -2150,6 +2150,7 @@ end
 --------------------------------------------------------------------------
 
 function ReforgeLite:DoReforgeUpdate ()
+  if self.reforgeSent then return end
   if self.curReforgeItem and self.pdb.method and self.methodWindow.reforge:IsShown () and ReforgingFrame and ReforgingFrame:IsShown () then
     while self.curReforgeItem <= #self.methodWindow.items do
       local i = self.curReforgeItem
@@ -2163,6 +2164,8 @@ function ReforgeLite:DoReforgeUpdate ()
             C_Reforge.SetReforgeFromCursorItem ()
           end
           if self:GetReforgeID (slot) then
+            self.reforgeSent = true
+            rawset(reforgeIdCache, slot, nil)
             C_Reforge.ReforgeItem (UNFORGE_INDEX)
           elseif self.pdb.method.items[i].reforge then
             local id = UNFORGE_INDEX
@@ -2173,6 +2176,8 @@ function ReforgeLite:DoReforgeUpdate ()
                 id = id + 1
               end
               if srcstat == self.pdb.method.items[i].src and dststat == self.pdb.method.items[i].dst then
+                self.reforgeSent = true
+                rawset(reforgeIdCache, slot, nil)
                 C_Reforge.ReforgeItem (id)
                 return
               end
@@ -2267,10 +2272,11 @@ function ReforgeLite:OnEvent (event, ...)
     end
   end
   if event == "FORGE_MASTER_OPENED" or event == "FORGE_MASTER_CLOSED" then
+    self.reforgeSent = nil
     self:QueueUpdate ()
   end
   if event == "FORGE_MASTER_ITEM_CHANGED" then
-    wipe(reforgeIdCache)
+    self.reforgeSent = nil
     self:UpdateItems ()
     self:QueueUpdate ()
   end
