@@ -1765,7 +1765,7 @@ function GetReforgeIdForInventorySlot(slotId)
     if ignoredSlots[slotId] then return end
     if not reforgeIdTooltip then
         reforgeIdTooltip = CreateFrame("GameTooltip", addonName.."Tooltip", nil, "GameTooltipTemplate")
-        reforgeIdTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
+        reforgeIdTooltip:SetOwner(UIParent, "ANCHOR_NONE")
     end
     reforgeIdTooltip:SetInventoryItem("player", slotId)
     return SearchTooltipForReforgeID(reforgeIdTooltip)
