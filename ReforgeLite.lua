@@ -2163,11 +2163,12 @@ function ReforgeLite:DoReforgeUpdate ()
             PickupInventoryItem (slot)
             C_Reforge.SetReforgeFromCursorItem ()
           end
-          if self:GetReforgeID (slot) then
+          local newReforge = self.pdb.method.items[i].reforge
+          if self:GetReforgeID (slot) and not newReforge then
             self.reforgeSent = true
             rawset(reforgeIdCache, slot, nil)
             C_Reforge.ReforgeItem (UNFORGE_INDEX)
-          elseif self.pdb.method.items[i].reforge then
+          elseif newReforge then
             local id = UNFORGE_INDEX
             local stats = GetItemStats (item)
             for s, reforgeInfo in ipairs(reforgeTable) do
