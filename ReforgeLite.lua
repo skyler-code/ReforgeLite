@@ -1790,10 +1790,18 @@ function ReforgeLite:GetReforgeID (slotId)
   end
 end
 
--- function ReforgeLite:GetReforgeID (item)
---   local id = tonumber (item:match ("item:%d+:%d+:%d+:%d+:%d+:%d+:%-?%d+:%-?%d+:%d+:(%d+)"))
---   return (id ~= 0 and (id - self.REFORGE_TABLE_BASE) or nil)
--- end
+local reforgeIdStringCache = setmetatable({}, {
+  __index = function(self, key)
+    local id = tonumber(key:match ("item:%d+:%d+:%d+:%d+:%d+:%d+:%-?%d+:%-?%d+:%d+:(%d+)")) or false
+    rawset(self, key, id)
+    return id
+  end
+})
+
+function ReforgeLite:GetReforgeIDFromString(item)
+  local id = reforgeIdStringCache[item]
+  return ((id and id ~= 0) and (id - self.REFORGE_TABLE_BASE) or nil)
+end
 
 function ReforgeLite:UpdateItems ()
   for i, v in ipairs (self.itemData) do
@@ -2232,29 +2240,35 @@ end
 
 function ReforgeLite.OnTooltipSetItem (tip)
   if not ReforgeLite.db.updateTooltip then return end
-  local reforge = SearchTooltipForReforgeID(tip)
-  if reforge and reforge > UNFORGE_INDEX then
-    local srcId, destId = unpack(reforgeTable[reforge])
-    local src = ReforgeLite.itemStats[srcId].long
-    local dst = ReforgeLite.itemStats[destId].long
-    tip:AddLine(format ("%s (%s > %s)", REFORGED, src, dst), GREEN_FONT_COLOR.r, GREEN_FONT_COLOR.g, GREEN_FONT_COLOR.b)
-    tip:Show()
-    -- local regions = {tip:GetRegions ()}
-    -- for _, region in pairs (regions) do
-    --   if region:GetObjectType () == "FontString" then
-    --     if region:GetText () == REFORGED then
-    --       local src = ReforgeLite.itemStats[ReforgeLite.reforgeTable[reforge][1]].long
-    --       local dst = ReforgeLite.itemStats[ReforgeLite.reforgeTable[reforge][2]].long
-    --       region:SetText (format ("%s (%s > %s)", REFORGED, src, dst))
-    --     end
-    --   end
-    -- end
+  local _, item = tip:GetItem()
+  if not item then return end
+  local reforgeIdFromString = ReforgeLite:GetReforgeIDFromString(item)
+  if reforgeIdFromString then
+    local regions = {tip:GetRegions ()}
+    for _, region in pairs (regions) do
+      if region:GetObjectType () == "FontString" then
+        if region:GetText () == REFORGED then
+          local src = ReforgeLite.itemStats[ReforgeLite.reforgeTable[reforge][1]].long
+          local dst = ReforgeLite.itemStats[ReforgeLite.reforgeTable[reforge][2]].long
+          region:SetText (format ("%s (%s > %s)", REFORGED, src, dst))
+        end
+      end
+    end
+  else
+    local reforge = SearchTooltipForReforgeID(tip)
+    if reforge and reforge > UNFORGE_INDEX then
+      local srcId, destId = unpack(reforgeTable[reforge])
+      local src = ReforgeLite.itemStats[srcId].long
+      local dst = ReforgeLite.itemStats[destId].long
+      tip:AddLine(format ("%s (%s > %s)", REFORGED, src, dst), GREEN_FONT_COLOR.r, GREEN_FONT_COLOR.g, GREEN_FONT_COLOR.b)
+      tip:Show()
+    end
   end
 end
 
 function ReforgeLite:SetUpHooks ()
   GameTooltip:HookScript ("OnTooltipSetItem", self.OnTooltipSetItem)
-  --ItemRefTooltip:HookScript ("OnTooltipSetItem", self.OnTooltipSetItem)
+  ItemRefTooltip:HookScript ("OnTooltipSetItem", self.OnTooltipSetItem)
   -- hooksecurefunc (ShoppingTooltip1, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
   -- hooksecurefunc (ShoppingTooltip2, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
   -- hooksecurefunc (ShoppingTooltip3, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
