@@ -251,18 +251,19 @@ local function RatingStat (i, name_, tip_, id_, hid_, short)
     parser = short and "^+(%d+) " .. _G[name_].."$" or nil
   }
 end
-ReforgeLite.itemStats = {
+
+local itemStats = {
   {
     name = "ITEM_MOD_SPIRIT_SHORT",
     tip = ITEM_MOD_SPIRIT_SHORT,
     long = ITEM_MOD_SPIRIT_SHORT,
     getter = function ()
-      return (select (2, UnitStat ("player", 5)))
+      return select(2, UnitStat ("player", 5))
     end,
     mgetter = function (method, orig)
       return (orig and method.orig_stats and method.orig_stats[1]) or method.stats[1]
     end,
-    parser = "^+(%d+) " .. _G["ITEM_MOD_SPIRIT_SHORT"].."$"
+    parser = "^+(%d+) " .. ITEM_MOD_SPIRIT_SHORT.."$"
   },
   RatingStat (2, "ITEM_MOD_DODGE_RATING", STAT_DODGE, CR_DODGE),
   RatingStat (3, "ITEM_MOD_PARRY_RATING", STAT_PARRY, CR_PARRY),
@@ -272,6 +273,7 @@ ReforgeLite.itemStats = {
   RatingStat (7, "ITEM_MOD_EXPERTISE_RATING", STAT_EXPERTISE, CR_EXPERTISE),
   RatingStat (8, "ITEM_MOD_MASTERY_RATING_SHORT", STAT_MASTERY, CR_MASTERY, nil, true)
 }
+ReforgeLite.itemStats = itemStats
 
 ReforgeLite.STATS = {
   SPIRIT = 1, DODGE = 2, PARRY = 3, HIT = 4, CRIT = 5, HASTE = 6, EXP = 7, MASTERY = 8, SPELLHIT = 9, CRITBLOCK = 1
@@ -289,7 +291,7 @@ local itemStatsLocale = {
 }
 
 ReforgeLite.tankingStats = {
-  ["DEATHKNIGHT"] = DeepCopy (ReforgeLite.itemStats),
+  ["DEATHKNIGHT"] = DeepCopy (itemStats),
   ["WARRIOR"] = {
     [ReforgeLite.STATS.CRITBLOCK] = {
       tip = L["Crit block"],
@@ -2248,8 +2250,8 @@ function ReforgeLite.OnTooltipSetItem (tip)
     for _, region in pairs (regions) do
       if region:GetObjectType () == "FontString" then
         if region:GetText () == REFORGED then
-          local src = ReforgeLite.itemStats[ReforgeLite.reforgeTable[reforge][1]].long
-          local dst = ReforgeLite.itemStats[ReforgeLite.reforgeTable[reforge][2]].long
+          local src = itemStats[ReforgeLite.reforgeTable[reforge][1]].long
+          local dst = itemStats[ReforgeLite.reforgeTable[reforge][2]].long
           region:SetText (format ("%s (%s > %s)", REFORGED, src, dst))
         end
       end
@@ -2258,8 +2260,8 @@ function ReforgeLite.OnTooltipSetItem (tip)
     local reforge = SearchTooltipForReforgeID(tip)
     if reforge and reforge > UNFORGE_INDEX then
       local srcId, destId = unpack(reforgeTable[reforge])
-      local src = ReforgeLite.itemStats[srcId].long
-      local dst = ReforgeLite.itemStats[destId].long
+      local src = itemStats[srcId].long
+      local dst = itemStats[destId].long
       tip:AddLine(format ("%s (%s > %s)", REFORGED, src, dst), GREEN_FONT_COLOR.r, GREEN_FONT_COLOR.g, GREEN_FONT_COLOR.b)
       tip:Show()
     end
