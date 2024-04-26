@@ -30,7 +30,7 @@ GUI.editBoxes = {}
 function GUI:CreateEditBox (parent, width, height, default, setter)
   local box
   if #self.editBoxes > 0 then
-    box = table.remove (self.editBoxes, 1)
+    box = tremove (self.editBoxes, 1)
     box:SetParent (parent)
     box:Show ()
     box:SetTextColor (1, 1, 1)
@@ -50,7 +50,7 @@ function GUI:CreateEditBox (parent, width, height, default, setter)
       box:SetScript ("OnEditFocusLost", nil)
       box:SetScript ("OnEnter", nil)
       box:SetScript ("OnLeave", nil)
-      table.insert (self.editBoxes, box)
+      tinsert (self.editBoxes, box)
     end
   end
   if width then
@@ -74,7 +74,7 @@ GUI.dropdowns = {}
 function GUI:CreateDropdown (parent, values, default, setter, width)
   local sel
   if #self.dropdowns > 0 then
-    sel = table.remove (self.dropdowns, 1)
+    sel = tremove (self.dropdowns, 1)
     sel:SetParent (parent)
     sel:Show ()
   else
@@ -130,7 +130,7 @@ function GUI:CreateDropdown (parent, values, default, setter, width)
       sel:SetScript ("OnEnter", nil)
       sel:SetScript ("OnLeave", nil)
       sel.setter = nil
-      table.insert (self.dropdowns, sel)
+      tinsert (self.dropdowns, sel)
     end
   end
   sel.value = default
@@ -148,7 +148,7 @@ GUI.checkButtons = {}
 function GUI:CreateCheckButton (parent, text, default, setter)
   local btn
   if #self.checkButtons > 0 then
-    btn = table.remove (self.checkButtons, 1)
+    btn = tremove (self.checkButtons, 1)
     btn:SetParent (parent)
     btn:Show ()
   else
@@ -159,7 +159,7 @@ function GUI:CreateCheckButton (parent, text, default, setter)
       btn:SetScript ("OnEnter", nil)
       btn:SetScript ("OnLeave", nil)
       btn:SetScript ("OnClick", nil)
-      table.insert (self.checkButtons, btn)
+      tinsert (self.checkButtons, btn)
     end
   end
   _G[btn:GetName () .. "Text"]:SetText (text)
@@ -176,7 +176,7 @@ GUI.imgButtons = {}
 function GUI:CreateImageButton (parent, width, height, img, pus, hlt, handler)
   local btn
   if #self.imgButtons > 0 then
-    btn = table.remove (self.imgButtons, 1)
+    btn = tremove (self.imgButtons, 1)
     btn:SetParent (parent)
     btn:Show ()
   else
@@ -187,7 +187,7 @@ function GUI:CreateImageButton (parent, width, height, img, pus, hlt, handler)
       btn:SetScript ("OnEnter", nil)
       btn:SetScript ("OnLeave", nil)
       btn:SetScript ("OnClick", nil)
-      table.insert (self.imgButtons, btn)
+      tinsert (self.imgButtons, btn)
     end
   end
   btn:SetNormalTexture (img)
@@ -217,23 +217,23 @@ function GUI:CreateColorPicker (parent, width, height, color, handler)
   box.glow:SetColorTexture (1, 1, 1, 0.3)
   box.glow:Hide ()
 
-  box:SetScript ("OnEnter", function () box.glow:Show () end)
-  box:SetScript ("OnLeave", function () box.glow:Hide () end)
-  box:SetScript ("OnMouseDown", function ()
+  box:SetScript ("OnEnter", function (b) b.glow:Show() end)
+  box:SetScript ("OnLeave", function (b) b.glow:Hide() end)
+  box:SetScript ("OnMouseDown", function (b)
     ColorPickerFrame:SetupColorPickerAndShow({
       r = color[1],
       g = color[2],
       b = color[3],
       swatchFunc = function()
         color[1], color[2], color[3] = ColorPickerFrame:GetColorRGB()
-        box.texture:SetColorTexture (unpack (color))
+        b.texture:SetColorTexture (unpack (color))
         if handler then
           handler()
         end
       end,
       cancelFunc = function()
         color[1], color[2], color[3] = ColorPickerFrame:GetPreviousValues()
-        box.texture:SetColorTexture (unpack (color))
+        b.texture:SetColorTexture (unpack (color))
         if handler then
           handler()
         end
@@ -619,14 +619,14 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
       self.cells[i][j]:SetFontObject (font)
       self.cells[i][j]:Show ()
     elseif #self.textTagPool > 0 then
-      self.cells[i][j] = table.remove (self.textTagPool, 1)
+      self.cells[i][j] = tremove (self.textTagPool, 1)
       self.cells[i][j]:SetFontObject (font)
       self.cells[i][j]:Show ()
     else
       self.cells[i][j] = self:CreateFontString (nil, "OVERLAY", font)
       self.cells[i][j].Recycle = function (tag)
         tag:Hide ()
-        table.insert (self.textTagPool, tag)
+        tinsert (self.textTagPool, tag)
       end
     end
     self.cells[i][j].istag = true
