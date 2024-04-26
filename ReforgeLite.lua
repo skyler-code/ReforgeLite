@@ -2317,37 +2317,26 @@ function ReforgeLite:OnEvent (event, ...)
   end
 end
 
-local ReforgeLiteTimer = CreateFrame ("Frame")
-function ReforgeLiteTimer:OnUpdate (epsilon)
-  self.elapsed = (self.elapsed or 0) + epsilon
-  if self.elapsed > 3 then
-    self:SetScript ("OnUpdate", nil)
-    self:Hide ()
-    ReforgeLite:SetUpHooks ()
-  end
-end
-
 function ReforgeLite:ADDON_LOADED (addon)
-  if addon == addonName then
-    self:UpgradeDB ()
-    self.db = ReforgeLiteDB
-    self.pdb = ReforgeLiteDB.profiles[self.dbkey]
+  if addon ~= addonName then return end
+  self:UpgradeDB ()
+  self.db = ReforgeLiteDB
+  self.pdb = ReforgeLiteDB.profiles[self.dbkey]
 
-    self.pdb.reforgeIDs = nil
+  self:InitPresets ()
+  self:CreateFrame ()
+  self:FixScroll ()
+  self:SetUpHooks()
 
-    self:InitPresets ()
-    self:CreateFrame ()
-    self:FixScroll ()
-
-    for event in pairs(queueUpdateEvents) do
-      self:RegisterEvent(event)
-    end
-    
-    ReforgeLiteTimer:SetScript ("OnUpdate", function(self, ...) self:OnUpdate(...) end)
-
-    SlashCmdList[addonName] = function (cmd) self:OnCommand (cmd) end
-    SLASH_ReforgeLite1 = "/reforge"
+  for event in pairs(queueUpdateEvents) do
+    self:RegisterEvent(event)
   end
+  self:UnregisterEvent("ADDON_LOADED")
+
+  for k, v in pairs({ addonName, "reforge" }) do
+    _G["SLASH_"..addonName:upper()..k] = "/" .. v
+  end
+  SlashCmdList[addonName:upper()] = function(...) self:OnCommand(...) end
 end
 
 ReforgeLite:SetScript ("OnEvent", function(self, ...) self:OnEvent(...) end)
