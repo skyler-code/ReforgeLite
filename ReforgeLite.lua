@@ -2189,10 +2189,10 @@ function ReforgeLite:StopReforging()
 end
 
 function ReforgeLite:DoReforgeUpdate ()
-  if self.reforgeSent then return end
-  if not self.curReforgeItem or not self.pdb.method or not self.methodWindow.reforge:IsShown() or not ReforgingFrame or not ReforgingFrame:IsShown() then
+  if not self.curReforgeItem or not self.pdb.method or not self.methodWindow.reforge:IsShown() or not (ReforgingFrame and ReforgingFrame:IsShown()) then
     self:StopReforging()
   end
+  if self.reforgeSent then return end
   while self.curReforgeItem <= #self.methodWindow.items do
     local slotInfo = self.methodWindow.items[self.curReforgeItem]
     local newReforge = self.pdb.method.items[self.curReforgeItem].reforge
