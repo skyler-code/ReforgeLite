@@ -1813,7 +1813,7 @@ local reforgeIdStringCache = setmetatable({}, {
 
 function ReforgeLite:GetReforgeIDFromString(item)
   local id = reforgeIdStringCache[item]
-  return ((id and id ~= 0) and (id - self.REFORGE_TABLE_BASE) or nil)
+  return ((id and id ~= UNFORGE_INDEX) and (id - self.REFORGE_TABLE_BASE) or nil)
 end
 
 function ReforgeLite:UpdateItems ()
@@ -2249,27 +2249,14 @@ function ReforgeLite:OnTooltipSetItem (tip)
   if not self.db.updateTooltip then return end
   local _, item = tip:GetItem()
   if not item then return end
-  local reforgeIdFromString = self:GetReforgeIDFromString(item)
-  if reforgeIdFromString then
-    local regions = {tip:GetRegions ()}
-    for _, region in pairs (regions) do
-      if region:GetObjectType () == "FontString" then
-        if region:GetText () == REFORGED then
-          local srcId, destId = unpack(reforgeTable[reforge])
-          local src = itemStats[srcId].long
-          local dst = itemStats[destId].long
-          region:SetText (format ("%s (%s > %s)", REFORGED, src, dst))
-        end
+  for _, region in pairs({tip:GetRegions ()}) do
+    if region:GetObjectType () == "FontString" and region:GetText() == REFORGED then
+      local reforgeId = self:GetReforgeIDFromString(item) or SearchTooltipForReforgeID(tip)
+      if reforgeId and reforgeId > UNFORGE_INDEX then
+        local srcId, destId = unpack(reforgeTable[reforgeId])
+        region:SetText(format ("%s (%s > %s)", REFORGED, itemStats[srcId].long, itemStats[destId].long))
       end
-    end
-  else
-    local reforge = SearchTooltipForReforgeID(tip)
-    if reforge and reforge > UNFORGE_INDEX then
-      local srcId, destId = unpack(reforgeTable[reforge])
-      local src = itemStats[srcId].long
-      local dst = itemStats[destId].long
-      tip:AddLine(format ("%s (%s > %s)", REFORGED, src, dst), GREEN_FONT_COLOR.r, GREEN_FONT_COLOR.g, GREEN_FONT_COLOR.b)
-      tip:Show()
+      break
     end
   end
 end
