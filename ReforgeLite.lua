@@ -259,7 +259,7 @@ local function RatingStat (i, name_, tip_, id_, hid_, short)
     mgetter = function (method, orig)
       return (orig and method.orig_stats and method.orig_stats[i]) or method.stats[i]
     end,
-    parser = short and "^+(%d+) " .. _G[name_].."$" or nil
+    parser = short and "^+(%d+) " .. _G[name_].."$" or _G[name_]:gsub("%%s", "(.+)")
   }
 end
 
@@ -1758,7 +1758,7 @@ local function SearchTooltipForReforgeID(tip)
     local tipName = ("%sText%%s%s"):format(tip:GetName(), i)
     local leftText = _G[tipName:format("Left")]:GetText()
     for statId, statInfo in ipairs(ReforgeLite.itemStats) do
-      local statValue = strmatch(leftText, statInfo.parser or _G[statInfo.name]:gsub("%%s", "(.+)"))
+      local statValue = strmatch(leftText, statInfo.parser)
       if statValue then
         if not existingStats[statInfo.name] then
           destStat = statId
@@ -1885,15 +1885,9 @@ function ReforgeLite:UpdateItems ()
     self.s2hFactor = pts * 50
   end
   if self.s2hFactor and self.s2hFactor > 0 then
---    self.pdb.caps[2].stat = 0
---    self.statCaps[2].stat:SetValue (0)
---    UIDropDownMenu_DisableDropDown (self.statCaps[2].stat)
---    self.statCaps[2].cover:Show ()
     self.convertSpirit.text:SetText (L["Spirit to hit"] .. ": " .. self.s2hFactor .. "%")
     self.convertSpirit.text:Show ()
   else
---    UIDropDownMenu_EnableDropDown (self.statCaps[2].stat)
---    self.statCaps[2].cover:Hide ()
     self.convertSpirit.text:Hide ()
   end
 
