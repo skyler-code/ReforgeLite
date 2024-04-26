@@ -2270,16 +2270,16 @@ function ReforgeLite:OnTooltipSetItem (tip)
 end
 
 local tooltips = {
-	GameTooltip = true,
-	ShoppingTooltip1 = true,
-	ShoppingTooltip2 = true,
-	ItemRefTooltip = true,
-	ItemRefShoppingTooltip1 = true,
-	ItemRefShoppingTooltip2 = true,
+	"GameTooltip",
+	"ShoppingTooltip1",
+	"ShoppingTooltip2",
+	"ItemRefTooltip",
+	"ItemRefShoppingTooltip1",
+	"ItemRefShoppingTooltip2",
 }
 
 function ReforgeLite:SetUpHooks ()
-	for tooltipName in pairs(tooltips) do
+	for _,tooltipName in ipairs(tooltips) do
 		local tooltip = _G[tooltipName]
 		if tooltip then
 			tooltip:HookScript("OnTooltipSetItem", function(tip) self:OnTooltipSetItem(tip) end)
