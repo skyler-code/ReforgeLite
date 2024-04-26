@@ -103,7 +103,7 @@ function ReforgeLite:GetMethodScore (method)
 end
 
 local itemBonuses = {
-         --   str  dod  par  mas
+  --         str  dod  par  mas
   [58180] = { 380,   0,   0,   0 }, -- License to Slay
   [68982] = {   0,   0,   0, 390 }, -- Necromantic Focus, lol
   [69139] = {   0,   0,   0, 440 }, -- Necromantic Focus H
