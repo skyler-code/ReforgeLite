@@ -23,6 +23,12 @@ local function DeepCopy (t, cache)
   return copy
 end
 
+local function ClearReforgeWindow()
+  ClearCursor()
+  C_Reforge.SetReforgeFromCursorItem ()
+  ClearCursor()
+end
+
 local gprint = print
 local function print(...)
     gprint("|cff33ff99"..addonName.."|r:",...)
@@ -2174,70 +2180,64 @@ end
 
 --------------------------------------------------------------------------
 
-function ReforgeLite:DoReforgeUpdate ()
-  if self.reforgeSent then return end
-  if self.curReforgeItem and self.pdb.method and self.methodWindow.reforge:IsShown () and ReforgingFrame and ReforgingFrame:IsShown () then
-    while self.curReforgeItem <= #self.methodWindow.items do
-      local i = self.curReforgeItem
-      if i ~= 0 then
-        local slot = self.methodWindow.items[i].slotId
-        local item = GetInventoryItemLink ("player", slot)
-        if item and not self:IsReforgeMatching (slot, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
-          if self.reforgingNow ~= slot then
-            self.reforgingNow = slot
-            PickupInventoryItem (slot)
-            C_Reforge.SetReforgeFromCursorItem ()
-          end
-          local newReforge = self.pdb.method.items[i].reforge
-          if self:GetReforgeID (slot) and not newReforge then
-            self.reforgeSent = true
-            rawset(reforgeIdCache, slot, nil)
-            C_Reforge.ReforgeItem (UNFORGE_INDEX)
-          elseif newReforge then
-            local id = UNFORGE_INDEX
-            local stats = GetItemStats (item)
-            for s, reforgeInfo in ipairs(reforgeTable) do
-              local srcstat, dststat = unpack(reforgeInfo)
-              if (stats[self.itemStats[srcstat].name] or 0) ~= 0 and (stats[self.itemStats[dststat].name] or 0) == 0 then
-                id = id + 1
-              end
-              if srcstat == self.pdb.method.items[i].src and dststat == self.pdb.method.items[i].dst then
-                self.reforgeSent = true
-                rawset(reforgeIdCache, slot, nil)
-                C_Reforge.ReforgeItem (id)
-                return
-              end
-            end
-            self.curReforgeItem = nil
-            self.methodWindow.reforge:SetScript ("OnUpdate", nil)
-            self.methodWindow.reforge:SetText (REFORGE)
-          end
-          return
-        end
-      end
-      self.curReforgeItem = i + 1
-    end
-  end
+function ReforgeLite:StopReforging()
   self.curReforgeItem = nil
+  self.reforgingNow = nil
   self.methodWindow.reforge:SetScript ("OnUpdate", nil)
   self.methodWindow.reforge:SetText (REFORGE)
+  ClearReforgeWindow()
+end
+
+function ReforgeLite:DoReforgeUpdate ()
+  if self.reforgeSent then return end
+  if not self.curReforgeItem or not self.pdb.method or not self.methodWindow.reforge:IsShown() or not ReforgingFrame or not ReforgingFrame:IsShown() then
+    self:StopReforging()
+  end
+  while self.curReforgeItem <= #self.methodWindow.items do
+    local slotInfo = self.methodWindow.items[self.curReforgeItem]
+    local newReforge = self.pdb.method.items[self.curReforgeItem].reforge
+    if slotInfo.item and not self:IsReforgeMatching(slotInfo.slotId, newReforge, self.methodOverride[self.curReforgeItem]) then
+      if self.reforgingNow ~= slotInfo.slotId then
+        self.reforgingNow = slotInfo.slotId
+        PickupInventoryItem(self.reforgingNow)
+        C_Reforge.SetReforgeFromCursorItem()
+      end
+      if newReforge then
+        local id = UNFORGE_INDEX
+        local stats = GetItemStats (slotInfo.item)
+        for s, reforgeInfo in ipairs(reforgeTable) do
+          local srcstat, dststat = unpack(reforgeInfo)
+          if (stats[self.itemStats[srcstat].name] or 0) ~= 0 and (stats[self.itemStats[dststat].name] or 0) == 0 then
+            id = id + 1
+          end
+          if srcstat == self.pdb.method.items[self.curReforgeItem].src and dststat == self.pdb.method.items[self.curReforgeItem].dst then
+            self.reforgeSent = true
+            rawset(reforgeIdCache, self.reforgingNow, nil)
+            C_Reforge.ReforgeItem (id)
+            return
+          end
+        end
+        self:StopReforging()
+      elseif self:GetReforgeID(self.reforgingNow) then
+        self.reforgeSent = true
+        rawset(reforgeIdCache, self.reforgingNow, nil)
+        C_Reforge.ReforgeItem (UNFORGE_INDEX)
+      end
+      return
+    end
+    self.curReforgeItem = self.curReforgeItem + 1
+  end
+  self:StopReforging()
 end
 
 function ReforgeLite:DoReforge ()
   if self.pdb.method and self.methodWindow and ReforgingFrame and ReforgingFrame:IsShown () then
     if self.curReforgeItem then
-      self.curReforgeItem = nil
-      ClearCursor ()
-      C_Reforge.SetReforgeFromCursorItem ()
-      ClearCursor ()
-      self.methodWindow.reforge:SetScript ("OnUpdate", nil)
-      self.methodWindow.reforge:SetText (REFORGE)
+      self:StopReforging()
     else
-      ClearCursor ()
-      C_Reforge.SetReforgeFromCursorItem ()
-      ClearCursor ()
-      self.curReforgeItem = 0
-      self.methodWindow.reforge:SetScript ("OnUpdate", function (self) ReforgeLite:DoReforgeUpdate () end)
+      self.curReforgeItem = INVSLOT_FIRST_EQUIPPED
+      ClearReforgeWindow()
+      self.methodWindow.reforge:SetScript ("OnUpdate", function () self:DoReforgeUpdate() end)
       self.methodWindow.reforge:SetText (CANCEL)
     end
   end
