@@ -2240,18 +2240,19 @@ end
 
 --------------------------------------------------------------------------
 
-function ReforgeLite.OnTooltipSetItem (tip)
-  if not ReforgeLite.db.updateTooltip then return end
+function ReforgeLite:OnTooltipSetItem (tip)
+  if not self.db.updateTooltip then return end
   local _, item = tip:GetItem()
   if not item then return end
-  local reforgeIdFromString = ReforgeLite:GetReforgeIDFromString(item)
+  local reforgeIdFromString = self:GetReforgeIDFromString(item)
   if reforgeIdFromString then
     local regions = {tip:GetRegions ()}
     for _, region in pairs (regions) do
       if region:GetObjectType () == "FontString" then
         if region:GetText () == REFORGED then
-          local src = itemStats[ReforgeLite.reforgeTable[reforge][1]].long
-          local dst = itemStats[ReforgeLite.reforgeTable[reforge][2]].long
+          local srcId, destId = unpack(reforgeTable[reforge])
+          local src = itemStats[srcId].long
+          local dst = itemStats[destId].long
           region:SetText (format ("%s (%s > %s)", REFORGED, src, dst))
         end
       end
@@ -2268,15 +2269,22 @@ function ReforgeLite.OnTooltipSetItem (tip)
   end
 end
 
+local tooltips = {
+	GameTooltip = true,
+	ShoppingTooltip1 = true,
+	ShoppingTooltip2 = true,
+	ItemRefTooltip = true,
+	ItemRefShoppingTooltip1 = true,
+	ItemRefShoppingTooltip2 = true,
+}
+
 function ReforgeLite:SetUpHooks ()
-  GameTooltip:HookScript ("OnTooltipSetItem", self.OnTooltipSetItem)
-  ItemRefTooltip:HookScript ("OnTooltipSetItem", self.OnTooltipSetItem)
-  -- hooksecurefunc (ShoppingTooltip1, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
-  -- hooksecurefunc (ShoppingTooltip2, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
-  -- hooksecurefunc (ShoppingTooltip3, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
-  -- hooksecurefunc (ItemRefShoppingTooltip1, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
-  -- hooksecurefunc (ItemRefShoppingTooltip2, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
-  -- hooksecurefunc (ItemRefShoppingTooltip3, "SetHyperlinkCompareItem", self.OnTooltipSetItem)
+	for tooltipName in pairs(tooltips) do
+		local tooltip = _G[tooltipName]
+		if tooltip then
+			tooltip:HookScript("OnTooltipSetItem", function(tip) self:OnTooltipSetItem(tip) end)
+		end
+	end
 end
 
 --------------------------------------------------------------------------
