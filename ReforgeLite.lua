@@ -23,6 +23,11 @@ local function DeepCopy (t, cache)
   return copy
 end
 
+local gprint = print
+local function print(...)
+    gprint("|cff33ff99"..addonName.."|r:",...)
+end
+
 local L = ReforgeLiteLocale
 local GUI = ReforgeLiteGUI
 
