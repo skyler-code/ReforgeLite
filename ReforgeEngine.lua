@@ -116,7 +116,7 @@ local itemBonuses = {
 }
 
 function ReforgeLite:GetBuffBonuses ()
-  local cur_buffs = {GetPlayerBuffs ()}
+  local cur_buffs = {GetPlayerBuffs()}
   local cur_strength = UnitStat ("player", 1)
   local strength = cur_strength
   local extra_strength = 0
@@ -192,7 +192,7 @@ function ReforgeLite:UpdateMethodStats (method)
   local oldspi = method.stats[self.STATS.SPIRIT]
   method.stats[self.STATS.SPIRIT] = method.stats[self.STATS.SPIRIT] / self.spiritBonus
   for i = 1, #method.items do
-    local item = GetInventoryItemLink ("player", self.itemData[i].slotId)
+    local item = self.itemData[i].item
     local stats = (item and GetItemStats (item) or {})
     local reforge = (item and self:GetReforgeID (self.itemData[i].slotId))
     if reforge then
@@ -261,7 +261,7 @@ function ReforgeLite:ResetMethod ()
   method.items = {}
   for i = 1, #self.itemData do
     method.items[i] = {}
-    local item = GetInventoryItemLink ("player", self.itemData[i].slotId)
+    local item = self.itemData[i].item
     local stats = (item and GetItemStats (item) or {})
     local reforge = (item and self:GetReforgeID (self.itemData[i].slotId))
     if reforge then
@@ -288,7 +288,7 @@ end
 
 function ReforgeLite:IsItemLocked (slot)
   if self.pdb.itemsLocked[slot] then return true end
-  local item = GetInventoryItemLink ("player", self.itemData[slot].slotId)
+  local item = self.itemData[slot].item
   if not item then return true end
   local ilvl = select (4, GetItemInfo (item))
   return ilvl < 200
@@ -433,7 +433,7 @@ function ReforgeLite:InitReforgeClassic ()
   for i = 1, #self.itemData do
     method.items[i] = {}
     method.items[i].stats = {}
-    local item = GetInventoryItemLink ("player", self.itemData[i].slotId)
+    local item = self.itemData[i].item
     local stats = (item and GetItemStats (item) or {})
     for j = 1, #self.itemStats do
       method.items[i].stats[j] = (stats[self.itemStats[j].name] or 0)
@@ -461,8 +461,7 @@ function ReforgeLite:InitReforgeClassic ()
   end
   local reforgedSpirit = 0
   for i = 1, #data.method.items do
-    local item = GetInventoryItemLink ("player", self.itemData[i].slotId)
-    local reforge = (item and self:GetReforgeID (self.itemData[i].slotId))
+    local reforge = (self.itemData[i].item and self:GetReforgeID (self.itemData[i].slotId))
     if reforge then
       local src, dst = self.reforgeTable[reforge][1], self.reforgeTable[reforge][2]
       local amount = floor (method.items[i].stats[src] * REFORGE_COEFF)
@@ -628,7 +627,7 @@ function ReforgeLite:InitReforgeS2H ()
   for i = 1, #self.itemData do
     method.items[i] = {}
     method.items[i].stats = {}
-    local item = GetInventoryItemLink ("player", self.itemData[i].slotId)
+    local item = self.itemData[i].item
     local stats = (item and GetItemStats (item) or {})
     for j = 1, #self.itemStats do
       method.items[i].stats[j] = (stats[self.itemStats[j].name] or 0)
@@ -659,8 +658,7 @@ function ReforgeLite:InitReforgeS2H ()
     end
   end
   for i = 1, #data.method.items do
-    local item = GetInventoryItemLink ("player", self.itemData[i].slotId)
-    local reforge = (item and self:GetReforgeID (self.itemData[i].slotId))
+    local reforge = (self.itemData[i].item and self:GetReforgeID (self.itemData[i].slotId))
     if reforge then
       local src, dst = unpack(self.reforgeTable[reforge])
       local amount = floor (method.items[i].stats[src] * REFORGE_COEFF)
@@ -794,7 +792,7 @@ function ReforgeLite:InitReforgeTank ()
   for i = 1, #self.itemData do
     method.items[i] = {}
     method.items[i].stats = {}
-    local item = GetInventoryItemLink ("player", self.itemData[i].slotId)
+    local item = self.itemData[i].item
     local stats = (item and GetItemStats (item) or {})
     for j = 1, #self.itemStats do
       method.items[i].stats[j] = (stats[self.itemStats[j].name] or 0)
@@ -823,8 +821,7 @@ function ReforgeLite:InitReforgeTank ()
     end
   end
   for i = 1, #data.method.items do
-    local item = GetInventoryItemLink ("player", self.itemData[i].slotId)
-    local reforge = (item and self:GetReforgeID (self.itemData[i].slotId))
+    local reforge = self.itemData[i].item and self:GetReforgeID (self.itemData[i].slotId)
     if reforge then
       local src, dst = unpack(self.reforgeTable[reforge])
       local amount = floor (method.items[i].stats[src] * REFORGE_COEFF)
