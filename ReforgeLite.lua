@@ -2275,12 +2275,12 @@ function ReforgeLite:OnTooltipSetItem (tip)
 end
 
 local tooltips = {
-	"GameTooltip",
-	"ShoppingTooltip1",
-	"ShoppingTooltip2",
-	"ItemRefTooltip",
-	"ItemRefShoppingTooltip1",
-	"ItemRefShoppingTooltip2",
+  "GameTooltip",
+  "ShoppingTooltip1",
+  "ShoppingTooltip2",
+  "ItemRefTooltip",
+  "ItemRefShoppingTooltip1",
+  "ItemRefShoppingTooltip2",
 }
 
 function ReforgeLite:SetUpHooks ()
