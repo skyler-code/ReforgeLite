@@ -2245,11 +2245,10 @@ function ReforgeLite:OnTooltipSetItem (tip)
   if not item then return end
   local reforgeId = self:GetReforgeIDFromString(item) or SearchTooltipForReforgeID(tip)
   if not reforgeId or reforgeId == UNFORGE_INDEX then return end
-  local srcId, destId = GetStatsForReforgeID(reforgeId)
+  local srcId, destId = unpack(reforgeTable[reforgeId])
   local reforgeString = format("%s (%s > %s)", REFORGED, itemStats[srcId].long, itemStats[destId].long)
   for _, region in pairs({tip:GetRegions()}) do
     if region:GetObjectType() == "FontString" and region:GetText() == REFORGED then
-      local srcId, destId = GetStatsForReforgeID(reforgeId)
       region:SetText(reforgeString)
       return
     end
