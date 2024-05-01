@@ -1,0 +1,12 @@
+## Interface: 40400
+## Author: d07.RiV (Iroared) (Continued by Brues)
+## Title: ReforgeLite Classic
+## Notes: Calculates optimal reforging for given weights/caps.
+## Version: @project-version@
+## SavedVariables: ReforgeLiteDB
+
+Localization.lua
+GUI.lua
+ReforgeLite.lua
+ReforgeEngine.lua
+Presets.lua
