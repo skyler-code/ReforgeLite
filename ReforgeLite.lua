@@ -23,12 +23,6 @@ local function DeepCopy (t, cache)
   return copy
 end
 
-local function ClearReforgeWindow()
-  ClearCursor()
-  C_Reforge.SetReforgeFromCursorItem ()
-  ClearCursor()
-end
-
 local gprint = print
 local function print(...)
     gprint("|cff33ff99"..addonName.."|r:",...)
@@ -2173,6 +2167,12 @@ function ReforgeLite:UpdateMethodChecks ()
 end
 
 --------------------------------------------------------------------------
+
+local function ClearReforgeWindow()
+  ClearCursor()
+  C_Reforge.SetReforgeFromCursorItem ()
+  ClearCursor()
+end
 
 function ReforgeLite:StopReforging()
   self.curReforgeItem = nil
