@@ -17,7 +17,7 @@ function ReforgeLite:RatingPerPoint (stat, level)
   elseif level <= 70 then
     factor = 82 / (262 - 3 * level)
   elseif level <= 80 then
-    factor = (82 / 52) * math.pow (131 / 63, (level - 70) / 10)
+    factor = (82 / 52) * ((131 / 63) ^ ((level - 70) / 10))
   else
     factor = (82 / 52) * (131 / 63)
     if level == 81 then
