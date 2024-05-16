@@ -1210,7 +1210,7 @@ function ReforgeLite:CreateOptionList ()
   self:SetAnchor (self.statWeightsCategory, "TOPLEFT", self.content, "TOPLEFT", 2, -2)
 
   self.presetsButton = GUI:CreateImageButton (self.content, 24, 24, "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up",
-    "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down", "Interface\]Buttons\\UI-Common-MouseHilight", function ()
+    "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down", "Interface\\Buttons\\UI-Common-MouseHilight", function ()
     ToggleDropDownMenu (1, nil, self.presetMenu, self.presetsButton:GetName (), 0, 0)
   end)
   self.statWeightsCategory:AddFrame (self.presetsButton)
