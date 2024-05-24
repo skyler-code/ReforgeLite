@@ -1,11 +1,10 @@
 -- Part of ReforgeLite by d07.RiV (Iroared)
 -- All rights reserved
-
+local _, addonTable = ...
 local REFORGE_COEFF = 0.4
 local REFORGE_CHEAT = 5
 
-local _, playerClass = UnitClass ("player")
-local _, playerRace = UnitRace ("player")
+local playerClass, playerRace = addonTable.playerClass, addonTable.playerRace
 local missChance = (playerRace == "NIGHTELF" and 7 or 5)
 
 local function DeepCopy (t, cache)

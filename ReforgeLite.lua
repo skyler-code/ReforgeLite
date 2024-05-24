@@ -1,7 +1,7 @@
 -- ReforgeLite v1.10 by d07.RiV (Iroared)
 -- All rights reserved
-local addonName = ...
-local addonTitle = GetAddOnMetadata(addonName, "title")
+local addonName, addonTable = ...
+local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "title")
 local function DeepCopy (t, cache)
   if type (t) ~= "table" then
     return t
@@ -101,8 +101,9 @@ local function MergeTables (dst, src)
 end
 
 ReforgeLite.dbkey = UnitName ("player") .. " - " .. GetRealmName ()
-local _, playerClass = UnitClass ("player")
-local _, playerRace = UnitRace ("player")
+addonTable.localeClass, addonTable.playerClass = UnitClass ("player")
+addonTable.playerRace = select(2,UnitRace ("player"))
+local playerClass, playerRace, localeClass = addonTable.playerClass, addonTable.playerRace, addonTable.localeClass
 local missChance = (playerRace == "NIGHTELF" and 7 or 5)
 local UNFORGE_INDEX = -1
 
@@ -238,8 +239,7 @@ ReforgeLite.itemSlots = {
 
 local function RatingStat (i, name_, tip_, id_, hid_, short)
   if hid_ then
-    local _, class = UnitClass ("player")
-    if class == "HUNTER" then
+    if playerClass == "HUNTER" then
       id_ = hid_
     end
   end
@@ -401,7 +401,7 @@ end
 ReforgeLite.reforgeTable = reforgeTable
 
 local REFORGE_COEFF = 0.4
-ReforgeLite.spiritBonus = (select (2, UnitRace ("player")) == "Human" and 1.03 or 1)
+ReforgeLite.spiritBonus = playerRace == "Human" and 1.03 or 1
 
 function ReforgeLite:UpdateWindowSize ()
   self.db.windowWidth = self:GetWidth ()
@@ -1261,8 +1261,8 @@ function ReforgeLite:CreateOptionList ()
   self.convertSpirit.text:SetText (L["Spirit to hit"] .. ": 0%")
   self.convertSpirit.text:Hide ()
   
-  if playerClass == "PALADIN" or playerClass == "WARRIOR" or playerClass == "DEATHKNIGHT" then
-    self.tankingModel = GUI:CreateCheckButton (self.content, L["Tanking model"] .. " (" .. (UnitClass ("player")) .. ")",
+  if ReforgeLite.tankingStats[playerClass] then
+    self.tankingModel = GUI:CreateCheckButton (self.content, L["Tanking model"] .. " (" .. localeClass .. ")",
         self.pdb.tankingModel, function (val)
       self.pdb.tankingModel = val
       self:UpdateStatWeightList ()
@@ -1865,17 +1865,16 @@ function ReforgeLite:UpdateItems ()
   self.itemLevel:SetText (STAT_AVERAGE_ITEM_LEVEL .. ": " .. floor(select(2,GetAverageItemLevel())))
 
   self.s2hFactor = 0
-  local _, unitClass = UnitClass ("player")
-  if unitClass == "PRIEST" then
+  if playerClass == "PRIEST" then
     local pts = select(5, GetTalentInfo (3, 20, false, false))
-    self.s2hFactor = pts * 50
-  elseif unitClass == "DRUID" and GetPrimaryTalentTree (false, false) ~= 2 then
+
+  elseif playerClass == "DRUID" and GetPrimaryTalentTree (false, false) ~= 2 then
     local pts = select(5, GetTalentInfo (1, 7, false, false))
-    self.s2hFactor = pts * 50
-  elseif unitClass == "SHAMAN" and GetPrimaryTalentTree (false, false) ~= 2 then
+
+  elseif playerClass == "SHAMAN" and GetPrimaryTalentTree (false, false) ~= 2 then
     local pts = select(5, GetTalentInfo (1, 9, false, false))
-    self.s2hFactor = (pts == 3 and 100 or pts * 33)
-  elseif unitClass == "PALADIN" then
+
+  elseif playerClass == "PALADIN" then
     local pts = select(5, GetTalentInfo (1, 4, false, false))
     self.s2hFactor = pts * 50
   end
