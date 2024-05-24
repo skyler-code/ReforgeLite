@@ -1,6 +1,6 @@
 -- Part of ReforgeLite by d07.RiV (Iroared)
 -- All rights reserved
-
+local _, addonTable = ...
 local L = ReforgeLiteLocale
 
 ----------------------------------------- CAP PRESETS ---------------------------------
@@ -56,7 +56,11 @@ function ReforgeLite:GetSpellHitBonus ()
   return GetSpellHitModifier () or 0
 end
 function ReforgeLite:GetExpertiseBonus ()
-  return GetExpertise () - floor (GetCombatRatingBonus (CR_EXPERTISE))
+  local bonus = GetExpertise() - floor(GetCombatRatingBonus (CR_EXPERTISE))
+  if addonTable.playerClass == "PALADIN" and IsPlayerSpell(56416) and not C_UnitAuras.GetPlayerAuraBySpellID(31801) then
+    bonus = bonus + 10
+  end
+  return bonus
 end
 function ReforgeLite:GetNeededMeleeHit ()
   local diff = self.pdb.targetLevel
