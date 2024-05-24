@@ -1867,13 +1867,13 @@ function ReforgeLite:UpdateItems ()
   self.s2hFactor = 0
   if playerClass == "PRIEST" then
     local pts = select(5, GetTalentInfo (3, 20, false, false))
-
+    self.s2hFactor = pts * 50
   elseif playerClass == "DRUID" and GetPrimaryTalentTree (false, false) ~= 2 then
     local pts = select(5, GetTalentInfo (1, 7, false, false))
-
+    self.s2hFactor = pts * 50
   elseif playerClass == "SHAMAN" and GetPrimaryTalentTree (false, false) ~= 2 then
     local pts = select(5, GetTalentInfo (1, 9, false, false))
-
+    self.s2hFactor = (pts == 3 and 100 or pts * 33)
   elseif playerClass == "PALADIN" then
     local pts = select(5, GetTalentInfo (1, 4, false, false))
     self.s2hFactor = pts * 50
