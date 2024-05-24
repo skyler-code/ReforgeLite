@@ -104,7 +104,7 @@ ReforgeLite.dbkey = UnitName ("player") .. " - " .. GetRealmName ()
 addonTable.localeClass, addonTable.playerClass = UnitClass ("player")
 addonTable.playerRace = select(2,UnitRace ("player"))
 local playerClass, playerRace, localeClass = addonTable.playerClass, addonTable.playerRace, addonTable.localeClass
-local missChance = (playerRace == "NIGHTELF" and 7 or 5)
+local missChance = (playerRace == "NightElf" and 7 or 5)
 local UNFORGE_INDEX = -1
 
 function ReforgeLite:UpgradeDBCaps (caps)
