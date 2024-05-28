@@ -40,7 +40,7 @@ local DefaultDB = {
   windowWidth = 800,
   windowHeight = 564,
 
-  reforgeCheat = 5,
+  reforgeCheat = 1,
 
   openOnReforge = true,
   updateTooltip = true,
