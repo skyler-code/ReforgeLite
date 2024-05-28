@@ -276,9 +276,9 @@ end
 
 function ReforgeLite:CapAllows (cap, value)
   for i = 1, #cap.points do
-    if cap.points[i].method == 1 and value < cap.points[i].value then
+    if cap.points[i].method == addonTable.StatCaps.AtLeast and value < cap.points[i].value then
       return false
-    elseif cap.points[i].method == 2 and value > cap.points[i].value then
+    elseif cap.points[i].method == addonTable.StatCaps.AtMost and value > cap.points[i].value then
       return false
     end
   end

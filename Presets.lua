@@ -149,8 +149,8 @@ local SpellHitCap = 3
 local MeleeDWHitCap = 4
 local ExpSoftCap = 5
 local ExpHardCap = 6
-local AtLeast = 1
-local AtMost = 2
+local AtLeast = addonTable.StatCaps.AtLeast
+local AtMost = addonTable.StatCaps.AtMost
 
 local HitCap = {
   stat = StatHit,

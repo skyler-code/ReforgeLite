@@ -106,6 +106,11 @@ addonTable.playerRace = select(2,UnitRace ("player"))
 local playerClass, playerRace, localeClass = addonTable.playerClass, addonTable.playerRace, addonTable.localeClass
 local missChance = (playerRace == "NightElf" and 7 or 5)
 local UNFORGE_INDEX = -1
+addonTable.StatCaps = {
+  AtLeast = 1,
+  AtMost = 2,
+  NewValue = 3,
+}
 
 function ReforgeLite:UpgradeDBCaps (caps)
   for i = 1, #caps do
@@ -950,7 +955,11 @@ function ReforgeLite:AddCapPoint (i, loading)
     "Interface\\PaperDollInfoFrame\\UI-GearManager-LeaveItem-Transparent", nil, function ()
     self:RemoveCapPoint (i, point)
   end)
-  local methodList = {{value = 1, name = L["At least"]}, {value = 2, name = L["At most"]}, {value = 3, name = ""}}
+  local methodList = {
+    {value = addonTable.StatCaps.AtLeast, name = L["At least"]},
+    {value = addonTable.StatCaps.AtMost, name = L["At most"]},
+    {value = addonTable.StatCaps.NewValue, name = ""}
+  }
   local method = GUI:CreateDropdown (self.statCaps, methodList, 1,
     function (val) self.pdb.caps[i].points[point].method = val end, 80)
   local preset = GUI:CreateDropdown (self.statCaps, self.capPresets, 1, function (val)
