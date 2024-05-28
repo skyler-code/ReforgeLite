@@ -1769,11 +1769,6 @@ end
 
 local reforgeIDMeta = {
   __index = function(self, key)
-    if not GetInventoryItemID("player", key) then return end
-    local itemGUID = type(key) == "number" and C_Item.GetItemGUID({equipmentSlotIndex = key}) or key
-    if rawget(self, itemGUID) then
-      return rawget(self, itemGUID)
-    end
     if not ReforgingFrame or not ReforgingFrame:IsShown() then return end
 
     PickupInventoryItem(key)
@@ -1783,16 +1778,19 @@ local reforgeIDMeta = {
     local reforgeId = GetReforgeItemInfo();
     C_Reforge.SetReforgeFromCursorItem()
     ClearCursor()
-    rawset(self, itemGUID, reforgeId)
+    rawset(self, key, reforgeId)
     return reforgeId
   end
 }
 
 function ReforgeLite:GetReforgeID (slotId)
   if ignoredSlots[slotId] then return end
-  local reforgeInfo = self.pdb.reforgeIDs[slotId]
-  if reforgeInfo and reforgeInfo >= 0 then
-    return reforgeInfo
+  local itemGUID = C_Item.GetItemGUID({equipmentSlotIndex = slotId})
+  if itemGUID then
+    local reforgeInfo = self.pdb.reforgeIDs[itemGUID]
+    if reforgeInfo and reforgeInfo >= 0 then
+      return reforgeInfo
+    end
   end
 end
 
@@ -2267,7 +2265,7 @@ function ReforgeLite:DoReforgeUpdate ()
           end
         end
         self:StopReforging()
-      elseif self:GetReforgeID(self.reforgingNow) then
+      elseif self:GetReforgeID(slotInfo.slotId) then
         self.reforgeSent = true
         C_Reforge.ReforgeItem (UNFORGE_INDEX)
       end
