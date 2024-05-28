@@ -236,6 +236,7 @@ ReforgeLite.itemSlots = {
   "SecondaryHandSlot",
   "RangedSlot"
 }
+local ignoredSlots = { [INVSLOT_TABARD] = true, [INVSLOT_BODY] = true }
 
 local function RatingStat (i, name_, tip_, id_, hid_, short)
   if hid_ then
@@ -1362,8 +1363,8 @@ function ReforgeLite:CreateOptionList ()
   self.quality:SetValueStep (1)
   self.quality:SetValue (self.db.reforgeCheat)
   self.quality:EnableMouseWheel (false)
-  self.quality:SetScript ("OnValueChanged", function (self)
-    ReforgeLite.db.reforgeCheat = self:GetValue ()
+  self.quality:SetScript ("OnValueChanged", function (slider)
+    self.db.reforgeCheat = slider:GetValue ()
   end)
 
   self.quality.label = self.quality:CreateFontString (nil, "OVERLAY", "GameFontNormal")
@@ -1745,6 +1746,82 @@ local function GetReforgeTableIndex(stat1, stat2)
   return UNFORGE_INDEX
 end
 
+local function GetReforgeItemInfo()
+  local reforgeId = UNFORGE_INDEX
+  local currentReforge, itemId, name, quality, bound, cost = C_Reforge.GetReforgeItemInfo()
+  if itemId then
+    if currentReforge and currentReforge > UNFORGE_INDEX then
+      local srcName, srcStat, srcValue, destName, destStat, destValue = C_Reforge.GetReforgeOptionInfo(currentReforge)
+      reforgeId = GetReforgeTableIndex(itemStatsLocale[srcStat], itemStatsLocale[destStat])
+    end
+  end
+  return reforgeId, itemId
+end
+
+local reforgeIDMeta = {
+  __index = function(self, key)
+    if not GetInventoryItemID("player", key) then return end
+    local itemGUID = type(key) == "number" and C_Item.GetItemGUID({equipmentSlotIndex = key}) or key
+    if rawget(self, itemGUID) then
+      return rawget(self, itemGUID)
+    end
+    if not ReforgingFrame or not ReforgingFrame:IsShown() then return end
+
+    PickupInventoryItem(key)
+    C_Reforge.SetReforgeFromCursorItem()
+    GameTooltip:Hide()
+
+    local reforgeId = GetReforgeItemInfo();
+    C_Reforge.SetReforgeFromCursorItem()
+    ClearCursor()
+    rawset(self, itemGUID, reforgeId)
+    return reforgeId
+  end
+}
+
+function ReforgeLite:GetReforgeID (slotId)
+  if ignoredSlots[slotId] then return end
+  local reforgeInfo = self.pdb.reforgeIDs[slotId]
+  if reforgeInfo and reforgeInfo >= 0 then
+    return reforgeInfo
+  end
+end
+
+function ReforgeLite:UpdateCurrentReforge()
+  if self.reforgingNow then
+    local windowReforgeId, itemID = GetReforgeItemInfo()
+    if itemID == self.reforgingNow.itemId and rawget(self.pdb.reforgeIDs, self.reforgingNow.itemGUID) ~= windowReforgeId then
+      rawset(self.pdb.reforgeIDs, self.reforgingNow.itemGUID, windowReforgeId)
+    end
+  end
+end
+
+function ReforgeLite:FORGE_MASTER_SET_ITEM()
+  local _, currentReforgeItemId = GetReforgeItemInfo()
+  if currentReforgeItemId then
+    for k,v in ipairs(self.itemSlots) do
+      local slotId = GetInventorySlotInfo(v)
+      local inventoryItemId = GetInventoryItemID("player", slotId)
+      if inventoryItemId == currentReforgeItemId and IsInventoryItemLocked(slotId) then
+        self.reforgingNow = { itemId = inventoryItemId, itemGUID = C_Item.GetItemGUID({ equipmentSlotIndex = slotId }) }
+        break
+      end
+    end
+    for bagID = 0, NUM_BAG_FRAMES do
+      for slotIndex = 1, C_Container.GetContainerNumSlots(bagID) do
+        local itemInfo = C_Container.GetContainerItemInfo(bagID, slotIndex) or {}
+        if itemInfo.isLocked and itemInfo.itemID == currentReforgeItemId then
+          self.reforgingNow = { itemId = itemInfo.itemID, itemGUID = C_Item.GetItemGUID({ bagID = bagID, slotIndex = slotIndex }) }
+          break
+        end
+      end
+    end
+    self:UpdateCurrentReforge()
+  else
+    self.reforgingNow = nil
+  end
+end
+
 local function SearchTooltipForReforgeID(tip)
   local _, item = tip:GetItem()
   local existingStats = GetItemStats(item)
@@ -1767,47 +1844,19 @@ local function SearchTooltipForReforgeID(tip)
   return GetReforgeTableIndex(srcStat, destStat)
 end
 
-local reforgeIdTooltip
-local ignoredSlots = {[INVSLOT_TABARD]=true,[INVSLOT_BODY]=true}
-function GetReforgeIdForInventorySlot(slotId)
-    if ignoredSlots[slotId] then return end
-    if not reforgeIdTooltip then
-        reforgeIdTooltip = CreateFrame("GameTooltip", addonName.."Tooltip", nil, "GameTooltipTemplate")
-        reforgeIdTooltip:SetOwner(UIParent, "ANCHOR_NONE")
-    end
-    reforgeIdTooltip:SetInventoryItem("player", slotId)
-    return SearchTooltipForReforgeID(reforgeIdTooltip)
-end
+-- local reforgeIdTooltip
+-- function GetReforgeIdForInventorySlot(slotId)
+--     if ignoredSlots[slotId] then return end
+--     if not reforgeIdTooltip then
+--         reforgeIdTooltip = CreateFrame("GameTooltip", addonName.."Tooltip", nil, "GameTooltipTemplate")
+--         reforgeIdTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+--     end
+--     reforgeIdTooltip:SetInventoryItem("player", slotId)
+--     return SearchTooltipForReforgeID(reforgeIdTooltip)
+-- end
 
-local reforgeIdCache = setmetatable({}, {
-  __index = function(self, key)
-    local reforgeId = GetReforgeIdForInventorySlot(key)
-    rawset(self, key, reforgeId)
-    return reforgeId
-  end
-})
-
-function ReforgeLite:PLAYER_EQUIPMENT_CHANGED(slotId)
-  rawset(reforgeIdCache, slotId, nil)
-end
-
-function ReforgeLite:GetReforgeID (slotId)
-  local reforgeId = reforgeIdCache[slotId]
-  if reforgeId and reforgeId > UNFORGE_INDEX then
-    return reforgeId
-  end
-end
-
-local reforgeIdStringCache = setmetatable({}, {
-  __index = function(self, key)
-    local id = tonumber(key:match ("item:%d+:%d+:%d+:%d+:%d+:%d+:%-?%d+:%-?%d+:%d+:(%d+)")) or false
-    rawset(self, key, id)
-    return id
-  end
-})
-
-function ReforgeLite:GetReforgeIDFromString(item)
-  local id = reforgeIdStringCache[item]
+function ReforgeLite:GetReforgeIDFromString (item)
+  local id = tonumber (item:match ("item:%d+:%d+:%d+:%d+:%d+:%d+:%-?%d+:%-?%d+:%d+:(%d+)"))
   return ((id and id ~= UNFORGE_INDEX) and (id - self.REFORGE_TABLE_BASE) or nil)
 end
 
@@ -1899,14 +1948,14 @@ local queueUpdateEvents = {
 }
 
 function ReforgeLite:QueueUpdate()
-  self:SetScript ("OnUpdate", function (self)
-    self:SetScript ("OnUpdate", nil)
-    self:UpdateItems ()
+  self:SetScript ("OnUpdate", function (frame)
+    frame:SetScript ("OnUpdate", nil)
+    frame:UpdateItems ()
   end)
   if self.methodWindow then
-    self.methodWindow:SetScript ("OnUpdate", function (self)
-      self:SetScript ("OnUpdate", nil)
-      ReforgeLite:UpdateMethodChecks ()
+    self.methodWindow:SetScript ("OnUpdate", function (window)
+      window:SetScript ("OnUpdate", nil)
+      self:UpdateMethodChecks ()
     end)
   end
 end
@@ -2148,26 +2197,25 @@ function ReforgeLite:UpdateMethodChecks ()
         end
       end
     end
+    self.methodWindow.reforge:Disable()
+    self.methodWindow.reforgeTip:Hide()
+    self.methodWindow.cost:Hide()
     if anyDiffer then
-      if ReforgingFrame and ReforgingFrame:IsShown () then
-        self.methodWindow.reforge:Enable ()
-        self.methodWindow.reforgeTip:Hide ()
-      else
-        self.methodWindow.reforge:Disable ()
-        self.methodWindow.reforgeTip:Show ()
+      local frameShown = ReforgingFrame and ReforgingFrame:IsShown()
+      local enoughMoney = GetMoney() >= cost
+      SetMoneyFrameColorByFrame(self.methodWindow.cost, enoughMoney and "white" or "red")
+      if not frameShown then
+        self.methodWindow.reforgeTip:Show()
+      elseif enoughMoney then
+        self.methodWindow.reforge:Enable()
       end
-      self.methodWindow.cost:Show ()
-    else
-      self.methodWindow.reforge:Disable ()
-      self.methodWindow.reforgeTip:Hide ()
-      self.methodWindow.cost:Hide ()
+      self.methodWindow.cost:Show()
     end
     MoneyFrame_Update (self.methodWindow.cost, cost)
   end
 end
 
 --------------------------------------------------------------------------
-
 local function ClearReforgeWindow()
   ClearCursor()
   C_Reforge.SetReforgeFromCursorItem ()
@@ -2190,10 +2238,9 @@ function ReforgeLite:DoReforgeUpdate ()
   while self.curReforgeItem <= #self.methodWindow.items do
     local slotInfo = self.methodWindow.items[self.curReforgeItem]
     local newReforge = self.pdb.method.items[self.curReforgeItem].reforge
-    if slotInfo.item and not self:IsReforgeMatching(slotInfo.slotId, newReforge, self.methodOverride[self.curReforgeItem]) then
-      if self.reforgingNow ~= slotInfo.slotId then
-        self.reforgingNow = slotInfo.slotId
-        PickupInventoryItem(self.reforgingNow)
+    if slotInfo.item and not self:IsReforgeMatching (slotInfo.slotId, newReforge, self.methodOverride[self.curReforgeItem]) then
+      if (self.reforgingNow or {}).itemGUID ~= C_Item.GetItemGUID({ equipmentSlotIndex = slotInfo.slotId }) then
+        PickupInventoryItem(slotInfo.slotId)
         C_Reforge.SetReforgeFromCursorItem()
       end
       if newReforge then
@@ -2206,7 +2253,6 @@ function ReforgeLite:DoReforgeUpdate ()
           end
           if srcstat == self.pdb.method.items[self.curReforgeItem].src and dststat == self.pdb.method.items[self.curReforgeItem].dst then
             self.reforgeSent = true
-            rawset(reforgeIdCache, self.reforgingNow, nil)
             C_Reforge.ReforgeItem (id)
             return
           end
@@ -2214,7 +2260,6 @@ function ReforgeLite:DoReforgeUpdate ()
         self:StopReforging()
       elseif self:GetReforgeID(self.reforgingNow) then
         self.reforgeSent = true
-        rawset(reforgeIdCache, self.reforgingNow, nil)
         C_Reforge.ReforgeItem (UNFORGE_INDEX)
       end
       return
@@ -2264,12 +2309,12 @@ local tooltips = {
 }
 
 function ReforgeLite:SetUpHooks ()
-	for _,tooltipName in ipairs(tooltips) do
-		local tooltip = _G[tooltipName]
-		if tooltip then
-			tooltip:HookScript("OnTooltipSetItem", function(tip) self:OnTooltipSetItem(tip) end)
-		end
-	end
+  for _,tooltipName in ipairs(tooltips) do
+    local tooltip = _G[tooltipName]
+    if tooltip then
+      tooltip:HookScript("OnTooltipSetItem", function(tip) self:OnTooltipSetItem(tip) end)
+    end
+  end
 end
 
 --------------------------------------------------------------------------
@@ -2277,10 +2322,8 @@ end
 function ReforgeLite:FORGE_MASTER_ITEM_CHANGED()
   if self.reforgeSent then
     self.reforgeSent = nil
-  else -- panic cause user is changing forges on their own
-    wipe(reforgeIdCache)
   end
-  self:UpdateItems ()
+  self:UpdateCurrentReforge()
 end
 
 function ReforgeLite:FORGE_MASTER_OPENED()
@@ -2316,6 +2359,8 @@ function ReforgeLite:ADDON_LOADED (addon)
   self.db = ReforgeLiteDB
   self.pdb = ReforgeLiteDB.profiles[self.dbkey]
 
+  self.pdb.reforgeIDs = setmetatable(self.pdb.reforgeIDs or {}, reforgeIDMeta)
+
   self:InitPresets ()
   self:CreateFrame ()
   self:FixScroll ()
@@ -2324,6 +2369,7 @@ function ReforgeLite:ADDON_LOADED (addon)
   for event in pairs(queueUpdateEvents) do
     self:RegisterEvent(event)
   end
+  self:RegisterEvent("FORGE_MASTER_SET_ITEM")
   self:UnregisterEvent("ADDON_LOADED")
 
   for k, v in pairs({ addonName, "reforge" }) do
