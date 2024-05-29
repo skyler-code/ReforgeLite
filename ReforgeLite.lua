@@ -1030,7 +1030,7 @@ function ReforgeLite:UpdateCapPreset (i, point)
     self.statCaps.cells[row][3]:SetTextColor (0.5, 0.5, 0.5)
     self.statCaps.cells[row][3]:EnableMouse (false)
     self.statCaps.cells[row][3]:ClearFocus ()
-    self.pdb.caps[i].points[point].value = ceil (self.capPresets[preset].getter ())
+    self.pdb.caps[i].points[point].value = max(0, ceil (self.capPresets[preset].getter ()))
   else
     self.statCaps.cells[row][3]:SetTextColor (1, 1, 1)
     self.statCaps.cells[row][3]:EnableMouse (true)
