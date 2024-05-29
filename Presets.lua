@@ -203,9 +203,36 @@ local CasterCaps = {
 ReforgeLite.presets = {
   ["DEATHKNIGHT"] = {
     ["Blood"] = {
-      tanking = true,
-      weights = {
-        0, 100 * 200, 100 * 200, 20, 0, 0, 40, 150
+      [RAID] = {
+        weights = {
+          0, 110, 100, 150, 20, 50, 120, 200
+        },
+        caps = {
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtMost,
+                preset = MeleeHitCap,
+              }
+            },
+          },
+          {
+            stat = StatExp,
+            points = {
+              {
+                method = AtMost,
+                preset = ExpSoftCap,
+              },
+            },
+          },
+        },
+      },
+      [LFG_TYPE_DUNGEON] = {
+        weights = {
+          0, 0, 0, 200, 0, 50, 200, 150
+        },
+        caps = MeleeCaps,
       },
     },
     ["Frost"] = {
