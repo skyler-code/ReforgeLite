@@ -2233,7 +2233,6 @@ end
 
 function ReforgeLite:StopReforging()
   self.curReforgeItem = nil
-  self.reforgingNow = nil
   self.methodWindow.reforge:SetScript ("OnUpdate", nil)
   self.methodWindow.reforge:SetText (REFORGE)
   ClearReforgeWindow()
@@ -2243,7 +2242,6 @@ function ReforgeLite:DoReforgeUpdate ()
   if not (self.curReforgeItem and self.pdb.method and self.methodWindow.reforge:IsShown() and ReforgeFrameIsVisible()) then
     self:StopReforging()
   end
-  if self.reforgeSent then return end
   while self.curReforgeItem <= #self.methodWindow.items do
     local slotInfo = self.methodWindow.items[self.curReforgeItem]
     local newReforge = self.pdb.method.items[self.curReforgeItem].reforge
@@ -2329,9 +2327,6 @@ end
 --------------------------------------------------------------------------
 
 function ReforgeLite:FORGE_MASTER_ITEM_CHANGED()
-  if self.reforgeSent then
-    self.reforgeSent = nil
-  end
   self:UpdateCurrentReforge()
 end
 
@@ -2340,7 +2335,6 @@ function ReforgeLite:FORGE_MASTER_OPENED()
     self:UpdateItems()
     self:Show()
   end
-  self.reforgeSent = nil
 end
 
 function ReforgeLite:FORGE_MASTER_CLOSED()
@@ -2350,7 +2344,6 @@ function ReforgeLite:FORGE_MASTER_CLOSED()
       self.methodWindow:Hide()
     end
   end
-  self.reforgeSent = nil
 end
 
 function ReforgeLite:OnEvent (event, ...)
