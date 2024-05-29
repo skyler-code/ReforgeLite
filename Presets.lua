@@ -162,6 +162,16 @@ local HitCap = {
   }
 }
 
+local HitCapSpell = {
+  stat = StatHit,
+  points = {
+    {
+      method = AtLeast,
+      preset = SpellHitCap
+    }
+  }
+}
+
 local SoftExpCap = {
   stat = StatExp,
   points = {
@@ -177,28 +187,9 @@ local MeleeCaps = {
   SoftExpCap
 }
 
-local RangedCaps = {
-  {
-    stat = StatHit,
-    points = {
-      {
-        method = AtLeast,
-        preset = MeleeHitCap
-      }
-    }
-  }
-}
-local CasterCaps = {
-  {
-    stat = StatHit,
-    points = {
-      {
-        method = AtLeast,
-        preset = SpellHitCap
-      }
-    }
-  }
-}
+local RangedCaps = { HitCap }
+
+local CasterCaps = { HitCapSpell }
 
 ReforgeLite.presets = {
   ["DEATHKNIGHT"] = {
@@ -273,7 +264,7 @@ ReforgeLite.presets = {
       },
       [GetSpellInfo(674) .. " (Masterfrost)"] = {
         weights = {
-          0, 0, 0, 229, 116, 144, 164, 147
+          0, 0, 0, 200, 120, 150, 100, 180
         },
         caps = {
           {
@@ -281,20 +272,12 @@ ReforgeLite.presets = {
             points = {
               {
                 method = AtLeast,
-                preset = MeleeHitCap,
+                preset = SpellHitCap,
                 after = 106,
               },
               {
-                preset = MeleeDWHitCap,
-              },
-            },
-          },
-          {
-            stat = StatExp,
-            points = {
-              {
-                method = AtLeast,
-                preset = ExpSoftCap,
+                method = AtMost,
+                preset = MeleeHitCap,
               },
             },
           },
