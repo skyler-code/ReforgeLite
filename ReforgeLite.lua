@@ -33,7 +33,6 @@ local GUI = ReforgeLiteGUI
 
 ReforgeLite = CreateFrame ("Frame", nil, UIParent, "BackdropTemplate")
 ReforgeLite:Hide ()
-ReforgeLiteDB = nil
 local AddonPath = "Interface\\AddOns\\" .. addonName .. "\\"
 local DefaultDB = {
   itemSize = 24,
@@ -100,6 +99,10 @@ local function MergeTables (dst, src)
   end
 end
 
+local function ReforgeFrameIsVisible()
+  return ReforgingFrame and ReforgingFrame:IsShown()
+end
+
 ReforgeLite.dbkey = UnitName ("player") .. " - " .. GetRealmName ()
 addonTable.localeClass, addonTable.playerClass = UnitClass ("player")
 addonTable.playerRace = select(2,UnitRace ("player"))
@@ -139,7 +142,7 @@ function ReforgeLite:UpgradeDB ()
     MergeTables (ReforgeLiteDB, DefaultDB)
   end
   local db = ReforgeLiteDB
-  if db.profiles[self.dbkey] == nil then
+  if not db.profiles[self.dbkey] then
     db.profiles[self.dbkey] = DefaultDBProfile
   else
     MergeTables (db.profiles[self.dbkey], DefaultDBProfile)
@@ -1769,7 +1772,7 @@ end
 
 local reforgeIDMeta = {
   __index = function(self, key)
-    if not ReforgingFrame or not ReforgingFrame:IsShown() then return end
+    if not ReforgeFrameIsVisible() then return end
 
     PickupInventoryItem(key)
     C_Reforge.SetReforgeFromCursorItem()
@@ -2208,10 +2211,9 @@ function ReforgeLite:UpdateMethodChecks ()
     self.methodWindow.reforgeTip:Hide()
     self.methodWindow.cost:Hide()
     if anyDiffer then
-      local frameShown = ReforgingFrame and ReforgingFrame:IsShown()
       local enoughMoney = GetMoney() >= cost
       SetMoneyFrameColorByFrame(self.methodWindow.cost, enoughMoney and "white" or "red")
-      if not frameShown then
+      if not ReforgeFrameIsVisible() then
         self.methodWindow.reforgeTip:Show()
       elseif enoughMoney then
         self.methodWindow.reforge:Enable()
@@ -2238,7 +2240,7 @@ function ReforgeLite:StopReforging()
 end
 
 function ReforgeLite:DoReforgeUpdate ()
-  if not self.curReforgeItem or not self.pdb.method or not self.methodWindow.reforge:IsShown() or not (ReforgingFrame and ReforgingFrame:IsShown()) then
+  if not (self.curReforgeItem and self.pdb.method and self.methodWindow.reforge:IsShown() and ReforgeFrameIsVisible()) then
     self:StopReforging()
   end
   if self.reforgeSent then return end
@@ -2277,7 +2279,7 @@ function ReforgeLite:DoReforgeUpdate ()
 end
 
 function ReforgeLite:DoReforge ()
-  if self.pdb.method and self.methodWindow and ReforgingFrame and ReforgingFrame:IsShown () then
+  if self.pdb.method and self.methodWindow and ReforgeFrameIsVisible() then
     if self.curReforgeItem then
       self:StopReforging()
     else
