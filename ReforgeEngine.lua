@@ -341,10 +341,7 @@ function ReforgeLite:MakeReforgeOption (item, data, src, dst)
       dscore = dscore + data.weights[dst] * amount
     end
   end
-  local opt = {d1 = delta1, d2 = delta2, score = dscore}
-  opt["src"] = src
-  opt["dst"] = dst
-  return opt
+  return {d1 = delta1, d2 = delta2, score = dscore, src = src, dst = dst}
 end
 function ReforgeLite:GetItemReforgeOptions (item, data, slot)
   if self:IsItemLocked (slot) then
