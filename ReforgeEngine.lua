@@ -116,7 +116,7 @@ local itemBonuses = {
 
 function ReforgeLite:GetBuffBonuses ()
   local cur_buffs = {GetPlayerBuffs()}
-  local cur_strength = UnitStat ("player", 1)
+  local cur_strength = UnitStat ("player", LE_UNIT_STAT_STRENGTH)
   local strength = cur_strength
   local extra_strength = 0
   local dodge_bonus = 0

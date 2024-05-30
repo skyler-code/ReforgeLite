@@ -272,7 +272,7 @@ local itemStats = {
     tip = ITEM_MOD_SPIRIT_SHORT,
     long = ITEM_MOD_SPIRIT_SHORT,
     getter = function ()
-      return select(2, UnitStat ("player", 5))
+      return select(2, UnitStat ("player", LE_UNIT_STAT_SPIRIT))
     end,
     mgetter = function (method, orig)
       return (orig and method.orig_stats and method.orig_stats[1]) or method.stats[1]
