@@ -407,26 +407,54 @@ ReforgeLite.presets = {
   },
   ["MAGE"] = {
     ["Arcane"] = {
-      weights = {
-        0, 0, 0, 200, 130, 150, 0, 140
-      },
-      caps = {
-        {
-          stat = StatHit,
-          points = {
-            {
-              method = AtLeast,
-              preset = SpellHitCap,
+      [PLAYER_DIFFICULTY1] = {
+        weights = {
+          0, 0, 0, 200, 40, 160, 0, 120
+        },
+        caps = {
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtLeast,
+                preset = SpellHitCap,
+              },
+            },
+          },
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                value = addonTable.playerRace == "Goblin" and 1623 or 1767,
+                after = 80,
+              },
             },
           },
         },
-        {
-          stat = StatHaste,
-          points = {
-            {
-              preset = 1,
-              value = 1767,
-              after = 120,
+      },
+      ["T11 4pc"] = {
+        weights = {
+          0, 0, 0, 200, 40, 160, 0, 120
+        },
+        caps = {
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtLeast,
+                preset = SpellHitCap,
+              },
+            },
+          },
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                value = addonTable.playerRace == "Goblin" and 311 or 443,
+                after = 80,
+              },
             },
           },
         },
