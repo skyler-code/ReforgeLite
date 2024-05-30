@@ -786,7 +786,7 @@ ReforgeLite.presets = {
     },
   },
   ["WARLOCK"] = {
-    ["Affliction"] = {
+    ["Affliction/Destruction"] = {
       weights = {
         0, 0, 0, 200, 140, 160, 0, 120
       },
@@ -794,13 +794,7 @@ ReforgeLite.presets = {
     },
     ["Demonology"] = {
       weights = {
-        0, 0, 0, 200, 120, 140, 0, 160
-      },
-      caps = CasterCaps,
-    },
-    ["Destruction"] = {
-      weights = {
-        0, 0, 0, 200, 140, 160, 0, 120
+        0, 0, 0, 200, 120, 160, 0, 140
       },
       caps = CasterCaps,
     },
