@@ -504,7 +504,7 @@ ReforgeLite.presets = {
   ["PALADIN"] = {
     ["Holy"] = {
       weights = {
-        150, 0, 0, 0, 100, 120, 0, 110
+        160, 0, 0, 0, 80, 200, 0, 120
       },
     },
     ["Protection"] = {
