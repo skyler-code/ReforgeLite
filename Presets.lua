@@ -752,27 +752,9 @@ ReforgeLite.presets = {
   ["WARRIOR"] = {
     ["Arms"] = {
       weights = {
-        0, 0, 0, 200, 150, 100, 130, 120
+        0, 0, 0, 200, 150, 100, 200, 120
       },
-      caps = {
-        {
-          stat = StatHit,
-          points = {
-            {
-              method = AtLeast,
-              preset = MeleeHitCap,
-            },
-          },
-        },
-        {
-          stat = StatExp,
-          points = {
-            {
-              preset = ExpSoftCap,
-            },
-          },
-        },
-      },
+      caps = MeleeCaps
     },
     ["Fury"] = {
       [GetSpellInfo(46917)] = { -- Titan's Grip
