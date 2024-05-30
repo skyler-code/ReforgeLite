@@ -486,7 +486,19 @@ ReforgeLite.presets = {
       weights = {
         0, 0, 0, 200, 180, 140, 0, 130
       },
-      caps = CasterCaps,
+      caps = {
+        HitCapSpell,
+        {
+          stat = StatCrit,
+          points = {
+            {
+              method = AtMost,
+              value = addonTable.playerRace == "Worgen" and 2922 or 3101,
+              after = 100,
+            }
+          }
+        }
+      },
     },
   },
   ["PALADIN"] = {
