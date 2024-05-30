@@ -167,7 +167,7 @@ local HitCapSpell = {
   points = {
     {
       method = AtLeast,
-      preset = SpellHitCap
+      preset = SpellHitCap,
     }
   }
 }
@@ -412,15 +412,7 @@ ReforgeLite.presets = {
           0, 0, 0, 200, 40, 160, 0, 120
         },
         caps = {
-          {
-            stat = StatHit,
-            points = {
-              {
-                method = AtLeast,
-                preset = SpellHitCap,
-              },
-            },
-          },
+          HitCapSpell,
           {
             stat = StatHaste,
             points = {
@@ -438,15 +430,7 @@ ReforgeLite.presets = {
           0, 0, 0, 200, 40, 160, 0, 120
         },
         caps = {
-          {
-            stat = StatHit,
-            points = {
-              {
-                method = AtLeast,
-                preset = SpellHitCap,
-              },
-            },
-          },
+          HitCapSpell,
           {
             stat = StatHaste,
             points = {
@@ -461,10 +445,42 @@ ReforgeLite.presets = {
       },
     },
     ["Fire"] = {
-      weights = {
-        0, 0, 0, 200, 150, 145, 0, 120
+      ["15% " .. STAT_HASTE] = {
+        weights = {
+          0, 0, 0, 133, 200, 66, 0, 0
+        },
+        caps = {
+          HitCapSpell,
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                value = addonTable.playerRace == "Goblin" and 678 or 813,
+                after = 80,
+              },
+            },
+          },
+        },
       },
-      caps = CasterCaps,
+      ["25% " .. STAT_HASTE] = {
+        weights = {
+          0, 0, 0, 133, 200, 66, 0, 0
+        },
+        caps = {
+          HitCapSpell,
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                value = addonTable.playerRace == "Goblin" and 1858 or 2005,
+                after = 80,
+              },
+            },
+          },
+        },
+      },
     },
     ["Frost"] = {
       weights = {
