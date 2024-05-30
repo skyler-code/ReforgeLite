@@ -27,7 +27,7 @@ function GUI:SetTooltip (widget, tip)
 end
 
 GUI.editBoxes = {}
-function GUI:CreateEditBox (parent, width, height, default, setter)
+function GUI:CreateEditBox (parent, width, height, default, setter, fallbackValue)
   local box
   if #self.editBoxes > 0 then
     box = tremove (self.editBoxes, 1)
@@ -61,7 +61,7 @@ function GUI:CreateEditBox (parent, width, height, default, setter)
   end
   box:SetText (default)
   box:SetScript ("OnEditFocusLost", function (box)
-    local value = tonumber (box:GetText ()) or 0
+    local value = tonumber(box:GetText()) or fallbackValue or 0
     box:SetText (value)
     if setter then
       setter (value)

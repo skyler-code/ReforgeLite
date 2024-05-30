@@ -1304,7 +1304,7 @@ function ReforgeLite:CreateOptionList ()
     self.pdb.targetLevel = val
     self.targetLevelResult:SetText("= "..playerLevel + self.pdb.targetLevel)
     self:UpdateItems()
-  end)
+  end, 3)
   self:SetAnchor (self.targetLevel, "LEFT", self.targetLevelText, "RIGHT", 10, 0)
   self.statWeightsCategory:AddFrame (self.targetLevel)
 
