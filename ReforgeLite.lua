@@ -524,6 +524,13 @@ StaticPopupDialogs["REFORGE_LITE_PARSE_PAWN"] = {
   hideOnEscape = true
 }
 
+
+local orderIds = {}
+local function getOrderId(section)
+  orderIds[section] = (orderIds[section] or 0) + 1
+  return orderIds[section]
+end
+
 ------------------------------------------------------------------------
 
 function ReforgeLite:CreateCategory (name)
@@ -1273,20 +1280,42 @@ function ReforgeLite:CreateOptionList ()
   self.convertSpirit.text:SetPoint ("LEFT", self.pawnButton, "RIGHT", 8, 0)
   self.convertSpirit.text:SetText (L["Spirit to hit"] .. ": 0%")
   self.convertSpirit.text:Hide ()
-  
+
   if ReforgeLite.tankingStats[playerClass] then
-    self.tankingModel = GUI:CreateCheckButton (self.content, L["Tanking model"] .. " (" .. localeClass .. ")",
+    self.tankingModel = GUI:CreateCheckButton (self.content, STAT_AVOIDANCE .. " " ..PARENS_TEMPLATE:format(localeClass),
         self.pdb.tankingModel, function (val)
       self.pdb.tankingModel = val
       self:UpdateStatWeightList ()
       self:RefreshMethodStats ()
     end)
     self.statWeightsCategory:AddFrame (self.tankingModel)
-    self:SetAnchor (self.tankingModel, "TOPLEFT", self.pawnButton, "BOTTOMLEFT", 0, -8)
+    self:SetAnchor (self.tankingModel, "TOPLEFT", self.pawnButton, "BOTTOMLEFT", 0, -5)
   end
 
+  local playerLevel = UnitLevel("player")
+
+  self.targetLevelText = self.statWeightsCategory:CreateFontString (nil, "OVERLAY", "GameFontNormal")
+  self:SetAnchor(self.targetLevelText, "TOPLEFT", self.tankingModel or self.pawnButton, "BOTTOMLEFT", 0, -5)
+  self.targetLevelText:SetTextColor (1, 1, 1)
+  self.targetLevelText:SetText(STAT_TARGET_LEVEL..": "..playerLevel.. " +")
+  self.statWeightsCategory:AddFrame (self.targetLevelText)
+
+  self.targetLevel = GUI:CreateEditBox (self.content, 25, 30, self.pdb.targetLevel, function (val)
+    self.pdb.targetLevel = val
+    self.targetLevelResult:SetText("= "..playerLevel + self.pdb.targetLevel)
+    self:UpdateItems()
+  end)
+  self:SetAnchor (self.targetLevel, "LEFT", self.targetLevelText, "RIGHT", 10, 0)
+  self.statWeightsCategory:AddFrame (self.targetLevel)
+
+  self.targetLevelResult = self.statWeightsCategory:CreateFontString (nil, "OVERLAY", "GameFontNormal")
+  self:SetAnchor(self.targetLevelResult, "LEFT", self.targetLevel, "RIGHT", 6, 0)
+  self.targetLevelResult:SetTextColor (1, 1, 1)
+  self.targetLevelResult:SetText("= "..playerLevel + self.pdb.targetLevel)
+  self.statWeightsCategory:AddFrame (self.targetLevelResult)
+
   self.statWeights = GUI:CreateTable (ceil (#self.itemStats / 2), 4)
-  self:SetAnchor (self.statWeights, "TOPLEFT", self.tankingModel or self.pawnButton, "BOTTOMLEFT", 0, -8)
+  self:SetAnchor (self.statWeights, "TOPLEFT", self.targetLevelText, "BOTTOMLEFT", 0, -8)
   self.statWeights:SetPoint ("RIGHT", self.content, "RIGHT", -5, 0)
   self.statWeightsCategory:AddFrame (self.statWeights)
   self.statWeights:SetRowHeight (self.db.itemSize + 2)
@@ -1445,7 +1474,7 @@ function ReforgeLite:CreateOptionList ()
 
   self.settingsCategory = self:CreateCategory (SETTINGS)
   self:SetAnchor (self.settingsCategory, "TOPLEFT", self.storedClear, "BOTTOMLEFT", 0, -10)
-  self.settings = GUI:CreateTable (6, 1, nil, 200)
+  self.settings = GUI:CreateTable (5, 1, nil, 200)
   self.settingsCategory:AddFrame (self.settings)
   self:SetAnchor (self.settings, "TOPLEFT", self.settingsCategory, "BOTTOMLEFT", 0, -5)
   self.settings:SetPoint ("RIGHT", self.content, "RIGHT", -10, 0)
@@ -1466,17 +1495,14 @@ function ReforgeLite:CreateOptionList ()
   end
 end
 function ReforgeLite:FillSettings ()
-  self.settings:SetCell (1, 0, GUI:CreateCheckButton (self.settings, L["Open window when reforging"],
+  self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Open window when reforging"],
     self.db.openOnReforge, function (val) self.db.openOnReforge = val end), "LEFT")
-  self.settings:SetCell (2, 0, GUI:CreateCheckButton (self.settings, L["Show reforged stats in item tooltips"],
+  self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Show reforged stats in item tooltips"],
     self.db.updateTooltip, function (val) self.db.updateTooltip = val end), "LEFT")
 
-  self.settings:SetCellText (3, 0, STAT_TARGET_LEVEL, "LEFT", nil, "GameFontNormal")
-  self.settings:SetCell (3, 1, GUI:CreateEditBox (self.settings, 50, 30, self.pdb.targetLevel,
-    function (val) self.pdb.targetLevel = val self:UpdateItems () end), "LEFT")
-
-  self.settings:SetCellText (4, 0, L["Active window color"], "LEFT", nil, "GameFontNormal")
-  self.settings:SetCell (4, 1, GUI:CreateColorPicker (self.settings, 20, 20, self.db.activeWindowTitle, function ()
+  local activeWindowTitleOrderId = getOrderId('settings')
+  self.settings:SetCellText (activeWindowTitleOrderId, 0, L["Active window color"], "LEFT", nil, "GameFontNormal")
+  self.settings:SetCell (activeWindowTitleOrderId, 1, GUI:CreateColorPicker (self.settings, 20, 20, self.db.activeWindowTitle, function ()
     if self.methodWindow and self.methodWindow:IsShown () and self.methodWindow:GetFrameLevel () > self:GetFrameLevel () then
       self.methodWindow:SetBackdropBorderColor (unpack (self.db.activeWindowTitle))
     else
@@ -1484,8 +1510,9 @@ function ReforgeLite:FillSettings ()
     end
   end), "LEFT")
 
-  self.settings:SetCellText (5, 0, L["Inactive window color"], "LEFT", nil, "GameFontNormal")
-  self.settings:SetCell (5, 1, GUI:CreateColorPicker (self.settings, 20, 20, self.db.inactiveWindowTitle, function ()
+  local inactiveWindowTitleOrderId = getOrderId('settings')
+  self.settings:SetCellText (inactiveWindowTitleOrderId, 0, L["Inactive window color"], "LEFT", nil, "GameFontNormal")
+  self.settings:SetCell (inactiveWindowTitleOrderId, 1, GUI:CreateColorPicker (self.settings, 20, 20, self.db.inactiveWindowTitle, function ()
     if self.methodWindow and self.methodWindow:IsShown () and self.methodWindow:GetFrameLevel () > self:GetFrameLevel () then
       self:SetBackdropBorderColor (unpack (self.db.inactiveWindowTitle))
     elseif self.methodWindow then
@@ -1500,7 +1527,7 @@ function ReforgeLite:FillSettings ()
   self.debugButton:SetScript ("OnClick", function (self)
     ReforgeLite:DebugMethod ()
   end)
-  self.settings:SetCell (6, 0, self.debugButton, "LEFT")
+  self.settings:SetCell (getOrderId('settings'), 0, self.debugButton, "LEFT")
 end
 function ReforgeLite:GetCurrentScore ()
   local score = 0
