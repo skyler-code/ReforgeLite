@@ -755,13 +755,8 @@ ReforgeLite.presets = {
           points = {
             {
               method = AtLeast,
-              preset = MeleeHitCap,
-              after = 200,
-            },
-            {
-              method = AtLeast,
               preset = SpellHitCap,
-              after = 100,
+              after = 50,
             },
             {
               preset = MeleeDWHitCap,
