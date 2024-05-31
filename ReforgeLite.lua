@@ -1809,7 +1809,6 @@ local function SearchTooltipForReforgeID(tip)
 end
 
 local reforgeIdTooltip
-local ignoredSlots = {[INVSLOT_TABARD]=true,[INVSLOT_BODY]=true}
 function GetReforgeIdForInventorySlot(slotId)
     if ignoredSlots[slotId] then return end
     if not reforgeIdTooltip then
