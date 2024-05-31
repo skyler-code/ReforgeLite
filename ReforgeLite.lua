@@ -1285,8 +1285,8 @@ function ReforgeLite:CreateOptionList ()
   self.convertSpirit.text:SetPoint ("LEFT", self.pawnButton, "RIGHT", 8, 0)
   self.convertSpirit.text:SetText (L["Spirit to hit"] .. ": 0%")
   self.convertSpirit.text:Hide ()
-  
-  if ReforgeLite.tankingStats[playerClass] then
+
+  if playerClass == "PALADIN" or playerClass == "WARRIOR" or playerClass == "DEATHKNIGHT" then
     self.tankingModel = GUI:CreateCheckButton (self.content, STAT_AVOIDANCE .. " " ..PARENS_TEMPLATE:format(localeClass),
         self.pdb.tankingModel, function (val)
       self.pdb.tankingModel = val
