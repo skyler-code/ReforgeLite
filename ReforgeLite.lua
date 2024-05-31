@@ -1,7 +1,7 @@
--- ReforgeLite v1.10 by d07.RiV (Iroared)
--- All rights reserved
 local addonName, addonTable = ...
 local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "title")
+local CreateColor, WHITE_FONT_COLOR, ITEM_MOD_SPIRIT_SHORT = CreateColor, WHITE_FONT_COLOR, ITEM_MOD_SPIRIT_SHORT
+
 local function DeepCopy (t, cache)
   if type (t) ~= "table" then
     return t
@@ -278,7 +278,11 @@ local itemStats = {
     mgetter = function (method, orig)
       return (orig and method.orig_stats and method.orig_stats[1]) or method.stats[1]
     end,
-    parser = "^+(%d+) " .. ITEM_MOD_SPIRIT_SHORT.."$"
+    parser = function(line)
+      if CreateColor(line:GetTextColor()):IsEqualTo(WHITE_FONT_COLOR) then
+        return strmatch(line:GetText(), "^+(%d+) "..ITEM_MOD_SPIRIT_SHORT.."$")
+      end
+    end
   },
   RatingStat (2, "ITEM_MOD_DODGE_RATING", STAT_DODGE, CR_DODGE),
   RatingStat (3, "ITEM_MOD_PARRY_RATING", STAT_PARRY, CR_PARRY),
@@ -1792,9 +1796,14 @@ local function SearchTooltipForReforgeID(tip)
   local srcStat, destStat
   for i = 1, tip:NumLines() do
     local tipName = ("%sText%%s%s"):format(tip:GetName(), i)
-    local leftText = _G[tipName:format("Left")]:GetText()
+    local leftLine = _G[tipName:format("Left")]
     for statId, statInfo in ipairs(ReforgeLite.itemStats) do
-      local statValue = strmatch(leftText, statInfo.parser)
+      local statValue
+      if type(statInfo.parser) == "function" then
+        statValue = statInfo.parser(leftLine)
+      else
+        statValue = strmatch(leftLine:GetText(), statInfo.parser)
+      end
       if statValue then
         if not existingStats[statInfo.name] then
           destStat = statId

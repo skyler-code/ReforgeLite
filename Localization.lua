@@ -1,6 +1,3 @@
--- Part of ReforgeLite by d07.RiV (Iroared)
--- All rights reserved
-
 local L = {}
 local gameLocale = GetLocale()
 if gameLocale == "enGB" then

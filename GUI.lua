@@ -1,6 +1,3 @@
--- Part of ReforgeLite by d07.RiV (Iroared)
--- All rights reserved
-
 local GUI = {}
 
 GUI.widgetCount = 0

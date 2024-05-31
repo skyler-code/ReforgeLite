@@ -1,5 +1,3 @@
--- Part of ReforgeLite by d07.RiV (Iroared)
--- All rights reserved
 local _, addonTable = ...
 local L = ReforgeLiteLocale
 
