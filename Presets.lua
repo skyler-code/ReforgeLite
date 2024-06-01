@@ -445,7 +445,7 @@ ReforgeLite.presets = {
     ["Fire"] = {
       ["15% " .. STAT_HASTE] = {
         weights = {
-          0, 0, 0, 133, 200, 66, 0, 0
+          -1, -1, -1, 2, 3, 1, -1, -1
         },
         caps = {
           HitCapSpell,
@@ -463,7 +463,7 @@ ReforgeLite.presets = {
       },
       ["25% " .. STAT_HASTE] = {
         weights = {
-          0, 0, 0, 133, 200, 66, 0, 0
+          -1, -1, -1, 2, 3, 1, -1, -1
         },
         caps = {
           HitCapSpell,
