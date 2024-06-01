@@ -407,7 +407,7 @@ ReforgeLite.presets = {
     ["Arcane"] = {
       [PLAYER_DIFFICULTY1] = {
         weights = {
-          0, 0, 0, 200, 40, 160, 0, 120
+          0, 0, 0, 5, 1, 4, -1, 3
         },
         caps = {
           HitCapSpell,
@@ -417,7 +417,7 @@ ReforgeLite.presets = {
               {
                 method = AtLeast,
                 value = addonTable.playerRace == "Goblin" and 1623 or 1767,
-                after = 80,
+                after = 2,
               },
             },
           },
@@ -425,7 +425,7 @@ ReforgeLite.presets = {
       },
       ["T11 4pc"] = {
         weights = {
-          0, 0, 0, 200, 40, 160, 0, 120
+          0, 0, 0, 5, 1, 4, -1, 3
         },
         caps = {
           HitCapSpell,
@@ -435,7 +435,7 @@ ReforgeLite.presets = {
               {
                 method = AtLeast,
                 value = addonTable.playerRace == "Goblin" and 311 or 443,
-                after = 80,
+                after = 2,
               },
             },
           },
@@ -455,7 +455,7 @@ ReforgeLite.presets = {
               {
                 method = AtLeast,
                 value = addonTable.playerRace == "Goblin" and 678 or 813,
-                after = 80,
+                after = 2,
               },
             },
           },
@@ -473,7 +473,7 @@ ReforgeLite.presets = {
               {
                 method = AtLeast,
                 value = addonTable.playerRace == "Goblin" and 1858 or 2005,
-                after = 80,
+                after = 2,
               },
             },
           },
