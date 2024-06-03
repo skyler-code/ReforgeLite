@@ -191,9 +191,8 @@ function ReforgeLite:UpdateMethodStats (method)
   for i = 1, #method.items do
     local item = self.itemData[i].item
     local stats = (item and GetItemStats (item) or {})
-    local reforge = (item and self:GetReforgeID (self.itemData[i].slotId))
-    if reforge then
-      local src, dst = self.reforgeTable[reforge][1], self.reforgeTable[reforge][2]
+    if self.itemData[i].reforge then
+      local src, dst = unpack(self.reforgeTable[self.itemData[i].reforge])
       local amount = floor ((stats[self.itemStats[src].name] or 0) * REFORGE_COEFF)
       method.stats[src] = method.stats[src] + amount
       method.stats[dst] = method.stats[dst] - amount
@@ -259,12 +258,9 @@ function ReforgeLite:ResetMethod ()
   method.items = {}
   for i = 1, #self.itemData do
     method.items[i] = {}
-    local item = self.itemData[i].item
-    -- local stats = (item and GetItemStats (item) or {})
-    local reforge = (item and self:GetReforgeID (self.itemData[i].slotId))
-    if reforge then
-      method.items[i].reforge = reforge
-      method.items[i].src, method.items[i].dst = unpack(self.reforgeTable[reforge])
+    if self.itemData[i].reforge then
+      method.items[i].reforge = self.itemData[i].reforge
+      method.items[i].src, method.items[i].dst = unpack(self.reforgeTable[self.itemData[i].reforge])
     end
   end
   method.tankingModel = self.pdb.tankingModel
@@ -344,13 +340,9 @@ function ReforgeLite:MakeReforgeOption (item, data, src, dst)
 end
 function ReforgeLite:GetItemReforgeOptions (item, data, slot)
   if self:IsItemLocked (slot) then
-    local link = GetInventoryItemLink ("player", self.itemData[slot].slotId)
     local src, dst = nil, nil
-    if link then
-      local reforge = self:GetReforgeID (self.itemData[slot].slotId)
-      if reforge then
-        src, dst = unpack(self.reforgeTable[reforge])
-      end
+    if self.itemData[slot].reforge then
+      src, dst = unpack(self.reforgeTable[self.itemData[slot].reforge])
     end
     return { self:MakeReforgeOption (item, data, src, dst) }
   end
@@ -456,7 +448,7 @@ function ReforgeLite:InitReforgeClassic ()
   end
   local reforgedSpirit = 0
   for i = 1, #data.method.items do
-    local reforge = (self.itemData[i].item and self:GetReforgeID (self.itemData[i].slotId))
+    local reforge = self.itemData[i].reforge
     if reforge then
       local src, dst = self.reforgeTable[reforge][1], self.reforgeTable[reforge][2]
       local amount = floor (method.items[i].stats[src] * REFORGE_COEFF)
@@ -538,27 +530,24 @@ end
 
 function ReforgeLite:GetItemReforgeOptionsS2H (item, data, slot)
   if self:IsItemLocked (slot) then
-    local link = GetInventoryItemLink ("player", self.itemData[slot].slotId)
     local srcstat, dststat, delta1, delta2, dscore = nil, nil, 0, 0, 0
-    if link then
-      local reforge = self:GetReforgeID (self.itemData[slot].slotId)
-      if reforge then
-        srcstat, dststat = unpack(self.reforgeTable[reforge])
-        local amount = floor (item.stats[srcstat] * REFORGE_COEFF)
-        if srcstat == self.STATS.HIT then
-          delta1 = delta1 - amount
-        elseif srcstat == self.STATS.SPIRIT then
-          delta2 = delta2 - amount
-        else
-          dscore = dscore - data.weights[srcstat] * amount
-        end
-        if dststat == self.STATS.HIT then
-          delta1 = delta1 + amount
-        elseif dststat == self.STATS.SPIRIT then
-          delta2 = delta2 + amount
-        else
-          dscore = dscore + data.weights[dststat] * amount
-        end
+    local reforge = self.itemData[slot].reforge
+    if reforge then
+      srcstat, dststat = unpack(self.reforgeTable[reforge])
+      local amount = floor (item.stats[srcstat] * REFORGE_COEFF)
+      if srcstat == self.STATS.HIT then
+        delta1 = delta1 - amount
+      elseif srcstat == self.STATS.SPIRIT then
+        delta2 = delta2 - amount
+      else
+        dscore = dscore - data.weights[srcstat] * amount
+      end
+      if dststat == self.STATS.HIT then
+        delta1 = delta1 + amount
+      elseif dststat == self.STATS.SPIRIT then
+        delta2 = delta2 + amount
+      else
+        dscore = dscore + data.weights[dststat] * amount
       end
     end
     return {{src = srcstat, dst = dststat, d1 = delta1, d2 = delta2, score = dscore}}
@@ -653,7 +642,7 @@ function ReforgeLite:InitReforgeS2H ()
     end
   end
   for i = 1, #data.method.items do
-    local reforge = (self.itemData[i].item and self:GetReforgeID (self.itemData[i].slotId))
+    local reforge = self.itemData[i].reforge
     if reforge then
       local src, dst = unpack(self.reforgeTable[reforge])
       local amount = floor (method.items[i].stats[src] * REFORGE_COEFF)
@@ -703,27 +692,24 @@ end
 
 function ReforgeLite:GetItemReforgeOptionsTank (item, data, slot)
   if self:IsItemLocked (slot) then
-    local link = GetInventoryItemLink ("player", self.itemData[slot].slotId)
     local srcstat, dststat, delta1, delta2, dscore = nil, nil, 0, 0, 0
-    if link then
-      local reforge = self:GetReforgeID (self.itemData[slot].slotId)
-      if reforge then
-        srcstat, dststat = unpack(self.reforgeTable[reforge])
-        local amount = floor (item.stats[srcstat] * REFORGE_COEFF)
-        if srcstat == self.STATS.DODGE then
-          delta1 = delta1 - amount
-        elseif srcstat == self.STATS.PARRY then
-          delta2 = delta2 - amount
-        else
-          dscore = dscore - data.weights[srcstat] * amount
-        end
-        if dststat == self.STATS.DODGE then
-          delta1 = delta1 + amount
-        elseif dststat == self.STATS.PARRY then
-          delta2 = delta2 + amount
-        else
-          dscore = dscore + data.weights[dststat] * amount
-        end
+    local reforge = self.itemData[slot].reforge
+    if reforge then
+      srcstat, dststat = unpack(self.reforgeTable[reforge])
+      local amount = floor (item.stats[srcstat] * REFORGE_COEFF)
+      if srcstat == self.STATS.DODGE then
+        delta1 = delta1 - amount
+      elseif srcstat == self.STATS.PARRY then
+        delta2 = delta2 - amount
+      else
+        dscore = dscore - data.weights[srcstat] * amount
+      end
+      if dststat == self.STATS.DODGE then
+        delta1 = delta1 + amount
+      elseif dststat == self.STATS.PARRY then
+        delta2 = delta2 + amount
+      else
+        dscore = dscore + data.weights[dststat] * amount
       end
     end
     return {{src = srcstat, dst = dststat, d1 = delta1, d2 = delta2, score = dscore}}
@@ -816,7 +802,7 @@ function ReforgeLite:InitReforgeTank ()
     end
   end
   for i = 1, #data.method.items do
-    local reforge = self.itemData[i].item and self:GetReforgeID (self.itemData[i].slotId)
+    local reforge = self.itemData[i].reforge
     if reforge then
       local src, dst = unpack(self.reforgeTable[reforge])
       local amount = floor (method.items[i].stats[src] * REFORGE_COEFF)

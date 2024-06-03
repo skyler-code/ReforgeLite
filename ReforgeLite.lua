@@ -1858,9 +1858,9 @@ function ReforgeLite:UpdateItems ()
       v.item = item
       v.texture:SetTexture (texture)
       stats = GetItemStats (item)
-      local reforge = self:GetReforgeID (v.slotId)
-      if reforge then
-        local srcId, dstId = unpack(reforgeTable[reforge])
+      v.reforge = self:GetReforgeID(v.slotId)
+      if v.reforge then
+        local srcId, dstId = unpack(reforgeTable[v.reforge])
         reforgeSrc, reforgeDst = self.itemStats[srcId].name, self.itemStats[dstId].name
         local amount = floor ((stats[reforgeSrc] or 0) * 0.4)
         stats[reforgeSrc] = (stats[reforgeSrc] or 0) - amount
