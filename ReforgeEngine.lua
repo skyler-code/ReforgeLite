@@ -29,6 +29,7 @@ end
 local L = ReforgeLiteLocale
 
 ---------------------------------------------------------------------------------------
+function ReforgeLite:GetPlayerBuffs ()
   local kings, strength, flask, food
   local i = 1
   while true do
@@ -99,7 +100,7 @@ local itemBonuses = {
 }
 
 function ReforgeLite:GetBuffBonuses ()
-  local cur_buffs = {GetPlayerBuffs()}
+  local cur_buffs = {self:GetPlayerBuffs()}
   local cur_strength = UnitStat ("player", LE_UNIT_STAT_STRENGTH)
   local strength = cur_strength
   local extra_strength = 0

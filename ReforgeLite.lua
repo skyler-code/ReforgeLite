@@ -1199,7 +1199,7 @@ function ReforgeLite:UpdateStatWeightList ()
 end
 function ReforgeLite:UpdateBuffs ()
   if self.pdb.tankingModel then
-    local kings, strength, flask, food = GetPlayerBuffs ()
+    local kings, strength, flask, food = self:GetPlayerBuffs ()
     if kings then
       self.statWeights.buffs.kings:SetChecked (true)
       self.statWeights.buffs.kings:Disable ()
