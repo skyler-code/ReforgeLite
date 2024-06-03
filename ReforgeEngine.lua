@@ -29,20 +29,6 @@ end
 local L = ReforgeLiteLocale
 
 ---------------------------------------------------------------------------------------
-
-function PlayerHasBuff (id)
-  local i = 1
-  while true do
-    local spell = select (10, UnitAura ("player", i))
-    if spell == nil then
-      return false
-    elseif spell == id then
-      return true
-    end
-    i = i + 1
-  end
-end
-function GetPlayerBuffs ()
   local kings, strength, flask, food
   local i = 1
   while true do
