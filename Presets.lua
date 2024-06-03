@@ -506,9 +506,41 @@ ReforgeLite.presets = {
       },
     },
     ["Protection"] = {
-      tanking = true,
-      weights = {
-        0, 100, 100, 0, 0, 0, 0, 80
+      [PET_DEFENSIVE] = {
+        tanking = true,
+        weights = {
+          0, 4, 4, 3, 0, 0, 3, 5
+        },
+      },
+      [DAMAGE] = {
+        weights = {
+          0, 0, 0, 4, 0, 0, 5, 2
+        },
+        caps = {
+          {
+            stat = StatExp,
+            points = {
+              {
+                method = AtLeast,
+                preset = ExpSoftCap,
+                after = 3,
+              },
+              {
+                method = AtMost,
+                preset = ExpHardCap,
+              },
+            },
+          },
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtMost,
+                preset = MeleeHitCap,
+              }
+            },
+          },
+        },
       },
     },
     ["Retribution"] = {
