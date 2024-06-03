@@ -1731,7 +1731,7 @@ function ReforgeLite:RefreshMethodStats (relax)
         if v.percent then
           self.methodStats[i].value:SetText (format ("%.2f%%", mvalue))
         else
-          self.methodStats[i].value:SetText (format ("%d", mvalue))
+          self.methodStats[i].value:SetText (format ("%s", mvalue))
         end
         local override = nil
         mvalue = v.mgetter (self.pdb.method, true)
@@ -1757,7 +1757,7 @@ function ReforgeLite:RefreshMethodStats (relax)
   if self.pdb.storedMethod then
     self:UpdateMethodStats (self.pdb.storedMethod)
     local storedScore = self:GetMethodScore (self.pdb.storedMethod)
-    self.storedScore.score:SetText (format ("%d (", storedScore))
+    self.storedScore.score:SetText (format ("%s (", storedScore))
     SetTextDelta (self.storedScore.delta, storedScore, self:GetCurrentScore ())
   end
 end
