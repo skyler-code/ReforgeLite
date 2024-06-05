@@ -654,7 +654,7 @@ function ReforgeLite:GetFrameY (frame)
   return offs
 end
 
-local function SetTextDelta (text, value, cur, override, percent)
+local function SetTextDelta (text, value, cur, override)
   override = override or (value - cur)
   if override == 0 then
     text:SetTextColor (0.7, 0.7, 0.7)
@@ -663,11 +663,7 @@ local function SetTextDelta (text, value, cur, override, percent)
   else
     text:SetTextColor (1, 0.4, 0.4)
   end
-  if percent then
-    text:SetText (format ("%+.2f%%", value - cur))
-  else
-    text:SetText (format ("+%s", value - cur))
-  end
+  text:SetText (format (value - cur >= 0 and "+%s" or "%s", value - cur))
 end
 
 ------------------------------------------------------------------------
