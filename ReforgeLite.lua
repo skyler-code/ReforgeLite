@@ -2333,12 +2333,6 @@ function ReforgeLite:FORGE_MASTER_CLOSED()
   self.reforgeSent = nil
 end
 
-function ReforgeLite:PLAYER_EQUIPMENT_CHANGED(slotId)
-  if not ignoredSlots[slotId] then
-    self:ResetMethod ()
-  end
-end
-
 function ReforgeLite:OnEvent (event, ...)
   if self[event] then
     self[event](self, ...)
