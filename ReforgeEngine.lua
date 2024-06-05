@@ -437,7 +437,7 @@ function ReforgeLite:InitReforgeClassic ()
   for i = 1, #data.method.items do
     local reforge = self.itemData[i].reforge
     if reforge then
-      local src, dst = self.reforgeTable[reforge][1], self.reforgeTable[reforge][2]
+      local src, dst = unpack(self.reforgeTable[reforge])
       local amount = floor (method.items[i].stats[src] * REFORGE_COEFF)
       data.initial[src] = data.initial[src] + amount
       data.initial[dst] = data.initial[dst] - amount
