@@ -666,7 +666,7 @@ local function SetTextDelta (text, value, cur, override, percent)
   if percent then
     text:SetText (format ("%+.2f%%", value - cur))
   else
-    text:SetText (format ("%+d", value - cur))
+    text:SetText (format ("+%s", value - cur))
   end
 end
 
@@ -1739,7 +1739,7 @@ function ReforgeLite:RefreshMethodStats (relax)
         if self:GetStatScore (i, mvalue) == self:GetStatScore (i, value) then
           override = 0
         end
-        SetTextDelta (self.methodStats[i].delta, mvalue, value, override, percent)
+        SetTextDelta (self.methodStats[i].delta, mvalue, value, override)
         
 --        self.methodStats:SetCell (pos, 1, self.methodStats[pos].value)
 --        self.methodStats:SetCell (pos, 2, self.methodStats[pos].delta)
