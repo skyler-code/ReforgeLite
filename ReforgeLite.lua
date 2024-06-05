@@ -247,56 +247,70 @@ ReforgeLite.itemSlots = {
 }
 local ignoredSlots = { [INVSLOT_TABARD] = true, [INVSLOT_BODY] = true }
 
-local function RatingStat (i, name_, tip_, id_, hid_, short)
-  if hid_ then
-    if playerClass == "HUNTER" then
-      id_ = hid_
-    end
-  end
-  return {
-    name = name_,
-    tip = tip_,
-    long = tip_,
-    getter = function ()
-      return (GetCombatRating (id_))
-    end,
-    mgetter = function (method, orig)
-      return (orig and method.orig_stats and method.orig_stats[i]) or method.stats[i]
-    end,
-    parser = short and "^+(%d+) " .. _G[name_].."$" or _G[name_]:gsub("%%s", "(.+)")
-  }
-end
-
-local itemStats = {
-  {
-    name = "ITEM_MOD_SPIRIT_SHORT",
-    tip = ITEM_MOD_SPIRIT_SHORT,
-    long = ITEM_MOD_SPIRIT_SHORT,
-    getter = function ()
-      return select(2, UnitStat ("player", LE_UNIT_STAT_SPIRIT))
-    end,
-    mgetter = function (method, orig)
-      return (orig and method.orig_stats and method.orig_stats[1]) or method.stats[1]
-    end,
-    parser = function(line)
-      if CreateColor(line:GetTextColor()):IsEqualTo(WHITE_FONT_COLOR) then
-        return strmatch(line:GetText(), "^+(%d+) "..ITEM_MOD_SPIRIT_SHORT.."$")
-      end
-    end
-  },
-  RatingStat (2, "ITEM_MOD_DODGE_RATING", STAT_DODGE, CR_DODGE),
-  RatingStat (3, "ITEM_MOD_PARRY_RATING", STAT_PARRY, CR_PARRY),
-  RatingStat (4, "ITEM_MOD_HIT_RATING", HIT, CR_HIT_SPELL, CR_HIT_RANGED),
-  RatingStat (5, "ITEM_MOD_CRIT_RATING", CRIT_ABBR, CR_CRIT_SPELL, CR_CRIT_RANGED),
-  RatingStat (6, "ITEM_MOD_HASTE_RATING", STAT_HASTE, CR_HASTE_SPELL, CR_HASTE_RANGED),
-  RatingStat (7, "ITEM_MOD_EXPERTISE_RATING", STAT_EXPERTISE, CR_EXPERTISE),
-  RatingStat (8, "ITEM_MOD_MASTERY_RATING_SHORT", STAT_MASTERY, CR_MASTERY, nil, true)
-}
-ReforgeLite.itemStats = itemStats
-
 ReforgeLite.STATS = {
   SPIRIT = 1, DODGE = 2, PARRY = 3, HIT = 4, CRIT = 5, HASTE = 6, EXP = 7, MASTERY = 8, SPELLHIT = 9, CRITBLOCK = 1
 }
+
+local FIRE_SPIRIT = 4
+local function HasFireBuff()
+  return C_UnitAuras.GetPlayerAuraBySpellID(7353) ~= nil
+end
+
+function ReforgeLite:CreateItemStats()
+  local function RatingStat (i, name_, tip_, id_, hid_, short)
+    if hid_ then
+      if playerClass == "HUNTER" then
+        id_ = hid_
+      end
+    end
+    return {
+      name = name_,
+      tip = tip_,
+      long = tip_,
+      getter = function ()
+        local rating = GetCombatRating (id_)
+        if id_ == CR_HIT_SPELL and self.s2hFactor and self.s2hFactor > 0 and HasFireBuff() then
+          rating = rating - floor(FIRE_SPIRIT*(self.s2hFactor/100))
+        end
+        return rating
+      end,
+      mgetter = function (method, orig)
+        return (orig and method.orig_stats and method.orig_stats[i]) or method.stats[i]
+      end,
+      parser = short and "^+(%d+) " .. _G[name_].."$" or _G[name_]:gsub("%%s", "(.+)")
+    }
+  end
+  self.itemStats = {
+    {
+      name = "ITEM_MOD_SPIRIT_SHORT",
+      tip = ITEM_MOD_SPIRIT_SHORT,
+      long = ITEM_MOD_SPIRIT_SHORT,
+      getter = function ()
+        local _, spirit = UnitStat("player", LE_UNIT_STAT_SPIRIT)
+        if HasFireBuff() then
+          spirit = spirit - FIRE_SPIRIT
+        end
+        return spirit
+      end,
+      mgetter = function (method, orig)
+        return (orig and method.orig_stats and method.orig_stats[1]) or method.stats[1]
+      end,
+      parser = function(line)
+        if CreateColor(line:GetTextColor()):IsEqualTo(WHITE_FONT_COLOR) then
+          return strmatch(line:GetText(), "^+(%d+) "..ITEM_MOD_SPIRIT_SHORT.."$")
+        end
+      end
+    },
+    RatingStat (self.STATS.DODGE, "ITEM_MOD_DODGE_RATING", STAT_DODGE, CR_DODGE),
+    RatingStat (self.STATS.PARRY, "ITEM_MOD_PARRY_RATING", STAT_PARRY, CR_PARRY),
+    RatingStat (self.STATS.HIT, "ITEM_MOD_HIT_RATING", HIT, CR_HIT_SPELL, CR_HIT_RANGED),
+    RatingStat (self.STATS.CRIT, "ITEM_MOD_CRIT_RATING", CRIT_ABBR, CR_CRIT_SPELL, CR_CRIT_RANGED),
+    RatingStat (self.STATS.HASTE, "ITEM_MOD_HASTE_RATING", STAT_HASTE, CR_HASTE_SPELL, CR_HASTE_RANGED),
+    RatingStat (self.STATS.EXP, "ITEM_MOD_EXPERTISE_RATING", STAT_EXPERTISE, CR_EXPERTISE),
+    RatingStat (self.STATS.MASTERY, "ITEM_MOD_MASTERY_RATING_SHORT", STAT_MASTERY, CR_MASTERY, nil, true)
+  }
+end
+ReforgeLite:CreateItemStats()
 
 local itemStatsLocale = {
   [6]  = ReforgeLite.STATS.SPIRIT, -- SPIRIT
@@ -310,7 +324,7 @@ local itemStatsLocale = {
 }
 
 ReforgeLite.tankingStats = {
-  ["DEATHKNIGHT"] = DeepCopy (itemStats),
+  ["DEATHKNIGHT"] = DeepCopy (ReforgeLite.itemStats),
   ["WARRIOR"] = {
     [ReforgeLite.STATS.CRITBLOCK] = {
       tip = L["Crit block"],
@@ -403,8 +417,8 @@ ReforgeLite.tankingStats["DRUID"] = ReforgeLite.tankingStats["DEATHKNIGHT"]
 ReforgeLite.REFORGE_TABLE_BASE = 112
 local reforgeTable = {}
 do
-  for firstStat in ipairs(itemStats) do
-    for secondStat in ipairs(itemStats) do
+  for firstStat in ipairs(ReforgeLite.itemStats) do
+    for secondStat in ipairs(ReforgeLite.itemStats) do
       if firstStat ~= secondStat then
         tinsert(reforgeTable, {firstStat,secondStat})
       end
@@ -2284,7 +2298,7 @@ function ReforgeLite:OnTooltipSetItem (tip)
       local reforgeId = self:GetReforgeIDFromString(item) or SearchTooltipForReforgeID(tip)
       if not reforgeId or reforgeId == UNFORGE_INDEX then return end
       local srcId, destId = unpack(reforgeTable[reforgeId])
-      region:SetText(format("%s (%s > %s)", REFORGED, itemStats[srcId].long, itemStats[destId].long))
+      region:SetText(format("%s (%s > %s)", REFORGED, self.itemStats[srcId].long, self.itemStats[destId].long))
       return
     end
   end
