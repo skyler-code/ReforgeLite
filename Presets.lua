@@ -358,24 +358,45 @@ ReforgeLite.presets = {
       },
     },
     ["Restoration"] = {
-      weights = {
-        150, 0, 0, 0, 130, 160, 0, 140
-      },
-      tip = "Feel free to change the value of spirit if needed",
-      caps = {
-        {
-          stat = StatHaste,
-          points = {
-            {
-              preset = 1,
-              method = AtLeast,
-              value = UnitLevel("player") == 80 and 1017 or 2005,
-              after = 135,
+      [MANA_REGEN_ABBR] = {
+        weights = {
+          150, 0, 0, 0, 130, 160, 0, 140
+        },
+        tip = "Feel free to change the value of spirit if needed",
+        caps = {
+          {
+            stat = StatHaste,
+            points = {
+              {
+                preset = 1,
+                method = AtLeast,
+                value = ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * 15.65),
+                after = 120,
+              },
             },
           },
         },
       },
-    },
+      [BONUS_HEALING] = {
+        weights = {
+          140, 0, 0, 0, 130, 160, 0, 150
+        },
+        tip = "Feel free to change the value of spirit if needed",
+        caps = {
+          {
+            stat = StatHaste,
+            points = {
+              {
+                preset = 1,
+                method = AtLeast,
+                value = ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * 15.65),
+                after = 120,
+              },
+            },
+          },
+        },
+      },
+    }
   },
   ["HUNTER"] = {
     ["Beast Mastery"] = {
