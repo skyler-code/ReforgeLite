@@ -117,18 +117,7 @@ function ReforgeLite:GetBuffBonuses ()
     end
   end
   if self.pdb.buffs.strength and not cur_buffs[2] then
-    local playerLevel = UnitLevel("player")
-    if playerLevel == 85 then
-      extra_strength = extra_strength + 549
-    elseif playerLevel == 84 then
-      extra_strength = extra_strength + 505
-    elseif playerLevel == 83 then
-      extra_strength = extra_strength + 465
-    elseif playerLevel >= 81 then
-      extra_strength = extra_strength + 378
-    else
-      extra_strength = extra_strength + 155
-    end
+    extra_strength = extra_strength + 549
   end
   if self.pdb.buffs.flask == 1 and cur_buffs[3] ~= 1 then
     extra_strength = extra_strength + 300
