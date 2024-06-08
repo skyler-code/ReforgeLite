@@ -55,7 +55,7 @@ function ReforgeLite:GetSpellHitBonus ()
 end
 function ReforgeLite:GetExpertiseBonus ()
   local bonus = GetExpertise() - floor(GetCombatRatingBonus (CR_EXPERTISE))
-  if addonTable.playerClass == "PALADIN" and IsPlayerSpell(56416) and not C_UnitAuras.GetPlayerAuraBySpellID(31801) then
+  if addonTable.playerClass == "PALADIN" and IsPlayerSpell(56416) and not (C_UnitAuras.GetPlayerAuraBySpellID(31801) or C_UnitAuras.GetPlayerAuraBySpellID(20154)) then
     bonus = bonus + 10
   end
   return bonus
