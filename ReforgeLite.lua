@@ -227,23 +227,23 @@ StaticPopupDialogs["REFORGE_LITE_SAVE_PRESET"] = {
 }
 
 ReforgeLite.itemSlots = {
-  "HeadSlot",
-  "NeckSlot",
-  "ShoulderSlot",
-  "BackSlot",
-  "ChestSlot",
-  "WristSlot",
-  "HandsSlot",
-  "WaistSlot",
-  "LegsSlot",
-  "FeetSlot",
-  "Finger0Slot",
-  "Finger1Slot",
-  "Trinket0Slot",
-  "Trinket1Slot",
-  "MainHandSlot",
-  "SecondaryHandSlot",
-  "RangedSlot"
+  "HEADSLOT",
+  "NECKSLOT",
+  "SHOULDERSLOT",
+  "BACKSLOT",
+  "CHESTSLOT",
+  "WRISTSLOT",
+  "HANDSSLOT",
+  "WAISTSLOT",
+  "LEGSSLOT",
+  "FEETSLOT",
+  "FINGER0SLOT",
+  "FINGER1SLOT",
+  "TRINKET0SLOT",
+  "TRINKET1SLOT",
+  "MAINHANDSLOT",
+  "SECONDARYHANDSLOT",
+  "RANGEDSLOT"
 }
 local ignoredSlots = { [INVSLOT_TABARD] = true, [INVSLOT_BODY] = true }
 
