@@ -337,7 +337,6 @@ ReforgeLite.presets = {
         weights = {
           0, 0, 0, 115, 110, 110, 115, 110
         },
-        tip = "All stats are nearly equal for cats, don't rely on this too much",
         caps = {
           {
             stat = StatHit,
@@ -363,7 +362,6 @@ ReforgeLite.presets = {
         weights = {
           150, 0, 0, 0, 130, 160, 0, 140
         },
-        tip = "Feel free to change the value of spirit if needed",
         caps = {
           {
             stat = StatHaste,
@@ -382,7 +380,6 @@ ReforgeLite.presets = {
         weights = {
           140, 0, 0, 0, 130, 160, 0, 150
         },
-        tip = "Feel free to change the value of spirit if needed",
         caps = {
           {
             stat = StatHaste,
@@ -1002,6 +999,10 @@ function ReforgeLite:InitPresets ()
       end
       info.text = ((list == self.db.customPresets or v.leaf == "import") and k or L[k])
       info.value = v
+      if v.tip then
+        info.tooltipTitle = v.tip
+        info.tooltipOnButton = true
+      end
       if v.caps or v.weights or v.leaf then
         info.func = function ()
           CloseDropDownMenus ()
