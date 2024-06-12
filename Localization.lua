@@ -1,3 +1,4 @@
+local _, addonTable = ...
 local L = {}
 local gameLocale = GetLocale()
 if gameLocale == "enGB" then
@@ -642,4 +643,4 @@ elseif gameLocale == "zhTW" then
   L["Unholy"] = "穢邪"
 end
 
-ReforgeLiteLocale = L
+addonTable.L = L

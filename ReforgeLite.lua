@@ -2,6 +2,14 @@ local addonName, addonTable = ...
 local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "title")
 local CreateColor, WHITE_FONT_COLOR, ITEM_MOD_SPIRIT_SHORT = CreateColor, WHITE_FONT_COLOR, ITEM_MOD_SPIRIT_SHORT
 
+local ReforgeLite = CreateFrame("Frame", addonName, UIParent, "BackdropTemplate")
+addonTable.ReforgeLite = ReforgeLite
+ReforgeLite:Hide ()
+ReforgeLiteDB = nil
+
+local L = addonTable.L
+local GUI = addonTable.GUI
+
 local function DeepCopy (t, cache)
   if type (t) ~= "table" then
     return t
@@ -22,18 +30,13 @@ local function DeepCopy (t, cache)
   end
   return copy
 end
+addonTable.DeepCopy = DeepCopy
 
 local gprint = print
 local function print(...)
     gprint("|cff33ff99"..addonName.."|r:",...)
 end
 
-local L = ReforgeLiteLocale
-local GUI = ReforgeLiteGUI
-
-ReforgeLite = CreateFrame ("Frame", nil, UIParent, "BackdropTemplate")
-ReforgeLite:Hide ()
-ReforgeLiteDB = nil
 local AddonPath = "Interface\\AddOns\\" .. addonName .. "\\"
 local DefaultDB = {
   itemSize = 24,
@@ -1791,7 +1794,7 @@ function ReforgeLite:UpdateContentSize ()
   self:SetScript ("OnUpdate", self.FixScroll)
 end
 
-local function GetReforgeTableIndex(stat1, stat2)
+function ReforgeLite:GetReforgeTableIndex(stat1, stat2)
   for k,v in ipairs(reforgeTable) do
     if v[1] == stat1 and v[2] == stat2 then
       return k
@@ -1824,7 +1827,7 @@ local function SearchTooltipForReforgeID(tip)
     end
     if srcStat and destStat then break end
   end
-  return GetReforgeTableIndex(srcStat, destStat)
+  return ReforgeLite:GetReforgeTableIndex(srcStat, destStat)
 end
 
 local reforgeIdTooltip

@@ -2,31 +2,11 @@ local _, addonTable = ...
 local REFORGE_COEFF = 0.4
 local REFORGE_CHEAT = 5
 
+local ReforgeLite = addonTable.ReforgeLite
+local L = addonTable.L
+local DeepCopy = addonTable.DeepCopy
 local playerClass, playerRace = addonTable.playerClass, addonTable.playerRace
 local missChance = (playerRace == "NIGHTELF" and 7 or 5)
-
-local function DeepCopy (t, cache)
-  if type (t) ~= "table" then
-    return t
-  end
-  local copy = {}
-  for i, v in pairs (t) do
-    if type (v) ~= "table" then
-      copy[i] = v
-    else
-      cache = cache or {}
-      cache[t] = copy
-      if cache[v] then
-        copy[i] = cache[v]
-      else
-        copy[i] = DeepCopy (v, cache)
-      end
-    end
-  end
-  return copy
-end
-
-local L = ReforgeLiteLocale
 
 ---------------------------------------------------------------------------------------
 function ReforgeLite:GetPlayerBuffs ()
@@ -213,21 +193,14 @@ function ReforgeLite:UpdateMethodStats (method)
   end
 end
 function ReforgeLite:FinalizeReforge (data)
-  local method = data.method
-  for i = 1, #method.items do
-    method.items[i].reforge = nil
-    if method.items[i].src and method.items[i].dst then
-      -- local amount = floor (method.items[i].stats[method.items[i].src] * REFORGE_COEFF)
-      for j = 1, #self.reforgeTable do
-        if self.reforgeTable[j][1] == method.items[i].src and self.reforgeTable[j][2] == method.items[i].dst then
-          method.items[i].reforge = j
-          break
-        end
-      end
+  for _,item in ipairs(data.method.items) do
+    item.reforge = nil
+    if item.src and item.dst then
+      item.reforge = self:GetReforgeTableIndex(item.src, item.dst)
     end
-    method.items[i].stats = nil
+    item.stats = nil
   end
-  self:UpdateMethodStats (method)
+  self:UpdateMethodStats (data.method)
 end
 function ReforgeLite:ResetMethod ()
   local method = {}

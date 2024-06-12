@@ -1,5 +1,6 @@
 local _, addonTable = ...
-local L = ReforgeLiteLocale
+local L = addonTable.L
+local ReforgeLite = addonTable.ReforgeLite
 
 ----------------------------------------- CAP PRESETS ---------------------------------
 

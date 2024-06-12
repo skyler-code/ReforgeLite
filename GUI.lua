@@ -1,3 +1,4 @@
+local _, addonTable = ...
 local GUI = {}
 
 GUI.widgetCount = 0
@@ -10,7 +11,7 @@ GUI.defaultParent = nil
 function GUI:SetTooltip (widget, tip)
   if tip then
     widget:SetScript ("OnEnter", function (self)
-      GameTooltip:SetOwner (self, "ANCHORLEFT")
+      GameTooltip:SetOwner (self, "ANCHOR_LEFT")
       GameTooltip:SetText (tip)
       GameTooltip:Show ()
     end)
@@ -638,6 +639,4 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
   return t
 end
 
-------------------------------------------------------------------------------
-
-ReforgeLiteGUI = GUI
+addonTable.GUI = GUI
