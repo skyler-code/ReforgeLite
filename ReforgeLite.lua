@@ -915,7 +915,7 @@ function ReforgeLite:CreateItemTable ()
     self.itemTable:SetCell (i, 0, self.itemData[i])
     self.itemData[i]:EnableMouse (true)
     self.itemData[i]:SetScript ("OnEnter", function (self)
-      GameTooltip:SetOwner (self, "ANCHORLEFT")
+      GameTooltip:SetOwner (self, "ANCHOR_LEFT")
       local hasItem, hasCooldown, repairCost = GameTooltip:SetInventoryItem ("player", self.slotId)
       if not hasItem then
         local text = _G[strupper (self.slot)]
@@ -1863,14 +1863,13 @@ end
 
 function ReforgeLite:UpdateItems ()
   for i, v in ipairs (self.itemData) do
-    local item = GetInventoryItemLink ("player", v.slotId)
     local texture = GetInventoryItemTexture ("player", v.slotId)
     local stats = {}
     local reforgeSrc, reforgeDst
     if texture then
-      v.item = item
+      v.item = GetInventoryItemLink ("player", v.slotId)
       v.texture:SetTexture (texture)
-      stats = GetItemStats (item)
+      stats = GetItemStats (v.item)
       v.reforge = self:GetReforgeID(v.slotId)
       if v.reforge then
         local srcId, dstId = unpack(reforgeTable[v.reforge])
@@ -2189,17 +2188,16 @@ function ReforgeLite:UpdateMethodChecks ()
     local cost = 0
     local anyDiffer = false
     for i, v in ipairs (self.methodWindow.items) do
-      local item = GetInventoryItemLink ("player", v.slotId)
-      v.item = item
+      v.item = GetInventoryItemLink ("player", v.slotId)
       local texture = GetInventoryItemTexture ("player", v.slotId)
       v.texture:SetTexture (texture or v.slotTexture)
-      if not item or self:IsReforgeMatching (v.slotId, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
+      if not v.item or self:IsReforgeMatching (v.slotId, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
         v.check:SetChecked (true)
       else
         anyDiffer = true
         v.check:SetChecked (false)
         if self.pdb.method.items[i].reforge then
-          local itemCost = select (11, C_Item.GetItemInfo (item)) or 0
+          local itemCost = select (11, C_Item.GetItemInfo (v.item)) or 0
           cost = cost + (itemCost > 0 and itemCost or 100000)
         end
       end
