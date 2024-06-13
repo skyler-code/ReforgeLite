@@ -561,6 +561,9 @@ function ReforgeLite:CreateCategory (name)
   c:ClearAllPoints ()
   c:SetSize(16,16)
   c.expanded = true
+  if self.pdb.categoryStates[name] then
+    c.expanded = false
+  end
   c.name = c:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   c.catname = c.name
   c.name:SetPoint ("TOPLEFT", c, "TOPLEFT", 18, -1)
@@ -611,6 +614,7 @@ function ReforgeLite:CreateCategory (name)
     category.expanded = not category.expanded
     self.pdb.categoryStates[name] = not category.expanded or nil
     if c.expanded then
+      for k, v in pairs (category.frames) do
         if not v.chidden then
           v:Show ()
         end
@@ -1848,12 +1852,12 @@ end
 
 function ReforgeLite:UpdateItems ()
   for i, v in ipairs (self.itemData) do
-    local texture = GetInventoryItemTexture ("player", v.slotId)
+    local item = Item:CreateFromEquipmentSlot(v.slotId)
     local stats = {}
     local reforgeSrc, reforgeDst
-    if texture then
-      v.item = GetInventoryItemLink ("player", v.slotId)
-      v.texture:SetTexture (texture)
+    if not item:IsItemEmpty() then
+      v.item = item:GetItemLink()
+      v.texture:SetTexture (item:GetItemIcon())
       stats = GetItemStats (v.item)
       v.reforge = self:GetReforgeID(v.slotId)
       if v.reforge then
@@ -2027,25 +2031,22 @@ function ReforgeLite:ShowMethodWindow ()
       self.methodWindow.itemTable:SetCell (i, 2, self.methodWindow.items[i])
       self.methodWindow.items[i]:EnableMouse (true)
       self.methodWindow.items[i]:RegisterForDrag("LeftButton")
-      self.methodWindow.items[i]:SetScript ("OnEnter", function (self)
-        GameTooltip:SetOwner (self, "ANCHORLEFT")
-        if self.item then
-          local slotId = GetInventorySlotInfo(v)
-          GameTooltip:SetInventoryItem("player", slotId)
+      self.methodWindow.items[i]:SetScript ("OnEnter", function (itemSlot)
+        GameTooltip:SetOwner(itemSlot, "ANCHOR_LEFT")
+        if itemSlot.item then
+          GameTooltip:SetInventoryItem("player", GetInventorySlotInfo(v))
         else
-          local text = _G[strupper (self.slot)]
-          if self.checkRelic then
+          local text = _G[strupper (itemSlot.slot)]
+          if itemSlot.checkRelic then
             text = _G["RELICSLOT"]
           end
           GameTooltip:SetText (text)
         end
         GameTooltip:Show ()
       end)
-      self.methodWindow.items[i]:SetScript ("OnLeave", function (self)
-        GameTooltip:Hide ()
-      end)
-      self.methodWindow.items[i]:SetScript ("OnDragStart", function (self)
-        if self.item then
+      self.methodWindow.items[i]:SetScript ("OnLeave", function () GameTooltip:Hide() end)
+      self.methodWindow.items[i]:SetScript ("OnDragStart", function (itemSlot)
+        if itemSlot.item and ReforgeFrameIsVisible() then
           PickupInventoryItem(GetInventorySlotInfo(v))
         end
       end)
@@ -2067,12 +2068,12 @@ function ReforgeLite:ShowMethodWindow ()
         function (val) self.methodOverride[i] = (val and 1 or -1) self:UpdateMethodChecks () end)
       self.methodWindow.itemTable:SetCell (i, 1, self.methodWindow.items[i].check)
     end
-    self.methodWindow.reforge = CreateFrame ("Button", "ReforgeLiteReforgeButton", self.methodWindow, "UIPanelButtonTemplate")
+    self.methodWindow.reforge = CreateFrame ("Button", nil, self.methodWindow, "UIPanelButtonTemplate")
     self.methodWindow.reforge:SetSize(114, 22)
     self.methodWindow.reforge:SetPoint ("BOTTOMLEFT", self.methodWindow, "BOTTOMLEFT", 12, 12)
     self.methodWindow.reforge:SetText (REFORGE)
-    self.methodWindow.reforge:SetScript ("OnClick", function (self)
-      ReforgeLite:DoReforge ()
+    self.methodWindow.reforge:SetScript ("OnClick", function (btn)
+      self:DoReforge ()
     end)
     self.methodWindow.reforgeTip = CreateFrame ("Frame", nil, self.methodWindow)
     self.methodWindow.reforgeTip:SetAllPoints (self.methodWindow.reforge)
@@ -2090,16 +2091,15 @@ function ReforgeLite:ShowMethodWindow ()
     self.methodOverride[i] = 0
   end
 
-  self.methodWindow:SetFrameLevel (ReforgeLite:GetFrameLevel () + 10)
+  self.methodWindow:SetFrameLevel (self:GetFrameLevel () + 10)
   self.methodWindow:SetBackdropBorderColor (unpack (self.db.activeWindowTitle))
   self:SetBackdropBorderColor (unpack (self.db.inactiveWindowTitle))
 
   for i, v in ipairs (self.methodWindow.items) do
-    local item = GetInventoryItemLink ("player", v.slotId)
-    local texture = GetInventoryItemTexture ("player", v.slotId)
-    if texture then
-      v.item = item
-      v.texture:SetTexture (texture)
+    local item = Item:CreateFromEquipmentSlot(v.slotId)
+    if not item:IsItemEmpty() then
+      v.item = item:GetItemLink()
+      v.texture:SetTexture(item:GetItemIcon())
     else
       v.item = nil
       v.texture:SetTexture (v.slotTexture)
@@ -2164,10 +2164,10 @@ function ReforgeLite:UpdateMethodChecks ()
     local cost = 0
     local anyDiffer = false
     for i, v in ipairs (self.methodWindow.items) do
-      v.item = GetInventoryItemLink ("player", v.slotId)
-      local texture = GetInventoryItemTexture ("player", v.slotId)
-      v.texture:SetTexture (texture or v.slotTexture)
-      if not v.item or self:IsReforgeMatching (v.slotId, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
+      local item = Item:CreateFromEquipmentSlot(v.slotId)
+      v.item = item:GetItemLink()
+      v.texture:SetTexture (item:GetItemIcon() or v.slotTexture)
+      if item:IsItemEmpty() or self:IsReforgeMatching (v.slotId, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
         v.check:SetChecked (true)
       else
         anyDiffer = true
