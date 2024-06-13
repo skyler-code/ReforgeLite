@@ -1526,7 +1526,7 @@ function ReforgeLite:FillSettings ()
     end
   end), "LEFT")
 
-  self.debugButton = CreateFrame ("Button", "ReforgeLiteDebugButton", self.settings, "UIPanelButtonTemplate")
+  self.debugButton = CreateFrame ("Button", nil, self.settings, "UIPanelButtonTemplate")
   self.debugButton:SetText (L["Debug"])
   self.debugButton:SetSize (self.debugButton:GetFontString():GetStringWidth() + 20, 22)
   self.debugButton:SetScript ("OnClick", function (self)
