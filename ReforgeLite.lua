@@ -1779,9 +1779,9 @@ function ReforgeLite:UpdateContentSize ()
   self:SetScript ("OnUpdate", self.FixScroll)
 end
 
-function ReforgeLite:GetReforgeTableIndex(stat1, stat2)
+function ReforgeLite:GetReforgeTableIndex(src, dst)
   for k,v in ipairs(reforgeTable) do
-    if v[1] == stat1 and v[2] == stat2 then
+    if v[1] == src and v[2] == dst then
       return k
     end
   end
