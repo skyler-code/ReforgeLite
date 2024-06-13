@@ -5,6 +5,8 @@
 ## Version: @project-version@
 ## SavedVariables: ReforgeLiteDB
 
+util\json.lua
+
 Localization.lua
 GUI.lua
 ReforgeLite.lua
