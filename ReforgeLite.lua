@@ -87,6 +87,7 @@ local DefaultDBProfile = {
     }
   },
   itemsLocked = {},
+  categoryStates = { [SETTINGS] = true },
 }
 local function MergeTables (dst, src)
   for k, v in pairs (src) do
@@ -560,7 +561,6 @@ function ReforgeLite:CreateCategory (name)
   c:ClearAllPoints ()
   c:SetSize(16,16)
   c.expanded = true
-
   c.name = c:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   c.catname = c.name
   c.name:SetPoint ("TOPLEFT", c, "TOPLEFT", 18, -1)
@@ -589,42 +589,45 @@ function ReforgeLite:CreateCategory (name)
 
   c.frames = {}
   c.anchors = {}
-  c.AddFrame = function (self, frame)
-    table.insert (self.frames, frame)
-    frame.Show2 = function (self)
-      if self.category.expanded then
-        self:Show ()
+  c.AddFrame = function (cat, frame)
+    table.insert (cat.frames, frame)
+    frame.Show2 = function (f)
+      if f.category.expanded then
+        f:Show ()
       end
-      self.chidden = nil
+      f.chidden = nil
     end
-    frame.Hide2 = function (self)
-      self:Hide ()
-      self.chidden = true
+    frame.Hide2 = function (f)
+      f:Hide ()
+      f.chidden = true
     end
-    frame.category = self
+    frame.category = cat
+    if not cat.expanded then
+      frame:Hide()
+    end
   end
 
-  c.Toggle = function (self)
-    self.expanded = not self.expanded
+  c.Toggle = function (category)
+    category.expanded = not category.expanded
+    self.pdb.categoryStates[name] = not category.expanded or nil
     if c.expanded then
-      for k, v in pairs (self.frames) do
         if not v.chidden then
           v:Show ()
         end
       end
-      for k, v in pairs (self.anchors) do
+      for k, v in pairs (category.anchors) do
         v.frame:SetPoint (v.point, v.rel, v.relPoint, v.x, v.y)
       end
     else
-      for k, v in pairs (self.frames) do
+      for k, v in pairs (category.frames) do
         v:Hide ()
       end
-      for k, v in pairs (self.anchors) do
-        v.frame:SetPoint (v.point, self.button, v.relPoint, v.x, v.y)
+      for k, v in pairs (category.anchors) do
+        v.frame:SetPoint (v.point, category.button, v.relPoint, v.x, v.y)
       end
     end
-    self.button:UpdateTexture ()
-    ReforgeLite:UpdateContentSize ()
+    category.button:UpdateTexture ()
+    self:UpdateContentSize ()
   end
 
   return c
@@ -1486,7 +1489,6 @@ function ReforgeLite:CreateOptionList ()
   self.settings:SetRowHeight (self.db.itemSize + 2)
 
   self:FillSettings ()
-  self.settingsCategory:Toggle ()
 
   self.lastElement = CreateFrame ("Frame", nil, self.content)
   self.lastElement:ClearAllPoints ()
