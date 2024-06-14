@@ -1540,9 +1540,7 @@ function ReforgeLite:FillSettings ()
   self.debugButton = CreateFrame ("Button", nil, self.settings, "UIPanelButtonTemplate")
   self.debugButton:SetText (L["Debug"])
   self.debugButton:SetSize (self.debugButton:GetFontString():GetStringWidth() + 20, 22)
-  self.debugButton:SetScript ("OnClick", function (self)
-    ReforgeLite:DebugMethod ()
-  end)
+  self.debugButton:SetScript ("OnClick", function (btn) self:DebugMethod() end)
   self.settings:SetCell (getOrderId('settings'), 0, self.debugButton, "LEFT")
 end
 function ReforgeLite:GetCurrentScore ()
@@ -1627,29 +1625,25 @@ function ReforgeLite:UpdateMethodCategory ()
     self.methodShow = CreateFrame ("Button", "ReforgeLiteMethodShowButton", self.content, "UIPanelButtonTemplate")
     self.methodShow:SetSize(85, 22)
     self.methodShow:SetText (SHOW)
-    self.methodShow:SetScript ("OnClick", function (self)
-      ReforgeLite:ShowMethodWindow ()
-    end)
+    self.methodShow:SetScript ("OnClick", function (btn) self:ShowMethodWindow() end)
     self.methodCategory:AddFrame (self.methodShow)
     self:SetAnchor (self.methodShow, "TOPLEFT", self.methodStats, "BOTTOMLEFT", 0, -5)
 
     self.methodReset = CreateFrame ("Button", "ReforgeLiteMethodResetButton", self.content, "UIPanelButtonTemplate")
     self.methodReset:SetSize(85, 22)
     self.methodReset:SetText (RESET)
-    self.methodReset:SetScript ("OnClick", function (self)
-      ReforgeLite:ResetMethod ()
-    end)
+    self.methodReset:SetScript ("OnClick", function (btn) self:ResetMethod() end)
     self.methodCategory:AddFrame (self.methodReset)
     self:SetAnchor (self.methodReset, "BOTTOMLEFT", self.methodShow, "BOTTOMRIGHT", 8, 0)
 
     self:SetAnchor (self.storedCategory, "TOPLEFT", self.methodShow, "BOTTOMLEFT", 0, -10)
-    
+
     self.methodTank = CreateFrame ("Frame", nil, self.content)
     self.methodCategory:AddFrame (self.methodTank)
     self.methodTank:SetPoint ("TOPLEFT", self.methodStats, "TOPRIGHT", 10, 0)
     self.methodTank:SetPoint ("BOTTOMLEFT", self.methodStats, "BOTTOMRIGHT", 10, 0)
     self.methodTank:SetPoint ("RIGHT", self.content, "RIGHT", -2, 0)
-    
+
     for i = 1, 10 do
       self.methodTank[i] = self.methodTank:CreateFontString (nil, "ARTWORK", "GameFontNormal")
       if i == 1 then

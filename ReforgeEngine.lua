@@ -778,7 +778,7 @@ function ReforgeLite:InitReforgeTank ()
   local parryRating = GetCombatRating (CR_PARRY)
   data.baseParry = GetParryChance () - self:DiminishStat (parryRating, self.STATS.PARRY)
   data.unhit = 100 + 0.8 * max (0, self.pdb.targetLevel)
-  
+
   data.caps = {{stat = self.STATS.DODGE, init = data.init.dodge}, {stat = self.STATS.PARRY, init = data.init.parry}}
 
   return data
@@ -895,7 +895,7 @@ function ReforgeLite:ComputeReforge (initFunc, optionFunc, chooseFunc)
 
   local success, scores, codes = pcall (self.ComputeReforgeCore, self, data, reforgeOptions)
 
-  self.methodDebug = "<no data>" 
+  self.methodDebug = "<no data>"
   if success then
     local code = self[chooseFunc] (self, data, reforgeOptions, scores, codes)
     scores, codes = nil, nil
