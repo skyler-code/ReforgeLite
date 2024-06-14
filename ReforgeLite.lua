@@ -1931,11 +1931,8 @@ function ReforgeLite:ShowMethodWindow ()
     else
       self.methodWindow:SetPoint ("CENTER")
     end
-    self.methodWindow:SetBackdrop ({
-      bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
-      edgeFile = AddonPath .. "textures\\frameborder", edgeSize = 32,
-      insets = {left = 1, right = 1, top = 20, bottom = 1}
-    })
+    self.methodWindow.backdropInfo = self.backdropInfo
+    self.methodWindow:ApplyBackdrop()
     self.methodWindow:SetBackdropBorderColor (unpack (self.db.activeWindowTitle))
     self.methodWindow:SetBackdropColor (0.1, 0.1, 0.1)
 
