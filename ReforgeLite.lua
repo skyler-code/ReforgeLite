@@ -4,8 +4,6 @@ local CreateColor, WHITE_FONT_COLOR, ITEM_MOD_SPIRIT_SHORT = CreateColor, WHITE_
 
 local ReforgeLite = CreateFrame("Frame", addonName, UIParent, "BackdropTemplate")
 addonTable.ReforgeLite = ReforgeLite
-ReforgeLite:Hide ()
-ReforgeLiteDB = nil
 
 local L = addonTable.L
 local GUI = addonTable.GUI
@@ -719,7 +717,8 @@ function ReforgeLite:FixScroll ()
   end
 end
 
-function ReforgeLite:CreateFrame ()
+function ReforgeLite:CreateFrame()
+  self:Hide()
   self:SetFrameStrata ("DIALOG")
   self:ClearAllPoints ()
   self:SetSize(self.db.windowWidth, self.db.windowHeight)
