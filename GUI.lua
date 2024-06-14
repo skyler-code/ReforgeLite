@@ -180,12 +180,12 @@ function GUI:CreateImageButton (parent, width, height, img, pus, hlt, handler)
   else
     local name = self:GenerateWidgetName ()
     btn = CreateFrame ("Button", name, parent)
-    btn.Recycle = function (btn)
-      btn:Hide ()
-      btn:SetScript ("OnEnter", nil)
-      btn:SetScript ("OnLeave", nil)
-      btn:SetScript ("OnClick", nil)
-      tinsert (self.imgButtons, btn)
+    btn.Recycle = function (f)
+      f:Hide ()
+      f:SetScript ("OnEnter", nil)
+      f:SetScript ("OnLeave", nil)
+      f:SetScript ("OnClick", nil)
+      tinsert (self.imgButtons, f)
     end
   end
   btn:SetNormalTexture (img)
@@ -218,24 +218,20 @@ function GUI:CreateColorPicker (parent, width, height, color, handler)
   box:SetScript ("OnEnter", function (b) b.glow:Show() end)
   box:SetScript ("OnLeave", function (b) b.glow:Hide() end)
   box:SetScript ("OnMouseDown", function (b)
-    ColorPickerFrame:SetupColorPickerAndShow({
-      r = color[1],
-      g = color[2],
-      b = color[3],
-      swatchFunc = function()
-        color[1], color[2], color[3] = ColorPickerFrame:GetColorRGB()
-        b.texture:SetColorTexture (unpack (color))
-        if handler then
-          handler()
-        end
-      end,
-      cancelFunc = function()
-        color[1], color[2], color[3] = ColorPickerFrame:GetPreviousValues()
-        b.texture:SetColorTexture (unpack (color))
+    local function applyColor(func)
+      return function()
+        local prevR, prevG, prevB = func(ColorPickerFrame)
+        color[1], color[2], color[3] = prevR, prevG, prevB
+        b.texture:SetColorTexture(prevR, prevG, prevB)
         if handler then
           handler()
         end
       end
+    end
+    ColorPickerFrame:SetupColorPickerAndShow({
+      r = color[1], g = color[2], b = color[3],
+      swatchFunc = applyColor(ColorPickerFrame.GetColorRGB),
+      cancelFunc = applyColor(ColorPickerFrame.GetPreviousValues),
     })
   end)
 
@@ -455,8 +451,8 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
     return self.colPos[j] - self.colPos[j - 1]
   end
   t.AlignCell = function (self, i, j)
-    local x = self.cells[i][j].offsX
-    local y = self.cells[i][j].offsY
+    local x = self.cells[i][j].offsX or 0
+    local y = self.cells[i][j].offsY or 0
     if self.cells[i][j].align == "FILL" then
       self.cells[i][j]:SetPoint ("TOPLEFT", self, "TOPLEFT", self:GetCellX (j - 1) + x, self:GetCellY (i - 1) + y)
       self.cells[i][j]:SetPoint ("BOTTOMRIGHT", self, "BOTTOMRIGHT", self:GetCellX (j) + x, self:GetCellY (i) + y)
@@ -588,8 +584,6 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
 
   t.SetCell = function (self, i, j, value, align, offsX, offsY)
     align = align or "CENTER"
-    offsX = offsX or 0
-    offsY = offsY or 0
     self.cells[i][j] = value
     self.cells[i][j].align = align
     self.cells[i][j].offsX = offsX
@@ -601,9 +595,7 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
     align = align or "CENTER"
     color = color or {1, 1, 1}
     font = font or "GameFontNormalSmall"
-    offsX = offsX or 0
-    offsY = offsY or 0
-    
+
     if self.cells[i][j] and not self.cells[i][j].istag then
       if type (self.cells[i][j].Recycle) == "function" then
         self.cells[i][j]:Recycle ()
@@ -631,11 +623,9 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
     self.cells[i][j]:SetTextColor (color[1], color[2], color[3])
     self.cells[i][j]:SetText (text)
     self.cells[i][j].align = align
-    self.cells[i][j].offsX = offsX
-    self.cells[i][j].offsY = offsY
     self:AlignCell (i, j)
   end
-  
+
   return t
 end
 
