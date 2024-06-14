@@ -729,11 +729,15 @@ function ReforgeLite:CreateFrame ()
   else
     self:SetPoint ("CENTER")
   end
-  self:SetBackdrop ({
-    bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
-    edgeFile = AddonPath .. "textures\\frameborder", edgeSize = 32,
+  self.backdropInfo = {
+    bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+    edgeFile = AddonPath .. "textures\\frameborder",
+    tile = true,
+    tileSize = 16,
+    edgeSize = 32,
     insets = {left = 1, right = 1, top = 20, bottom = 1}
-  })
+  }
+  self:ApplyBackdrop()
   self:SetBackdropBorderColor (unpack (self.db.activeWindowTitle))
   self:SetBackdropColor (0.1, 0.1, 0.1)
 
