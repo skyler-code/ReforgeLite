@@ -181,54 +181,58 @@ end
 
 -----------------------------------------------------------------
 
-StaticPopupDialogs["REFORGE_LITE_SAVE_PRESET"] = {
-  text = L["Enter the preset name"],
-  button1 = ACCEPT,
-  button2 = CANCEL,
-  hasEditBox = true,
-  maxLetters = 31,
-  OnAccept = function (self)
-    local name = self.editBox:GetText ()
-    ReforgeLite.db.customPresets[name] = {
-      caps = DeepCopy (ReforgeLite.pdb.caps),
-      weights = DeepCopy (ReforgeLite.pdb.weights)
-    }
-    ReforgeLite.deletePresetButton:Enable ()
-  end,
-  EditBoxOnEnterPressed = function (self)
-    local name = self:GetParent ().editBox:GetText ()
-    if name ~= "" then
-      ReforgeLite.db.customPresets[name] = {
-        caps = DeepCopy (ReforgeLite.pdb.caps),
-        weights = DeepCopy (ReforgeLite.pdb.weights)
-      }
-      ReforgeLite.deletePresetButton:Enable ()
-      self:GetParent ():Hide ()
-    end
-  end,
-  EditBoxOnTextChanged = function (self, data)
-    if data ~= "" then
-      self:GetParent ().button1:Enable ()
-    else
-      self:GetParent ().button1:Disable ()
-    end
-  end,
-  EditBoxOnEscapePressed = function(self)
-		self:GetParent():Hide();
-	end,
-  OnShow = function (self)
-    self.editBox:SetText ("")
-    self.button1:Disable ()
-    self.editBox:SetFocus ()
-  end,
-  OnHide = function (self)
-    ChatEdit_FocusActiveWindow ()
-    self.editBox:SetText ("")
-  end,
-  timeout = 0,
-  whileDead = true,
-  hideOnEscape = true
-}
+local function CreateStaticPopup(name, text, func)
+  StaticPopupDialogs[name] = {
+    text = text,
+    button1 = ACCEPT,
+    button2 = CANCEL,
+    hasEditBox = true,
+    editBoxWidth = 350,
+    OnAccept = function (self)
+      func(self.editBox:GetText ())
+    end,
+    EditBoxOnEnterPressed = function (self)
+      local importStr = self:GetParent ().editBox:GetText ()
+      if importStr ~= "" then
+        func(importStr)
+        self:GetParent ():Hide ()
+      end
+    end,
+    EditBoxOnTextChanged = function (self, data)
+      if data ~= "" then
+        self:GetParent ().button1:Enable ()
+      else
+        self:GetParent ().button1:Disable ()
+      end
+    end,
+    EditBoxOnEscapePressed = function(self)
+      self:GetParent():Hide();
+    end,
+    OnShow = function (self)
+      self.editBox:SetText ("")
+      self.button1:Disable ()
+      self.editBox:SetFocus ()
+    end,
+    OnHide = function (self)
+      ChatEdit_FocusActiveWindow ()
+      self.editBox:SetText ("")
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true
+  }
+end
+
+CreateStaticPopup("REFORGE_LITE_PARSE_PAWN", L["Enter pawn string"], function(text) ReforgeLite:ParsePawnString(text) end )
+CreateStaticPopup("REFORGE_LITE_PARSE_WOWSIMS", L["Enter WoWSims JSON"], function(text) ReforgeLite:ParseWoWSimsString(text) end )
+CreateStaticPopup("REFORGE_LITE_SAVE_PRESET", L["Enter the preset name"], function(text)
+  ReforgeLite.db.customPresets[text] = {
+    caps = DeepCopy(ReforgeLite.pdb.caps),
+    weights = DeepCopy(ReforgeLite.pdb.weights)
+  }
+  ReforgeLite.deletePresetButton:Enable()
+end)
+
 
 ReforgeLite.itemSlots = {
   "HEADSLOT",
@@ -523,51 +527,6 @@ function ReforgeLite:ParsePawnString (pawn)
 
   self:SetStatWeights (weights)
 end
-
-local function CreateStaticPopup(name, text, func)
-  StaticPopupDialogs[name] = {
-    text = text,
-    button1 = ACCEPT,
-    button2 = CANCEL,
-    hasEditBox = true,
-    editBoxWidth = 350,
-    OnAccept = function (self)
-      func(self.editBox:GetText ())
-    end,
-    EditBoxOnEnterPressed = function (self)
-      local importStr = self:GetParent ().editBox:GetText ()
-      if importStr ~= "" then
-        func(importStr)
-        self:GetParent ():Hide ()
-      end
-    end,
-    EditBoxOnTextChanged = function (self, data)
-      if data ~= "" then
-        self:GetParent ().button1:Enable ()
-      else
-        self:GetParent ().button1:Disable ()
-      end
-    end,
-    EditBoxOnEscapePressed = function(self)
-      self:GetParent():Hide();
-    end,
-    OnShow = function (self)
-      self.editBox:SetText ("")
-      self.button1:Disable ()
-      self.editBox:SetFocus ()
-    end,
-    OnHide = function (self)
-      ChatEdit_FocusActiveWindow ()
-      self.editBox:SetText ("")
-    end,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = true
-  }
-end
-
-CreateStaticPopup("REFORGE_LITE_PARSE_PAWN", L["Enter pawn string"], function(text) ReforgeLite:ParsePawnString(text) end )
-CreateStaticPopup("REFORGE_LITE_PARSE_WOWSIMS", L["Enter WoWSims JSON"], function(text) ReforgeLite:ParseWoWSimsString(text) end )
 
 local orderIds = {}
 local function getOrderId(section)
