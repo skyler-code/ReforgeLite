@@ -1,10 +1,10 @@
-local _, addonTable = ...
+local addonName, addonTable = ...
 local GUI = {}
 
 GUI.widgetCount = 0
 function GUI:GenerateWidgetName ()
   self.widgetCount = self.widgetCount + 1
-  return "ReforgeLiteWidget" .. self.widgetCount
+  return addonName .. "Widget" .. self.widgetCount
 end
 GUI.defaultParent = nil
 
