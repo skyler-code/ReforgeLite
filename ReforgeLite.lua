@@ -2001,7 +2001,8 @@ function ReforgeLite:ShowMethodWindow ()
       self.methodWindow.items[i]:SetScript ("OnEnter", function (itemSlot)
         GameTooltip:SetOwner(itemSlot, "ANCHOR_LEFT")
         if itemSlot.item then
-          GameTooltip:SetInventoryItem("player", GetInventorySlotInfo(v))
+          local slotId = GetInventorySlotInfo(v)
+          GameTooltip:SetInventoryItem("player", slotId)
         else
           local text = _G[strupper (itemSlot.slot)]
           if itemSlot.checkRelic then
