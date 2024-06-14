@@ -933,64 +933,70 @@ function ReforgeLite:Compute ()
   end
 end
 
-local ErrorFrame = CreateFrame ("Frame", "ReforgeLiteErrorFrame", UIParent, "BackdropTemplate")
-ErrorFrame:Hide ()
-ErrorFrame:SetPoint ("CENTER")
-ErrorFrame:SetFrameStrata ("TOOLTIP")
-ErrorFrame:SetWidth (320)
-ErrorFrame:SetHeight (400)
-ErrorFrame:SetBackdrop ({
-  bgFile = "Interface\\Tooltips\\ChatBubble-Background",
-  edgeFile = "Interface\\Tooltips\\ChatBubble-BackDrop",
-  tile = true, tileSize = 32, edgeSize = 32,
-  insets = {left = 32, right = 32, top = 32, bottom = 32}
-})
-ErrorFrame:SetBackdropColor (0, 0, 0, 1)
-ErrorFrame:SetMovable (true)
-ErrorFrame:SetClampedToScreen (true)
-ErrorFrame:EnableMouse (true)
-ErrorFrame:SetScript ("OnMouseDown", function () ErrorFrame:StartMoving () end)
-ErrorFrame:SetScript ("OnMouseUp", function () ErrorFrame:StopMovingOrSizing () end)
+local ErrorFrame
+local function CreateErrorFrame()
+  ErrorFrame = CreateFrame ("Frame", "ReforgeLiteErrorFrame", UIParent, "BackdropTemplate")
+  ErrorFrame:Hide ()
+  ErrorFrame:SetPoint ("CENTER")
+  ErrorFrame:SetFrameStrata ("TOOLTIP")
+  ErrorFrame:SetWidth (320)
+  ErrorFrame:SetHeight (400)
+  ErrorFrame:SetBackdrop ({
+    bgFile = "Interface\\Tooltips\\ChatBubble-Background",
+    edgeFile = "Interface\\Tooltips\\ChatBubble-BackDrop",
+    tile = true, tileSize = 32, edgeSize = 32,
+    insets = {left = 32, right = 32, top = 32, bottom = 32}
+  })
+  ErrorFrame:SetBackdropColor (0, 0, 0, 1)
+  ErrorFrame:SetMovable (true)
+  ErrorFrame:SetClampedToScreen (true)
+  ErrorFrame:EnableMouse (true)
+  ErrorFrame:SetScript ("OnMouseDown", function () ErrorFrame:StartMoving () end)
+  ErrorFrame:SetScript ("OnMouseUp", function () ErrorFrame:StopMovingOrSizing () end)
 
-ErrorFrame.ok = CreateFrame ("Button", "ReforgeLiteErrorFrameOk", ErrorFrame, "UIPanelButtonTemplate")
-ErrorFrame.ok:SetSize (112, 22)
-ErrorFrame.ok:SetText (ACCEPT)
-ErrorFrame.ok:SetPoint ("BOTTOM", 0, 10)
-ErrorFrame.ok:SetScript ("OnClick", function () ErrorFrame:Hide () end)
-ErrorFrame.message = ErrorFrame:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-ErrorFrame.message:SetPoint ("TOPLEFT", 15, -15)
-ErrorFrame.message:SetPoint ("TOPRIGHT", -15, -15)
-ErrorFrame.message:SetJustifyH ("LEFT")
-ErrorFrame.message:SetTextColor (1, 1, 1)
-ErrorFrame.message:SetText ("")
-ErrorFrame.scroll = CreateFrame ("ScrollFrame", "ReforgeLiteErrorFrameScroll", ErrorFrame, "UIPanelScrollFrameTemplate")
-ErrorFrame.scroll:SetPoint ("TOPLEFT", ErrorFrame.message, "BOTTOMLEFT", 0, -10)
-ErrorFrame.scroll:SetPoint ("TOPRIGHT", ErrorFrame.message, "BOTTOMRIGHT", -16, -10)
-ErrorFrame.scroll:SetPoint ("BOTTOM", ErrorFrame.ok, "TOP", 0, 10)
-ErrorFrame.text = CreateFrame ("EditBox", "ReforgeLiteErrorFrameText", ErrorFrame.scroll)
-ErrorFrame.scroll:SetScrollChild (ErrorFrame.text)
-ErrorFrame.text:SetWidth (274)
-ErrorFrame.text:SetHeight (100)
-ErrorFrame.text:SetMultiLine (true)
-ErrorFrame.text:SetAutoFocus (false)
-ErrorFrame.text:SetFontObject (GameFontHighlight)
-ErrorFrame.text:SetScript ("OnEscapePressed", function () ErrorFrame:Hide () end)
-ErrorFrame.updateText = function ()
-  ErrorFrame.text:SetText (ErrorFrame.err)
-  ErrorFrame.scroll:UpdateScrollChildRect ()
-  ErrorFrame.text:ClearFocus ()
-end
-ErrorFrame.text:SetScript ("OnTextChanged", ErrorFrame.updateText)
-ErrorFrame.text:SetScript ("OnEditFocusGained", function ()
-  ErrorFrame.text:HighlightText ()
-end)
-function ErrorFrame:DisplayError (message, err)
-  ErrorFrame.message:SetText (message)
-  ErrorFrame.err = err
-  ErrorFrame.updateText ()
-  ErrorFrame:Show ()
+  ErrorFrame.ok = CreateFrame ("Button", "ReforgeLiteErrorFrameOk", ErrorFrame, "UIPanelButtonTemplate")
+  ErrorFrame.ok:SetSize (112, 22)
+  ErrorFrame.ok:SetText (ACCEPT)
+  ErrorFrame.ok:SetPoint ("BOTTOM", 0, 10)
+  ErrorFrame.ok:SetScript ("OnClick", function () ErrorFrame:Hide () end)
+  ErrorFrame.message = ErrorFrame:CreateFontString (nil, "OVERLAY", "GameFontNormal")
+  ErrorFrame.message:SetPoint ("TOPLEFT", 15, -15)
+  ErrorFrame.message:SetPoint ("TOPRIGHT", -15, -15)
+  ErrorFrame.message:SetJustifyH ("LEFT")
+  ErrorFrame.message:SetTextColor (1, 1, 1)
+  ErrorFrame.message:SetText ("")
+  ErrorFrame.scroll = CreateFrame ("ScrollFrame", "ReforgeLiteErrorFrameScroll", ErrorFrame, "UIPanelScrollFrameTemplate")
+  ErrorFrame.scroll:SetPoint ("TOPLEFT", ErrorFrame.message, "BOTTOMLEFT", 0, -10)
+  ErrorFrame.scroll:SetPoint ("TOPRIGHT", ErrorFrame.message, "BOTTOMRIGHT", -16, -10)
+  ErrorFrame.scroll:SetPoint ("BOTTOM", ErrorFrame.ok, "TOP", 0, 10)
+  ErrorFrame.text = CreateFrame ("EditBox", "ReforgeLiteErrorFrameText", ErrorFrame.scroll)
+  ErrorFrame.scroll:SetScrollChild (ErrorFrame.text)
+  ErrorFrame.text:SetWidth (274)
+  ErrorFrame.text:SetHeight (100)
+  ErrorFrame.text:SetMultiLine (true)
+  ErrorFrame.text:SetAutoFocus (false)
+  ErrorFrame.text:SetFontObject (GameFontHighlight)
+  ErrorFrame.text:SetScript ("OnEscapePressed", function () ErrorFrame:Hide () end)
+  ErrorFrame.updateText = function ()
+    ErrorFrame.text:SetText (ErrorFrame.err)
+    ErrorFrame.scroll:UpdateScrollChildRect ()
+    ErrorFrame.text:ClearFocus ()
+  end
+  ErrorFrame.text:SetScript ("OnTextChanged", ErrorFrame.updateText)
+  ErrorFrame.text:SetScript ("OnEditFocusGained", function ()
+    ErrorFrame.text:HighlightText ()
+  end)
+  function ErrorFrame:DisplayError (message, err)
+    ErrorFrame.message:SetText (message)
+    ErrorFrame.err = err
+    ErrorFrame.updateText ()
+    ErrorFrame:Show ()
+  end
 end
 
 function ReforgeLite:DebugMethod ()
+  if not ErrorFrame then
+    CreateErrorFrame()
+  end
   ErrorFrame:DisplayError ("E-mail: d07.riv@gmail.com", self.methodDebug or "<no data>")
 end
