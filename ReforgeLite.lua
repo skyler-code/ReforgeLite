@@ -465,6 +465,25 @@ function ReforgeLite:GetStatScore (stat, value)
   end
 end
 
+function ReforgeLite:ParseWoWSimsString(importStr)
+  local success, wowsims = pcall(function () return addonTable.json.decode(importStr) end)
+  if success and (wowsims or {}).player then
+    for slot,item in ipairs(self.pdb.method.items) do
+      item.reforge = nil
+      local slotInfo = wowsims.player.equipment.items[slot]
+      if slotInfo and slotInfo.reforging then
+        item.reforge = slotInfo.reforging - self.REFORGE_TABLE_BASE
+        item.src, item.dst = unpack(self.reforgeTable[item.reforge])
+      end
+      item.stats = nil
+    end
+    self:UpdateMethodStats(self.pdb.method)
+    self:UpdateMethodCategory ()
+  else -- error
+    print(wowsims)
+  end
+end
+
 function ReforgeLite:ParsePawnString (pawn)
   local pos, _, version, name, values = strfind (pawn, "^%s*%(%s*Pawn%s*:%s*v(%d+)%s*:%s*\"([^\"]+)\"%s*:%s*(.+)%s*%)%s*$")
   version = tonumber (version)
@@ -548,6 +567,7 @@ local function CreateStaticPopup(name, text, func)
 end
 
 CreateStaticPopup("REFORGE_LITE_PARSE_PAWN", L["Enter pawn string"], function(text) ReforgeLite:ParsePawnString(text) end )
+CreateStaticPopup("REFORGE_LITE_PARSE_WOWSIMS", L["Enter WoWSims JSON"], function(text) ReforgeLite:ParseWoWSimsString(text) end )
 
 local orderIds = {}
 local function getOrderId(section)
@@ -561,10 +581,7 @@ function ReforgeLite:CreateCategory (name)
   local c = CreateFrame ("Frame", nil, self.content)
   c:ClearAllPoints ()
   c:SetSize(16,16)
-  c.expanded = true
-  if self.pdb.categoryStates[name] then
-    c.expanded = false
-  end
+  c.expanded = not self.pdb.categoryStates[name]
   c.name = c:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   c.catname = c.name
   c.name:SetPoint ("TOPLEFT", c, "TOPLEFT", 18, -1)
@@ -586,9 +603,7 @@ function ReforgeLite:CreateCategory (name)
     end
   end
   c.button:UpdateTexture ()
-  c.button:SetScript ("OnClick", function (self)
-    self:GetParent ():Toggle ()
-  end)
+  c.button:SetScript ("OnClick", function (btn) btn:GetParent():Toggle() end)
   c.button.anchor = {point = "TOPLEFT", rel = c, relPoint = "TOPLEFT", x = 0, y = 0}
 
   c.frames = {}
@@ -1281,14 +1296,11 @@ function ReforgeLite:CreateOptionList ()
     self.deletePresetButton:Disable ()
   end
 
-  self.pawnButton = CreateFrame ("Button", "ReforgeLiteDeletePresetButton", self.content, "UIPanelButtonTemplate")
+  self.pawnButton = CreateFrame ("Button", "ReforgeLiteImportPawnButton", self.content, "UIPanelButtonTemplate")
   self.statWeightsCategory:AddFrame (self.pawnButton)
-  self.pawnButton:SetWidth (114)
-  self.pawnButton:SetHeight (22)
   self.pawnButton:SetText (L["Import Pawn"])
-  self.pawnButton:SetScript ("OnClick", function (self)
-    StaticPopup_Show ("REFORGE_LITE_PARSE_PAWN")
-  end)
+  self.pawnButton:SetSize (self.pawnButton:GetFontString():GetStringWidth() + 20, 22)
+  self.pawnButton:SetScript ("OnClick", function() StaticPopup_Show ("REFORGE_LITE_PARSE_PAWN") end)
   self:SetAnchor (self.pawnButton, "TOPLEFT", self.presetsButton, "BOTTOMLEFT", 0, -5)
 
   self.convertSpirit = CreateFrame ("Frame", nil, self.content)
@@ -1575,13 +1587,20 @@ function ReforgeLite:GetCurrentScore ()
   return score
 end
 function ReforgeLite:UpdateMethodCategory ()
-  if self.methodCategory == nil then
+  if not self.methodCategory then
     self.methodCategory = self:CreateCategory (L["Result"])
     self:SetAnchor (self.methodCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
 
+    self.importWowSims = CreateFrame ("Button", "ReforgeLiteImportWoWSimsButton", self.methodCategory, "UIPanelButtonTemplate")
+    self.methodCategory:AddFrame (self.importWowSims)
+    self.importWowSims:SetText (L["Import WoWSims"])
+    self.importWowSims:SetSize (self.importWowSims:GetFontString():GetStringWidth() + 20, 22)
+    self.importWowSims:SetScript ("OnClick", function() StaticPopup_Show ("REFORGE_LITE_PARSE_WOWSIMS") end)
+    self:SetAnchor (self.importWowSims, "TOPLEFT", self.methodCategory, "BOTTOMLEFT", 0, -5)
+
     self.methodStats = GUI:CreateTable (#self.itemStats, 2, self.db.itemSize, 60, {0.5, 0.5, 0.5, 1})
     self.methodCategory:AddFrame (self.methodStats)
-    self:SetAnchor (self.methodStats, "TOPLEFT", self.methodCategory, "BOTTOMLEFT", 0, -5)
+    self:SetAnchor (self.methodStats, "TOPLEFT", self.importWowSims, "BOTTOMLEFT", 0, -5)
     self.methodStats:SetRowHeight (self.db.itemSize + 2)
     self.methodStats:SetColumnWidth (60)
 
