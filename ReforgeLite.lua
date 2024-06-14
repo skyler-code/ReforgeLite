@@ -1375,10 +1375,8 @@ function ReforgeLite:CreateOptionList ()
   self.quality:SetOrientation ("HORIZONTAL")
   self.quality:SetSize(150, 15)
   self.quality:SetHitRectInsets (0, 0, -10, 0)
-  self.quality:SetBackdrop ({bgFile = "Interface\\Buttons\\UI-SliderBar-Background",
-    edgeFile = "Interface\\Buttons\\UI-SliderBar-Border", tile = true, tileSize = 8, edgeSize = 8,
-    insets = {left = 3, right = 3, top = 6, bottom = 6}
-  })
+  self.quality.backdropInfo = BACKDROP_SLIDER_8_8
+  self.quality:ApplyBackdrop()
   self.quality:SetThumbTexture ("Interface\\Buttons\\UI-SliderBar-Button-Horizontal")
   self.quality:SetMinMaxValues (1, 20)
   self.quality:SetValueStep (1)
