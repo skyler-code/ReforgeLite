@@ -935,11 +935,6 @@ function ReforgeLite:InitPresets ()
   self.presets[CUSTOM] = self.db.customPresets
   
   if PawnVersion then
-    local PawnMap = {
-      Spirit = true,
-      DodgeRating = true,
-      ParryRating
-    }
     self.presets["Pawn scales"] = function ()
       if PawnCommon == nil or PawnCommon.Scales == nil then return {} end
       local result = {}
