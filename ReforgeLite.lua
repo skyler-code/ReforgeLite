@@ -880,8 +880,8 @@ function ReforgeLite:CreateFrame ()
   self.scrollBar:SetValueStep (1)
   self.scrollBar:SetValue (0)
   self.scrollBar:SetWidth (16)
-  self.scrollBar:SetScript ("OnValueChanged", function (self, value)
-    ReforgeLite:SetScroll (value)
+  self.scrollBar:SetScript ("OnValueChanged", function (bar, value)
+    self:SetScroll (value)
   end)
   self.scrollBar:Hide ()
 
@@ -908,7 +908,7 @@ function ReforgeLite:CreateItemTable ()
   self.itemLevel:SetPoint ("TOPLEFT", self, "TOPLEFT", 12, -40)
   self.itemLevel:SetTextColor (1, 1, 0.8)
   self.itemLevel:SetText (STAT_AVERAGE_ITEM_LEVEL .. ": 0")
-  
+
   self.itemTable = GUI:CreateTable (#self.itemSlots + 1, #self.itemStats, self.db.itemSize, self.db.itemSize + 4, {0.5, 0.5, 0.5, 1}, self)
   self.itemTable:SetPoint ("TOPLEFT", self.itemLevel, "BOTTOMLEFT", 0, -10)
   self.itemTable:SetPoint ("BOTTOM", self, "BOTTOM", 0, 10)
@@ -1365,12 +1365,6 @@ function ReforgeLite:CreateOptionList ()
     self.statCaps[i] = {}
     self.statCaps[i].stat = GUI:CreateDropdown (self.statCaps, statList, self.pdb.caps[i].stat,
       function (val) self.pdb.caps[i].stat = val end, 110)
-    self.statCaps[i].cover = CreateFrame ("Frame", nil, self.statCaps)
-    self.statCaps[i].cover:SetAllPoints (self.statCaps[i].stat)
-    self.statCaps[i].cover:SetFrameLevel (self.statCaps[i].stat:GetFrameLevel () + 10)
-    self.statCaps[i].cover:EnableMouse (true)
-    GUI:SetTooltip (self.statCaps[i].cover, L["Only one cap allowed with spirit-to-hit conversion"])
-    self.statCaps[i].cover:Hide ()
     self.statCaps[i].add = GUI:CreateImageButton (self.statCaps, 20, 20, "Interface\\Buttons\\UI-PlusButton-Up",
       "Interface\\Buttons\\UI-PlusButton-Down", "Interface\\Buttons\\UI-PlusButton-Hilight", function ()
       self:AddCapPoint (i)
@@ -1407,11 +1401,11 @@ function ReforgeLite:CreateOptionList ()
   self.computeButton = CreateFrame ("Button", "ReforgeLiteConfirmButton", self.content, "UIPanelButtonTemplate")
   self.computeButton:SetText (L["Compute"])
   self.computeButton:SetSize (self.computeButton:GetFontString():GetStringWidth() + 20, 22)
-  self.computeButton:SetScript ("OnClick", function (self)
-    local method = ReforgeLite:Compute ()
+  self.computeButton:SetScript ("OnClick", function (btn)
+    local method = self:Compute ()
     if method then
-      ReforgeLite.pdb.method = method
-      ReforgeLite:UpdateMethodCategory ()
+      self.pdb.method = method
+      self:UpdateMethodCategory ()
     end
   end)
 
