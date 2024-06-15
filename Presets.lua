@@ -190,17 +190,7 @@ local RangedCaps = { HitCap }
 
 local CasterCaps = { HitCapSpell }
 
-local specNames = {}
-for classID = 1, GetNumClasses() + 1 do
-  for i = 0, 2 do
-    local specId, tabName, _, icon = GetSpecializationInfoForClassID(classID, i)
-    if tabName then
-      specNames[specId] = "|T"..(icon or "error")..":0|t " .. tabName
-    end
-  end
-end
-
-local specIds = {
+local specNames = {
   DEATHKNIGHTBlood = 398,
   DEATHKNIGHTFrost = 399,
   DEATHKNIGHTUnholy = 400,
@@ -233,6 +223,11 @@ local specIds = {
   WARRIORProtection = 845,
 }
 
+for k,v in pairs(specNames) do
+  local _, tabName, _, icon = GetSpecializationInfoForSpecID(v)
+  specNames[k] = "|T"..(icon or "error")..":0|t " .. tabName
+end
+
 local function GetSpellString(spellID)
   local spellName, _, icon = GetSpellInfo(spellID)
   return "|T"..(icon or "error")..":0|t " .. spellName
@@ -240,7 +235,7 @@ end
 
 ReforgeLite.presets = {
   ["DEATHKNIGHT"] = {
-    [specNames[specIds.DEATHKNIGHTBlood]] = {
+    [specNames.DEATHKNIGHTBlood] = {
       [RAID] = {
         weights = {
           0, 110, 100, 150, 20, 50, 120, 200
@@ -273,7 +268,7 @@ ReforgeLite.presets = {
         caps = MeleeCaps,
       },
     },
-    [specNames[specIds.DEATHKNIGHTFrost]] = {
+    [specNames.DEATHKNIGHTFrost] = {
       [ENCHSLOT_2HWEAPON] = {
         weights = {
           0, 0, 0, 201, 115, 129, 163, 126
@@ -331,7 +326,7 @@ ReforgeLite.presets = {
         },
       },
     },
-    [specNames[specIds.DEATHKNIGHTUnholy]] = {
+    [specNames.DEATHKNIGHTUnholy] = {
       [PLAYER_DIFFICULTY1] = {
         weights = {
           0, 0, 0, 200, 130, 160, 100, 110
@@ -347,13 +342,13 @@ ReforgeLite.presets = {
     },
   },
   ["DRUID"] = {
-    [specNames[specIds.DRUIDBalance]] = {
+    [specNames.DRUIDBalance] = {
       weights = {
         0, 0, 0, 200, 100, 150, 0, 130
       },
       caps = CasterCaps,
     },
-    [specNames[specIds.DRUIDFeralCombat]] = {
+    [specNames.DRUIDFeralCombat] = {
       ["Bear"] = {
         weights = {
           0, 150, 0, 40, 60, 10, 60, 90
@@ -405,7 +400,7 @@ ReforgeLite.presets = {
         },
       },
     },
-    [specNames[specIds.DRUIDRestoration]] = {
+    [specNames.DRUIDRestoration] = {
       [MANA_REGEN_ABBR] = {
         weights = {
           150, 0, 0, 0, 130, 160, 0, 140
@@ -445,13 +440,13 @@ ReforgeLite.presets = {
     }
   },
   ["HUNTER"] = {
-    [specNames[specIds.HUNTERBeastMastery]] = {
+    [specNames.HUNTERBeastMastery] = {
       weights = {
         0, 0, 0, 200, 150, 100, 0, 100
       },
       caps = RangedCaps,
     },
-    [specNames[specIds.HUNTERMarksmanship]] = {
+    [specNames.HUNTERMarksmanship] = {
       [GetSpellString(3044)] = { -- Arcane Shot
         weights = {
           0, 0, 0, 200, 150, 140, 0, 110
@@ -465,7 +460,7 @@ ReforgeLite.presets = {
         caps = RangedCaps,
       },
     },
-    [specNames[specIds.HUNTERSurvival]] = {
+    [specNames.HUNTERSurvival] = {
       weights = {
         0, 0, 0, 200, 140, 130, 0, 120
       },
@@ -473,7 +468,7 @@ ReforgeLite.presets = {
     },
   },
   ["MAGE"] = {
-    [specNames[specIds.MAGEArcane]] = {
+    [specNames.MAGEArcane] = {
       [PLAYER_DIFFICULTY1] = {
         weights = {
           0, 0, 0, 5, 1, 4, -1, 3
@@ -511,7 +506,7 @@ ReforgeLite.presets = {
         },
       },
     },
-    [specNames[specIds.MAGEFire]] = {
+    [specNames.MAGEFire] = {
       ["15% " .. STAT_HASTE] = {
         weights = {
           -1, -1, -1, 2, 3, 1, -1, -1
@@ -549,7 +544,7 @@ ReforgeLite.presets = {
         },
       },
     },
-    [specNames[specIds.MAGEFrost]] = {
+    [specNames.MAGEFrost] = {
       weights = {
         0, 0, 0, 200, 180, 140, 0, 130
       },
@@ -569,12 +564,12 @@ ReforgeLite.presets = {
     },
   },
   ["PALADIN"] = {
-    [specNames[specIds.PALADINHoly]] = {
+    [specNames.PALADINHoly] = {
       weights = {
         160, 0, 0, 0, 80, 200, 0, 120
       },
     },
-    [specNames[specIds.PALADINProtection]] = {
+    [specNames.PALADINProtection] = {
       [PET_DEFENSIVE] = {
         tanking = true,
         weights = {
@@ -612,7 +607,7 @@ ReforgeLite.presets = {
         },
       },
     },
-    [specNames[specIds.PALADINRetribution]] = {
+    [specNames.PALADINRetribution] = {
       weights = {
         0, 0, 0, 200, 135, 110, 180, 150
       },
@@ -620,17 +615,17 @@ ReforgeLite.presets = {
     },
   },
   ["PRIEST"] = {
-    [specNames[specIds.PRIESTDiscipline]] = {
+    [specNames.PRIESTDiscipline] = {
       weights = {
         150, 0, 0, 0, 80, 100, 0, 120
       },
     },
-    [specNames[specIds.PRIESTHoly]] = {
+    [specNames.PRIESTHoly] = {
       weights = {
         150, 0, 0, 0, 80, 120, 0, 100
       },
     },
-    [specNames[specIds.PRIESTShadow]] = {
+    [specNames.PRIESTShadow] = {
       weights = {
         0, 0, 0, 200, 100, 140, 0, 130
       },
@@ -639,7 +634,7 @@ ReforgeLite.presets = {
   },
   ["ROGUE"] = {
     ["Tier 12"] = {
-      [specNames[specIds.ROGUEAssassination]] = {
+      [specNames.ROGUEAssassination] = {
         weights = {
           0, 0, 0, 200, 120, 130, 120, 140
         },
@@ -671,7 +666,7 @@ ReforgeLite.presets = {
           },
         },
       },
-      [specNames[specIds.ROGUECombat]] = {
+      [specNames.ROGUECombat] = {
         weights = {
           0, 0, 0, 215, 125, 170, 185, 150
         },
@@ -704,7 +699,7 @@ ReforgeLite.presets = {
           },
         },
       },
-      [specNames[specIds.ROGUESubtlety]] = {
+      [specNames.ROGUESubtlety] = {
         weights = {
           0, 0, 0, 155, 145, 155, 130, 90
         },
@@ -738,7 +733,7 @@ ReforgeLite.presets = {
       },
     },
     ["Tier 13"] = {
-      [specNames[specIds.ROGUEAssassination]] = {
+      [specNames.ROGUEAssassination] = {
         weights = {
           0, 0, 0, 225, 120, 140, 140, 160
         },
@@ -770,7 +765,7 @@ ReforgeLite.presets = {
           },
         },
       },
-      [specNames[specIds.ROGUECombat]] = {
+      [specNames.ROGUECombat] = {
         weights = {
           0, 0, 0, 240, 120, 190, 210, 150
         },
@@ -803,7 +798,7 @@ ReforgeLite.presets = {
           },
         },
       },
-      [specNames[specIds.ROGUESubtlety]] = {
+      [specNames.ROGUESubtlety] = {
         weights = {
           0, 0, 0, 180, 150, 175, 155, 95
         },
@@ -838,13 +833,13 @@ ReforgeLite.presets = {
     },
   },
   ["SHAMAN"] = {
-    [specNames[specIds.SHAMANElemental]] = {
+    [specNames.SHAMANElemental] = {
       weights = {
         0, 0, 0, 200, 80, 140, 0, 120
       },
       caps = CasterCaps,
     },
-    [specNames[specIds.SHAMANEnhancement]] = {
+    [specNames.SHAMANEnhancement] = {
       weights = {
         0, 0, 0, 250, 120, 80, 190, 150
       },
@@ -873,20 +868,20 @@ ReforgeLite.presets = {
         },
       },
     },
-    [specNames[specIds.SHAMANRestoration]] = {
+    [specNames.SHAMANRestoration] = {
       weights = {
         130, 0, 0, 0, 100, 100, 0, 100
       },
     },
   },
   ["WARLOCK"] = {
-    [specNames[specIds.WARLOCKAffliction] .. '/' .. specNames[specIds.WARLOCKDestruction]] = {
+    [specNames.WARLOCKAffliction .. '/' .. specNames.WARLOCKDestruction] = {
       weights = {
         0, 0, 0, 200, 140, 160, 0, 120
       },
       caps = CasterCaps,
     },
-    [specNames[specIds.WARLOCKDemonology]] = {
+    [specNames.WARLOCKDemonology] = {
       weights = {
         0, 0, 0, 200, 120, 160, 0, 140
       },
@@ -894,13 +889,13 @@ ReforgeLite.presets = {
     },
   },
   ["WARRIOR"] = {
-    [specNames[specIds.WARRIORArms]] = {
+    [specNames.WARRIORArms] = {
       weights = {
         0, 0, 0, 200, 150, 100, 200, 120
       },
       caps = MeleeCaps
     },
-    [specNames[specIds.WARRIORFury]] = {
+    [specNames.WARRIORFury] = {
       [GetSpellString(46917)] = { -- Titan's Grip
         weights = {
           0, 0, 0, 200, 150, 100, 180, 130
@@ -970,7 +965,7 @@ ReforgeLite.presets = {
         },
       },
     },
-    [specNames[specIds.WARRIORProtection]] = {
+    [specNames.WARRIORProtection] = {
       tanking = true,
       weights = {
         40, 100, 100, 0, 0, 0, 0, 40
