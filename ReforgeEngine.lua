@@ -203,8 +203,7 @@ function ReforgeLite:FinalizeReforge (data)
   self:UpdateMethodStats (data.method)
 end
 function ReforgeLite:ResetMethod ()
-  local method = {}
-  method.items = {}
+  local method = { items = {} }
   for i = 1, #self.itemData do
     method.items[i] = {}
     if self.itemData[i].reforge then
@@ -364,8 +363,7 @@ function ReforgeLite:GetItemReforgeOptions (item, data, slot)
   return opt
 end
 function ReforgeLite:InitReforgeClassic ()
-  local method = {}
-  method.items = {}
+  local method = { items = {} }
   for i = 1, #self.itemData do
     method.items[i] = {}
     method.items[i].stats = {}
@@ -555,8 +553,7 @@ function ReforgeLite:GetItemReforgeOptionsS2H (item, data, slot)
   return opt
 end
 function ReforgeLite:InitReforgeS2H ()
-  local method = {}
-  method.items = {}
+  local method = { items = {} }
   for i = 1, #self.itemData do
     method.items[i] = {}
     method.items[i].stats = {}
@@ -717,8 +714,7 @@ function ReforgeLite:GetItemReforgeOptionsTank (item, data, slot)
   return opt
 end
 function ReforgeLite:InitReforgeTank ()
-  local method = {}
-  method.items = {}
+  local method = { items = {} }
   for i = 1, #self.itemData do
     method.items[i] = {}
     method.items[i].stats = {}
