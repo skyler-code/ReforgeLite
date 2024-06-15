@@ -233,6 +233,11 @@ local specIds = {
   WARRIORProtection = 845,
 }
 
+local function GetSpellString(spellID)
+  local spellName, _, icon = GetSpellInfo(spellID)
+  return "|T"..(icon or "error")..":0|t " .. spellName
+end
+
 ReforgeLite.presets = {
   ["DEATHKNIGHT"] = {
     [specNames[specIds.DEATHKNIGHTBlood]] = {
@@ -447,13 +452,13 @@ ReforgeLite.presets = {
       caps = RangedCaps,
     },
     [specNames[specIds.HUNTERMarksmanship]] = {
-      [GetSpellInfo(3044)] = { -- Arcane Shot
+      [GetSpellString(3044)] = { -- Arcane Shot
         weights = {
           0, 0, 0, 200, 150, 140, 0, 110
         },
         caps = RangedCaps,
       },
-      [GetSpellInfo(82928)] = { -- Aimed Shot
+      [GetSpellString(82928)] = { -- Aimed Shot
         weights = {
           0, 0, 0, 200, 140, 150, 0, 110
         },
@@ -896,7 +901,7 @@ ReforgeLite.presets = {
       caps = MeleeCaps
     },
     [specNames[specIds.WARRIORFury]] = {
-      [GetSpellInfo(46917)] = { -- Titan's Grip
+      [GetSpellString(46917)] = { -- Titan's Grip
         weights = {
           0, 0, 0, 200, 150, 100, 180, 130
         },
@@ -930,7 +935,7 @@ ReforgeLite.presets = {
           },
         },
       },
-      [GetSpellInfo(81099)] = { -- Single-Minded Fury
+      [GetSpellString(81099)] = { -- Single-Minded Fury
         weights = {
           0, 0, 0, 200, 150, 100, 180, 130
         },
