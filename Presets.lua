@@ -933,7 +933,7 @@ ReforgeLite.presets = {
 
 function ReforgeLite:InitPresets ()
   self.presets[CUSTOM] = self.db.customPresets
-  
+
   if PawnVersion then
     self.presets["Pawn scales"] = function ()
       if PawnCommon == nil or PawnCommon.Scales == nil then return {} end
