@@ -1030,8 +1030,7 @@ function ReforgeLite:InitPresets ()
   self.presetMenu.info = {}
   self.presetMenu.initialize = function (menu, level)
     if not level then return end
-    local info = menu.info
-    wipe (info)
+    local info = UIDropDownMenu_CreateInfo()
     local list = self.presets
     if level > 1 then
       list = UIDROPDOWNMENU_MENU_VALUE
