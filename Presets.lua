@@ -193,9 +193,9 @@ local CasterCaps = { HitCapSpell }
 local specNames = {}
 for classID = 1, GetNumClasses() + 1 do
   for i = 0, 2 do
-    local specId, tabName = GetSpecializationInfoForClassID(classID, i)
+    local specId, tabName, _, icon = GetSpecializationInfoForClassID(classID, i)
     if tabName then
-      specNames[specId] = tabName
+      specNames[specId] = "|T"..(icon or "error")..":0|t " .. tabName
     end
   end
 end
