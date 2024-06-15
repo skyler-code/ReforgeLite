@@ -333,7 +333,7 @@ ReforgeLite.presets = {
         },
         caps = { HitCap },
       },
-      [C_Item.GetItemNameByID(78478) or "Gurthalak, Voice of the Deeps"] = {
+      ["|T"..(C_Item.GetItemIconByID(78478) or "error")..":0|t " .. (C_Item.GetItemNameByID(78478) or "Gurthalak, Voice of the Deeps")] = {
         weights = {
           0, 0, 0, 200, 120, 160, 100, 130
         },
