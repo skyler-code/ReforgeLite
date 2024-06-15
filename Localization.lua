@@ -50,6 +50,7 @@ L_enUS["Sum"] = "Sum"
 L_enUS["Tanking model"] = "Tanking model"
 L_enUS["Total"] = "Total"
 L_enUS["Weight after cap"] = "Weight after cap"
+L_enUS["Item Import Mismatch"] = "%s does not match your currently equipped %s. ReforgeLite only supports equipped items."
 
 
 if gameLocale == "frFR" then
@@ -97,8 +98,9 @@ if gameLocale == "frFR" then
   L["Tanking model"] = "Modèle de tanking"
   L["Total"] = "Total"
   L["Weight after cap"] = "Pondération après plafond"
+  L["Item Import Mismatch"] = "%s ne correspond pas à votre %s actuellement équipé. ReforgeLite ne prend en charge que les objets équipés."
 
-elseif gameLocale == "deDE" then
+elseif gameLocale == "deDE" then -- German
   L["Active window color"] = "Aktive Fensterfarbe"
   L["Add cap"] = "Neues Cap"
   L["At least"] = "mindestens"
@@ -143,6 +145,7 @@ elseif gameLocale == "deDE" then
 --   L["Tanking model"] = ""
   L["Total"] = "Gesamt"
   L["Weight after cap"] = "Gewichtung über Cap"
+  L["Item Import Mismatch"] = "%s stimmt nicht mit Ihrem aktuell ausgerüsteten %s überein. ReforgeLite unterstützt nur ausgerüstete Gegenstände."
 
 elseif gameLocale == "koKR" then
   L["Active window color"] = "활성화된 창 색상"
@@ -189,6 +192,7 @@ elseif gameLocale == "koKR" then
   L["Tanking model"] = "탱킹 모델"
   L["Total"] = "합계"
   L["Weight after cap"] = "조건 값 이후 가중치"
+  L["Item Import Mismatch"] = "%s은(는) 현재 장착된 %s와 일치하지 않습니다. ReforgeLite는 장착된 아이템만 지원합니다."
 
 elseif gameLocale == "esMX" then
 --   L["Active window color"] = ""
@@ -234,7 +238,8 @@ elseif gameLocale == "esMX" then
   L["Sum"] = "Sum" -- Needs review
 --   L["Tanking model"] = ""
 --   L["Total"] = ""
-  L["Weight after cap"] = "Valor después del cap" -- Needs review
+  L["Weight after cap"] = "Peso despues del cap"
+  L["Item Import Mismatch"] = "%s no coincide con tu %s equipado actualmente. ReforgeLite solo admite elementos equipados."
 
 elseif gameLocale == "ruRU" then
   L["Active window color"] = "Цвет активного окна"
@@ -282,6 +287,7 @@ elseif gameLocale == "ruRU" then
   L["Tanking model"] = "Режим танка"
   L["Total"] = "Сумма"
   L["Weight after cap"] = "Вес после порога"
+  L["Item Import Mismatch"] = "%s не соответствует вашему текущему экипированному %s. ReforgeLite поддерживает только экипированные предметы."
 
 elseif gameLocale == "zhCN" then
   L["Active window color"] = "激活窗口的颜色"
@@ -329,6 +335,7 @@ elseif gameLocale == "zhCN" then
   L["Tanking model"] = "坦克模式"
   L["Total"] = "总计"
   L["Weight after cap"] = "超过上限后权重"
+  L["Item Import Mismatch"] = "%s 与您当前装备的 %s 不匹配。ReforgeLite 仅支持装备物品。"
 
 elseif gameLocale == "esES" then
   L["Active window color"] = "Color de ventana activa"
@@ -375,6 +382,7 @@ elseif gameLocale == "esES" then
   L["Tanking model"] = "Tanking model" -- Needs review
   L["Total"] = "Total" -- Needs review
   L["Weight after cap"] = "Peso despues del cap"
+  L["Item Import Mismatch"] = "%s no coincide con tu %s equipado actualmente. ReforgeLite solo admite elementos equipados."
 
 elseif gameLocale == "zhTW" then
   L["Active window color"] = "當前視窗的顏色"
@@ -422,6 +430,7 @@ elseif gameLocale == "zhTW" then
   L["Tanking model"] = "坦克模式"
   L["Total"] = "總共"
   L["Weight after cap"] = "超過上限後比重"
+  L["Item Import Mismatch"] = "%s 与您当前装备的 %s 不匹配。ReforgeLite 仅支持装备物品。"
 
 end
 

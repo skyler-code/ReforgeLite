@@ -470,15 +470,23 @@ end
 function ReforgeLite:ParseWoWSimsString(importStr)
   local success, wowsims = pcall(function () return addonTable.json.decode(importStr) end)
   if success and (wowsims or {}).player then
-    for slot,item in ipairs(self.pdb.method.items) do
+    local newItems = DeepCopy(self.pdb.method.items)
+    for slot,item in ipairs(newItems) do
+      local simItemInfo = wowsims.player.equipment.items[slot] or {}
+      local equippedItemInfo = self.itemData[slot]
+      if simItemInfo.id ~= equippedItemInfo.itemId then
+        local _, importItemLink = C_Item.GetItemInfo(simItemInfo.id)
+        print(string.format( L["Item Import Mismatch"], importItemLink, equippedItemInfo.item))
+        return
+      end
       item.reforge = nil
-      local slotInfo = wowsims.player.equipment.items[slot]
-      if slotInfo and slotInfo.reforging then
-        item.reforge = slotInfo.reforging - self.REFORGE_TABLE_BASE
+      if simItemInfo.reforging then
+        item.reforge = simItemInfo.reforging - self.REFORGE_TABLE_BASE
         item.src, item.dst = unpack(self.reforgeTable[item.reforge])
       end
       item.stats = nil
     end
+    self.pdb.method.items = newItems
     self:UpdateMethodStats(self.pdb.method)
     self:UpdateMethodCategory ()
   else -- error
@@ -1539,11 +1547,11 @@ function ReforgeLite:GetCurrentScore ()
   return score
 end
 function ReforgeLite:UpdateMethodCategory ()
-  if not self.methodCategory then
+  if self.methodCategory == nil then
     self.methodCategory = self:CreateCategory (L["Result"])
     self:SetAnchor (self.methodCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
 
-    self.importWowSims = CreateFrame ("Button", "ReforgeLiteImportWoWSimsButton", self.methodCategory, "UIPanelButtonTemplate")
+    self.importWowSims = CreateFrame ("Button", nil, self.methodCategory, "UIPanelButtonTemplate")
     self.methodCategory:AddFrame (self.importWowSims)
     self.importWowSims:SetText (L["Import WoWSims"])
     self.importWowSims:SetSize (self.importWowSims:GetFontString():GetStringWidth() + 20, 22)
@@ -1582,14 +1590,14 @@ function ReforgeLite:UpdateMethodCategory ()
       self.methodStats[i].delta:SetText ("+0")
     end
 
-    self.methodShow = CreateFrame ("Button", "ReforgeLiteMethodShowButton", self.content, "UIPanelButtonTemplate")
+    self.methodShow = CreateFrame ("Button", nil, self.content, "UIPanelButtonTemplate")
     self.methodShow:SetSize(85, 22)
     self.methodShow:SetText (SHOW)
     self.methodShow:SetScript ("OnClick", function (btn) self:ShowMethodWindow() end)
     self.methodCategory:AddFrame (self.methodShow)
     self:SetAnchor (self.methodShow, "TOPLEFT", self.methodStats, "BOTTOMLEFT", 0, -5)
 
-    self.methodReset = CreateFrame ("Button", "ReforgeLiteMethodResetButton", self.content, "UIPanelButtonTemplate")
+    self.methodReset = CreateFrame ("Button", nil, self.content, "UIPanelButtonTemplate")
     self.methodReset:SetSize(85, 22)
     self.methodReset:SetText (RESET)
     self.methodReset:SetScript ("OnClick", function (btn) self:ResetMethod() end)
@@ -1664,69 +1672,33 @@ function ReforgeLite:RefreshMethodStats (relax)
       else
         self.methodTank:Hide2 ()
       end
-      local stats = self.itemStats
---[[      if self.pdb.tankingModel then
-        stats = self.tankingStats[self.pdb.tankingModel] or stats
-      end
-      
-      local rows = 0
-      for i, _ in pairs (stats) do
-        rows = rows + 1
-      end
-      
-      self.methodStats:ClearCells ()
-      while self.methodStats.rows > rows do
-        self.methodStats:DeleteRow (1)
-      end
-      if self.methodStats.rows < rows then
-        self.methodStats:AddRow (1, rows - self.methodStats.rows)
-      end
-      self.methodStats:SetRowHeight (self.db.itemSize + 2)
-      
-      self.methodStats:SetCellText (0, 0, L["Score"], "LEFT", {1, 0.8, 0})
-      self.methodStats:SetCell (0, 1, self.methodStats.score)
-      self.methodStats:SetCell (0, 2, self.methodStats.scoreDelta)
-      self.methodStats.score:Show ()
-      self.methodStats.scoreDelta:Show ()]]
-
       self.methodStats.score:SetText (floor (score + 0.5))
       SetTextDelta (self.methodStats.scoreDelta, score, self:GetCurrentScore ())
---      local pos = 0
---      for i, v in pairs (stats) do
-      for i, v in ipairs (stats) do
---        pos = pos + 1
---        self.methodStats:SetCellText (pos, 0, v.tip, "LEFT")
-
+      for i, v in ipairs (self.itemStats) do
         local mvalue = v.mgetter (self.pdb.method)
         if v.percent then
           self.methodStats[i].value:SetText (format ("%.2f%%", mvalue))
         else
           self.methodStats[i].value:SetText (format ("%s", mvalue))
         end
-        local override = nil
+        local override
         mvalue = v.mgetter (self.pdb.method, true)
         local value = v.getter ()
         if self:GetStatScore (i, mvalue) == self:GetStatScore (i, value) then
           override = 0
         end
         SetTextDelta (self.methodStats[i].delta, mvalue, value, override)
-        
---        self.methodStats:SetCell (pos, 1, self.methodStats[pos].value)
---        self.methodStats:SetCell (pos, 2, self.methodStats[pos].delta)
---        self.methodStats[pos].value:Show ()
---        self.methodStats[pos].delta:Show ()
       end
     end
     if relax and (self.pdb.storedMethod == nil or score > storedScore) then
       self.pdb.storedMethod = DeepCopy (self.pdb.method)
+      self:UpdateMethodStats (self.pdb.storedMethod)
       storedScore = score
       self.storedClear:Enable ()
       self.storedRestore:Enable ()
     end
   end
   if self.pdb.storedMethod then
-    self:UpdateMethodStats (self.pdb.storedMethod)
-    local storedScore = self:GetMethodScore (self.pdb.storedMethod)
     self.storedScore.score:SetText (format ("%s (", storedScore))
     SetTextDelta (self.storedScore.delta, storedScore, self:GetCurrentScore ())
   end
@@ -1825,6 +1797,7 @@ function ReforgeLite:UpdateItems ()
     local reforgeSrc, reforgeDst
     if not item:IsItemEmpty() then
       v.item = item:GetItemLink()
+      v.itemId = item:GetItemID()
       v.texture:SetTexture (item:GetItemIcon())
       stats = GetItemStats (v.item)
       v.reforge = self:GetReforgeID(v.slotId)
