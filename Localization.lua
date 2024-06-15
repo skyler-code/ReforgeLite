@@ -448,7 +448,7 @@ else
 end
 
 for k, v in pairs (LOCALIZED_CLASS_NAMES_MALE) do
-  L[k] = v
+  L[k] = CreateAtlasMarkup(GetClassAtlas(k:lower())) .. " " .. v
 end
 
 addonTable.L = L
