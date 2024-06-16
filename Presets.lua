@@ -233,7 +233,18 @@ do
     local spellName, _, icon = GetSpellInfo(spellID)
     return "|T"..(icon or "error")..":0|t " .. spellName
   end
-
+  ReforgeLite.presetOrder = {
+    [L["DEATHKNIGHT"]] = 1,
+    [L["DRUID"]] = 2,
+    [L["HUNTER"]] = 3,
+    [L["MAGE"]] = 4,
+    [L["PALADIN"]] = 5,
+    [L["PRIEST"]] = 6,
+    [L["ROGUE"]] = 7,
+    [L["SHAMAN"]] = 8,
+    [L["WARLOCK"]] = 9,
+    [L["WARRIOR"]] = 10,
+  }
   ReforgeLite.presets = {
     ["DEATHKNIGHT"] = {
       [specNames.DEATHKNIGHTBlood] = {
@@ -973,12 +984,10 @@ do
         },
       },
     },
-  --  ["PvP (Arena)"] = {
-  --  },
   }
 end
 
-function ReforgeLite:InitPresets ()
+function ReforgeLite:InitPresets()
   self.presets[CUSTOM] = self.db.customPresets
 
   if PawnVersion then
@@ -1027,17 +1036,17 @@ function ReforgeLite:InitPresets ()
   self.presetMenu.info = {}
   self.presetMenu.initialize = function (menu, level)
     if not level then return end
-    local info = UIDropDownMenu_CreateInfo()
     local list = self.presets
     if level > 1 then
       list = UIDROPDOWNMENU_MENU_VALUE
     end
-    info.notCheckable = true
-
+    local sortedList = {}
     for k, v in pairs (list) do
       if type (v) == "function" then
         v = v ()
       end
+      local info = UIDropDownMenu_CreateInfo()
+      info.notCheckable = true
       info.text = ((list == self.db.customPresets or v.leaf == "import") and k or L[k])
       info.value = v
       if v.tip then
@@ -1065,7 +1074,14 @@ function ReforgeLite:InitPresets ()
         end
         info.keepShownOnClick = true
       end
-      UIDropDownMenu_AddButton (info, level)
+      if level > 1 or not self.presetOrder[info.text] then
+        UIDropDownMenu_AddButton (info, level)
+      else
+        sortedList[self.presetOrder[info.text]] = info
+      end
+    end
+    for _,v in ipairs(sortedList) do
+      UIDropDownMenu_AddButton (v, 1)
     end
   end
 
