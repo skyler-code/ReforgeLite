@@ -454,27 +454,21 @@ do
     ["HUNTER"] = {
       [specNames.HUNTERBeastMastery] = {
         weights = {
-          0, 0, 0, 200, 150, 100, 0, 100
+          0, 0, 0, 200, 150, 80, 0, 110
         },
         caps = RangedCaps,
       },
       [specNames.HUNTERMarksmanship] = {
-        [GetSpellString(3044)] = { -- Arcane Shot
-          weights = {
-            0, 0, 0, 200, 150, 140, 0, 110
-          },
-          caps = RangedCaps,
+        tip = "Sim it!",
+        weights = {
+          0, 0, 0, 200, 150, 110, 0, 80
         },
-        [GetSpellString(82928)] = { -- Aimed Shot
-          weights = {
-            0, 0, 0, 200, 140, 150, 0, 110
-          },
-          caps = RangedCaps,
-        },
+        caps = RangedCaps,
       },
       [specNames.HUNTERSurvival] = {
+        tip = "Sim it! Check WoWHead/Discord for Haste caps!!",
         weights = {
-          0, 0, 0, 200, 140, 130, 0, 120
+          0, 0, 0, 200, 110, 150, 0, 80
         },
         caps = RangedCaps,
       },
