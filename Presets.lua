@@ -876,7 +876,7 @@ function ReforgeLite:InitPresets()
   self.presets[CUSTOM] = self.db.customPresets
 
   if PawnVersion then
-    self.presets["Pawn scales"] = function ()
+    self.presets["Pawn"] = function ()
       if not PawnCommon or not PawnCommon.Scales then return {} end
       local result = {}
       for k, v in pairs (PawnCommon.Scales) do
