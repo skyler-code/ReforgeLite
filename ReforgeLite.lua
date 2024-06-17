@@ -107,7 +107,7 @@ local function ReforgeFrameIsVisible()
 end
 
 ReforgeLite.dbkey = UnitName ("player") .. " - " .. GetRealmName ()
-addonTable.localeClass, addonTable.playerClass = UnitClass ("player")
+addonTable.localeClass, addonTable.playerClass, addonTable.playerClassID = UnitClass ("player")
 addonTable.playerRace = select(2,UnitRace ("player"))
 local playerClass, playerRace, localeClass = addonTable.playerClass, addonTable.playerRace, addonTable.localeClass
 local missChance = (playerRace == "NightElf" and 7 or 5)

@@ -878,40 +878,42 @@ function ReforgeLite:InitPresets()
 
   if PawnVersion then
     self.presets["Pawn scales"] = function ()
-      if PawnCommon == nil or PawnCommon.Scales == nil then return {} end
+      if not PawnCommon or not PawnCommon.Scales then return {} end
       local result = {}
       for k, v in pairs (PawnCommon.Scales) do
-        local preset = {leaf = "import", name = v.LocalizedName or k}
-        preset.weights = {}
-        local raw = v.Values or {}
-        preset.weights[self.STATS.SPIRIT] = raw["Spirit"] or 0
-        preset.weights[self.STATS.DODGE] = raw["DodgeRating"] or 0
-        preset.weights[self.STATS.PARRY] = raw["ParryRating"] or 0
-        preset.weights[self.STATS.HIT] = raw["HitRating"] or 0
-        preset.weights[self.STATS.CRIT] = raw["CritRating"] or 0
-        preset.weights[self.STATS.HASTE] = raw["HasteRating"] or 0
-        preset.weights[self.STATS.EXP] = raw["ExpertiseRating"] or 0
-        preset.weights[self.STATS.MASTERY] = raw["MasteryRating"] or 0
-        local total = 0
-        local average = 0
-        for i = 1, #self.itemStats do
-          if preset.weights[i] ~= 0 then
-            total = total + 1
-            average = average + preset.weights[i]
-          end
-        end
-        if total > 0 and average > 0 then
-          local factor = 1
-          while factor * average / total < 10 do
-            factor = factor * 100
-          end
-          while factor * average / total > 1000 do
-            factor = factor / 10
-          end
+        if v.ClassID == addonTable.playerClassID then
+          local preset = {leaf = "import", name = v.LocalizedName or k}
+          preset.weights = {}
+          local raw = v.Values or {}
+          preset.weights[self.STATS.SPIRIT] = raw["Spirit"] or 0
+          preset.weights[self.STATS.DODGE] = raw["DodgeRating"] or 0
+          preset.weights[self.STATS.PARRY] = raw["ParryRating"] or 0
+          preset.weights[self.STATS.HIT] = raw["HitRating"] or 0
+          preset.weights[self.STATS.CRIT] = raw["CritRating"] or 0
+          preset.weights[self.STATS.HASTE] = raw["HasteRating"] or 0
+          preset.weights[self.STATS.EXP] = raw["ExpertiseRating"] or 0
+          preset.weights[self.STATS.MASTERY] = raw["MasteryRating"] or 0
+          local total = 0
+          local average = 0
           for i = 1, #self.itemStats do
-            preset.weights[i] = preset.weights[i] * factor
+            if preset.weights[i] ~= 0 then
+              total = total + 1
+              average = average + preset.weights[i]
+            end
           end
-          tinsert(result, preset)
+          if total > 0 and average > 0 then
+            local factor = 1
+            while factor * average / total < 10 do
+              factor = factor * 100
+            end
+            while factor * average / total > 1000 do
+              factor = factor / 10
+            end
+            for i = 1, #self.itemStats do
+              preset.weights[i] = preset.weights[i] * factor
+            end
+            tinsert(result, preset)
+          end
         end
       end
       return result
