@@ -639,199 +639,91 @@ do
       },
     },
     ["ROGUE"] = {
-      ["Tier 12"] = {
-        [specNames.ROGUEAssassination] = {
-          weights = {
-            0, 0, 0, 200, 120, 130, 120, 140
-          },
-          caps = {
-            {
-              stat = StatHit,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = MeleeHitCap,
-                  after = 160,
-                },
-                {
-                  preset = SpellHitCap,
-                  after = 82,
-                },
-                {
-                  preset = MeleeDWHitCap,
-                },
-              },
-            },
-            {
-              stat = StatExp,
-              points = {
-                {
-                  preset = ExpSoftCap,
-                },
-              },
-            },
-          },
+      [specNames.ROGUEAssassination] = {
+        weights = {
+          0, 0, 0, 200, 110, 130, 120, 140
         },
-        [specNames.ROGUECombat] = {
-          weights = {
-            0, 0, 0, 215, 125, 170, 185, 150
-          },
-          caps = {
-            {
-              stat = StatHit,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = MeleeHitCap,
-                  after = 150,
-                },
-                {
-                  preset = SpellHitCap,
-                  after = 120,
-                },
-                {
-                  preset = MeleeDWHitCap,
-                },
+        caps = {
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtLeast,
+                preset = SpellHitCap,
+                after = 82,
               },
-            },
-            {
-              stat = StatExp,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = ExpSoftCap,
-                },
+              {
+                preset = MeleeDWHitCap,
               },
             },
           },
-        },
-        [specNames.ROGUESubtlety] = {
-          weights = {
-            0, 0, 0, 155, 145, 155, 130, 90
-          },
-          caps = {
-            {
-              stat = StatHit,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = MeleeHitCap,
-                  after = 110,
-                },
-                {
-                  preset = SpellHitCap,
-                  after = 80,
-                },
-                {
-                  preset = MeleeDWHitCap,
-                },
-              },
-            },
-            {
-              stat = StatExp,
-              points = {
-                {
-                  preset = ExpSoftCap,
-                },
+          {
+            stat = StatExp,
+            points = {
+              {
+                method = AtMost,
+                preset = ExpSoftCap,
               },
             },
           },
         },
       },
-      ["Tier 13"] = {
-        [specNames.ROGUEAssassination] = {
-          weights = {
-            0, 0, 0, 225, 120, 140, 140, 160
-          },
-          caps = {
-            {
-              stat = StatHit,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = MeleeHitCap,
-                  after = 170,
-                },
-                {
-                  preset = SpellHitCap,
-                  after = 90,
-                },
-                {
-                  preset = MeleeDWHitCap,
-                },
+      [specNames.ROGUECombat] = {
+        weights = {
+          0, 0, 0, 200, 125, 170, 215, 150
+        },
+        caps = {
+          {
+            stat = StatExp,
+            points = {
+              {
+                method = AtLeast,
+                preset = ExpSoftCap,
               },
             },
-            {
-              stat = StatExp,
-              points = {
-                {
-                  preset = ExpSoftCap,
-                },
+          },
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtLeast,
+                preset = SpellHitCap,
+                after = 100,
+              },
+              {
+                preset = MeleeDWHitCap,
               },
             },
           },
         },
-        [specNames.ROGUECombat] = {
-          weights = {
-            0, 0, 0, 240, 120, 190, 210, 150
-          },
-          caps = {
-            {
-              stat = StatHit,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = MeleeHitCap,
-                  after = 170,
-                },
-                {
-                  preset = SpellHitCap,
-                  after = 135,
-                },
-                {
-                  preset = MeleeDWHitCap,
-                },
-              },
-            },
-            {
-              stat = StatExp,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = ExpSoftCap,
-                },
-              },
-            },
-          },
+      },
+      [specNames.ROGUESubtlety] = {
+        weights = {
+          0, 0, 0, 155, 145, 155, 130, 90
         },
-        [specNames.ROGUESubtlety] = {
-          weights = {
-            0, 0, 0, 180, 150, 175, 155, 95
-          },
-          caps = {
-            {
-              stat = StatHit,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = MeleeHitCap,
-                  after = 115,
-                },
-                {
-                  preset = SpellHitCap,
-                  after = 90,
-                },
-                {
-                  preset = MeleeDWHitCap,
-                },
+        caps = {
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtLeast,
+                preset = MeleeHitCap,
+                after = 110,
+              },
+              {
+                preset = SpellHitCap,
+                after = 80,
+              },
+              {
+                preset = MeleeDWHitCap,
               },
             },
-            {
-              stat = StatExp,
-              points = {
-                {
-                  preset = ExpSoftCap,
-                },
+          },
+          {
+            stat = StatExp,
+            points = {
+              {
+                preset = ExpSoftCap,
               },
             },
           },
