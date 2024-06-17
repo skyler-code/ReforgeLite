@@ -263,12 +263,7 @@ local function HasFireBuff()
 end
 
 function ReforgeLite:CreateItemStats()
-  local function RatingStat (i, name_, tip_, id_, hid_, short)
-    if hid_ then
-      if playerClass == "HUNTER" then
-        id_ = hid_
-      end
-    end
+  local function RatingStat (i, name_, tip_, id_, short)
     return {
       name = name_,
       tip = tip_,
@@ -285,6 +280,10 @@ function ReforgeLite:CreateItemStats()
       end,
       parser = short and "^+(%d+) " .. _G[name_].."$" or _G[name_]:gsub("%%s", "(.+)")
     }
+  end
+  local CR_HIT, CR_CRIT, CR_HASTE = CR_HIT_SPELL, CR_CRIT_SPELL, CR_HASTE_SPELL
+  if playerClass == "HUNTER" then
+    CR_HIT, CR_CRIT, CR_HASTE = CR_HIT_RANGED, CR_CRIT_RANGED, CR_HASTE_RANGED
   end
   self.itemStats = {
     {
@@ -307,13 +306,13 @@ function ReforgeLite:CreateItemStats()
         end
       end
     },
-    RatingStat (self.STATS.DODGE, "ITEM_MOD_DODGE_RATING", STAT_DODGE, CR_DODGE),
-    RatingStat (self.STATS.PARRY, "ITEM_MOD_PARRY_RATING", STAT_PARRY, CR_PARRY),
-    RatingStat (self.STATS.HIT, "ITEM_MOD_HIT_RATING", HIT, CR_HIT_SPELL, CR_HIT_RANGED),
-    RatingStat (self.STATS.CRIT, "ITEM_MOD_CRIT_RATING", CRIT_ABBR, CR_CRIT_SPELL, CR_CRIT_RANGED),
-    RatingStat (self.STATS.HASTE, "ITEM_MOD_HASTE_RATING", STAT_HASTE, CR_HASTE_SPELL, CR_HASTE_RANGED),
-    RatingStat (self.STATS.EXP, "ITEM_MOD_EXPERTISE_RATING", STAT_EXPERTISE, CR_EXPERTISE),
-    RatingStat (self.STATS.MASTERY, "ITEM_MOD_MASTERY_RATING_SHORT", STAT_MASTERY, CR_MASTERY, nil, true)
+    RatingStat (self.STATS.DODGE,   "ITEM_MOD_DODGE_RATING",         STAT_DODGE,     CR_DODGE),
+    RatingStat (self.STATS.PARRY,   "ITEM_MOD_PARRY_RATING",         STAT_PARRY,     CR_PARRY),
+    RatingStat (self.STATS.HIT,     "ITEM_MOD_HIT_RATING",           HIT,            CR_HIT),
+    RatingStat (self.STATS.CRIT,    "ITEM_MOD_CRIT_RATING",          CRIT_ABBR,      CR_CRIT),
+    RatingStat (self.STATS.HASTE,   "ITEM_MOD_HASTE_RATING",         STAT_HASTE,     CR_HASTE),
+    RatingStat (self.STATS.EXP,     "ITEM_MOD_EXPERTISE_RATING",     STAT_EXPERTISE, CR_EXPERTISE),
+    RatingStat (self.STATS.MASTERY, "ITEM_MOD_MASTERY_RATING_SHORT", STAT_MASTERY,   CR_MASTERY, true)
   }
 end
 ReforgeLite:CreateItemStats()
