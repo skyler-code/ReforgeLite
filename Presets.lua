@@ -245,7 +245,7 @@ do
     [L["WARLOCK"]] = 9,
     [L["WARRIOR"]] = 10,
   }
-  ReforgeLite.presets = {
+  local presets = {
     ["DEATHKNIGHT"] = {
       [specNames.DEATHKNIGHTBlood] = {
         [RAID] = {
@@ -871,6 +871,9 @@ do
       },
     },
   }
+
+  ReforgeLite.presets = presets[addonTable.playerClass]
+
 end
 
 function ReforgeLite:InitPresets()
