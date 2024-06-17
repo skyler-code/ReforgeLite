@@ -231,11 +231,6 @@ do
     specInfo[v] = { name = tabName, icon = icon }
   end
 
-  local function GetSpellString(spellID)
-    local spellName, _, icon = GetSpellInfo(spellID)
-    return "|T"..(icon or "error")..":0|t " .. spellName
-  end
-
   local presets = {
     ["DEATHKNIGHT"] = {
       [specs.DEATHKNIGHTBlood] = {
@@ -352,7 +347,8 @@ do
         caps = CasterCaps,
       },
       [specs.DRUIDFeralCombat] = {
-        ["Bear"] = {
+        [GetSpellInfo(5487)] = { -- Bear
+          icon = select(3, GetSpellInfo(5487)),
           weights = {
             0, 150, 0, 40, 60, 10, 60, 90
           },
@@ -379,7 +375,8 @@ do
             },
           },
         },
-        ["Cat"] = {
+        [GetSpellInfo(768)] = { -- Cat
+          icon = select(3, GetSpellInfo(768)),
           weights = {
             0, 0, 0, 115, 110, 110, 115, 110
           },
@@ -485,6 +482,7 @@ do
           },
         },
         ["T11 4pc"] = {
+          icon = 464778,
           weights = {
             0, 0, 0, 5, 1, 4, -1, 3
           },
@@ -791,7 +789,8 @@ do
         caps = MeleeCaps
       },
       [specs.WARRIORFury] = {
-        [GetSpellString(46917)] = { -- Titan's Grip
+        [GetSpellInfo(46917)] = { -- Titan's Grip
+          icon = select(3, GetSpellInfo(46917)),
           weights = {
             0, 0, 0, 200, 150, 100, 180, 130
           },
@@ -825,7 +824,8 @@ do
             },
           },
         },
-        [GetSpellString(81099)] = { -- Single-Minded Fury
+        [GetSpellInfo(81099)] = { -- Single-Minded Fury
+          icon = select(3, GetSpellInfo(81099)),
           weights = {
             0, 0, 0, 200, 150, 100, 180, 130
           },
@@ -870,7 +870,6 @@ do
   }
 
   ReforgeLite.presets = presets[addonTable.playerClass]
-
 end
 
 function ReforgeLite:InitPresets()
@@ -942,6 +941,9 @@ function ReforgeLite:InitPresets()
         info.text = "|T"..specInfo[k].icon..":0|t " .. specInfo[k].name
         info.sortKey = specInfo[k].name
         info.isSpec = 1
+      end
+      if v.icon then
+        info.text = "|T"..v.icon..":0|t " .. info.text
       end
       info.value = v
       if v.tip then
