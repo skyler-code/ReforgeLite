@@ -764,7 +764,13 @@ do
       },
     },
     ["WARLOCK"] = {
-      [specs.WARLOCKAffliction .. '/' .. specs.WARLOCKDestruction] = {
+      [specs.WARLOCKAffliction] = {
+        weights = {
+          0, 0, 0, 200, 140, 160, 0, 120
+        },
+        caps = CasterCaps,
+      },
+      [specs.WARLOCKDestruction] = {
         weights = {
           0, 0, 0, 200, 140, 160, 0, 120
         },
