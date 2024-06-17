@@ -190,8 +190,10 @@ local RangedCaps = { HitCap }
 
 local CasterCaps = { HitCapSpell }
 
+local specInfo = {}
+
 do
-  local specNames = {
+  local specs = {
     DEATHKNIGHTBlood = 398,
     DEATHKNIGHTFrost = 399,
     DEATHKNIGHTUnholy = 400,
@@ -224,30 +226,19 @@ do
     WARRIORProtection = 845,
   }
 
-  for k,v in pairs(specNames) do
+  for k,v in pairs(specs) do
     local _, tabName, _, icon = GetSpecializationInfoForSpecID(v)
-    specNames[k] = "|T"..(icon or "error")..":0|t " .. tabName
+    specInfo[v] = { name = tabName, icon = icon }
   end
 
   local function GetSpellString(spellID)
     local spellName, _, icon = GetSpellInfo(spellID)
     return "|T"..(icon or "error")..":0|t " .. spellName
   end
-  ReforgeLite.presetOrder = {
-    [L["DEATHKNIGHT"]] = 1,
-    [L["DRUID"]] = 2,
-    [L["HUNTER"]] = 3,
-    [L["MAGE"]] = 4,
-    [L["PALADIN"]] = 5,
-    [L["PRIEST"]] = 6,
-    [L["ROGUE"]] = 7,
-    [L["SHAMAN"]] = 8,
-    [L["WARLOCK"]] = 9,
-    [L["WARRIOR"]] = 10,
-  }
+
   local presets = {
     ["DEATHKNIGHT"] = {
-      [specNames.DEATHKNIGHTBlood] = {
+      [specs.DEATHKNIGHTBlood] = {
         [RAID] = {
           weights = {
             0, 110, 100, 150, 20, 50, 120, 200
@@ -280,7 +271,7 @@ do
           caps = MeleeCaps,
         },
       },
-      [specNames.DEATHKNIGHTFrost] = {
+      [specs.DEATHKNIGHTFrost] = {
         [ENCHSLOT_2HWEAPON] = {
           weights = {
             0, 0, 0, 201, 115, 129, 163, 126
@@ -338,7 +329,7 @@ do
           },
         },
       },
-      [specNames.DEATHKNIGHTUnholy] = {
+      [specs.DEATHKNIGHTUnholy] = {
         [PLAYER_DIFFICULTY1] = {
           weights = {
             0, 0, 0, 200, 130, 160, 100, 110
@@ -354,13 +345,13 @@ do
       },
     },
     ["DRUID"] = {
-      [specNames.DRUIDBalance] = {
+      [specs.DRUIDBalance] = {
         weights = {
           0, 0, 0, 200, 100, 150, 0, 130
         },
         caps = CasterCaps,
       },
-      [specNames.DRUIDFeralCombat] = {
+      [specs.DRUIDFeralCombat] = {
         ["Bear"] = {
           weights = {
             0, 150, 0, 40, 60, 10, 60, 90
@@ -412,7 +403,7 @@ do
           },
         },
       },
-      [specNames.DRUIDRestoration] = {
+      [specs.DRUIDRestoration] = {
         [MANA_REGEN_ABBR] = {
           weights = {
             150, 0, 0, 0, 130, 160, 0, 140
@@ -452,20 +443,20 @@ do
       }
     },
     ["HUNTER"] = {
-      [specNames.HUNTERBeastMastery] = {
+      [specs.HUNTERBeastMastery] = {
         weights = {
           0, 0, 0, 200, 150, 80, 0, 110
         },
         caps = RangedCaps,
       },
-      [specNames.HUNTERMarksmanship] = {
+      [specs.HUNTERMarksmanship] = {
         tip = "Sim it!",
         weights = {
           0, 0, 0, 200, 150, 110, 0, 80
         },
         caps = RangedCaps,
       },
-      [specNames.HUNTERSurvival] = {
+      [specs.HUNTERSurvival] = {
         tip = "Sim it! Check WoWHead/Discord for Haste caps!!",
         weights = {
           0, 0, 0, 200, 110, 150, 0, 80
@@ -474,7 +465,7 @@ do
       },
     },
     ["MAGE"] = {
-      [specNames.MAGEArcane] = {
+      [specs.MAGEArcane] = {
         [PLAYER_DIFFICULTY1] = {
           weights = {
             0, 0, 0, 5, 1, 4, -1, 3
@@ -512,7 +503,7 @@ do
           },
         },
       },
-      [specNames.MAGEFire] = {
+      [specs.MAGEFire] = {
         ["15% " .. STAT_HASTE] = {
           weights = {
             -1, -1, -1, 2, 3, 1, -1, -1
@@ -550,7 +541,7 @@ do
           },
         },
       },
-      [specNames.MAGEFrost] = {
+      [specs.MAGEFrost] = {
         weights = {
           0, 0, 0, 200, 180, 140, 0, 130
         },
@@ -570,12 +561,12 @@ do
       },
     },
     ["PALADIN"] = {
-      [specNames.PALADINHoly] = {
+      [specs.PALADINHoly] = {
         weights = {
           160, 0, 0, 0, 80, 200, 0, 120
         },
       },
-      [specNames.PALADINProtection] = {
+      [specs.PALADINProtection] = {
         [PET_DEFENSIVE] = {
           tanking = true,
           weights = {
@@ -613,7 +604,7 @@ do
           },
         },
       },
-      [specNames.PALADINRetribution] = {
+      [specs.PALADINRetribution] = {
         weights = {
           0, 0, 0, 200, 135, 110, 180, 150
         },
@@ -621,17 +612,17 @@ do
       },
     },
     ["PRIEST"] = {
-      [specNames.PRIESTDiscipline] = {
+      [specs.PRIESTDiscipline] = {
         weights = {
           150, 0, 0, 0, 80, 100, 0, 120
         },
       },
-      [specNames.PRIESTHoly] = {
+      [specs.PRIESTHoly] = {
         weights = {
           150, 0, 0, 0, 80, 120, 0, 100
         },
       },
-      [specNames.PRIESTShadow] = {
+      [specs.PRIESTShadow] = {
         weights = {
           0, 0, 0, 200, 100, 140, 0, 130
         },
@@ -639,7 +630,7 @@ do
       },
     },
     ["ROGUE"] = {
-      [specNames.ROGUEAssassination] = {
+      [specs.ROGUEAssassination] = {
         weights = {
           0, 0, 0, 200, 110, 130, 120, 140
         },
@@ -668,7 +659,7 @@ do
           },
         },
       },
-      [specNames.ROGUECombat] = {
+      [specs.ROGUECombat] = {
         weights = {
           0, 0, 0, 200, 125, 170, 215, 150
         },
@@ -697,7 +688,7 @@ do
           },
         },
       },
-      [specNames.ROGUESubtlety] = {
+      [specs.ROGUESubtlety] = {
         weights = {
           0, 0, 0, 155, 145, 155, 130, 90
         },
@@ -731,13 +722,13 @@ do
       },
     },
     ["SHAMAN"] = {
-      [specNames.SHAMANElemental] = {
+      [specs.SHAMANElemental] = {
         weights = {
           0, 0, 0, 200, 80, 140, 0, 120
         },
         caps = CasterCaps,
       },
-      [specNames.SHAMANEnhancement] = {
+      [specs.SHAMANEnhancement] = {
         weights = {
           0, 0, 0, 250, 120, 80, 190, 150
         },
@@ -766,20 +757,20 @@ do
           },
         },
       },
-      [specNames.SHAMANRestoration] = {
+      [specs.SHAMANRestoration] = {
         weights = {
           130, 0, 0, 0, 100, 100, 0, 100
         },
       },
     },
     ["WARLOCK"] = {
-      [specNames.WARLOCKAffliction .. '/' .. specNames.WARLOCKDestruction] = {
+      [specs.WARLOCKAffliction .. '/' .. specs.WARLOCKDestruction] = {
         weights = {
           0, 0, 0, 200, 140, 160, 0, 120
         },
         caps = CasterCaps,
       },
-      [specNames.WARLOCKDemonology] = {
+      [specs.WARLOCKDemonology] = {
         weights = {
           0, 0, 0, 200, 120, 160, 0, 140
         },
@@ -787,13 +778,13 @@ do
       },
     },
     ["WARRIOR"] = {
-      [specNames.WARRIORArms] = {
+      [specs.WARRIORArms] = {
         weights = {
           0, 0, 0, 200, 150, 100, 200, 120
         },
         caps = MeleeCaps
       },
-      [specNames.WARRIORFury] = {
+      [specs.WARRIORFury] = {
         [GetSpellString(46917)] = { -- Titan's Grip
           weights = {
             0, 0, 0, 200, 150, 100, 180, 130
@@ -863,7 +854,7 @@ do
           },
         },
       },
-      [specNames.WARRIORProtection] = {
+      [specs.WARRIORProtection] = {
         tanking = true,
         weights = {
           40, 100, 100, 0, 0, 0, 0, 40
@@ -884,7 +875,7 @@ function ReforgeLite:InitPresets()
       if PawnCommon == nil or PawnCommon.Scales == nil then return {} end
       local result = {}
       for k, v in pairs (PawnCommon.Scales) do
-        local preset = {leaf = "import"}
+        local preset = {leaf = "import", name = v.LocalizedName or k}
         preset.weights = {}
         local raw = v.Values or {}
         preset.weights[self.STATS.SPIRIT] = raw["Spirit"] or 0
@@ -914,7 +905,7 @@ function ReforgeLite:InitPresets()
           for i = 1, #self.itemStats do
             preset.weights[i] = preset.weights[i] * factor
           end
-          result[v.LocalizedName or k] = preset
+          tinsert(result, preset)
         end
       end
       return result
@@ -929,14 +920,21 @@ function ReforgeLite:InitPresets()
     if level > 1 then
       list = UIDROPDOWNMENU_MENU_VALUE
     end
-    local sortedList = {}
+    local menuList = {}
     for k, v in pairs (list) do
       if type (v) == "function" then
         v = v ()
       end
       local info = UIDropDownMenu_CreateInfo()
       info.notCheckable = true
-      info.text = ((list == self.db.customPresets or v.leaf == "import") and k or L[k])
+      info.sortKey = v.name or k
+      info.text = info.sortKey
+      info.isSpec = 0
+      if specInfo[k] then
+        info.text = "|T"..specInfo[k].icon..":0|t " .. specInfo[k].name
+        info.sortKey = specInfo[k].name
+        info.isSpec = 1
+      end
       info.value = v
       if v.tip then
         info.tooltipTitle = v.tip
@@ -963,14 +961,16 @@ function ReforgeLite:InitPresets()
         end
         info.keepShownOnClick = true
       end
-      if level > 1 or not self.presetOrder[info.text] then
-        UIDropDownMenu_AddButton (info, level)
-      else
-        sortedList[self.presetOrder[info.text]] = info
-      end
+      tinsert(menuList, info)
     end
-    for _,v in ipairs(sortedList) do
-      UIDropDownMenu_AddButton (v, 1)
+    table.sort(menuList, function (a, b)
+      if a.isSpec ~= b.isSpec then
+        return a.isSpec < b.isSpec
+      end
+      return a.sortKey < b.sortKey
+    end)
+    for _,v in ipairs(menuList) do
+      UIDropDownMenu_AddButton (v, level)
     end
   end
 
