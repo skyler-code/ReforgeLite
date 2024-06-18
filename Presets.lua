@@ -988,10 +988,10 @@ function ReforgeLite:InitPresets()
   self.presetDelMenu.info = {}
   self.presetDelMenu.initialize = function (menu, level)
     if level ~= 1 then return end
-    local info = menu.info
-    wipe (info)
-    info.notCheckable = true
+    local menuList = {}
     for k, v in pairs (self.db.customPresets) do
+      local info = UIDropDownMenu_CreateInfo()
+      info.notCheckable = true
       info.text = k
       info.func = function ()
         self.db.customPresets[k] = nil
@@ -999,7 +999,11 @@ function ReforgeLite:InitPresets()
           self.deletePresetButton:Disable ()
         end
       end
-      UIDropDownMenu_AddButton (info, level)
+      tinsert(menuList, info)
+    end
+    table.sort(menuList, function (a, b) return a.text < b.text end)
+    for _,v in ipairs(menuList) do
+      UIDropDownMenu_AddButton (v, level)
     end
   end
 end
