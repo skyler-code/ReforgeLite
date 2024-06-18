@@ -5,6 +5,8 @@
 ## Version: @project-version@
 ## SavedVariables: ReforgeLiteDB
 
+embeds.xml
+
 util\json.lua
 
 Localization.lua

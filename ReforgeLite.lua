@@ -7,6 +7,7 @@ addonTable.ReforgeLite = ReforgeLite
 
 local L = addonTable.L
 local GUI = addonTable.GUI
+local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 
 local function DeepCopy (t, cache)
   if type (t) ~= "table" then
@@ -1234,7 +1235,7 @@ function ReforgeLite:CreateOptionList ()
 
   self.presetsButton = GUI:CreateImageButton (self.content, 24, 24, "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up",
     "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down", "Interface\\Buttons\\UI-Common-MouseHilight", function ()
-    ToggleDropDownMenu (1, nil, self.presetMenu, self.presetsButton:GetName (), 0, 0)
+    LibDD:ToggleDropDownMenu (1, nil, self.presetMenu, self.presetsButton:GetName (), 0, 0)
   end)
   self.statWeightsCategory:AddFrame (self.presetsButton)
   self:SetAnchor (self.presetsButton, "TOPLEFT", self.statWeightsCategory, "BOTTOMLEFT", 0, -5)
@@ -1257,7 +1258,7 @@ function ReforgeLite:CreateOptionList ()
   self.deletePresetButton:SetSize (self.deletePresetButton:GetFontString():GetStringWidth() + 20, 22)
   self.deletePresetButton:SetScript ("OnClick", function ()
     if next (self.db.customPresets) then
-      ToggleDropDownMenu (1, nil, self.presetDelMenu, self.deletePresetButton:GetName (), 0, 0)
+      LibDD:ToggleDropDownMenu (1, nil, self.presetDelMenu, self.deletePresetButton:GetName (), 0, 0)
     end
   end)
   self:SetAnchor (self.deletePresetButton, "LEFT", self.savePresetButton, "RIGHT", 5, 0)

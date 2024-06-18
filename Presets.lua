@@ -1,6 +1,7 @@
 local _, addonTable = ...
 local L = addonTable.L
 local ReforgeLite = addonTable.ReforgeLite
+local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 
 ----------------------------------------- CAP PRESETS ---------------------------------
 
@@ -919,20 +920,19 @@ function ReforgeLite:InitPresets()
     end
   end
 
-  self.presetMenu = CreateFrame ("Frame", "ReforgeLitePresetMenu")
-  self.presetMenu.info = {}
-  self.presetMenu.initialize = function (menu, level)
+  self.presetMenu = LibDD:Create_UIDropDownMenu("ReforgeLitePresetMenu", self)
+  LibDD:UIDropDownMenu_SetInitializeFunction(self.presetMenu, function (menu, level)
     if not level then return end
     local list = self.presets
     if level > 1 then
-      list = UIDROPDOWNMENU_MENU_VALUE
+      list = L_UIDROPDOWNMENU_MENU_VALUE
     end
     local menuList = {}
     for k, v in pairs (list) do
       if type (v) == "function" then
         v = v ()
       end
-      local info = UIDropDownMenu_CreateInfo()
+      local info = LibDD:UIDropDownMenu_CreateInfo()
       info.notCheckable = true
       info.sortKey = v.name or k
       info.text = info.sortKey
@@ -952,7 +952,7 @@ function ReforgeLite:InitPresets()
       end
       if v.caps or v.weights or v.leaf then
         info.func = function ()
-          CloseDropDownMenus ()
+          LibDD:CloseDropDownMenus ()
           if v.leaf == "import" then
             self:SetStatWeights (v.weights, v.caps)
           else
@@ -980,17 +980,17 @@ function ReforgeLite:InitPresets()
       return a.sortKey < b.sortKey
     end)
     for _,v in ipairs(menuList) do
-      UIDropDownMenu_AddButton (v, level)
+      LibDD:UIDropDownMenu_AddButton (v, level)
     end
-  end
+  end)
 
-  self.presetDelMenu = CreateFrame ("Frame", "ReforgeLitePresetDelMenu")
-  self.presetDelMenu.info = {}
-  self.presetDelMenu.initialize = function (menu, level)
+
+  self.presetDelMenu = LibDD:Create_UIDropDownMenu("ReforgeLitePresetDelMenu", self)
+  LibDD:UIDropDownMenu_SetInitializeFunction(self.presetDelMenu, function (menu, level)
     if level ~= 1 then return end
+    local info = LibDD:UIDropDownMenu_CreateInfo()
     local menuList = {}
     for k, v in pairs (self.db.customPresets) do
-      local info = UIDropDownMenu_CreateInfo()
       info.notCheckable = true
       info.text = k
       info.func = function ()
@@ -1003,7 +1003,7 @@ function ReforgeLite:InitPresets()
     end
     table.sort(menuList, function (a, b) return a.text < b.text end)
     for _,v in ipairs(menuList) do
-      UIDropDownMenu_AddButton (v, level)
+      LibDD:UIDropDownMenu_AddButton (v, level)
     end
-  end
+  end)
 end

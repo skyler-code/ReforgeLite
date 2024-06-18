@@ -1,6 +1,8 @@
 local addonName, addonTable = ...
 local GUI = {}
 
+local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
+
 GUI.widgetCount = 0
 function GUI:GenerateWidgetName ()
   self.widgetCount = self.widgetCount + 1
@@ -77,36 +79,36 @@ function GUI:CreateDropdown (parent, values, default, setter, width)
     sel:Show ()
   else
     local name = self:GenerateWidgetName ()
-    sel = CreateFrame ("Frame", name, parent, "UIDropDownMenuTemplate")
-    sel.Initialize = function (self)
-      local info = UIDropDownMenu_CreateInfo ()
+    sel = LibDD:Create_UIDropDownMenu(name, parent)
+    LibDD:UIDropDownMenu_SetInitializeFunction(sel, function (self)
+      local info = {}
       for i = 1, #self.values do
         info.text = self.values[i].name
         info.func = function (inf)
-          UIDropDownMenu_SetSelectedValue (self, inf.value)
+          LibDD:UIDropDownMenu_SetSelectedValue (self, inf.value)
           self.value = inf.value
           if self.setter then self.setter (inf.value) end
         end
         info.value = self.values[i].value
         info.checked = (self.value == self.values[i].value)
-        UIDropDownMenu_AddButton (info)
+        LibDD:UIDropDownMenu_AddButton (info)
       end
-    end
+    end)
     sel.SetValue = function (self, value)
       self.value = value
       for i = 1, #self.values do
         if self.values[i].value == value then
-          UIDropDownMenu_SetText (self, self.values[i].name)
+          LibDD:UIDropDownMenu_SetText (self, self.values[i].name)
           return
         end
       end
-      UIDropDownMenu_SetText (self, "")
+      LibDD:UIDropDownMenu_SetText (self, "")
     end
     sel:SetScript ("OnShow", function (self)
-      UIDropDownMenu_Initialize (self, self.Initialize)
-      UIDropDownMenu_SetSelectedValue (self, self.value)
+      LibDD:UIDropDownMenu_Initialize (self, self.Initialize)
+      LibDD:UIDropDownMenu_SetSelectedValue (self, self.value)
     end)
-    UIDropDownMenu_JustifyText (sel, "LEFT")
+    LibDD:UIDropDownMenu_JustifyText (sel, "LEFT")
     sel:SetHeight (50)
     _G[name .. "Left"]:SetHeight (50)
     _G[name .. "Middle"]:SetHeight (50)
@@ -114,14 +116,6 @@ function GUI:CreateDropdown (parent, values, default, setter, width)
     _G[name .. "Text"]:SetPoint ("LEFT", _G[name .. "Left"], "LEFT", 27, 1)
     _G[name .. "Button"]:SetWidth (22)
     _G[name .. "Button"]:SetHeight (22)
-    _G[name .. "ButtonNormalTexture"]:SetWidth (22)
-    _G[name .. "ButtonNormalTexture"]:SetHeight (22)
-    _G[name .. "ButtonPushedTexture"]:SetWidth (22)
-    _G[name .. "ButtonPushedTexture"]:SetHeight (22)
-    _G[name .. "ButtonDisabledTexture"]:SetWidth (22)
-    _G[name .. "ButtonDisabledTexture"]:SetHeight (22)
-    _G[name .. "ButtonHighlightTexture"]:SetWidth (22)
-    _G[name .. "ButtonHighlightTexture"]:SetHeight (22)
     _G[name .. "Button"]:SetPoint ("TOPRIGHT", _G[name .. "Right"], "TOPRIGHT", -16, -13)
     sel.Recycle = function (sel)
       sel:Hide ()
@@ -134,10 +128,10 @@ function GUI:CreateDropdown (parent, values, default, setter, width)
   sel.value = default
   sel.values = values
   sel.setter = setter
-  UIDropDownMenu_Initialize (sel, sel.Initialize)
+  LibDD:UIDropDownMenu_Initialize (sel, sel.Initialize)
   sel:SetValue (default)
   if width then
-    UIDropDownMenu_SetWidth (sel, width)
+    LibDD:UIDropDownMenu_SetWidth (sel, width)
   end
   return sel
 end
