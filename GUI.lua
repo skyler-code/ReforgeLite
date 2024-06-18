@@ -104,10 +104,6 @@ function GUI:CreateDropdown (parent, values, default, setter, width)
       end
       LibDD:UIDropDownMenu_SetText (self, "")
     end
-    sel:SetScript ("OnShow", function (self)
-      LibDD:UIDropDownMenu_Initialize (self, self.Initialize)
-      LibDD:UIDropDownMenu_SetSelectedValue (self, self.value)
-    end)
     LibDD:UIDropDownMenu_JustifyText (sel, "LEFT")
     sel:SetHeight (50)
     _G[name .. "Left"]:SetHeight (50)
