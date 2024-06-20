@@ -5,7 +5,6 @@ if gameLocale == "enGB" then
   gameLocale = "enUS"
 end
 local L_enUS = {}
-L_enUS["StatFormat"] = "^(%d+) %s$"
 L_enUS["Compute"] = "Calculate"
 L_enUS["Active window color"] = "Active window color"
 L_enUS["Add cap"] = "Add cap"
@@ -146,7 +145,6 @@ elseif gameLocale == "deDE" then -- German
   L["Item Import Mismatch"] = "%s stimmt nicht mit Ihrem aktuell ausgerüsteten %s überein. ReforgeLite unterstützt nur ausgerüstete Gegenstände."
 
 elseif gameLocale == "koKR" then
-  L["StatFormat"] = "^%s %+(%d+)$"
   L["Active window color"] = "활성화된 창 색상"
   L["Add cap"] = "조건 추가"
   L["At least"] = "최소"
