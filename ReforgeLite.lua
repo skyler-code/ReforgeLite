@@ -916,7 +916,7 @@ function ReforgeLite:CreateItemTable ()
       GameTooltip:Hide ()
     end)
     self.itemData[i]:SetScript ("OnMouseDown", function ()
-      self.pdb.itemsLocked[i] = not self.pdb.itemsLocked[i]
+      self.pdb.itemsLocked[i] = not self.pdb.itemsLocked[i] or nil
       if self.pdb.itemsLocked[i] then
         self.itemData[i].locked:Show ()
       else
