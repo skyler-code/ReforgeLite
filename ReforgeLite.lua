@@ -1289,6 +1289,8 @@ function ReforgeLite:CreateOptionList ()
     end)
     self.statWeightsCategory:AddFrame (self.tankingModel)
     self:SetAnchor (self.tankingModel, "TOPLEFT", self.pawnButton, "BOTTOMLEFT", 0, -5)
+  else
+    self.pdb.tankingModel = nil
   end
 
   local playerLevel = UnitLevel("player")
