@@ -5,7 +5,7 @@ if gameLocale == "enGB" then
   gameLocale = "enUS"
 end
 local L_enUS = {}
-L_enUS["StatFormat"] = "^(%d+) %s$"
+L_enUS["StatFormat"] = "^+(%d+) %s$"
 L_enUS["Compute"] = "Calculate"
 L_enUS["Active window color"] = "Active window color"
 L_enUS["Add cap"] = "Add cap"
