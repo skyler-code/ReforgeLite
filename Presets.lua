@@ -505,7 +505,7 @@ do
       [specs.MAGEFire] = {
         ["15% " .. STAT_HASTE] = {
           weights = {
-            -1, -1, -1, 2, 3, 1, -1, -1
+            -1, -1, -1, 5, 3, 4, -1, 1
           },
           caps = {
             HitCapSpell,
@@ -523,7 +523,7 @@ do
         },
         ["25% " .. STAT_HASTE] = {
           weights = {
-            -1, -1, -1, 2, 3, 1, -1, -1
+            -1, -1, -1, 5, 3, 4, -1, 1
           },
           caps = {
             HitCapSpell,
