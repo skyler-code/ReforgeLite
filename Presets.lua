@@ -91,42 +91,59 @@ function ReforgeLite:GetNeededExpertiseHard ()
   end
 end
 
+local AtLeast = addonTable.StatCapMethods.AtLeast
+local AtMost = addonTable.StatCapMethods.AtMost
+
+local StatHit = ReforgeLite.STATS.HIT
+local StatCrit = ReforgeLite.STATS.CRIT
+local StatHaste = ReforgeLite.STATS.HASTE
+local StatExp = ReforgeLite.STATS.EXP
+
+local CAPS = {
+  ManualCap = 1,
+  MeleeHitCap = 2,
+  SpellHitCap = 3,
+  MeleeDWHitCap = 4,
+  ExpSoftCap = 5,
+  ExpHardCap = 6,
+}
+
 ReforgeLite.capPresets = {
   {
-    value = 1,
+    value = CAPS.ManualCap,
     name = TRACKER_SORT_MANUAL,
     getter = nil
   },
   {
-    value = 2,
+    value = CAPS.MeleeHitCap,
     name = L["Melee hit cap"],
     getter = function ()
       return ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HIT) * (ReforgeLite:GetNeededMeleeHit () - ReforgeLite:GetMeleeHitBonus ())
     end
   },
   {
-    value = 3,
+    value = CAPS.SpellHitCap,
     name = L["Spell hit cap"],
     getter = function ()
       return ReforgeLite:RatingPerPoint (ReforgeLite.STATS.SPELLHIT) * (ReforgeLite:GetNeededSpellHit () - ReforgeLite:GetSpellHitBonus ())
     end
   },
   {
-    value = 4,
+    value = CAPS.MeleeDWHitCap,
     name = L["Melee DW hit cap"],
     getter = function ()
       return ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HIT) * (ReforgeLite:GetNeededMeleeHit () + 19 - ReforgeLite:GetMeleeHitBonus ())
     end
   },
   {
-    value = 5,
+    value = CAPS.ExpSoftCap,
     name = L["Expertise soft cap"],
     getter = function ()
       return ReforgeLite:RatingPerPoint (ReforgeLite.STATS.EXP) * (ReforgeLite:GetNeededExpertiseSoft () - ReforgeLite:GetExpertiseBonus ())
     end
   },
   {
-    value = 6,
+    value = CAPS.ExpHardCap,
     name = L["Expertise hard cap"],
     getter = function ()
       return ReforgeLite:RatingPerPoint (ReforgeLite.STATS.EXP) * (ReforgeLite:GetNeededExpertiseHard () - ReforgeLite:GetExpertiseBonus ())
@@ -136,28 +153,12 @@ ReforgeLite.capPresets = {
 
 ----------------------------------------- WEIGHT PRESETS ------------------------------
 
-local StatSpirit = 1
-local StatDodge = 2
-local StatParry = 3
-local StatHit = 4
-local StatCrit = 5
-local StatHaste = 6
-local StatExp = 7
-local StatMastery = 8
-local MeleeHitCap = 2
-local SpellHitCap = 3
-local MeleeDWHitCap = 4
-local ExpSoftCap = 5
-local ExpHardCap = 6
-local AtLeast = addonTable.StatCaps.AtLeast
-local AtMost = addonTable.StatCaps.AtMost
-
 local HitCap = {
   stat = StatHit,
   points = {
     {
       method = AtLeast,
-      preset = MeleeHitCap
+      preset = CAPS.MeleeHitCap
     }
   }
 }
@@ -167,7 +168,7 @@ local HitCapSpell = {
   points = {
     {
       method = AtLeast,
-      preset = SpellHitCap,
+      preset = CAPS.SpellHitCap,
     }
   }
 }
@@ -177,7 +178,7 @@ local SoftExpCap = {
   points = {
     {
       method = AtLeast,
-      preset = ExpSoftCap
+      preset = CAPS.ExpSoftCap
     }
   }
 }
@@ -245,7 +246,7 @@ do
               points = {
                 {
                   method = AtMost,
-                  preset = MeleeHitCap,
+                  preset = CAPS.MeleeHitCap,
                 }
               },
             },
@@ -254,7 +255,7 @@ do
               points = {
                 {
                   method = AtMost,
-                  preset = ExpSoftCap,
+                  preset = CAPS.ExpSoftCap,
                 },
               },
             },
@@ -284,11 +285,11 @@ do
               points = {
                 {
                   method = AtLeast,
-                  preset = MeleeHitCap,
+                  preset = CAPS.MeleeHitCap,
                   after = 106,
                 },
                 {
-                  preset = MeleeDWHitCap,
+                  preset = CAPS.MeleeDWHitCap,
                 },
               },
             },
@@ -297,7 +298,7 @@ do
               points = {
                 {
                   method = AtLeast,
-                  preset = ExpSoftCap,
+                  preset = CAPS.ExpSoftCap,
                 },
               },
             },
@@ -313,12 +314,12 @@ do
               points = {
                 {
                   method = AtLeast,
-                  preset = SpellHitCap,
+                  preset = CAPS.SpellHitCap,
                   after = 106,
                 },
                 {
                   method = AtMost,
-                  preset = MeleeHitCap,
+                  preset = CAPS.MeleeHitCap,
                 },
               },
             },
@@ -358,7 +359,7 @@ do
               stat = StatHit,
               points = {
                 {
-                  preset = MeleeHitCap,
+                  preset = CAPS.MeleeHitCap,
                 },
               },
             },
@@ -366,11 +367,11 @@ do
               stat = StatExp,
               points = {
                 {
-                  preset = ExpSoftCap,
+                  preset = CAPS.ExpSoftCap,
                   after = 30,
                 },
                 {
-                  preset = ExpHardCap,
+                  preset = CAPS.ExpHardCap,
                 },
               },
             },
@@ -386,7 +387,7 @@ do
               stat = StatHit,
               points = {
                 {
-                  preset = MeleeHitCap,
+                  preset = CAPS.MeleeHitCap,
                 },
               },
             },
@@ -394,7 +395,7 @@ do
               stat = StatExp,
               points = {
                 {
-                  preset = ExpSoftCap,
+                  preset = CAPS.ExpSoftCap,
                 },
               },
             },
@@ -582,12 +583,12 @@ do
               points = {
                 {
                   method = AtLeast,
-                  preset = ExpSoftCap,
+                  preset = CAPS.ExpSoftCap,
                   after = 3,
                 },
                 {
                   method = AtMost,
-                  preset = ExpHardCap,
+                  preset = CAPS.ExpHardCap,
                 },
               },
             },
@@ -596,7 +597,7 @@ do
               points = {
                 {
                   method = AtMost,
-                  preset = MeleeHitCap,
+                  preset = CAPS.MeleeHitCap,
                 }
               },
             },
@@ -639,11 +640,11 @@ do
             points = {
               {
                 method = AtLeast,
-                preset = SpellHitCap,
+                preset = CAPS.SpellHitCap,
                 after = 82,
               },
               {
-                preset = MeleeDWHitCap,
+                preset = CAPS.MeleeDWHitCap,
               },
             },
           },
@@ -652,7 +653,7 @@ do
             points = {
               {
                 method = AtMost,
-                preset = ExpSoftCap,
+                preset = CAPS.ExpSoftCap,
               },
             },
           },
@@ -668,7 +669,7 @@ do
             points = {
               {
                 method = AtLeast,
-                preset = ExpSoftCap,
+                preset = CAPS.ExpSoftCap,
               },
             },
           },
@@ -677,11 +678,11 @@ do
             points = {
               {
                 method = AtLeast,
-                preset = SpellHitCap,
+                preset = CAPS.SpellHitCap,
                 after = 100,
               },
               {
-                preset = MeleeDWHitCap,
+                preset = CAPS.MeleeDWHitCap,
               },
             },
           },
@@ -697,15 +698,15 @@ do
             points = {
               {
                 method = AtLeast,
-                preset = MeleeHitCap,
+                preset = CAPS.MeleeHitCap,
                 after = 110,
               },
               {
-                preset = SpellHitCap,
+                preset = CAPS.SpellHitCap,
                 after = 80,
               },
               {
-                preset = MeleeDWHitCap,
+                preset = CAPS.MeleeDWHitCap,
               },
             },
           },
@@ -713,7 +714,7 @@ do
             stat = StatExp,
             points = {
               {
-                preset = ExpSoftCap,
+                preset = CAPS.ExpSoftCap,
               },
             },
           },
@@ -737,11 +738,11 @@ do
             points = {
               {
                 method = AtLeast,
-                preset = SpellHitCap,
+                preset = CAPS.SpellHitCap,
                 after = 50,
               },
               {
-                preset = MeleeDWHitCap,
+                preset = CAPS.MeleeDWHitCap,
               },
             },
           },
@@ -750,7 +751,7 @@ do
             points = {
               {
                 method = AtLeast,
-                preset = ExpSoftCap,
+                preset = CAPS.ExpSoftCap,
               },
             },
           },
@@ -801,7 +802,7 @@ do
               points = {
                 {
                   method = AtLeast,
-                  preset = MeleeHitCap,
+                  preset = CAPS.MeleeHitCap,
                   after = 140,
                 },
                 {
@@ -810,7 +811,7 @@ do
                   after = 125
                 },
                 {
-                  preset = MeleeDWHitCap,
+                  preset = CAPS.MeleeDWHitCap,
                 },
               },
             },
@@ -819,7 +820,7 @@ do
               points = {
                 {
                   method = AtLeast,
-                  preset = ExpSoftCap,
+                  preset = CAPS.ExpSoftCap,
                 },
               },
             },
@@ -836,7 +837,7 @@ do
               points = {
                 {
                   method = AtLeast,
-                  preset = MeleeHitCap,
+                  preset = CAPS.MeleeHitCap,
                   after = 140,
                 },
                 {
@@ -845,7 +846,7 @@ do
                   after = 125
                 },
                 {
-                  preset = MeleeDWHitCap,
+                  preset = CAPS.MeleeDWHitCap,
                 },
               },
             },
@@ -854,7 +855,7 @@ do
               points = {
                 {
                   method = AtLeast,
-                  preset = ExpSoftCap,
+                  preset = CAPS.ExpSoftCap,
                 },
               },
             },

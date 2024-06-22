@@ -113,7 +113,7 @@ addonTable.playerRace = select(2,UnitRace ("player"))
 local playerClass, playerRace, localeClass = addonTable.playerClass, addonTable.playerRace, addonTable.localeClass
 local missChance = (playerRace == "NightElf" and 7 or 5)
 local UNFORGE_INDEX = -1
-addonTable.StatCaps = {
+addonTable.StatCapMethods = {
   AtLeast = 1,
   AtMost = 2,
   NewValue = 3,
@@ -970,9 +970,9 @@ function ReforgeLite:AddCapPoint (i, loading)
     self:RemoveCapPoint (i, point)
   end)
   local methodList = {
-    {value = addonTable.StatCaps.AtLeast, name = L["At least"]},
-    {value = addonTable.StatCaps.AtMost, name = L["At most"]},
-    {value = addonTable.StatCaps.NewValue, name = ""}
+    {value = addonTable.StatCapMethods.AtLeast, name = L["At least"]},
+    {value = addonTable.StatCapMethods.AtMost, name = L["At most"]},
+    {value = addonTable.StatCapMethods.NewValue, name = ""}
   }
   local method = GUI:CreateDropdown (self.statCaps, methodList, 1,
     function (val) self.pdb.caps[i].points[point].method = val end, 80)
