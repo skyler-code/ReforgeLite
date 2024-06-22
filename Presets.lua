@@ -989,10 +989,10 @@ function ReforgeLite:InitPresets()
   self.presetDelMenu = LibDD:Create_UIDropDownMenu("ReforgeLitePresetDelMenu", self)
   LibDD:UIDropDownMenu_SetInitializeFunction(self.presetDelMenu, function (menu, level)
     if level ~= 1 then return end
-    local info = LibDD:UIDropDownMenu_CreateInfo()
-    info.notCheckable = true
     local menuList = {}
     for k, v in pairs (self.db.customPresets) do
+      local info = LibDD:UIDropDownMenu_CreateInfo()
+      info.notCheckable = true
       info.text = k
       info.func = function ()
         self.db.customPresets[k] = nil
