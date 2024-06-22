@@ -54,6 +54,8 @@ local DefaultDB = {
   },
   profiles = {
   },
+  classProfiles = {
+  },
 }
 local DefaultDBProfile = {
   targetLevel = 3,
@@ -88,6 +90,9 @@ local DefaultDBProfile = {
   itemsLocked = {},
   categoryStates = { [SETTINGS] = true },
 }
+local DefaultDBClassProfile = {
+  customPresets = {}
+}
 local function MergeTables (dst, src)
   for k, v in pairs (src) do
     if type (v) ~= "table" then
@@ -102,6 +107,7 @@ local function MergeTables (dst, src)
     end
   end
 end
+addonTable.MergeTables = MergeTables
 
 local function ReforgeFrameIsVisible()
   return ReforgingFrame and ReforgingFrame:IsShown()
@@ -176,6 +182,11 @@ function ReforgeLite:UpgradeDB ()
     pdb.method.caps = nil
     pdb.method.weights = nil
   end
+  if not db.classProfiles[playerClass] then
+    db.classProfiles[playerClass] = DefaultDBProfile
+  else
+    MergeTables (db.classProfiles[playerClass], DefaultDBClassProfile)
+  end
 end
 
 -----------------------------------------------------------------
@@ -225,11 +236,11 @@ end
 CreateStaticPopup("REFORGE_LITE_PARSE_PAWN", L["Enter pawn string"], function(text) ReforgeLite:ParsePawnString(text) end )
 CreateStaticPopup("REFORGE_LITE_PARSE_WOWSIMS", L["Enter WoWSims JSON"], function(text) ReforgeLite:ParseWoWSimsString(text) end )
 CreateStaticPopup("REFORGE_LITE_SAVE_PRESET", L["Enter the preset name"], function(text)
-  ReforgeLite.db.customPresets[text] = {
+  ReforgeLite.cdb.customPresets[text] = {
     caps = DeepCopy(ReforgeLite.pdb.caps),
-    weights = DeepCopy(ReforgeLite.pdb.weights),
-    classID = playerClass
+    weights = DeepCopy(ReforgeLite.pdb.weights)
   }
+  ReforgeLite:InitCustomPresets()
   ReforgeLite.deletePresetButton:Enable()
 end)
 
@@ -1121,6 +1132,9 @@ function ReforgeLite:CapUpdater ()
   self:UpdateCapPoints (1)
   self:UpdateCapPoints (2)
 end
+function ReforgeLite:CustomPresetsExist()
+  return (next(ReforgeLite.db.customPresets) or next(ReforgeLite.cdb.customPresets)) ~= nil
+end
 function ReforgeLite:UpdateStatWeightList ()
   local stats = self.itemStats
   if self.pdb.tankingModel then
@@ -1258,12 +1272,12 @@ function ReforgeLite:CreateOptionList ()
   self.deletePresetButton:SetText (DELETE)
   self.deletePresetButton:SetSize (self.deletePresetButton:GetFontString():GetStringWidth() + 20, 22)
   self.deletePresetButton:SetScript ("OnClick", function ()
-    if next (self.db.customPresets) then
+    if self:CustomPresetsExist() then
       LibDD:ToggleDropDownMenu (1, nil, self.presetDelMenu, self.deletePresetButton:GetName (), 0, 0)
     end
   end)
   self:SetAnchor (self.deletePresetButton, "LEFT", self.savePresetButton, "RIGHT", 5, 0)
-  if next (self.db.customPresets) == nil then
+  if not self:CustomPresetsExist() then
     self.deletePresetButton:Disable ()
   end
 
@@ -2279,7 +2293,8 @@ function ReforgeLite:ADDON_LOADED (addon)
   if addon ~= addonName then return end
   self:UpgradeDB ()
   self.db = ReforgeLiteDB
-  self.pdb = ReforgeLiteDB.profiles[self.dbkey]
+  self.pdb = self.db.profiles[self.dbkey]
+  self.cdb = self.db.classProfiles[playerClass]
 
   self.pdb.reforgeIDs = nil
 

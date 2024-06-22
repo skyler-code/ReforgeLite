@@ -874,9 +874,19 @@ do
   ReforgeLite.presets = presets[addonTable.playerClass]
 end
 
-function ReforgeLite:InitPresets()
-  self.presets[CUSTOM] = self.db.customPresets
+function ReforgeLite:InitCustomPresets()
+  local customPresets = {}
+  for _, db in ipairs({self.db, self.cdb}) do
+    for k, v in pairs(db.customPresets) do
+      v.name = k
+      tinsert(customPresets, v)
+    end
+  end
+  self.presets[CUSTOM] = customPresets
+end
 
+function ReforgeLite:InitPresets()
+  self:InitCustomPresets()
   if PawnVersion then
     self.presets["Pawn"] = function ()
       if not PawnCommon or not PawnCommon.Scales then return {} end
@@ -987,20 +997,20 @@ function ReforgeLite:InitPresets()
     end
   end)
 
-
   self.presetDelMenu = LibDD:Create_UIDropDownMenu("ReforgeLitePresetDelMenu", self)
   LibDD:UIDropDownMenu_SetInitializeFunction(self.presetDelMenu, function (menu, level)
     if level ~= 1 then return end
     local menuList = {}
-    for k, v in pairs (self.db.customPresets) do
-      if not v.classID or v.classID == addonTable.playerClass then
+    for _, db in ipairs({self.db, self.cdb}) do
+      for k in pairs(db.customPresets) do
         local info = LibDD:UIDropDownMenu_CreateInfo()
         info.notCheckable = true
         info.text = k
-        info.func = function ()
-          self.db.customPresets[k] = nil
-          if next (self.db.customPresets) == nil then
-            self.deletePresetButton:Disable ()
+        info.func = function()
+          db.customPresets[k] = nil
+          self:InitCustomPresets()
+          if not self:CustomPresetsExist() then
+            self.deletePresetButton:Disable()
           end
         end
         tinsert(menuList, info)
@@ -1008,7 +1018,7 @@ function ReforgeLite:InitPresets()
     end
     table.sort(menuList, function (a, b) return a.text < b.text end)
     for _,v in ipairs(menuList) do
-      LibDD:UIDropDownMenu_AddButton (v, level)
+      LibDD:UIDropDownMenu_AddButton(v, level)
     end
   end)
 end
