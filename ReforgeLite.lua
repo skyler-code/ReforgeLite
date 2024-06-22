@@ -1277,9 +1277,6 @@ function ReforgeLite:CreateOptionList ()
     end
   end)
   self:SetAnchor (self.deletePresetButton, "LEFT", self.savePresetButton, "RIGHT", 5, 0)
-  if not self:CustomPresetsExist() then
-    self.deletePresetButton:Disable ()
-  end
 
   self.pawnButton = CreateFrame ("Button", "ReforgeLiteImportPawnButton", self.content, "UIPanelButtonTemplate")
   self.statWeightsCategory:AddFrame (self.pawnButton)
@@ -1288,12 +1285,27 @@ function ReforgeLite:CreateOptionList ()
   self.pawnButton:SetScript ("OnClick", function() StaticPopup_Show ("REFORGE_LITE_PARSE_PAWN") end)
   self:SetAnchor (self.pawnButton, "TOPLEFT", self.presetsButton, "BOTTOMLEFT", 0, -5)
 
+  self.exportPresetButton = CreateFrame ("Button", "ReforgeLiteExportPresetButton", self.content, "UIPanelButtonTemplate")
+  self.statWeightsCategory:AddFrame (self.exportPresetButton)
+  self.exportPresetButton:SetText (L["Export"])
+  self.exportPresetButton:SetSize (self.exportPresetButton:GetFontString():GetStringWidth() + 20, 22)
+  self.exportPresetButton:SetScript ("OnClick", function (btn)
+    if self:CustomPresetsExist() then
+      LibDD:ToggleDropDownMenu (1, nil, self.exportPresetMenu, btn:GetName (), 0, 0)
+    end
+  end)
+  self.exportPresetButton:SetPoint ("LEFT", self.pawnButton, "RIGHT", 8, 0)
+
+  if not self:CustomPresetsExist() then
+    self.deletePresetButton:Disable()
+    self.exportPresetButton:Disable()
+  end
+
   self.convertSpirit = CreateFrame ("Frame", nil, self.content)
   self.statWeightsCategory:AddFrame (self.convertSpirit)
   self.convertSpirit.text = self.convertSpirit:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.convertSpirit.text:SetPoint ("LEFT", self.pawnButton, "RIGHT", 8, 0)
+  self.convertSpirit.text:SetPoint ("LEFT", self.exportPresetButton, "RIGHT", 8, 0)
   self.convertSpirit.text:SetText (L["Spirit to hit"] .. ": 0%")
-  self.convertSpirit.text:Hide ()
 
   if playerClass == "PALADIN" or playerClass == "WARRIOR" or playerClass == "DEATHKNIGHT" then
     self.tankingModel = GUI:CreateCheckButton (self.content, STAT_AVOIDANCE .. " " ..PARENS_TEMPLATE:format(localeClass),
