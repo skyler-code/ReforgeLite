@@ -1434,7 +1434,7 @@ function ReforgeLite:CreateOptionList ()
   self.storedScore.suffix:SetText (")")
 
   self.storedClear = CreateFrame ("Button", "ReforgeLiteStoredClear", self.content, "UIPanelButtonTemplate")
-  self.storedClear:SetText (L["Clear"])
+  self.storedClear:SetText (KEY_NUMLOCK_MAC)
   self.storedClear:SetSize (self.storedClear:GetFontString():GetStringWidth() + 20, 22)
   self.storedClear:SetScript ("OnClick", function (self)
     ReforgeLite:ClearStoredMethod ()
@@ -1670,7 +1670,7 @@ function ReforgeLite:RefreshMethodStats (relax)
         if playerClass == "WARRIOR" then
           self.methodTank:PrintLine ("%s: %.2f%%", L["Crit block"], self.pdb.method.stats.critBlock or 0)
         end
-        self.methodTank:PrintLine ("%s: %.2f%%", L["Total"], ctc)
+        self.methodTank:PrintLine ("%s: %.2f%%", TOTAL, ctc)
       else
         self.methodTank:Hide2 ()
       end
