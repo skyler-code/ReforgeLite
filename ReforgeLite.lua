@@ -227,7 +227,8 @@ CreateStaticPopup("REFORGE_LITE_PARSE_WOWSIMS", L["Enter WoWSims JSON"], functio
 CreateStaticPopup("REFORGE_LITE_SAVE_PRESET", L["Enter the preset name"], function(text)
   ReforgeLite.db.customPresets[text] = {
     caps = DeepCopy(ReforgeLite.pdb.caps),
-    weights = DeepCopy(ReforgeLite.pdb.weights)
+    weights = DeepCopy(ReforgeLite.pdb.weights),
+    classID = playerClass
   }
   ReforgeLite.deletePresetButton:Enable()
 end)
