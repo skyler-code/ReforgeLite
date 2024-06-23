@@ -4,6 +4,7 @@
 ## Notes: Calculates optimal reforging for given weights/caps.
 ## Version: @project-version@
 ## SavedVariables: ReforgeLiteDB
+## OptionalDeps: Pawn
 
 embeds.xml
 
