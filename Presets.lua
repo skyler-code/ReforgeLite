@@ -999,7 +999,9 @@ function ReforgeLite:InitPresets()
 
   self.exportPresetMenu = LibDD:Create_UIDropDownMenu("ReforgeLiteExportPresetMenu", self)
   LibDD:UIDropDownMenu_SetInitializeFunction(self.exportPresetMenu, function (menu, level)
-    menuListInit(level, function(info, value) self:ExportPreset(info.sortKey, value) end)
+      menuListInit(level, function(info, value)
+        self:ExportPreset(info.sortKey, value)
+      end)
   end)
 
   self.presetDelMenu = LibDD:Create_UIDropDownMenu("ReforgeLitePresetDelMenu", self)

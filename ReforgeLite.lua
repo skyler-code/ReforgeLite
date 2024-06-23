@@ -784,57 +784,43 @@ function ReforgeLite:CreateFrame()
   end)
 
   self.title = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.title:SetPoint ("TOPLEFT", self, "TOPLEFT", 6, -15)
+  self.title:SetPoint ("TOPLEFT", 6, -15)
   self.title:SetTextColor (1, 1, 1)
   self.title:SetText (addonTitle)
 
-  self.close = CreateFrame ("Button", nil, self)
-  self.close:SetNormalTexture ("Interface\\Buttons\\UI-Panel-MinimizeButton-Up.blp")
-  self.close:SetPushedTexture ("Interface\\Buttons\\UI-Panel-MinimizeButton-Down.blp")
-  self.close:SetHighlightTexture ("Interface\\Buttons\\UI-Panel-MinimizeButton-Highlight.blp")
-  self.close:SetSize(20, 20)
-  self.close:SetPoint ("TOPRIGHT", self, "TOPRIGHT", -4, -12)
-  self.close:SetScript ("OnClick", function (self)
-    self:GetParent ():Hide ()
-  end)
+  self.close = CreateFrame ("Button", nil, self, "UIPanelCloseButtonNoScripts")
+  self.close:SetSize(24, 24)
+  self.close:SetPoint("TOPRIGHT", 0, -10)
+  self.close:SetScript("OnClick", function(btn) btn:GetParent():Hide() end)
 
-  self.leftGrip = CreateFrame ("Button", nil, self)
-  self.leftGrip:SetNormalTexture (AddonPath .. "textures\\leftgrip")
-  self.leftGrip:SetHighlightTexture (AddonPath .. "textures\\leftgrip")
-  self.leftGrip:SetSize(20, 20)
-  self.leftGrip:SetPoint ("BOTTOMLEFT", self, "BOTTOMLEFT", -4, -4)
-  self.leftGrip:SetScript ("OnMouseDown", function (self, arg)
+  local function GripOnMouseDown(btn, arg)
     if arg == "LeftButton" then
-      self:GetParent ():StartSizing ("BOTTOMLEFT")
-      self:GetParent ().sizing = true
+      local anchorPoint = btn:GetPoint()
+      btn:GetParent():StartSizing(anchorPoint)
+      btn:GetParent().sizing = true
     end
-  end)
-  self.leftGrip:SetScript ("OnMouseUp", function (self)
-    if self:GetParent ().sizing then
-      self:GetParent ():StopMovingOrSizing ()
-      self:GetParent ().sizing = false
-      self:GetParent ():UpdateWindowSize ()
-    end
-  end)
+  end
 
-  self.rightGrip = CreateFrame ("Button", nil, self)
-  self.rightGrip:SetNormalTexture (AddonPath .. "textures\\rightGrip")
-  self.rightGrip:SetHighlightTexture (AddonPath .. "textures\\rightGrip")
-  self.rightGrip:SetSize(20, 20)
-  self.rightGrip:SetPoint ("BOTTOMRIGHT", self, "BOTTOMRIGHT", 4, -4)
-  self.rightGrip:SetScript ("OnMouseDown", function (self, arg)
-    if arg == "LeftButton" then
-      self:GetParent ():StartSizing ("BOTTOMRIGHT")
-      self:GetParent ().sizing = true
+  local function GripOnMouseUp(btn, arg)
+    if btn:GetParent().sizing then
+      btn:GetParent():StopMovingOrSizing ()
+      btn:GetParent().sizing = false
+      btn:GetParent():UpdateWindowSize ()
     end
-  end)
-  self.rightGrip:SetScript ("OnMouseUp", function (self)
-    if self:GetParent ().sizing then
-      self:GetParent ():StopMovingOrSizing ()
-      self:GetParent ().sizing = false
-      self:GetParent ():UpdateWindowSize ()
-    end
-  end)
+  end
+
+  self.leftGrip = CreateFrame ("Button", nil, self, "PanelResizeButtonTemplate")
+  self.leftGrip:SetSize(16, 16)
+  self.leftGrip:SetRotationDegrees(-90)
+  self.leftGrip:SetPoint("BOTTOMLEFT")
+  self.leftGrip:SetScript("OnMouseDown", GripOnMouseDown)
+  self.leftGrip:SetScript("OnMouseUp", GripOnMouseUp)
+
+  self.rightGrip = CreateFrame ("Button", nil, self, "PanelResizeButtonTemplate")
+  self.rightGrip:SetSize(16, 16)
+  self.rightGrip:SetPoint("BOTTOMRIGHT")
+  self.rightGrip:SetScript("OnMouseDown", GripOnMouseDown)
+  self.rightGrip:SetScript("OnMouseUp", GripOnMouseUp)
 
   self:CreateItemTable ()
 
@@ -845,18 +831,18 @@ function ReforgeLite:CreateFrame()
   self.scrollFrame = CreateFrame ("ScrollFrame", nil, self)
   self.scrollFrame:ClearAllPoints ()
   self.scrollFrame:SetPoint ("LEFT", self.itemTable, "RIGHT", 10, 0)
-  self.scrollFrame:SetPoint ("TOP", self, "TOP", 0, -40)
-  self.scrollFrame:SetPoint ("BOTTOMRIGHT", self, "BOTTOMRIGHT", -22, 15)
+  self.scrollFrame:SetPoint ("TOP", 0, -40)
+  self.scrollFrame:SetPoint ("BOTTOMRIGHT", -22, 15)
   self.scrollFrame:EnableMouseWheel (true)
-  self.scrollFrame:SetScript ("OnMouseWheel", function (self, value)
-    ReforgeLite:MoveScroll (value)
+  self.scrollFrame:SetScript ("OnMouseWheel", function (frame, value)
+    self:MoveScroll (value)
   end)
-  self.scrollFrame:SetScript ("OnSizeChanged", function (self)
-    ReforgeLite:SetScript ("OnUpdate", ReforgeLite.FixScroll)
+  self.scrollFrame:SetScript ("OnSizeChanged", function (frame)
+    self:SetScript ("OnUpdate", self.FixScroll)
   end)
 
   self.scrollBar = CreateFrame ("Slider", "ReforgeLiteScrollBar", self.scrollFrame, "UIPanelScrollBarTemplate")
-  self.scrollBar:SetPoint ("TOPLEFT", self.scrollFrame, "TOPRIGHT", 4, -16)
+  self.scrollBar:SetPoint ("TOPLEFT", self.scrollFrame, "TOPRIGHT", 4, -10)
   self.scrollBar:SetPoint ("BOTTOMLEFT", self.scrollFrame, "BOTTOMRIGHT", 4, 16)
   self.scrollBar:SetMinMaxValues (0, 1000)
   self.scrollBar:SetValueStep (1)
@@ -887,13 +873,13 @@ end
 
 function ReforgeLite:CreateItemTable ()
   self.itemLevel = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.itemLevel:SetPoint ("TOPLEFT", self, "TOPLEFT", 12, -40)
+  self.itemLevel:SetPoint ("TOPLEFT", 12, -40)
   self.itemLevel:SetTextColor (1, 1, 0.8)
   self.itemLevel:SetText (STAT_AVERAGE_ITEM_LEVEL .. ": 0")
 
   self.itemTable = GUI:CreateTable (#self.itemSlots + 1, #self.itemStats, self.db.itemSize, self.db.itemSize + 4, {0.5, 0.5, 0.5, 1}, self)
   self.itemTable:SetPoint ("TOPLEFT", self.itemLevel, "BOTTOMLEFT", 0, -10)
-  self.itemTable:SetPoint ("BOTTOM", self, "BOTTOM", 0, 10)
+  self.itemTable:SetPoint ("BOTTOM", 0, 10)
   self.itemTable:SetWidth (400)
 
   local lockTip = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
@@ -1940,23 +1926,23 @@ function ReforgeLite:ShowMethodWindow ()
 
     self.methodWindow:EnableMouse (true)
     self.methodWindow:SetMovable (true)
-    self.methodWindow:SetScript ("OnMouseDown", function (self, arg)
-      if self:GetFrameLevel () < ReforgeLite:GetFrameLevel () then
-        self:SetFrameLevel (ReforgeLite:GetFrameLevel () + 10)
-        self:SetBackdropBorderColor (unpack (ReforgeLite.db.activeWindowTitle))
-        ReforgeLite:SetBackdropBorderColor (unpack (ReforgeLite.db.inactiveWindowTitle))
+    self.methodWindow:SetScript ("OnMouseDown", function (window, arg)
+      if window:GetFrameLevel () < self:GetFrameLevel () then
+        window:SetFrameLevel (self:GetFrameLevel () + 10)
+        window:SetBackdropBorderColor (unpack (self.db.activeWindowTitle))
+        self:SetBackdropBorderColor (unpack (self.db.inactiveWindowTitle))
       end
       if arg == "LeftButton" then
-        self:StartMoving ()
-        self.moving = true
+        window:StartMoving ()
+        window.moving = true
       end
     end)
-    self.methodWindow:SetScript ("OnMouseUp", function (self)
-      if self.moving then
-        self:StopMovingOrSizing ()
-        self.moving = false
-        ReforgeLite.db.methodWindowX = self:GetLeft ()
-        ReforgeLite.db.methodWindowY = self:GetTop ()
+    self.methodWindow:SetScript ("OnMouseUp", function (window)
+      if window.moving then
+        window:StopMovingOrSizing ()
+        window.moving = false
+        self.db.methodWindowX = window:GetLeft ()
+        self.db.methodWindowY = window:GetTop ()
       end
     end)
 
@@ -1965,15 +1951,12 @@ function ReforgeLite:ShowMethodWindow ()
     self.methodWindow.title:SetTextColor (1, 1, 1)
     self.methodWindow.title:SetText (addonTitle.." Output")
 
-    self.methodWindow.close = CreateFrame ("Button", nil, self.methodWindow)
-    self.methodWindow.close:SetNormalTexture ("Interface\\Buttons\\UI-Panel-MinimizeButton-Up.blp")
-    self.methodWindow.close:SetPushedTexture ("Interface\\Buttons\\UI-Panel-MinimizeButton-Down.blp")
-    self.methodWindow.close:SetHighlightTexture ("Interface\\Buttons\\UI-Panel-MinimizeButton-Highlight.blp")
-    self.methodWindow.close:SetSize(20, 20)
-    self.methodWindow.close:SetPoint ("TOPRIGHT", self.methodWindow, "TOPRIGHT", -4, -12)
-    self.methodWindow.close:SetScript ("OnClick", function (self)
-      self:GetParent ():Hide ()
-      ReforgeLite:SetBackdropBorderColor (unpack (ReforgeLite.db.activeWindowTitle))
+    self.methodWindow.close = CreateFrame ("Button", nil, self.methodWindow, "UIPanelCloseButtonNoScripts")
+    self.methodWindow.close:SetSize(24, 24)
+    self.methodWindow.close:SetPoint ("TOPRIGHT", self.methodWindow, "TOPRIGHT", 0, -10)
+    self.methodWindow.close:SetScript ("OnClick", function (btn)
+      btn:GetParent():Hide()
+      self:SetBackdropBorderColor(unpack (self.db.activeWindowTitle))
     end)
 
     self.methodWindow.itemTable = GUI:CreateTable (#self.itemSlots + 1, 3, 0, 0, nil, self.methodWindow)
