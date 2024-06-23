@@ -1185,7 +1185,7 @@ function ReforgeLite:UpdateStatWeightList ()
     end)
     self.statWeights:SetCell (row, col + 1, self.statWeights.inputs[i])
   end
-  
+
   if self.pdb.tankingModel then
     self.statCaps:Hide2 ()
     self:SetAnchor (self.computeButton, "TOPLEFT", self.statWeights, "BOTTOMLEFT", 0, -10)
@@ -1193,7 +1193,7 @@ function ReforgeLite:UpdateStatWeightList ()
     self.statCaps:Show2 ()
     self:SetAnchor (self.computeButton, "TOPLEFT", self.statCaps, "BOTTOMLEFT", 0, -10)
   end
-  
+
   self:UpdateBuffs ()
   self:UpdateContentSize ()
 end
@@ -1235,8 +1235,8 @@ function ReforgeLite:CreateOptionList ()
   self:SetAnchor (self.statWeightsCategory, "TOPLEFT", self.content, "TOPLEFT", 2, -2)
 
   self.presetsButton = GUI:CreateImageButton (self.content, 24, 24, "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up",
-    "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down", "Interface\\Buttons\\UI-Common-MouseHilight", function ()
-    LibDD:ToggleDropDownMenu (1, nil, self.presetMenu, self.presetsButton:GetName (), 0, 0)
+    "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down", "Interface\\Buttons\\UI-Common-MouseHilight", function (btn)
+    LibDD:ToggleDropDownMenu (nil, nil, self.presetMenu, btn:GetName(), 0, 0)
   end)
   self.statWeightsCategory:AddFrame (self.presetsButton)
   self:SetAnchor (self.presetsButton, "TOPLEFT", self.statWeightsCategory, "BOTTOMLEFT", 0, -5)
@@ -1257,10 +1257,8 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory:AddFrame (self.deletePresetButton)
   self.deletePresetButton:SetText (DELETE)
   self.deletePresetButton:SetSize (self.deletePresetButton:GetFontString():GetStringWidth() + 20, 22)
-  self.deletePresetButton:SetScript ("OnClick", function ()
-    if self:CustomPresetsExist() then
-      LibDD:ToggleDropDownMenu (1, nil, self.presetDelMenu, self.deletePresetButton:GetName (), 0, 0)
-    end
+  self.deletePresetButton:SetScript ("OnClick", function(btn)
+    LibDD:ToggleDropDownMenu (nil, nil, self.presetDelMenu, btn:GetName(), 0, 0)
   end)
   self:SetAnchor (self.deletePresetButton, "LEFT", self.savePresetButton, "RIGHT", 5, 0)
 
@@ -1276,9 +1274,7 @@ function ReforgeLite:CreateOptionList ()
   self.exportPresetButton:SetText (L["Export"])
   self.exportPresetButton:SetSize (self.exportPresetButton:GetFontString():GetStringWidth() + 20, 22)
   self.exportPresetButton:SetScript ("OnClick", function (btn)
-    if self:CustomPresetsExist() then
-      LibDD:ToggleDropDownMenu (1, nil, self.exportPresetMenu, btn:GetName (), 0, 0)
-    end
+    LibDD:ToggleDropDownMenu (nil, nil, self.exportPresetMenu, btn:GetName (), 0, 0)
   end)
   self.exportPresetButton:SetPoint ("LEFT", self.pawnButton, "RIGHT", 8, 0)
 
@@ -1330,14 +1326,14 @@ function ReforgeLite:CreateOptionList ()
 
   self.statWeights = GUI:CreateTable (ceil (#self.itemStats / 2), 4)
   self:SetAnchor (self.statWeights, "TOPLEFT", self.targetLevelText, "BOTTOMLEFT", 0, -8)
-  self.statWeights:SetPoint ("RIGHT", self.content, "RIGHT", -5, 0)
+  self.statWeights:SetPoint ("RIGHT", -5, 0)
   self.statWeightsCategory:AddFrame (self.statWeights)
   self.statWeights:SetRowHeight (self.db.itemSize + 2)
 
   self.statCaps = GUI:CreateTable (2, 4, nil, self.db.itemSize + 2)
   self.statWeightsCategory:AddFrame (self.statCaps)
   self:SetAnchor (self.statCaps, "TOPLEFT", self.statWeights, "BOTTOMLEFT", 0, -10)
-  self.statCaps:SetPoint ("RIGHT", self.content, "RIGHT", -5, 0)
+  self.statCaps:SetPoint ("RIGHT", -5, 0)
   self.statCaps:SetRowHeight (self.db.itemSize + 2)
   self.statCaps:SetColumnWidth (1, 100)
   self.statCaps:SetColumnWidth (3, 50)

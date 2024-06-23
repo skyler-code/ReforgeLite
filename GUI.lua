@@ -110,8 +110,7 @@ function GUI:CreateDropdown (parent, values, default, setter, width)
     _G[name .. "Middle"]:SetHeight (50)
     _G[name .. "Right"]:SetHeight (50)
     _G[name .. "Text"]:SetPoint ("LEFT", _G[name .. "Left"], "LEFT", 27, 1)
-    _G[name .. "Button"]:SetWidth (22)
-    _G[name .. "Button"]:SetHeight (22)
+    _G[name .. "Button"]:SetSize(22, 22)
     _G[name .. "Button"]:SetPoint ("TOPRIGHT", _G[name .. "Right"], "TOPRIGHT", -16, -13)
     sel.Recycle = function (sel)
       sel:Hide ()
@@ -183,8 +182,7 @@ function GUI:CreateImageButton (parent, width, height, img, pus, hlt, handler)
   if hlt then
     btn:SetHighlightTexture (hlt)
   end
-  btn:SetWidth (width)
-  btn:SetHeight (height)
+  btn:SetSize(width, height)
   if handler then
     btn:SetScript ("OnClick", handler)
   end
@@ -193,8 +191,7 @@ end
 
 function GUI:CreateColorPicker (parent, width, height, color, handler)
   local box = CreateFrame ("Frame", nil, parent)
-  box:SetWidth (width)
-  box:SetHeight (height)
+  box:SetSize(width, height)
   box:EnableMouse (true)
   box.texture = box:CreateTexture (nil, "OVERLAY")
   box.texture:SetAllPoints ()
