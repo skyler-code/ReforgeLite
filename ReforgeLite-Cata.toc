@@ -5,6 +5,7 @@
 ## Version: @project-version@
 ## SavedVariables: ReforgeLiteDB
 ## OptionalDeps: Pawn
+## X-Website: https://github.com/skyler-code/ReforgeLite/issues
 
 embeds.xml
 

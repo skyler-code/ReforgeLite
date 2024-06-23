@@ -1,4 +1,4 @@
-local _, addonTable = ...
+local addonName, addonTable = ...
 local REFORGE_COEFF = 0.4
 local REFORGE_CHEAT = 5
 
@@ -826,20 +826,6 @@ end
 
 -----------------------------------------------------------------------------
 
-local function FormatValue (value, prefix)
-  if type (value) == "table" then
-    local result = "{\n"
-    prefix = prefix or ""
-    local newprefix = prefix .. "  "
-    for k, v in pairs (value) do
-      result = result .. newprefix .. tostring (k) .. " = " .. FormatValue (v, newprefix) .. "\n"
-    end
-    return result .. prefix .. "}"
-  else
-    return tostring (value)
-  end
-end
-
 StaticPopupDialogs["REFORGELITE_COMPUTEERROR"] = {
   text = L["ReforgeLite failed to compute your optimal reforge. Try increasing the speed by moving the speed slider.\nError message: %s"],
   button1 = OKAY,
@@ -891,7 +877,6 @@ function ReforgeLite:ComputeReforge (initFunc, optionFunc, chooseFunc)
 
   local success, scores, codes = pcall (self.ComputeReforgeCore, self, data, reforgeOptions)
 
-  self.methodDebug = "<no data>"
   if success then
     local code = self[chooseFunc] (self, data, reforgeOptions, scores, codes)
     scores, codes = nil, nil
@@ -906,12 +891,12 @@ function ReforgeLite:ComputeReforge (initFunc, optionFunc, chooseFunc)
       data.method.items[i].src = opt.src
       data.method.items[i].dst = opt.dst
     end
-    self.methodDebug = "data = " .. FormatValue (data) .. "\n\n"
+    self.methodDebug = { data = DeepCopy(data) }
     self:FinalizeReforge (data)
-    self.methodDebug = self.methodDebug .. "method = " .. FormatValue (data.method)
+    self.methodDebug.method = DeepCopy(data.method)
     return data.method
   else
-    self.methodDebug = "data = " .. FormatValue (data)
+    self.methodDebug = { data = DeepCopy(data) }
     StaticPopup_Show ("REFORGELITE_COMPUTEERROR", scores)
     return nil
   end
@@ -989,7 +974,12 @@ function ReforgeLite:DisplayMessage(name, message)
 end
 
 function ReforgeLite:DebugMethod()
-  self:DisplayMessage ("https://github.com/skyler-code/ReforgeLite/issues", self.methodDebug or "<no data>")
+  local website = C_AddOns.GetAddOnMetadata(addonName, "X-Website")
+  if self.methodDebug then
+    self:DisplayMessage (website, addonTable.json.encode(self.methodDebug))
+  else
+    self:DisplayMessage (website, "<no data>")
+  end
 end
 
 
