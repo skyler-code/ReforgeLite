@@ -931,11 +931,15 @@ function ReforgeLite:InitPresets()
     end
   end
 
-  local menuListInit = function (level, onClick)
+  local menuListInit = function (level, options)
     if not level then return end
     local list = self.presets
     if level > 1 then
       list = L_UIDROPDOWNMENU_MENU_VALUE
+    elseif options.extraButtons then
+      list = {}
+      addonTable.MergeTables(list, self.presets)
+      addonTable.MergeTables(list, options.extraButtons)
     end
     local menuList = {}
     for k, v in pairs (list) do
@@ -947,6 +951,7 @@ function ReforgeLite:InitPresets()
       info.sortKey = v.name or k
       info.text = info.sortKey
       info.isSpec = 0
+      info.value = v
       if specInfo[k] then
         info.text = "|T"..specInfo[k].icon..":0|t " .. specInfo[k].name
         info.sortKey = specInfo[k].name
@@ -955,15 +960,14 @@ function ReforgeLite:InitPresets()
       if v.icon then
         info.text = "|T"..v.icon..":0|t " .. info.text
       end
-      info.value = v
       if v.tip then
         info.tooltipTitle = v.tip
         info.tooltipOnButton = true
       end
       if v.caps or v.weights then
-        info.func = function ()
+        info.func = function()
           LibDD:CloseDropDownMenus()
-          onClick(info, v)
+          options.onClick(info)
         end
       else
         if next (v) then
@@ -988,17 +992,30 @@ function ReforgeLite:InitPresets()
 
   self.presetMenu = LibDD:Create_UIDropDownMenu("ReforgeLitePresetMenu", self)
   LibDD:UIDropDownMenu_SetInitializeFunction(self.presetMenu, function (menu, level)
-    menuListInit(level, function(info, value)
-      self:SetStatWeights(value.weights, value.caps or {})
-      self:SetTankingModel (value.tanking)
-    end)
+    menuListInit(level, {
+      onClick = function(info)
+        self:SetStatWeights(info.value.weights, info.value.caps or {})
+        self:SetTankingModel (info.value.tanking)
+      end
+    })
   end)
 
   self.exportPresetMenu = LibDD:Create_UIDropDownMenu("ReforgeLiteExportPresetMenu", self)
   LibDD:UIDropDownMenu_SetInitializeFunction(self.exportPresetMenu, function (menu, level)
-      menuListInit(level, function(info, value)
-        self:ExportPreset(info.sortKey, value)
-      end)
+    menuListInit(level, {
+      onClick = function(info)
+        self:ExportPreset(info.sortKey, info.value)
+      end,
+      extraButtons = {
+        [REFORGE_CURRENT] = function()
+          local result = {
+            caps = ReforgeLite.pdb.caps,
+            weights = ReforgeLite.pdb.weights,
+          }
+          return result
+        end
+      }
+    })
   end)
 
   self.presetDelMenu = LibDD:Create_UIDropDownMenu("ReforgeLitePresetDelMenu", self)
