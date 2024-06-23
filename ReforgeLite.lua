@@ -219,6 +219,7 @@ local function CreateStaticPopup(name, text, func)
       self:GetParent():Hide();
     end,
     OnShow = function (self)
+      LibDD:CloseDropDownMenus()
       self.editBox:SetText ("")
       self.button1:Disable ()
       self.editBox:SetFocus ()
@@ -1248,9 +1249,7 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory:AddFrame (self.savePresetButton)
   self.savePresetButton:SetText (SAVE)
   self.savePresetButton:SetSize (self.savePresetButton:GetFontString():GetStringWidth() + 20, 22)
-  self.savePresetButton:SetScript ("OnClick", function (self)
-    StaticPopup_Show ("REFORGE_LITE_SAVE_PRESET")
-  end)
+  self.savePresetButton:SetScript ("OnClick", function() StaticPopup_Show ("REFORGE_LITE_SAVE_PRESET") end)
   self:SetAnchor (self.savePresetButton, "LEFT", self.presetsButton.tip, "RIGHT", 8, 0)
 
   self.deletePresetButton = CreateFrame ("Button", "ReforgeLiteDeletePresetButton", self.content, "UIPanelButtonTemplate")
