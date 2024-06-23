@@ -1392,14 +1392,9 @@ function ReforgeLite:CreateOptionList ()
 
   self:UpdateStatWeightList ()
 
-  self.quality = CreateFrame ("Slider", nil, self.content, "BackdropTemplate")
-  self:SetAnchor (self.quality, "LEFT", self.computeButton, "RIGHT", 15, 0)
-  self.quality:SetOrientation ("HORIZONTAL")
+  self.quality = CreateFrame ("Slider", nil, self.content, "HorizontalSliderTemplate")
+  self:SetAnchor (self.quality, "LEFT", self.computeButton, "RIGHT", 10, 0)
   self.quality:SetSize(150, 15)
-  self.quality:SetHitRectInsets (0, 0, -10, 0)
-  self.quality.backdropInfo = BACKDROP_SLIDER_8_8
-  self.quality:ApplyBackdrop()
-  self.quality:SetThumbTexture ("Interface\\Buttons\\UI-SliderBar-Button-Horizontal")
   self.quality:SetMinMaxValues (1, 20)
   self.quality:SetValueStep (1)
   self.quality:SetValue (self.db.reforgeCheat)
