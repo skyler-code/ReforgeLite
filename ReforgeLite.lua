@@ -1260,6 +1260,9 @@ function ReforgeLite:CreateOptionList ()
     LibDD:ToggleDropDownMenu (nil, nil, self.presetDelMenu, btn:GetName(), 0, 0)
   end)
   self:SetAnchor (self.deletePresetButton, "LEFT", self.savePresetButton, "RIGHT", 5, 0)
+  if not self:CustomPresetsExist() then
+    self.deletePresetButton:Disable()
+  end
 
   self.pawnButton = CreateFrame ("Button", "ReforgeLiteImportPawnButton", self.content, "UIPanelButtonTemplate")
   self.statWeightsCategory:AddFrame (self.pawnButton)
@@ -1276,11 +1279,6 @@ function ReforgeLite:CreateOptionList ()
     LibDD:ToggleDropDownMenu (nil, nil, self.exportPresetMenu, btn:GetName (), 0, 0)
   end)
   self.exportPresetButton:SetPoint ("LEFT", self.pawnButton, "RIGHT", 8, 0)
-
-  if not self:CustomPresetsExist() then
-    self.deletePresetButton:Disable()
-    self.exportPresetButton:Disable()
-  end
 
   self.convertSpirit = CreateFrame ("Frame", nil, self.content)
   self.statWeightsCategory:AddFrame (self.convertSpirit)
