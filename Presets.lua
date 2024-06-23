@@ -931,95 +931,7 @@ function ReforgeLite:InitPresets()
     end
   end
 
-  self.presetMenu = LibDD:Create_UIDropDownMenu("ReforgeLitePresetMenu", self)
-  LibDD:UIDropDownMenu_SetInitializeFunction(self.presetMenu, function (menu, level)
-    if not level then return end
-    local list = self.presets
-    if level > 1 then
-      list = L_UIDROPDOWNMENU_MENU_VALUE
-    end
-    local menuList = {}
-    for k, v in pairs (list) do
-      if type (v) == "function" then
-        v = v ()
-      end
-      local info = LibDD:UIDropDownMenu_CreateInfo()
-      info.notCheckable = true
-      info.sortKey = v.name or k
-      info.text = info.sortKey
-      info.isSpec = 0
-      if specInfo[k] then
-        info.text = "|T"..specInfo[k].icon..":0|t " .. specInfo[k].name
-        info.sortKey = specInfo[k].name
-        info.isSpec = 1
-      end
-      if v.icon then
-        info.text = "|T"..v.icon..":0|t " .. info.text
-      end
-      info.value = v
-      if v.tip then
-        info.tooltipTitle = v.tip
-        info.tooltipOnButton = true
-      end
-      if v.caps or v.weights or v.leaf then
-        info.func = function ()
-          LibDD:CloseDropDownMenus()
-          self:SetStatWeights(v.weights, v.caps or {})
-          self:SetTankingModel (v.tanking)
-        end
-        info.hasArrow = nil
-        info.keepShownOnClick = nil
-      else
-        info.func = nil
-        if next (v) then
-          info.hasArrow = true
-        else
-          info.hasArrow = nil
-        end
-        info.keepShownOnClick = true
-      end
-      tinsert(menuList, info)
-    end
-    table.sort(menuList, function (a, b)
-      if a.isSpec ~= b.isSpec then
-        return a.isSpec < b.isSpec
-      end
-      return a.sortKey < b.sortKey
-    end)
-    for _,v in ipairs(menuList) do
-      LibDD:UIDropDownMenu_AddButton (v, level)
-    end
-  end)
-
-  self.presetDelMenu = LibDD:Create_UIDropDownMenu("ReforgeLitePresetDelMenu", self)
-  LibDD:UIDropDownMenu_SetInitializeFunction(self.presetDelMenu, function (menu, level)
-    if level ~= 1 then return end
-    local menuList = {}
-    for _, db in ipairs({self.db, self.cdb}) do
-      for k in pairs(db.customPresets) do
-        local info = LibDD:UIDropDownMenu_CreateInfo()
-        info.notCheckable = true
-        info.text = k
-        info.func = function()
-          db.customPresets[k] = nil
-          self:InitCustomPresets()
-          if not self:CustomPresetsExist() then
-            self.deletePresetButton:Disable()
-          end
-          LibDD:CloseDropDownMenus()
-        end
-        tinsert(menuList, info)
-      end
-    end
-    table.sort(menuList, function (a, b) return a.text < b.text end)
-    for _,v in ipairs(menuList) do
-      LibDD:UIDropDownMenu_AddButton(v, level)
-    end
-  end)
-
-
-  self.exportPresetMenu = LibDD:Create_UIDropDownMenu("ReforgeLiteExportPresetMenu", self)
-  LibDD:UIDropDownMenu_SetInitializeFunction(self.exportPresetMenu, function (menu, level)
+  local menuListInit = function (level, onClick)
     if not level then return end
     local list = self.presets
     if level > 1 then
@@ -1051,7 +963,7 @@ function ReforgeLite:InitPresets()
       if v.caps or v.weights then
         info.func = function ()
           LibDD:CloseDropDownMenus()
-          self:ExportPreset(info.sortKey, v)
+          onClick(info, v)
         end
         info.hasArrow = nil
         info.keepShownOnClick = nil
@@ -1074,6 +986,45 @@ function ReforgeLite:InitPresets()
     end)
     for _,v in ipairs(menuList) do
       LibDD:UIDropDownMenu_AddButton (v, level)
+    end
+  end
+
+  self.presetMenu = LibDD:Create_UIDropDownMenu("ReforgeLitePresetMenu", self)
+  LibDD:UIDropDownMenu_SetInitializeFunction(self.presetMenu, function (menu, level)
+    menuListInit(level, function(info, value)
+      self:SetStatWeights(value.weights, value.caps or {})
+      self:SetTankingModel (value.tanking)
+    end)
+  end)
+
+  self.exportPresetMenu = LibDD:Create_UIDropDownMenu("ReforgeLiteExportPresetMenu", self)
+  LibDD:UIDropDownMenu_SetInitializeFunction(self.exportPresetMenu, function (menu, level)
+    menuListInit(level, function(info, value) self:ExportPreset(info.sortKey, value) end)
+  end)
+
+  self.presetDelMenu = LibDD:Create_UIDropDownMenu("ReforgeLitePresetDelMenu", self)
+  LibDD:UIDropDownMenu_SetInitializeFunction(self.presetDelMenu, function (menu, level)
+    if level ~= 1 then return end
+    local menuList = {}
+    for _, db in ipairs({self.db, self.cdb}) do
+      for k in pairs(db.customPresets) do
+        local info = LibDD:UIDropDownMenu_CreateInfo()
+        info.notCheckable = true
+        info.text = k
+        info.func = function()
+          db.customPresets[k] = nil
+          self:InitCustomPresets()
+          if not self:CustomPresetsExist() then
+            self.deletePresetButton:Disable()
+          end
+          LibDD:CloseDropDownMenus()
+        end
+        tinsert(menuList, info)
+      end
+    end
+    table.sort(menuList, function (a, b) return a.text < b.text end)
+    for _,v in ipairs(menuList) do
+      LibDD:UIDropDownMenu_AddButton(v, level)
     end
   end)
 
