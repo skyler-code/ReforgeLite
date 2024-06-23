@@ -965,10 +965,7 @@ function ReforgeLite:InitPresets()
           LibDD:CloseDropDownMenus()
           onClick(info, v)
         end
-        info.hasArrow = nil
-        info.keepShownOnClick = nil
       else
-        info.func = nil
         if next (v) then
           info.hasArrow = true
         else
