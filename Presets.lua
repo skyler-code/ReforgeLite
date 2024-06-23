@@ -972,7 +972,7 @@ function ReforgeLite:InitPresets()
         if next (v) then
           info.hasArrow = true
         else
-          info.hasArrow = nil
+          info.disabled = true
         end
         info.keepShownOnClick = true
       end
