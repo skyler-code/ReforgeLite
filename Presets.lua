@@ -614,7 +614,7 @@ do
     ["PRIEST"] = {
       [specs.PRIESTDiscipline] = {
         weights = {
-          150, 0, 0, 0, 80, 100, 0, 120
+          150, 0, 0, 0, 100, 120, 0, 80
         },
       },
       [specs.PRIESTHoly] = {
