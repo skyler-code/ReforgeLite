@@ -183,7 +183,7 @@ function ReforgeLite:UpgradeDB ()
     pdb.method.weights = nil
   end
   if not db.classProfiles[playerClass] then
-    db.classProfiles[playerClass] = DefaultDBProfile
+    db.classProfiles[playerClass] = DefaultDBClassProfile
   else
     MergeTables (db.classProfiles[playerClass], DefaultDBClassProfile)
   end
