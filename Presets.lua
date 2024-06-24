@@ -1009,8 +1009,8 @@ function ReforgeLite:InitPresets()
       extraButtons = {
         [REFORGE_CURRENT] = function()
           local result = {
-            caps = ReforgeLite.pdb.caps,
-            weights = ReforgeLite.pdb.weights,
+            caps = self.pdb.caps,
+            weights = self.pdb.weights,
           }
           return result
         end
