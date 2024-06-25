@@ -284,7 +284,7 @@ function ReforgeLite:CreateItemStats()
       long = tip_,
       getter = function ()
         local rating = GetCombatRating (id_)
-        if id_ == CR_HIT_SPELL and self.s2hFactor and self.s2hFactor > 0 and HasFireBuff() then
+        if id_ == CR_HIT_SPELL and self.s2hFactor > 0 and HasFireBuff() then
           rating = rating - floor(FIRE_SPIRIT*(self.s2hFactor/100))
         end
         return rating
@@ -2280,6 +2280,7 @@ function ReforgeLite:ADDON_LOADED (addon)
   self.cdb = self.db.classProfiles[playerClass]
 
   self.pdb.reforgeIDs = nil
+  self.s2hFactor = 0
 
   self:InitPresets ()
   self:CreateFrame ()

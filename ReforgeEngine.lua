@@ -160,7 +160,7 @@ function ReforgeLite:UpdateMethodStats (method)
     end
   end
   method.stats[self.STATS.SPIRIT] = floor (method.stats[self.STATS.SPIRIT] * self.spiritBonus + 0.5)
-  if self.s2hFactor and self.s2hFactor > 0 then
+  if self.s2hFactor > 0 then
     method.stats[self.STATS.HIT] = method.stats[self.STATS.HIT] +
       floor ((method.stats[self.STATS.SPIRIT] - oldspi) * self.s2hFactor / 100 + 0.5)
   end
@@ -251,7 +251,7 @@ function ReforgeLite:MakeReforgeOption (item, data, src, dst)
       delta2 = delta2 - amount
     elseif src == self.STATS.SPIRIT then
       dscore = dscore - data.weights[src] * amount
-      if self.s2hFactor and self.s2hFactor > 0 then
+      if self.s2hFactor > 0 then
         if data.caps[1].stat == self.STATS.HIT then
           delta1 = delta1 - floor (amount * self.s2hFactor / 100 + random ())
         elseif data.caps[2].stat == self.STATS.HIT then
@@ -273,7 +273,7 @@ function ReforgeLite:MakeReforgeOption (item, data, src, dst)
       delta2 = delta2 + amount
     elseif dst == self.STATS.SPIRIT then
       dscore = dscore + data.weights[dst] * amount
-      if self.s2hFactor and self.s2hFactor > 0 then
+      if self.s2hFactor > 0 then
         if data.caps[1].stat == self.STATS.HIT then
           delta1 = delta1 + floor (amount * self.s2hFactor / 100 + random ())
         elseif data.caps[2].stat == self.STATS.HIT then
@@ -408,7 +408,7 @@ function ReforgeLite:InitReforgeClassic ()
       end
     end
   end
-  if self.s2hFactor and self.s2hFactor > 0 then
+  if self.s2hFactor > 0 then
     data.initial[self.STATS.HIT] = data.initial[self.STATS.HIT] - floor (reforgedSpirit * self.spiritBonus * self.s2hFactor / 100 + 0.5)
   end
   if data.caps[1].stat > 0 then
@@ -434,7 +434,7 @@ function ReforgeLite:InitReforgeClassic ()
     REFORGE_CHEAT = 1
   end
 
-  if self.s2hFactor and self.s2hFactor > 0 then
+  if self.s2hFactor > 0 then
     if data.weights[self.STATS.SPIRIT] == 0 and (data.caps[1].stat == self.STATS.HIT or data.caps[2].stat == self.STATS.HIT) then
       data.weights[self.STATS.SPIRIT] = 1
     end
@@ -903,11 +903,10 @@ function ReforgeLite:ComputeReforge (initFunc, optionFunc, chooseFunc)
 end
 
 function ReforgeLite:Compute ()
-  self.spiritBonus = self.spiritBonus or 1
   if self.pdb.tankingModel then
     return self:ComputeReforge ("InitReforgeTank", "GetItemReforgeOptionsTank", "ChooseReforgeTank")
-  elseif self.s2hFactor and self.s2hFactor > 0 and ((self.pdb.caps[1].stat == self.STATS.HIT and self.pdb.caps[2].stat == 0) or
-                                                    (self.pdb.caps[2].stat == self.STATS.HIT and self.pdb.caps[1].stat == 0)) then
+  elseif self.s2hFactor > 0 and ((self.pdb.caps[1].stat == self.STATS.HIT and self.pdb.caps[2].stat == 0) or
+                                 (self.pdb.caps[2].stat == self.STATS.HIT and self.pdb.caps[1].stat == 0)) then
     return self:ComputeReforge ("InitReforgeS2H", "GetItemReforgeOptionsS2H", "ChooseReforgeS2H")
   else
     return self:ComputeReforge ("InitReforgeClassic", "GetItemReforgeOptions", "ChooseReforgeClassic")
