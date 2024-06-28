@@ -313,53 +313,6 @@ function ReforgeLite:GetItemReforgeOptions (item, data, slot)
   for _, v in pairs (aopt) do
     table.insert (opt, v)
   end
--- good old method
---[[  local opt = {}
-  local best = nil
-  for i = 1, #self.itemStats do
-    if item.stats[i] == 0 and i ~= data.caps[1].stat and i ~= data.caps[2].stat and (best == nil or data.weights[i] > data.weights[best]) then
-      best = i
-    end
-  end
-  if best then
-    local worst = nil
-    local worstScore = 0
-    for i = 1, #self.itemStats do
-      if item.stats[i] > 0 and i ~= data.caps[1].stat and i ~= data.caps[2].stat then
-        local score = (data.weights[best] - data.weights[i]) * floor (item.stats[i] * REFORGE_COEFF)
-        if score > worstScore then
-          worstScore = score
-          worst = i
-        end
-      end
-    end
-    if worst then
-      table.insert (opt, {src = worst, dst = best, d1 = 0, d2 = 0, score = worstScore})
-    else
-      table.insert (opt, {d1 = 0, d2 = 0, score = 0})
-    end
-  else
-    table.insert (opt, {d1 = 0, d2 = 0, score = 0})
-  end
-  for s = 1, 2 do
-    if data.caps[s].stat > 0 then
-      if item.stats[data.caps[s].stat] == 0 then
-        for i = 1, #self.itemStats do
-          if item.stats[i] > 0 then
-            local amount = floor (item.stats[i] * REFORGE_COEFF)
-            local srcweight = (i == data.caps[3 - s].stat and 0 or data.weights[i])
-            table.insert (opt, {src = i, dst = data.caps[s].stat,
-              ["d" .. s] = amount, ["d" .. (3 - s)] = (i == data.caps[3 - s].stat and -amount or 0), score = -amount * srcweight})
-          end
-        end
-      end
-      if item.stats[data.caps[s].stat] > 0 and best then
-        local amount = floor (item.stats[data.caps[s].stat] * REFORGE_COEFF)
-        table.insert (opt, {src = data.caps[s].stat, dst = best,
-          d1 = (s == 1 and -amount or 0), d2 = (s == 2 and -amount or 0), score = data.weights[best] * amount})
-      end
-    end
-  end]]
   return opt
 end
 function ReforgeLite:InitReforgeClassic ()
