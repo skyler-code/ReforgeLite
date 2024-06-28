@@ -751,6 +751,7 @@ function ReforgeLite:FixScroll ()
 end
 
 function ReforgeLite:CreateFrame()
+  self:InitPresets()
   self:SetFrameStrata ("DIALOG")
   self:ClearAllPoints ()
   self:SetSize(self.db.windowWidth, self.db.windowHeight)
@@ -2295,7 +2296,6 @@ function ReforgeLite:ADDON_LOADED (addon)
   self.pdb.reforgeIDs = nil
   self.s2hFactor = 0
 
-  self:InitPresets()
   self:SetUpHooks()
 
   for event in pairs(queueUpdateEvents) do
