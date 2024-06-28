@@ -286,8 +286,7 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
 
   local t = CreateFrame ("Frame", nil, parent)
   t:ClearAllPoints ()
-  t:SetWidth (400)
-  t:SetHeight (400)
+  t:SetSize(400, 400)
   t:SetPoint ("TOPLEFT")
 
   t.rows = rows
@@ -467,7 +466,6 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
     end
   end
   t.OnUpdateFix = function (self)
-    self:SetScript ("OnUpdate", nil)
     self:SetScript ("OnSizeChanged", nil)
 
     local numAutoRows = 0
@@ -528,14 +526,14 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
     end
 
     self:SetScript ("OnSizeChanged", function (self)
-      self:SetScript ("OnUpdate", self.OnUpdateFix)
+      RunNextFrame(function() self:OnUpdateFix() end)
     end)
 
     if self.onUpdate then
       self.onUpdate ()
     end
   end
-  
+
   if gridColor then
     t.hlines = {}
     t.vlines = {}
@@ -566,7 +564,7 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
   t:OnUpdateFix ()
 
   t:SetScript ("OnSizeChanged", function (self)
-    self:SetScript ("OnUpdate", self.OnUpdateFix)
+    RunNextFrame(function() self:OnUpdateFix() end)
   end)
 
   t.SetCell = function (self, i, j, value, align, offsX, offsY)

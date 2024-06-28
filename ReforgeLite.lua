@@ -724,8 +724,6 @@ function ReforgeLite:MoveScroll (value)
   end
 end
 function ReforgeLite:FixScroll ()
-  self:SetScript ("OnUpdate", nil)
-
   local offset = self.scrollOffset
   local viewheight = self.scrollFrame:GetHeight ()
   local height = self.content:GetHeight ()
@@ -753,7 +751,6 @@ function ReforgeLite:FixScroll ()
 end
 
 function ReforgeLite:CreateFrame()
-  self:Hide()
   self:SetFrameStrata ("DIALOG")
   self:ClearAllPoints ()
   self:SetSize(self.db.windowWidth, self.db.windowHeight)
@@ -853,7 +850,7 @@ function ReforgeLite:CreateFrame()
     self:MoveScroll (value)
   end)
   self.scrollFrame:SetScript ("OnSizeChanged", function (frame)
-    self:SetScript ("OnUpdate", self.FixScroll)
+    RunNextFrame(function() self:FixScroll() end)
   end)
 
   self.scrollBar = CreateFrame ("Slider", "ReforgeLiteScrollBar", self.scrollFrame, "UIPanelScrollBarTemplate")
@@ -883,7 +880,8 @@ function ReforgeLite:CreateFrame()
 
   self:CreateOptionList ()
 
-  self:SetScript ("OnUpdate", self.FixScroll)
+  self:FixScroll ()
+  RunNextFrame(function() self:FixScroll() end)
 end
 
 function ReforgeLite:CreateItemTable ()
@@ -1120,10 +1118,7 @@ function ReforgeLite:SetStatWeights (weights, caps)
     self:UpdateCapPoints (2)
     self.statCaps.onUpdate ()
     self:UpdateContentSize ()
-    self.presetsButton:SetScript ("OnUpdate", function ()
-      self.presetsButton:SetScript ("OnUpdate", nil)
-      self:CapUpdater ()
-    end)
+    RunNextFrame(function() self:CapUpdater() end)
   end
   self:RefreshMethodStats ()
 end
@@ -1385,10 +1380,7 @@ function ReforgeLite:CreateOptionList ()
   end
   self.statCaps.saveOnUpdate = self.statCaps.onUpdate
   self.statCaps.onUpdate ()
-  self.presetsButton:SetScript ("OnUpdate", function ()
-    self.presetsButton:SetScript ("OnUpdate", nil)
-    self:CapUpdater ()
-  end)
+  RunNextFrame(function() self:CapUpdater() end)
 
   self.computeButton = CreateFrame ("Button", "ReforgeLiteConfirmButton", self.content, "UIPanelButtonTemplate")
   self.computeButton:SetText (L["Compute"])
@@ -1737,7 +1729,7 @@ function ReforgeLite:RestoreStoredMethod ()
 end
 function ReforgeLite:UpdateContentSize ()
   self.content:SetHeight (-self:GetFrameY (self.lastElement))
-  self:SetScript ("OnUpdate", self.FixScroll)
+  RunNextFrame(function() self:FixScroll() end)
 end
 
 function ReforgeLite:GetReforgeTableIndex(src, dst)
@@ -1808,6 +1800,7 @@ function ReforgeLite:GetReforgeIDFromString(item)
 end
 
 function ReforgeLite:UpdateItems ()
+  if not self.initialized then return end
   for i, v in ipairs (self.itemData) do
     local item = Item:CreateFromEquipmentSlot(v.slotId)
     local stats = {}
@@ -1896,15 +1889,9 @@ local queueUpdateEvents = {
 }
 
 function ReforgeLite:QueueUpdate()
-  self:SetScript ("OnUpdate", function (frame)
-    frame:SetScript ("OnUpdate", nil)
-    frame:UpdateItems ()
-  end)
+  RunNextFrame(function() self:UpdateItems() end)
   if self.methodWindow then
-    self.methodWindow:SetScript ("OnUpdate", function (window)
-      window:SetScript ("OnUpdate", nil)
-      self:UpdateMethodChecks ()
-    end)
+    RunNextFrame(function() self:UpdateMethodChecks() end)
   end
 end
 
@@ -2262,7 +2249,6 @@ end
 
 function ReforgeLite:FORGE_MASTER_OPENED()
   if self.db.openOnReforge and (not self.methodWindow or not self.methodWindow:IsShown()) then
-    self:UpdateItems()
     self:Show()
   end
   self.reforgeSent = nil
@@ -2278,7 +2264,7 @@ function ReforgeLite:FORGE_MASTER_CLOSED()
   self.reforgeSent = nil
 end
 
-function ReforgeLite:OnEvent (event, ...)
+function ReforgeLite:OnEvent(event, ...)
   if self[event] then
     self[event](self, ...)
   end
@@ -2287,9 +2273,22 @@ function ReforgeLite:OnEvent (event, ...)
   end
 end
 
+function ReforgeLite:OnShow()
+  if not self.initialized then
+    self:CreateFrame()
+    self.initialized = true
+  end
+  self:UpdateItems()
+end
+
+function ReforgeLite:OnCommand (cmd)
+  self:Show ()
+end
+
 function ReforgeLite:ADDON_LOADED (addon)
   if addon ~= addonName then return end
-  self:UpgradeDB ()
+  self:Hide()
+  self:UpgradeDB()
   self.db = ReforgeLiteDB
   self.pdb = self.db.profiles[self.dbkey]
   self.cdb = self.db.classProfiles[playerClass]
@@ -2297,9 +2296,7 @@ function ReforgeLite:ADDON_LOADED (addon)
   self.pdb.reforgeIDs = nil
   self.s2hFactor = 0
 
-  self:InitPresets ()
-  self:CreateFrame ()
-  self:FixScroll ()
+  self:InitPresets()
   self:SetUpHooks()
 
   for event in pairs(queueUpdateEvents) do
@@ -2307,16 +2304,13 @@ function ReforgeLite:ADDON_LOADED (addon)
   end
   self:UnregisterEvent("ADDON_LOADED")
 
-  for k, v in pairs({ addonName, "reforge" }) do
+  self:SetScript("OnShow", self.OnShow)
+
+  for k, v in pairs({ addonName, "reforge", REFORGE:lower() }) do
     _G["SLASH_"..addonName:upper()..k] = "/" .. v
   end
   SlashCmdList[addonName:upper()] = function(...) self:OnCommand(...) end
 end
 
-ReforgeLite:SetScript ("OnEvent", function(self, ...) self:OnEvent(...) end)
+ReforgeLite:SetScript ("OnEvent", ReforgeLite.OnEvent)
 ReforgeLite:RegisterEvent ("ADDON_LOADED")
-
-function ReforgeLite:OnCommand (cmd)
-  self:UpdateItems ()
-  self:Show ()
-end
