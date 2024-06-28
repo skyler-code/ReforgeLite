@@ -8,6 +8,8 @@ local DeepCopy = addonTable.DeepCopy
 local playerClass, playerRace = addonTable.playerClass, addonTable.playerRace
 local missChance = (playerRace == "NIGHTELF" and 7 or 5)
 
+local floor, tinsert, unpack, pairs, random = floor, tinsert, unpack, pairs, random
+
 ---------------------------------------------------------------------------------------
 function ReforgeLite:GetPlayerBuffs ()
   local kings, strength, flask, food
@@ -311,7 +313,7 @@ function ReforgeLite:GetItemReforgeOptions (item, data, slot)
   end
   local opt = {}
   for _, v in pairs (aopt) do
-    table.insert (opt, v)
+    tinsert (opt, v)
   end
   return opt
 end
@@ -472,36 +474,36 @@ function ReforgeLite:GetItemReforgeOptionsS2H (item, data, slot)
       end
     end
     if worst then
-      table.insert (opt, {src = worst, dst = best, d1 = 0, d2 = 0, score = worstScore})
+      tinsert (opt, {src = worst, dst = best, d1 = 0, d2 = 0, score = worstScore})
     else
-      table.insert (opt, {d1 = 0, d2 = 0, score = 0})
+      tinsert (opt, {d1 = 0, d2 = 0, score = 0})
     end
   else
-    table.insert (opt, {d1 = 0, d2 = 0, score = 0})
+    tinsert (opt, {d1 = 0, d2 = 0, score = 0})
   end
   if item.stats[self.STATS.HIT] == 0 then
     for i = 1, #self.itemStats do
       if item.stats[i] > 0 then
         local amount = floor (item.stats[i] * REFORGE_COEFF)
-        table.insert (opt, {src = i, dst = self.STATS.HIT, d1 = amount, d2 = (i == self.STATS.SPIRIT and -amount or 0),
+        tinsert (opt, {src = i, dst = self.STATS.HIT, d1 = amount, d2 = (i == self.STATS.SPIRIT and -amount or 0),
           score = -amount * (i == self.STATS.SPIRIT and 0 or data.weights[i])})
       end
     end
   elseif best then
     local amount = floor (item.stats[self.STATS.HIT] * REFORGE_COEFF)
-    table.insert (opt, {src = self.STATS.HIT, dst = best, d1 = -amount, d2 = 0, score = data.weights[best] * amount})
+    tinsert (opt, {src = self.STATS.HIT, dst = best, d1 = -amount, d2 = 0, score = data.weights[best] * amount})
   end
   if item.stats[self.STATS.SPIRIT] == 0 then
     for i = 1, #self.itemStats do
       if item.stats[i] > 0 then
         local amount = floor (item.stats[i] * REFORGE_COEFF)
-        table.insert (opt, {src = i, dst = self.STATS.SPIRIT, d1 = (i == self.STATS.HIT and -amount or 0), d2 = amount,
+        tinsert (opt, {src = i, dst = self.STATS.SPIRIT, d1 = (i == self.STATS.HIT and -amount or 0), d2 = amount,
           score = -amount * (i == self.STATS.HIT and 0 or data.weights[i])})
       end
     end
   elseif best then
     local amount = floor (item.stats[self.STATS.SPIRIT] * REFORGE_COEFF)
-    table.insert (opt, {src = self.STATS.SPIRIT, dst = best, d1 = 0, d2 = -amount, score = data.weights[best] * amount})
+    tinsert (opt, {src = self.STATS.SPIRIT, dst = best, d1 = 0, d2 = -amount, score = data.weights[best] * amount})
   end
   return opt
 end
@@ -633,36 +635,36 @@ function ReforgeLite:GetItemReforgeOptionsTank (item, data, slot)
       end
     end
     if worst then
-      table.insert (opt, {src = worst, dst = best, d1 = 0, d2 = 0, score = worstScore})
+      tinsert (opt, {src = worst, dst = best, d1 = 0, d2 = 0, score = worstScore})
     else
-      table.insert (opt, {d1 = 0, d2 = 0, score = 0})
+      tinsert (opt, {d1 = 0, d2 = 0, score = 0})
     end
   else
-    table.insert (opt, {d1 = 0, d2 = 0, score = 0})
+    tinsert (opt, {d1 = 0, d2 = 0, score = 0})
   end
   if item.stats[self.STATS.DODGE] == 0 then
     for i = 1, #self.itemStats do
       if item.stats[i] > 0 then
         local amount = floor (item.stats[i] * REFORGE_COEFF)
-        table.insert (opt, {src = i, dst = self.STATS.DODGE, d1 = amount, d2 = (i == self.STATS.PARRY and -amount or 0),
+        tinsert (opt, {src = i, dst = self.STATS.DODGE, d1 = amount, d2 = (i == self.STATS.PARRY and -amount or 0),
           score = -amount * (i == self.STATS.PARRY and 0 or data.weights[i])})
       end
     end
   elseif best then
     local amount = floor (item.stats[self.STATS.DODGE] * REFORGE_COEFF)
-    table.insert (opt, {src = self.STATS.DODGE, dst = best, d1 = -amount, d2 = 0, score = data.weights[best] * amount})
+    tinsert (opt, {src = self.STATS.DODGE, dst = best, d1 = -amount, d2 = 0, score = data.weights[best] * amount})
   end
   if item.stats[self.STATS.PARRY] == 0 then
     for i = 1, #self.itemStats do
       if item.stats[i] > 0 then
         local amount = floor (item.stats[i] * REFORGE_COEFF)
-        table.insert (opt, {src = i, dst = self.STATS.PARRY, d1 = (i == self.STATS.DODGE and -amount or 0), d2 = amount,
+        tinsert (opt, {src = i, dst = self.STATS.PARRY, d1 = (i == self.STATS.DODGE and -amount or 0), d2 = amount,
           score = -amount * (i == self.STATS.DODGE and 0 or data.weights[i])})
       end
     end
   elseif best then
     local amount = floor (item.stats[self.STATS.PARRY] * REFORGE_COEFF)
-    table.insert (opt, {src = self.STATS.PARRY, dst = best, d1 = 0, d2 = -amount, score = data.weights[best] * amount})
+    tinsert (opt, {src = self.STATS.PARRY, dst = best, d1 = 0, d2 = -amount, score = data.weights[best] * amount})
   end
   return opt
 end
