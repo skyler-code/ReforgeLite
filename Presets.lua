@@ -349,16 +349,17 @@ do
         caps = CasterCaps,
       },
       [specs.DRUIDFeralCombat] = {
-        [GetSpellInfo(5487)] = { -- Bear
+        [("%s (%s)"):format(GetSpellInfo(5487), TANK)] = { -- Bear
           icon = select(3, GetSpellInfo(5487)),
           weights = {
-            0, 150, 0, 40, 60, 10, 60, 90
+            0, 54, 0, 25, 53, 7, 48, 37
           },
           caps = {
             {
               stat = StatHit,
               points = {
                 {
+                  method = AtMost,
                   preset = CAPS.MeleeHitCap,
                 },
               },
@@ -367,26 +368,31 @@ do
               stat = StatExp,
               points = {
                 {
+                  method = AtMost,
                   preset = CAPS.ExpSoftCap,
-                  after = 30,
-                },
-                {
-                  preset = CAPS.ExpHardCap,
                 },
               },
             },
           },
         },
-        [GetSpellInfo(768)] = { -- Cat
+        [("%s (%s)"):format(GetSpellInfo(5487), STAT_DPS_SHORT)] = { -- Bear
+          icon = select(3, GetSpellInfo(5487)),
+          weights = {
+            0, -6, 0, 100, 50, 25, 100, -1
+          },
+          caps = MeleeCaps,
+        },
+        [("%s (%s)"):format(GetSpellInfo(768), "Monocat")] = { -- Cat
           icon = select(3, GetSpellInfo(768)),
           weights = {
-            0, 0, 0, 115, 110, 110, 115, 110
+            0, 0, 0, 30, 31, 28, 30, 31
           },
           caps = {
             {
               stat = StatHit,
               points = {
                 {
+                  method = AtMost,
                   preset = CAPS.MeleeHitCap,
                 },
               },
@@ -395,11 +401,19 @@ do
               stat = StatExp,
               points = {
                 {
+                  method = AtMost,
                   preset = CAPS.ExpSoftCap,
                 },
               },
             },
           },
+        },
+        [("%s (%s)"):format(GetSpellInfo(768), "Bearweave")] = { -- Cat
+          icon = select(3, GetSpellInfo(768)),
+          weights = {
+            0, 0, 0, 33, 31, 26, 32, 30
+          },
+          caps = MeleeCaps,
         },
       },
       [specs.DRUIDRestoration] = {
