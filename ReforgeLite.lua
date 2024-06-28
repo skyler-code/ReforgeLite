@@ -2216,22 +2216,21 @@ function ReforgeLite:OnTooltipSetItem (tip)
       local reforgeId = self:GetReforgeIDFromString(item) or SearchTooltipForReforgeID(tip)
       if not reforgeId or reforgeId == UNFORGE_INDEX then return end
       local srcId, destId = unpack(reforgeTable[reforgeId])
-      region:SetText(format("%s (%s > %s)", REFORGED, self.itemStats[srcId].long, self.itemStats[destId].long))
+      region:SetText(("%s (%s > %s)"):format(REFORGED, self.itemStats[srcId].long, self.itemStats[destId].long))
       return
     end
   end
 end
 
-local tooltips = {
-  "GameTooltip",
-  "ShoppingTooltip1",
-  "ShoppingTooltip2",
-  "ItemRefTooltip",
-  "ItemRefShoppingTooltip1",
-  "ItemRefShoppingTooltip2",
-}
-
 function ReforgeLite:SetUpHooks ()
+  local tooltips = {
+    "GameTooltip",
+    "ShoppingTooltip1",
+    "ShoppingTooltip2",
+    "ItemRefTooltip",
+    "ItemRefShoppingTooltip1",
+    "ItemRefShoppingTooltip2",
+  }
   for _,tooltipName in ipairs(tooltips) do
     local tooltip = _G[tooltipName]
     if tooltip then
@@ -2244,7 +2243,7 @@ end
 
 function ReforgeLite:FORGE_MASTER_ITEM_CHANGED()
   self.reforgeSent = nil
-  self:UpdateItems ()
+  self:UpdateItems()
 end
 
 function ReforgeLite:FORGE_MASTER_OPENED()
