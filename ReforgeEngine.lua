@@ -232,10 +232,8 @@ end
 
 function ReforgeLite:IsItemLocked (slot)
   if self.pdb.itemsLocked[slot] then return true end
-  local item = self.itemData[slot].item
-  if not item then return true end
-  local ilvl = select (4, GetItemInfo (item))
-  return ilvl < 200
+  local slotData = self.itemData[slot]
+  return not slotData.item or slotData.ilvl < 200
 end
 
 ------------------------------------- CLASSIC REFORGE ------------------------------

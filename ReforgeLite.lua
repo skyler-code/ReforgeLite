@@ -1815,8 +1815,9 @@ function ReforgeLite:UpdateItems ()
     if not item:IsItemEmpty() then
       v.item = item:GetItemLink()
       v.itemId = item:GetItemID()
-      v.texture:SetTexture (item:GetItemIcon())
-      stats = GetItemStats (v.item)
+      v.ilvl = item:GetCurrentItemLevel()
+      v.texture:SetTexture(item:GetItemIcon())
+      stats = GetItemStats(v.item)
       v.reforge = self:GetReforgeID(v.slotId)
       if v.reforge then
         local srcId, dstId = unpack(reforgeTable[v.reforge])
