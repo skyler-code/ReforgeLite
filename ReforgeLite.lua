@@ -784,9 +784,6 @@ function ReforgeLite:CreateFrame()
       frame.titlebar:SetColorTexture(unpack (self.db.inactiveWindowTitle))
     end
   end
-  self.SetTitlebarTexture = function(frame, ...)
-    frame.titlebar:SetColorTexture(...)
-  end
   self:SetFrameActive(true)
 
   self:EnableMouse (true)
@@ -1957,9 +1954,6 @@ function ReforgeLite:ShowMethodWindow ()
       else
         frame.titlebar:SetColorTexture(unpack (self.db.inactiveWindowTitle))
       end
-    end
-    self.methodWindow.SetTitlebarTexture = function(frame, ...)
-      frame.titlebar:SetColorTexture(...)
     end
     self.methodWindow:SetFrameActive(true)
 
