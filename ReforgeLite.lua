@@ -1094,7 +1094,6 @@ function ReforgeLite:SetStatWeights (weights, caps)
       end
       self.pdb.caps[i].stat = caps[i] and caps[i].stat or 0
       self.statCaps[i].stat:SetValue (self.pdb.caps[i].stat)
-      local cur = #self.pdb.caps[i].points
       while #self.pdb.caps[i].points < count do
         self:AddCapPoint (i)
       end
@@ -1387,10 +1386,15 @@ function ReforgeLite:CreateOptionList ()
   self.computeButton:SetText (L["Compute"])
   self.computeButton:SetSize (self.computeButton:GetFontString():GetStringWidth() + 20, 22)
   self.computeButton:SetScript ("OnClick", function (btn)
+    if self.db.debug then btn.timeRan = GetTimePreciseSec() end
     local method = self:Compute ()
     if method then
       self.pdb.method = method
       self:UpdateMethodCategory ()
+      if btn.timeRan then
+        print(TIME_ELAPSED, GetTimePreciseSec() - btn.timeRan)
+        btn.timeRan = nil
+      end
     end
   end)
 
@@ -1471,10 +1475,10 @@ function ReforgeLite:CreateOptionList ()
 
   self.settingsCategory = self:CreateCategory (SETTINGS)
   self:SetAnchor (self.settingsCategory, "TOPLEFT", self.storedClear, "BOTTOMLEFT", 0, -10)
-  self.settings = GUI:CreateTable (5, 1, nil, 200)
+  self.settings = GUI:CreateTable (6, 1, nil, 200)
   self.settingsCategory:AddFrame (self.settings)
   self:SetAnchor (self.settings, "TOPLEFT", self.settingsCategory, "BOTTOMLEFT", 0, -5)
-  self.settings:SetPoint ("RIGHT", self.content, "RIGHT", -10, 0)
+  self.settings:SetPoint ("RIGHT", self.content, -10, 0)
   self.settings:SetRowHeight (self.db.itemSize + 2)
 
   self:FillSettings ()
@@ -1520,6 +1524,15 @@ function ReforgeLite:FillSettings ()
   self.debugButton:SetSize (self.debugButton:GetFontString():GetStringWidth() + 20, 22)
   self.debugButton:SetScript ("OnClick", function (btn) self:DebugMethod() end)
   self.settings:SetCell (getOrderId('settings'), 0, self.debugButton, "LEFT")
+
+  if self.isDev then
+    self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton(
+      self.settings,
+      "Debug Mode",
+      self.db.debug,
+      function (val) self.db.debug = val or nil end
+    ), "LEFT")
+  end
 end
 function ReforgeLite:GetCurrentScore ()
   local score = 0
@@ -2292,6 +2305,8 @@ function ReforgeLite:ADDON_LOADED (addon)
   self.db = ReforgeLiteDB
   self.pdb = self.db.profiles[self.dbkey]
   self.cdb = self.db.classProfiles[playerClass]
+
+  self.isDev = C_AddOns.GetAddOnMetadata(addonName, "Version") == "@project-version@"
 
   self.pdb.reforgeIDs = nil
   self.s2hFactor = 0
