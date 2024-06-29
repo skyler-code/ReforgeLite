@@ -38,7 +38,6 @@ local function print(...)
     gprint("|cff33ff99"..addonName.."|r:",...)
 end
 
-local AddonPath = "Interface\\AddOns\\" .. addonName .. "\\"
 local DefaultDB = {
   itemSize = 24,
   windowWidth = 800,
@@ -49,7 +48,7 @@ local DefaultDB = {
   openOnReforge = true,
   updateTooltip = true,
 
-  activeWindowTitle = {0.8, 0, 0},
+  activeWindowTitle = {0.6, 0, 0},
   inactiveWindowTitle = {0.5, 0.5, 0.5},
 
   customPresets = {
@@ -766,15 +765,29 @@ function ReforgeLite:CreateFrame()
   end
   self.backdropInfo = {
     bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-    edgeFile = AddonPath .. "textures\\frameborder",
-    tile = true,
-    tileSize = 16,
-    edgeSize = 32,
-    insets = {left = 1, right = 1, top = 20, bottom = 1}
+    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+    tile = true, tileSize = 16, edgeSize = 16,
+    insets = { left = 1, right = 1, top = 24, bottom = 1 }
   }
   self:ApplyBackdrop()
-  self:SetBackdropBorderColor (unpack (self.db.activeWindowTitle))
+  self:SetBackdropBorderColor (0,0,0)
   self:SetBackdropColor (0.1, 0.1, 0.1)
+
+  self.titlebar = self:CreateTexture(nil,"BACKGROUND")
+  self.titlebar:SetPoint("TOPLEFT", 3, -3)
+  self.titlebar:SetPoint("TOPRIGHT", -3, 3)
+  self.titlebar:SetHeight(22)
+  self.SetFrameActive = function(frame, active)
+    if active then
+      frame.titlebar:SetColorTexture(unpack (self.db.activeWindowTitle))
+    else
+      frame.titlebar:SetColorTexture(unpack (self.db.inactiveWindowTitle))
+    end
+  end
+  self.SetTitlebarTexture = function(frame, ...)
+    frame.titlebar:SetColorTexture(...)
+  end
+  self:SetFrameActive(true)
 
   self:EnableMouse (true)
   self:SetMovable (true)
@@ -782,8 +795,8 @@ function ReforgeLite:CreateFrame()
   self:SetScript ("OnMouseDown", function (self, arg)
     if self.methodWindow and self:GetFrameLevel () < self.methodWindow:GetFrameLevel () then
       self:SetFrameLevel (self.methodWindow:GetFrameLevel () + 10)
-      self:SetBackdropBorderColor (unpack (self.db.activeWindowTitle))
-      self.methodWindow:SetBackdropBorderColor (unpack (self.db.inactiveWindowTitle))
+      self:SetFrameActive(true)
+      self.methodWindow:SetFrameActive(false)
     end
     if arg == "LeftButton" then
       self:StartMoving ()
@@ -800,13 +813,13 @@ function ReforgeLite:CreateFrame()
   end)
 
   self.title = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.title:SetPoint ("TOPLEFT", 6, -15)
+  self.title:SetPoint ("TOPLEFT", self.titlebar, 5, -6)
   self.title:SetTextColor (1, 1, 1)
   self.title:SetText (addonTitle)
 
   self.close = CreateFrame ("Button", nil, self, "UIPanelCloseButtonNoScripts")
-  self.close:SetSize(24, 24)
-  self.close:SetPoint("TOPRIGHT", 0, -10)
+  self.close:SetSize(28, 28)
+  self.close:SetPoint("TOPRIGHT")
   self.close:SetScript("OnClick", function(btn) btn:GetParent():Hide() end)
 
   local function GripOnMouseDown(btn, arg)
@@ -847,7 +860,7 @@ function ReforgeLite:CreateFrame()
   self.scrollFrame = CreateFrame ("ScrollFrame", nil, self)
   self.scrollFrame:ClearAllPoints ()
   self.scrollFrame:SetPoint ("LEFT", self.itemTable, "RIGHT", 10, 0)
-  self.scrollFrame:SetPoint ("TOP", 0, -40)
+  self.scrollFrame:SetPoint ("TOP", 0, -28)
   self.scrollFrame:SetPoint ("BOTTOMRIGHT", -22, 15)
   self.scrollFrame:EnableMouseWheel (true)
   self.scrollFrame:SetScript ("OnMouseWheel", function (frame, value)
@@ -858,7 +871,7 @@ function ReforgeLite:CreateFrame()
   end)
 
   self.scrollBar = CreateFrame ("Slider", "ReforgeLiteScrollBar", self.scrollFrame, "UIPanelScrollBarTemplate")
-  self.scrollBar:SetPoint ("TOPLEFT", self.scrollFrame, "TOPRIGHT", 4, -10)
+  self.scrollBar:SetPoint ("TOPLEFT", self.scrollFrame, "TOPRIGHT", 0, -14)
   self.scrollBar:SetPoint ("BOTTOMLEFT", self.scrollFrame, "BOTTOMRIGHT", 4, 16)
   self.scrollBar:SetMinMaxValues (0, 1000)
   self.scrollBar:SetValueStep (1)
@@ -884,13 +897,12 @@ function ReforgeLite:CreateFrame()
 
   self:CreateOptionList ()
 
-  self:FixScroll ()
   RunNextFrame(function() self:FixScroll() end)
 end
 
 function ReforgeLite:CreateItemTable ()
   self.itemLevel = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.itemLevel:SetPoint ("TOPLEFT", 12, -40)
+  self.itemLevel:SetPoint ("TOPLEFT", 12, -28)
   self.itemLevel:SetTextColor (1, 1, 0.8)
   self.itemLevel:SetText (STAT_AVERAGE_ITEM_LEVEL .. ": 0")
 
@@ -1511,9 +1523,9 @@ function ReforgeLite:FillSettings ()
   self.settings:SetCellText (activeWindowTitleOrderId, 0, L["Active window color"], "LEFT", nil, "GameFontNormal")
   self.settings:SetCell (activeWindowTitleOrderId, 1, GUI:CreateColorPicker (self.settings, 20, 20, self.db.activeWindowTitle, function ()
     if self.methodWindow and self.methodWindow:IsShown () and self.methodWindow:GetFrameLevel () > self:GetFrameLevel () then
-      self.methodWindow:SetBackdropBorderColor (unpack (self.db.activeWindowTitle))
+      self.methodWindow:SetFrameActive(true)
     else
-      self:SetBackdropBorderColor (unpack (self.db.activeWindowTitle))
+      self:SetFrameActive(true)
     end
   end), "LEFT")
 
@@ -1521,9 +1533,9 @@ function ReforgeLite:FillSettings ()
   self.settings:SetCellText (inactiveWindowTitleOrderId, 0, L["Inactive window color"], "LEFT", nil, "GameFontNormal")
   self.settings:SetCell (inactiveWindowTitleOrderId, 1, GUI:CreateColorPicker (self.settings, 20, 20, self.db.inactiveWindowTitle, function ()
     if self.methodWindow and self.methodWindow:IsShown () and self.methodWindow:GetFrameLevel () > self:GetFrameLevel () then
-      self:SetBackdropBorderColor (unpack (self.db.inactiveWindowTitle))
+      self:SetFrameActive(false)
     elseif self.methodWindow then
-      self.methodWindow:SetBackdropBorderColor (unpack (self.db.inactiveWindowTitle))
+      self.methodWindow:SetFrameActive(false)
     end
   end), "LEFT")
 
@@ -1934,16 +1946,33 @@ function ReforgeLite:ShowMethodWindow ()
     end
     self.methodWindow.backdropInfo = self.backdropInfo
     self.methodWindow:ApplyBackdrop()
-    self.methodWindow:SetBackdropBorderColor (unpack (self.db.activeWindowTitle))
+
+    self.methodWindow.titlebar = self.methodWindow:CreateTexture(nil,"BACKGROUND")
+    self.methodWindow.titlebar:SetPoint("TOPLEFT",self.methodWindow,"TOPLEFT",3,-4)
+    self.methodWindow.titlebar:SetPoint("TOPRIGHT",self.methodWindow,"TOPRIGHT",-3,-4)
+    self.methodWindow.titlebar:SetHeight(20)
+    self.methodWindow.SetFrameActive = function(frame, active)
+      if active then
+        frame.titlebar:SetColorTexture(unpack (self.db.activeWindowTitle))
+      else
+        frame.titlebar:SetColorTexture(unpack (self.db.inactiveWindowTitle))
+      end
+    end
+    self.methodWindow.SetTitlebarTexture = function(frame, ...)
+      frame.titlebar:SetColorTexture(...)
+    end
+    self.methodWindow:SetFrameActive(true)
+
     self.methodWindow:SetBackdropColor (0.1, 0.1, 0.1)
+    self.methodWindow:SetBackdropBorderColor (0, 0, 0)
 
     self.methodWindow:EnableMouse (true)
     self.methodWindow:SetMovable (true)
     self.methodWindow:SetScript ("OnMouseDown", function (window, arg)
       if window:GetFrameLevel () < self:GetFrameLevel () then
         window:SetFrameLevel (self:GetFrameLevel () + 10)
-        window:SetBackdropBorderColor (unpack (self.db.activeWindowTitle))
-        self:SetBackdropBorderColor (unpack (self.db.inactiveWindowTitle))
+        window:SetFrameActive(true)
+        self:SetFrameActive(false)
       end
       if arg == "LeftButton" then
         window:StartMoving ()
@@ -1960,16 +1989,16 @@ function ReforgeLite:ShowMethodWindow ()
     end)
 
     self.methodWindow.title = self.methodWindow:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-    self.methodWindow.title:SetPoint ("TOPLEFT", 6, -15)
+    self.methodWindow.title:SetPoint ("TOPLEFT", 6, -8)
     self.methodWindow.title:SetTextColor (1, 1, 1)
     self.methodWindow.title:SetText (addonTitle.." Output")
 
     self.methodWindow.close = CreateFrame ("Button", nil, self.methodWindow, "UIPanelCloseButtonNoScripts")
-    self.methodWindow.close:SetSize(24, 24)
-    self.methodWindow.close:SetPoint ("TOPRIGHT", 0, -10)
+    self.methodWindow.close:SetPoint ("TOPRIGHT")
+    self.methodWindow.close:SetSize(28, 28)
     self.methodWindow.close:SetScript ("OnClick", function (btn)
       btn:GetParent():Hide()
-      self:SetBackdropBorderColor(unpack (self.db.activeWindowTitle))
+      self:SetFrameActive(true)
     end)
 
     self.methodWindow.itemTable = GUI:CreateTable (#self.itemSlots + 1, 3, 0, 0, nil, self.methodWindow)
@@ -2056,8 +2085,8 @@ function ReforgeLite:ShowMethodWindow ()
   end
 
   self.methodWindow:SetFrameLevel (self:GetFrameLevel () + 10)
-  self.methodWindow:SetBackdropBorderColor (unpack (self.db.activeWindowTitle))
-  self:SetBackdropBorderColor (unpack (self.db.inactiveWindowTitle))
+  self.methodWindow:SetFrameActive (true)
+  self:SetFrameActive(false)
 
   for i, v in ipairs (self.methodWindow.items) do
     local item = Item:CreateFromEquipmentSlot(v.slotId)
