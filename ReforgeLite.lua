@@ -1273,13 +1273,6 @@ function ReforgeLite:CreateOptionList ()
     self.deletePresetButton:Disable()
   end
 
-  self.pawnButton = CreateFrame ("Button", "ReforgeLiteImportPawnButton", self.content, "UIPanelButtonTemplate")
-  self.statWeightsCategory:AddFrame (self.pawnButton)
-  self.pawnButton:SetText (L["Import Pawn"])
-  self.pawnButton:SetSize (self.pawnButton:GetFontString():GetStringWidth() + 20, 22)
-  self.pawnButton:SetScript ("OnClick", function() StaticPopup_Show ("REFORGE_LITE_PARSE_PAWN") end)
-  self:SetAnchor (self.pawnButton, "TOPLEFT", self.presetsButton, "BOTTOMLEFT", 0, -5)
-
   self.exportPresetButton = CreateFrame ("Button", "ReforgeLiteExportPresetButton", self.content, "UIPanelButtonTemplate")
   self.statWeightsCategory:AddFrame (self.exportPresetButton)
   self.exportPresetButton:SetText (L["Export"])
@@ -1287,12 +1280,23 @@ function ReforgeLite:CreateOptionList ()
   self.exportPresetButton:SetScript ("OnClick", function (btn)
     LibDD:ToggleDropDownMenu (nil, nil, self.exportPresetMenu, btn:GetName (), 0, 0)
   end)
-  self.exportPresetButton:SetPoint ("LEFT", self.pawnButton, "RIGHT", 8, 0)
+  self.exportPresetButton:SetPoint ("LEFT", self.deletePresetButton, "RIGHT", 5, 0)
+
+  if not self.isDev then
+    self.exportPresetButton:Hide()
+  end
+
+  self.pawnButton = CreateFrame ("Button", "ReforgeLiteImportPawnButton", self.content, "UIPanelButtonTemplate")
+  self.statWeightsCategory:AddFrame (self.pawnButton)
+  self.pawnButton:SetText (L["Import Pawn"])
+  self.pawnButton:SetSize (self.pawnButton:GetFontString():GetStringWidth() + 20, 22)
+  self.pawnButton:SetScript ("OnClick", function() StaticPopup_Show ("REFORGE_LITE_PARSE_PAWN") end)
+  self:SetAnchor (self.pawnButton, "TOPLEFT", self.presetsButton, "BOTTOMLEFT", 0, -5)
 
   self.convertSpirit = CreateFrame ("Frame", nil, self.content)
   self.statWeightsCategory:AddFrame (self.convertSpirit)
   self.convertSpirit.text = self.convertSpirit:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.convertSpirit.text:SetPoint ("LEFT", self.exportPresetButton, "RIGHT", 8, 0)
+  self.convertSpirit.text:SetPoint ("LEFT", self.pawnButton, "RIGHT", 8, 0)
   self.convertSpirit.text:SetText (L["Spirit to hit"] .. ": 0%")
 
   if playerClass == "PALADIN" or playerClass == "WARRIOR" or playerClass == "DEATHKNIGHT" then
@@ -1475,7 +1479,7 @@ function ReforgeLite:CreateOptionList ()
 
   self.settingsCategory = self:CreateCategory (SETTINGS)
   self:SetAnchor (self.settingsCategory, "TOPLEFT", self.storedClear, "BOTTOMLEFT", 0, -10)
-  self.settings = GUI:CreateTable (6, 1, nil, 200)
+  self.settings = GUI:CreateTable (5, 1, nil, 200)
   self.settingsCategory:AddFrame (self.settings)
   self:SetAnchor (self.settings, "TOPLEFT", self.settingsCategory, "BOTTOMLEFT", 0, -5)
   self.settings:SetPoint ("RIGHT", self.content, -10, 0)
@@ -1526,6 +1530,7 @@ function ReforgeLite:FillSettings ()
   self.settings:SetCell (getOrderId('settings'), 0, self.debugButton, "LEFT")
 
   if self.isDev then
+    self.settings:AddRow()
     self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton(
       self.settings,
       "Debug Mode",
