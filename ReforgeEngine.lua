@@ -902,7 +902,7 @@ local function CreateErrorFrame()
   ExportFrame.text:SetMultiLine (true)
   ExportFrame.text:SetAutoFocus (false)
   ExportFrame.text:SetFontObject (GameFontHighlight)
-  ExportFrame.text:SetScript ("OnEscapePressed", function () ExportFrame:Hide () end)
+  ExportFrame.text:SetScript ("OnEscapePressed", function (frame) frame:ClearHighlightText(); frame:ClearFocus() end)
   tinsert(UISpecialFrames, ExportFrame:GetName()) -- allow closing with escape
   function ExportFrame:UpdateText()
     self.text:SetText(self.err)
