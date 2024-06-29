@@ -5,6 +5,8 @@ local CreateColor, WHITE_FONT_COLOR, ITEM_MOD_SPIRIT_SHORT = CreateColor, WHITE_
 local ReforgeLite = CreateFrame("Frame", addonName, UIParent, "BackdropTemplate")
 addonTable.ReforgeLite = ReforgeLite
 
+ReforgeLite.isDev = C_AddOns.GetAddOnMetadata(addonName, "Version") == "@project-version@"
+
 local L = addonTable.L
 local GUI = addonTable.GUI
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
@@ -2312,8 +2314,6 @@ function ReforgeLite:ADDON_LOADED (addon)
   self.db = ReforgeLiteDB
   self.pdb = self.db.profiles[self.dbkey]
   self.cdb = self.db.classProfiles[playerClass]
-
-  self.isDev = C_AddOns.GetAddOnMetadata(addonName, "Version") == "@project-version@"
 
   self.pdb.reforgeIDs = nil
   self.s2hFactor = 0
