@@ -767,7 +767,7 @@ function ReforgeLite:CreateFrame()
     bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
     edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
     tile = true, tileSize = 16, edgeSize = 16,
-    insets = { left = 1, right = 1, top = 24, bottom = 1 }
+    insets = { left = 3, right = 3, top = 22, bottom = 3 }
   }
   self:ApplyBackdrop()
   self:SetBackdropBorderColor (0.1,0.1,0.1)
@@ -776,7 +776,7 @@ function ReforgeLite:CreateFrame()
   self.titlebar = self:CreateTexture(nil,"BACKGROUND")
   self.titlebar:SetPoint("TOPLEFT", 3, -3)
   self.titlebar:SetPoint("TOPRIGHT", -3, 3)
-  self.titlebar:SetHeight(22)
+  self.titlebar:SetHeight(20)
   self.SetFrameActive = function(frame, active)
     if active then
       frame.titlebar:SetColorTexture(unpack (self.db.activeWindowTitle))
@@ -811,7 +811,7 @@ function ReforgeLite:CreateFrame()
   tinsert(UISpecialFrames, self:GetName()) -- allow closing with escape
 
   self.title = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.title:SetPoint ("TOPLEFT", self.titlebar, 5, -6)
+  self.title:SetPoint ("TOPLEFT", 12, -9)
   self.title:SetTextColor (1, 1, 1)
   self.title:SetText (addonTitle)
 
@@ -1934,7 +1934,7 @@ function ReforgeLite:ShowMethodWindow ()
     self.methodWindow:SetFrameStrata ("DIALOG")
     self.methodWindow:SetFrameLevel (self:GetFrameLevel () + 10)
     self.methodWindow:ClearAllPoints ()
-    self.methodWindow:SetSize(300, 520)
+    self.methodWindow:SetSize(250, 506)
     if self.db.methodWindowX and self.db.methodWindowY then
       self.methodWindow:SetPoint ("TOPLEFT", UIParent, "BOTTOMLEFT", self.db.methodWindowX, self.db.methodWindowY)
     else
@@ -1944,8 +1944,8 @@ function ReforgeLite:ShowMethodWindow ()
     self.methodWindow:ApplyBackdrop()
 
     self.methodWindow.titlebar = self.methodWindow:CreateTexture(nil,"BACKGROUND")
-    self.methodWindow.titlebar:SetPoint("TOPLEFT",self.methodWindow,"TOPLEFT",3,-4)
-    self.methodWindow.titlebar:SetPoint("TOPRIGHT",self.methodWindow,"TOPRIGHT",-3,-4)
+    self.methodWindow.titlebar:SetPoint("TOPLEFT",self.methodWindow,"TOPLEFT",3,-3)
+    self.methodWindow.titlebar:SetPoint("TOPRIGHT",self.methodWindow,"TOPRIGHT",-3,-3)
     self.methodWindow.titlebar:SetHeight(20)
     self.methodWindow.SetFrameActive = function(frame, active)
       if active then
@@ -1983,7 +1983,7 @@ function ReforgeLite:ShowMethodWindow ()
     tinsert(UISpecialFrames, self.methodWindow:GetName()) -- allow closing with escape
 
     self.methodWindow.title = self.methodWindow:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-    self.methodWindow.title:SetPoint ("TOPLEFT", 8, -8)
+    self.methodWindow.title:SetPoint ("TOPLEFT", 10, -8)
     self.methodWindow.title:SetTextColor (1, 1, 1)
     self.methodWindow.title:SetText (addonTitle.." Output")
 
@@ -2004,7 +2004,7 @@ function ReforgeLite:ShowMethodWindow ()
 
     self.methodWindow.itemTable = GUI:CreateTable (#self.itemSlots + 1, 3, 0, 0, nil, self.methodWindow)
     self.methodWindow:ClearAllPoints ()
-    self.methodWindow.itemTable:SetPoint ("TOPLEFT", 12, -40)
+    self.methodWindow.itemTable:SetPoint ("TOPLEFT", 12, -28)
     self.methodWindow.itemTable:SetRowHeight (26)
     self.methodWindow.itemTable:SetColumnWidth (1, self.db.itemSize)
     self.methodWindow.itemTable:SetColumnWidth (2, self.db.itemSize + 2)
