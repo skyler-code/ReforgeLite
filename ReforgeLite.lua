@@ -770,7 +770,7 @@ function ReforgeLite:CreateFrame()
     insets = { left = 1, right = 1, top = 24, bottom = 1 }
   }
   self:ApplyBackdrop()
-  self:SetBackdropBorderColor (0,0,0)
+  self:SetBackdropBorderColor (0.1,0.1,0.1)
   self:SetBackdropColor (0.1, 0.1, 0.1)
 
   self.titlebar = self:CreateTexture(nil,"BACKGROUND")
@@ -841,13 +841,13 @@ function ReforgeLite:CreateFrame()
   self.leftGrip = CreateFrame ("Button", nil, self, "PanelResizeButtonTemplate")
   self.leftGrip:SetSize(16, 16)
   self.leftGrip:SetRotationDegrees(-90)
-  self.leftGrip:SetPoint("BOTTOMLEFT")
+  self.leftGrip:SetPoint("BOTTOMLEFT", 1, 1)
   self.leftGrip:SetScript("OnMouseDown", GripOnMouseDown)
   self.leftGrip:SetScript("OnMouseUp", GripOnMouseUp)
 
   self.rightGrip = CreateFrame ("Button", nil, self, "PanelResizeButtonTemplate")
   self.rightGrip:SetSize(16, 16)
-  self.rightGrip:SetPoint("BOTTOMRIGHT")
+  self.rightGrip:SetPoint("BOTTOMRIGHT", -1, 1)
   self.rightGrip:SetScript("OnMouseDown", GripOnMouseDown)
   self.rightGrip:SetScript("OnMouseUp", GripOnMouseUp)
 
