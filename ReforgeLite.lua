@@ -436,6 +436,7 @@ ReforgeLite.tankingStats["DRUID"] = ReforgeLite.tankingStats["DEATHKNIGHT"]
 ReforgeLite.REFORGE_TABLE_BASE = 112
 local reforgeTable = {}
 do
+  local tinsert = tinsert
   for firstStat in ipairs(ReforgeLite.itemStats) do
     for secondStat in ipairs(ReforgeLite.itemStats) do
       if firstStat ~= secondStat then
@@ -601,7 +602,7 @@ function ReforgeLite:CreateCategory (name)
   c.frames = {}
   c.anchors = {}
   c.AddFrame = function (cat, frame)
-    table.insert (cat.frames, frame)
+    tinsert (cat.frames, frame)
     frame.Show2 = function (f)
       if f.category.expanded then
         f:Show ()
@@ -650,7 +651,7 @@ function ReforgeLite:SetAnchor (frame_, point_, rel_, relPoint_, offsX, offsY)
     rel_ = rel_.button
   end
   if rel_.category then
-    table.insert (rel_.category.anchors, {frame = frame_, point = point_, rel = rel_, relPoint = relPoint_, x = offsX, y = offsY})
+    tinsert (rel_.category.anchors, {frame = frame_, point = point_, rel = rel_, relPoint = relPoint_, x = offsX, y = offsY})
     if rel_.category.expanded then
       frame_:SetPoint (point_, rel_, relPoint_, offsX, offsY)
     else
@@ -908,6 +909,7 @@ function ReforgeLite:CreateItemTable ()
   for i, v in ipairs (self.itemSlots) do
     self.itemData[i] = CreateFrame ("Frame", nil, self.itemTable)
     self.itemData[i].slot = v
+    self.itemData[i].originalStats = {}
     self.itemData[i]:ClearAllPoints ()
     self.itemData[i]:SetSize(self.db.itemSize, self.db.itemSize)
     self.itemTable:SetCell (i, 0, self.itemData[i])
@@ -974,7 +976,7 @@ function ReforgeLite:AddCapPoint (i, loading)
   self.statCaps:AddRow (row)
 
   if not loading then
-    table.insert (self.pdb.caps[i].points, 1, {value = 0, method = 1, after = 0, preset = 1})
+    tinsert (self.pdb.caps[i].points, 1, {value = 0, method = 1, after = 0, preset = 1})
   end
 
   local rem = GUI:CreateImageButton (self.statCaps, 20, 20, "Interface\\PaperDollInfoFrame\\UI-GearManager-LeaveItem-Transparent",
@@ -1021,7 +1023,7 @@ function ReforgeLite:AddCapPoint (i, loading)
 end
 function ReforgeLite:RemoveCapPoint (i, point, loading)
   local row = #self.pdb.caps[1].points + (i == 1 and 1 or #self.pdb.caps[2].points + 2)
-  table.remove (self.pdb.caps[i].points, point)
+  tremove (self.pdb.caps[i].points, point)
   self.statCaps:DeleteRow (row)
   if not loading then
     self:UpdateCapPoints (i)
@@ -1038,8 +1040,8 @@ function ReforgeLite:ReorderCapPoint (i, point)
   end
   if newpos ~= point then
     local tmp = self.pdb.caps[i].points[point]
-    table.remove (self.pdb.caps[i].points, point)
-    table.insert (self.pdb.caps[i].points, newpos, tmp)
+    tremove (self.pdb.caps[i].points, point)
+    tinsert (self.pdb.caps[i].points, newpos, tmp)
     self:UpdateCapPoints (i)
   end
 end
@@ -1350,7 +1352,7 @@ function ReforgeLite:CreateOptionList ()
   self.statCaps:SetColumnWidth (4, 50)
   local statList = {{value = 0, name = NONE}}
   for i, v in ipairs (self.itemStats) do
-    table.insert (statList, {value = i, name = v.long})
+    tinsert (statList, {value = i, name = v.long})
   end
   for i = 1, 2 do
     self.statCaps[i] = {}

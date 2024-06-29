@@ -58,6 +58,7 @@ end
 
 
 local function encode_table(val, stack)
+  local tinsert = tinsert
   local res = {}
   stack = stack or {}
 
@@ -80,7 +81,7 @@ local function encode_table(val, stack)
     end
     -- Encode
     for i, v in ipairs(val) do
-      table.insert(res, encode(v, stack))
+      tinsert(res, encode(v, stack))
     end
     stack[val] = nil
     return "[" .. table.concat(res, ",") .. "]"
@@ -91,7 +92,7 @@ local function encode_table(val, stack)
       if type(k) ~= "string" then
         error("invalid table: mixed or invalid key types")
       end
-      table.insert(res, encode(k, stack) .. ":" .. encode(v, stack))
+      tinsert(res, encode(k, stack) .. ":" .. encode(v, stack))
     end
     stack[val] = nil
     return "{" .. table.concat(res, ",") .. "}"
