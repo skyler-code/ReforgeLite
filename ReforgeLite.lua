@@ -808,6 +808,7 @@ function ReforgeLite:CreateFrame()
       self.db.windowY = self:GetTop ()
     end
   end)
+  tinsert(UISpecialFrames, self:GetName()) -- allow closing with escape
 
   self.title = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   self.title:SetPoint ("TOPLEFT", self.titlebar, 5, -6)
@@ -1931,7 +1932,7 @@ end
 
 function ReforgeLite:ShowMethodWindow ()
   if not self.methodWindow then
-    self.methodWindow = CreateFrame ("Frame", nil, UIParent, "BackdropTemplate")
+    self.methodWindow = CreateFrame ("Frame", "ReforgeLiteMethodWindow", UIParent, "BackdropTemplate")
     self.methodWindow:SetFrameStrata ("DIALOG")
     self.methodWindow:SetFrameLevel (self:GetFrameLevel () + 10)
     self.methodWindow:ClearAllPoints ()
@@ -1981,6 +1982,7 @@ function ReforgeLite:ShowMethodWindow ()
         self.db.methodWindowY = window:GetTop ()
       end
     end)
+    tinsert(UISpecialFrames, self.methodWindow:GetName()) -- allow closing with escape
 
     self.methodWindow.title = self.methodWindow:CreateFontString (nil, "OVERLAY", "GameFontNormal")
     self.methodWindow.title:SetPoint ("TOPLEFT", 6, -8)
