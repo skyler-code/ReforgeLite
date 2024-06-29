@@ -1985,7 +1985,7 @@ function ReforgeLite:ShowMethodWindow ()
     tinsert(UISpecialFrames, self.methodWindow:GetName()) -- allow closing with escape
 
     self.methodWindow.title = self.methodWindow:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-    self.methodWindow.title:SetPoint ("TOPLEFT", 6, -8)
+    self.methodWindow.title:SetPoint ("TOPLEFT", 8, -8)
     self.methodWindow.title:SetTextColor (1, 1, 1)
     self.methodWindow.title:SetText (addonTitle.." Output")
 
@@ -1994,8 +1994,15 @@ function ReforgeLite:ShowMethodWindow ()
     self.methodWindow.close:SetSize(28, 28)
     self.methodWindow.close:SetScript ("OnClick", function (btn)
       btn:GetParent():Hide()
+    end)
+    self.methodWindow:SetScript ("OnHide", function (frame)
       self:SetFrameActive(true)
     end)
+    self.methodWindow:SetScript ("OnShow", function (frame)
+      self:SetFrameActive(false)
+      frame:SetFrameActive(true)
+    end)
+    self:SetFrameActive(false)
 
     self.methodWindow.itemTable = GUI:CreateTable (#self.itemSlots + 1, 3, 0, 0, nil, self.methodWindow)
     self.methodWindow:ClearAllPoints ()
@@ -2081,8 +2088,6 @@ function ReforgeLite:ShowMethodWindow ()
   end
 
   self.methodWindow:SetFrameLevel (self:GetFrameLevel () + 10)
-  self.methodWindow:SetFrameActive (true)
-  self:SetFrameActive(false)
 
   for i, v in ipairs (self.methodWindow.items) do
     local item = Item:CreateFromEquipmentSlot(v.slotId)
