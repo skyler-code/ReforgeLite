@@ -2325,6 +2325,9 @@ function ReforgeLite:OnShow()
     self:CreateFrame()
     self.initialized = true
   end
+  if not self.methodWindow or not self.methodWindow:IsShown() then
+    self:SetFrameActive(true)
+  end
   self:UpdateItems()
 end
 
