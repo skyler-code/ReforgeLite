@@ -1511,6 +1511,12 @@ function ReforgeLite:CreateOptionList ()
     ReforgeLite:UpdateMethodCategory ()
   end
 end
+function ReforgeLite:GetActiveFrame()
+  if self.methodWindow and self.methodWindow:IsShown() and self.methodWindow:GetFrameLevel () > self:GetFrameLevel() then
+    return self.methodWindow
+  end
+  return self
+end
 function ReforgeLite:FillSettings ()
   self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Open window when reforging"],
     self.db.openOnReforge, function (val) self.db.openOnReforge = val end), "LEFT")
@@ -1520,21 +1526,13 @@ function ReforgeLite:FillSettings ()
   local activeWindowTitleOrderId = getOrderId('settings')
   self.settings:SetCellText (activeWindowTitleOrderId, 0, L["Active window color"], "LEFT", nil, "GameFontNormal")
   self.settings:SetCell (activeWindowTitleOrderId, 1, GUI:CreateColorPicker (self.settings, 20, 20, self.db.activeWindowTitle, function ()
-    if self.methodWindow and self.methodWindow:IsShown () and self.methodWindow:GetFrameLevel () > self:GetFrameLevel () then
-      self.methodWindow:SetFrameActive(true)
-    else
-      self:SetFrameActive(true)
-    end
+    self:GetActiveFrame():SetFrameActive(true)
   end), "LEFT")
 
   local inactiveWindowTitleOrderId = getOrderId('settings')
   self.settings:SetCellText (inactiveWindowTitleOrderId, 0, L["Inactive window color"], "LEFT", nil, "GameFontNormal")
   self.settings:SetCell (inactiveWindowTitleOrderId, 1, GUI:CreateColorPicker (self.settings, 20, 20, self.db.inactiveWindowTitle, function ()
-    if self.methodWindow and self.methodWindow:IsShown () and self.methodWindow:GetFrameLevel () > self:GetFrameLevel () then
-      self:SetFrameActive(false)
-    elseif self.methodWindow then
-      self.methodWindow:SetFrameActive(false)
-    end
+    self:GetActiveFrame():SetFrameActive(false)
   end), "LEFT")
 
   self.debugButton = CreateFrame ("Button", nil, self.settings, "UIPanelButtonTemplate")
