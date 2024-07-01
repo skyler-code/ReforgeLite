@@ -491,7 +491,7 @@ function ReforgeLite:ParseWoWSimsString(importStr)
       local equippedItemInfo = self.itemData[slot]
       if simItemInfo.id ~= equippedItemInfo.itemId then
         local _, importItemLink = C_Item.GetItemInfo(simItemInfo.id)
-        print(string.format( L["Item Import Mismatch"], importItemLink, equippedItemInfo.item))
+        print(L["Item Import Mismatch"]:format(importItemLink, equippedItemInfo.item))
         return
       end
       item.reforge = nil
@@ -1672,7 +1672,7 @@ function ReforgeLite:UpdateMethodCategory ()
     self.methodTank.PrintLine = function (m, text, ...)
       m.counter = m.counter + 1
       m[m.counter]:Show ()
-      m[m.counter]:SetText (format (text, ...))
+      m[m.counter]:SetText (text:format(...))
     end
   end
 

@@ -48,7 +48,7 @@ end
 
 
 local function escape_char(c)
-  return "\\" .. (escape_char_map[c] or string.format("u%04x", c:byte()))
+  return "\\" .. (escape_char_map[c] or ("u%04x"):format(c:byte()))
 end
 
 
