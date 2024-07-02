@@ -2,6 +2,7 @@ local _, addonTable = ...
 local L = addonTable.L
 local ReforgeLite = addonTable.ReforgeLite
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
+local tsort, tinsert = table.sort, tinsert
 
 ----------------------------------------- CAP PRESETS ---------------------------------
 
@@ -960,95 +961,91 @@ function ReforgeLite:InitPresets()
     end
   end
 
-  local menuListInit = function (level, options)
-    if not level then return end
-    local list = self.presets
-    if level > 1 then
-      list = L_UIDROPDOWNMENU_MENU_VALUE
-    elseif options.extraButtons then
-      list = {}
-      addonTable.MergeTables(list, self.presets)
-      addonTable.MergeTables(list, options.extraButtons)
-    end
-    local menuList = {}
-    for k, v in pairs (list) do
-      if type (v) == "function" then
-        v = v ()
+  local menuListInit = function(options)
+    return function (menu, level)
+      if not level then return end
+      local list = menu.list
+      if level > 1 then
+        list = L_UIDROPDOWNMENU_MENU_VALUE
       end
-      local info = LibDD:UIDropDownMenu_CreateInfo()
-      info.notCheckable = true
-      info.sortKey = v.name or k
-      info.text = info.sortKey
-      info.isSpec = 0
-      info.value = v
-      if specInfo[k] then
-        info.text = "|T"..specInfo[k].icon..":0|t " .. specInfo[k].name
-        info.sortKey = specInfo[k].name
-        info.isSpec = 1
-      end
-      if v.icon then
-        info.text = "|T"..v.icon..":0|t " .. info.text
-      end
-      if v.tip then
-        info.tooltipTitle = v.tip
-        info.tooltipOnButton = true
-      end
-      if v.caps or v.weights then
-        info.func = function()
-          LibDD:CloseDropDownMenus()
-          options.onClick(info)
+      local menuList = {}
+      for k in pairs (list) do
+        local v = GetValueOrCallFunction(list, k)
+        local info = LibDD:UIDropDownMenu_CreateInfo()
+        info.notCheckable = true
+        info.sortKey = v.name or k
+        info.text = info.sortKey
+        info.isSpec = 0
+        info.value = v
+        if specInfo[k] then
+          info.text = "|T"..specInfo[k].icon..":0|t " .. specInfo[k].name
+          info.sortKey = specInfo[k].name
+          info.isSpec = 1
         end
-      else
-        if next (v) then
-          info.hasArrow = true
+        if v.icon then
+          info.text = "|T"..v.icon..":0|t " .. info.text
+        end
+        if v.tip then
+          info.tooltipTitle = v.tip
+          info.tooltipOnButton = true
+        end
+        if v.caps or v.weights then
+          info.func = function()
+            LibDD:CloseDropDownMenus()
+            options.onClick(info)
+          end
         else
-          info.disabled = true
+          if next (v) then
+            info.hasArrow = true
+          else
+            info.disabled = true
+          end
+          info.keepShownOnClick = true
         end
-        info.keepShownOnClick = true
+        tinsert(menuList, info)
       end
-      tinsert(menuList, info)
-    end
-    table.sort(menuList, function (a, b)
-      if a.isSpec ~= b.isSpec then
-        return a.isSpec < b.isSpec
+      tsort(menuList, function (a, b)
+        if a.isSpec ~= b.isSpec then
+          return a.isSpec < b.isSpec
+        end
+        return a.sortKey < b.sortKey
+      end)
+      for _,v in ipairs(menuList) do
+        LibDD:UIDropDownMenu_AddButton (v, level)
       end
-      return a.sortKey < b.sortKey
-    end)
-    for _,v in ipairs(menuList) do
-      LibDD:UIDropDownMenu_AddButton (v, level)
     end
   end
 
   self.presetMenu = LibDD:Create_UIDropDownMenu("ReforgeLitePresetMenu", self)
-  LibDD:UIDropDownMenu_SetInitializeFunction(self.presetMenu, function (menu, level)
-    menuListInit(level, {
-      onClick = function(info)
-        self:SetStatWeights(info.value.weights, info.value.caps or {})
-        self:SetTankingModel (info.value.tanking)
-      end
-    })
-  end)
+  self.presetMenu.list = self.presets
+  LibDD:UIDropDownMenu_Initialize(self.presetMenu, menuListInit({
+    onClick = function(info)
+      self:SetStatWeights(info.value.weights, info.value.caps or {})
+      self:SetTankingModel (info.value.tanking)
+    end
+  }), "MENU")
+
+  local exportList = {
+    [REFORGE_CURRENT] = function()
+      local result = {
+        caps = self.pdb.caps,
+        weights = self.pdb.weights,
+      }
+      return result
+    end
+  }
+  addonTable.MergeTables(exportList, self.presets)
 
   self.exportPresetMenu = LibDD:Create_UIDropDownMenu("ReforgeLiteExportPresetMenu", self)
-  LibDD:UIDropDownMenu_SetInitializeFunction(self.exportPresetMenu, function (menu, level)
-    menuListInit(level, {
-      onClick = function(info)
-        self:ExportPreset(info.sortKey, info.value)
-      end,
-      extraButtons = {
-        [REFORGE_CURRENT] = function()
-          local result = {
-            caps = self.pdb.caps,
-            weights = self.pdb.weights,
-          }
-          return result
-        end
-      }
-    })
-  end)
+  self.exportPresetMenu.list = exportList
+  LibDD:UIDropDownMenu_Initialize(self.exportPresetMenu, menuListInit({
+    onClick = function(info)
+      self:ExportPreset(info.sortKey, info.value)
+    end
+  }), "MENU")
 
   self.presetDelMenu = LibDD:Create_UIDropDownMenu("ReforgeLitePresetDelMenu", self)
-  LibDD:UIDropDownMenu_SetInitializeFunction(self.presetDelMenu, function (menu, level)
+  LibDD:UIDropDownMenu_Initialize(self.presetDelMenu, function (menu, level)
     if level ~= 1 then return end
     local menuList = {}
     for _, db in ipairs({self.db, self.cdb}) do
@@ -1067,10 +1064,10 @@ function ReforgeLite:InitPresets()
         tinsert(menuList, info)
       end
     end
-    table.sort(menuList, function (a, b) return a.text < b.text end)
+    tsort(menuList, function (a, b) return a.text < b.text end)
     for _,v in ipairs(menuList) do
       LibDD:UIDropDownMenu_AddButton(v, level)
     end
-  end)
+  end, "MENU")
 
 end
