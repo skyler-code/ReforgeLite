@@ -716,15 +716,6 @@ function ReforgeLite:SetScroll (value)
   self.scrollOffset = offset
   self.scrollValue = value
 end
-function ReforgeLite:MoveScroll (value)
-  local viewheight = self.scrollFrame:GetHeight ()
-  local height = self.content:GetHeight ()
-  if self.scrollBarShown then
-    local diff = height - viewheight
-    local delta = (value > 0 and -1 or 1)
-    self.scrollBar:SetValue (min (max (self.scrollValue + delta * (1000 / (diff / 45)), 0), 1000))
-  end
-end
 function ReforgeLite:FixScroll ()
   local offset = self.scrollOffset
   local viewheight = self.scrollFrame:GetHeight ()
@@ -862,7 +853,12 @@ function ReforgeLite:CreateFrame()
   self.scrollFrame:SetPoint ("BOTTOMRIGHT", -22, 15)
   self.scrollFrame:EnableMouseWheel (true)
   self.scrollFrame:SetScript ("OnMouseWheel", function (frame, value)
-    self:MoveScroll (value)
+    if self.scrollBarShown then
+      local diff = self.content:GetHeight() - frame:GetHeight ()
+      local delta = (value > 0 and -1 or 1)
+      self.scrollBar:SetValue (min (max (self.scrollValue + delta * (1000 / (diff / 45)), 0), 1000))
+    end
+
   end)
   self.scrollFrame:SetScript ("OnSizeChanged", function (frame)
     RunNextFrame(function() self:FixScroll() end)
