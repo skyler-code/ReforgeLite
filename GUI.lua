@@ -81,7 +81,7 @@ function GUI:CreateDropdown (parent, values, default, setter, width)
     local name = self:GenerateWidgetName ()
     sel = LibDD:Create_UIDropDownMenu(name, parent)
     LibDD:UIDropDownMenu_SetInitializeFunction(sel, function (self)
-      local info = {}
+      local info = LibDD:UIDropDownMenu_CreateInfo()
       for i = 1, #self.values do
         info.text = self.values[i].name
         info.func = function (inf)
@@ -106,18 +106,18 @@ function GUI:CreateDropdown (parent, values, default, setter, width)
     end
     LibDD:UIDropDownMenu_JustifyText (sel, "LEFT")
     sel:SetHeight (50)
-    _G[name .. "Left"]:SetHeight (50)
-    _G[name .. "Middle"]:SetHeight (50)
-    _G[name .. "Right"]:SetHeight (50)
-    _G[name .. "Text"]:SetPoint ("LEFT", _G[name .. "Left"], "LEFT", 27, 1)
-    _G[name .. "Button"]:SetSize(22, 22)
-    _G[name .. "Button"]:SetPoint ("TOPRIGHT", _G[name .. "Right"], "TOPRIGHT", -16, -13)
-    sel.Recycle = function (sel)
-      sel:Hide ()
-      sel:SetScript ("OnEnter", nil)
-      sel:SetScript ("OnLeave", nil)
-      sel.setter = nil
-      tinsert (self.dropdowns, sel)
+    sel.Left:SetHeight(50)
+    sel.Middle:SetHeight(50)
+    sel.Right:SetHeight(50)
+    sel.Text:SetPoint ("LEFT", sel.Left, "LEFT", 27, 1)
+    sel.Button:SetSize(22, 22)
+    sel.Button:SetPoint ("TOPRIGHT", sel.Right, "TOPRIGHT", -16, -13)
+    sel.Recycle = function (frame)
+      frame:Hide ()
+      frame:SetScript ("OnEnter", nil)
+      frame:SetScript ("OnLeave", nil)
+      frame.setter = nil
+      tinsert (self.dropdowns, frame)
     end
   end
   sel.value = default
@@ -149,7 +149,7 @@ function GUI:CreateCheckButton (parent, text, default, setter)
       tinsert (self.checkButtons, btn)
     end
   end
-  _G[btn:GetName () .. "Text"]:SetText (text)
+  btn.Text:SetText(text)
   btn:SetChecked (default)
   if setter then
     btn:SetScript ("OnClick", function (self)
@@ -231,7 +231,7 @@ function GUI:CreateHLine (x1, x2, y, w, color, parent)
   parent = parent or self.defaultParent
   local line = parent:CreateTexture (nil, "ARTWORK")
   line:SetDrawLayer ("ARTWORK")
-  line:SetColorTexture (color[1], color[2], color[3], color[4])
+  line:SetColorTexture (unpack(color))
   if x1 > x2 then
     x1, x2 = x2, x1
   end
@@ -256,7 +256,7 @@ function GUI:CreateVLine (x, y1, y2, w, color, parent)
   parent = parent or self.defaultParent
   local line = parent:CreateTexture (nil, "ARTWORK")
   line:SetDrawLayer ("ARTWORK")
-  line:SetColorTexture (color[1], color[2], color[3], color[4])
+  line:SetColorTexture (unpack(color))
   if y1 > y2 then
     y1, y2 = y2, y1
   end
@@ -589,7 +589,7 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
       end
       self.cells[i][j] = nil
     end
-    
+
     if self.cells[i][j] then
       self.cells[i][j]:SetFontObject (font)
       self.cells[i][j]:Show ()
@@ -605,7 +605,7 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
       end
     end
     self.cells[i][j].istag = true
-    self.cells[i][j]:SetTextColor (color[1], color[2], color[3])
+    self.cells[i][j]:SetTextColor (unpack(color))
     self.cells[i][j]:SetText (text)
     self.cells[i][j].align = align
     self:AlignCell (i, j)
