@@ -1772,25 +1772,25 @@ local function SearchTooltipForReforgeID(tip)
   local _, item = tip:GetItem()
   local existingStats = GetItemStats(item)
   local srcStat, destStat
-  for i = 1, tip:NumLines() do
-    local tipName = ("%sText%%s%s"):format(tip:GetName(), i)
-    local leftLine = _G[tipName:format("Left")]
-    for statId, statInfo in ipairs(ReforgeLite.itemStats) do
-      local statValue
-      if type(statInfo.parser) == "function" then
-        statValue = statInfo.parser(leftLine)
-      else
-        statValue = strmatch(leftLine:GetText(), statInfo.parser)
-      end
-      if statValue then
-        if not existingStats[statInfo.name] then
-          destStat = statId
-        elseif existingStats[statInfo.name] - tonumber(statValue) > 0 then
-          srcStat = statId
+  for _, region in pairs({tip:GetRegions()}) do
+    if region:GetObjectType() == "FontString" and region:GetText() then
+      for statId, statInfo in ipairs(ReforgeLite.itemStats) do
+        local statValue
+        if type(statInfo.parser) == "function" then
+          statValue = statInfo.parser(region)
+        else
+          statValue = strmatch(region:GetText(), statInfo.parser)
+        end
+        if statValue then
+          if not existingStats[statInfo.name] then
+            destStat = statId
+          elseif existingStats[statInfo.name] - tonumber(statValue) > 0 then
+            srcStat = statId
+          end
         end
       end
+      if srcStat and destStat then break end
     end
-    if srcStat and destStat then break end
   end
   return ReforgeLite:GetReforgeTableIndex(srcStat, destStat)
 end
