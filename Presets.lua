@@ -967,6 +967,8 @@ function ReforgeLite:InitPresets()
       local list = menu.list
       if level > 1 then
         list = L_UIDROPDOWNMENU_MENU_VALUE
+      else
+        addonTable.GUI:ClearEditFocus()
       end
       local menuList = {}
       for k in pairs (list) do
@@ -1047,6 +1049,7 @@ function ReforgeLite:InitPresets()
   self.presetDelMenu = LibDD:Create_UIDropDownMenu("ReforgeLitePresetDelMenu", self)
   LibDD:UIDropDownMenu_Initialize(self.presetDelMenu, function (menu, level)
     if level ~= 1 then return end
+    addonTable.GUI:ClearEditFocus()
     local menuList = {}
     for _, db in ipairs({self.db, self.cdb}) do
       for k in pairs(db.customPresets) do

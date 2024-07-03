@@ -10,11 +10,16 @@ function GUI:GenerateWidgetName ()
 end
 GUI.defaultParent = nil
 
-function GUI:ClearFocus()
+function GUI:ClearEditFocus()
   LibDD:CloseDropDownMenus()
   for _,v in ipairs(self.editBoxes) do
     v:ClearFocus()
   end
+end
+
+function GUI:ClearFocus()
+  LibDD:CloseDropDownMenus()
+  self:ClearEditFocus()
 end
 
 function GUI:SetTooltip (widget, tip)
@@ -36,7 +41,7 @@ end
 GUI.editBoxes = {}
 GUI.editBoxes.insert = tinsert
 GUI.unusedEditBoxes = {}
-function GUI:CreateEditBox (parent, width, height, default, setter, fallbackValue)
+function GUI:CreateEditBox (parent, width, height, default, setter)
   local box
   if #self.unusedEditBoxes > 0 then
     box = tremove (self.unusedEditBoxes, 1)
@@ -53,7 +58,11 @@ function GUI:CreateEditBox (parent, width, height, default, setter, fallbackValu
     box:SetTextInsets (0, 0, 3, 3)
     box:SetMaxLetters (8)
     box:SetScript ("OnEnterPressed", box.ClearFocus)
-    box:SetScript ("OnEditFocusGained", function() LibDD:CloseDropDownMenus() end)
+    box:SetScript ("OnEditFocusGained", function(frame)
+      LibDD:CloseDropDownMenus()
+      frame.prevValue = tonumber(frame:GetText())
+      frame:HighlightText()
+    end)
     box.Recycle = function (box)
       box:Hide ()
       box:SetScript ("OnEditFocusLost", nil)
@@ -69,12 +78,16 @@ function GUI:CreateEditBox (parent, width, height, default, setter, fallbackValu
     box:SetHeight (height)
   end
   box:SetText (default)
-  box:SetScript ("OnEditFocusLost", function (box)
-    local value = tonumber(box:GetText()) or fallbackValue or 0
-    box:SetText (value)
+  box:SetScript ("OnEditFocusLost", function (frame)
+    local value = tonumber(frame:GetText())
+    if not value then
+      value = frame.prevValue or 0
+    end
+    frame:SetText (value)
     if setter then
       setter (value)
     end
+    frame.prevValue = nil
   end)
   return box
 end
@@ -87,31 +100,31 @@ function GUI:CreateDropdown (parent, values, default, setter, width)
     sel:SetParent (parent)
     sel:Show ()
   else
-    local name = self:GenerateWidgetName ()
-    sel = LibDD:Create_UIDropDownMenu(name, parent)
-    LibDD:UIDropDownMenu_SetInitializeFunction(sel, function (self)
+    sel = LibDD:Create_UIDropDownMenu(self:GenerateWidgetName(), parent)
+    LibDD:UIDropDownMenu_SetInitializeFunction(sel, function (dropdown)
+      self:ClearEditFocus()
       local info = LibDD:UIDropDownMenu_CreateInfo()
-      for i = 1, #self.values do
-        info.text = self.values[i].name
+      for i = 1, #dropdown.values do
+        info.text = dropdown.values[i].name
         info.func = function (inf)
-          LibDD:UIDropDownMenu_SetSelectedValue (self, inf.value)
-          self.value = inf.value
-          if self.setter then self.setter (inf.value) end
+          LibDD:UIDropDownMenu_SetSelectedValue (dropdown, inf.value)
+          dropdown.value = inf.value
+          if dropdown.setter then dropdown.setter (inf.value) end
         end
-        info.value = self.values[i].value
-        info.checked = (self.value == self.values[i].value)
+        info.value = dropdown.values[i].value
+        info.checked = (dropdown.value == dropdown.values[i].value)
         LibDD:UIDropDownMenu_AddButton (info)
       end
     end)
-    sel.SetValue = function (self, value)
-      self.value = value
-      for i = 1, #self.values do
-        if self.values[i].value == value then
-          LibDD:UIDropDownMenu_SetText (self, self.values[i].name)
+    sel.SetValue = function (dropdown, value)
+      dropdown.value = value
+      for i = 1, #dropdown.values do
+        if dropdown.values[i].value == value then
+          LibDD:UIDropDownMenu_SetText (dropdown, dropdown.values[i].name)
           return
         end
       end
-      LibDD:UIDropDownMenu_SetText (self, "")
+      LibDD:UIDropDownMenu_SetText (dropdown, "")
     end
     LibDD:UIDropDownMenu_JustifyText (sel, "LEFT")
     sel:SetHeight (50)
