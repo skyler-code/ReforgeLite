@@ -45,6 +45,7 @@ L_enUS["StatFormat"] = "^+(%d+) %s$"
 L_enUS["Sum"] = "Sum"
 L_enUS["Tanking model"] = "Tanking model"
 L_enUS["Weight after cap"] = "Weight after cap"
+L_enUS["EquipPreString"] = ""
 
 if gameLocale == "frFR" then
   L["Active window color"] = "Couleur de la fenêtre active"
@@ -169,6 +170,7 @@ elseif gameLocale == "koKR" then
   L["Tanking model"] = "탱킹 모델"
   L["Weight after cap"] = "조건 값 이후 가중치"
   L["Item Import Mismatch"] = "%s은(는) 현재 장착된 %s와 일치하지 않습니다. ReforgeLite는 장착된 아이템만 지원합니다."
+  L["EquipPreString"] = ITEM_SPELL_TRIGGER_ONEQUIP .. " "
 
 elseif gameLocale == "esMX" then
 --   L["Active window color"] = ""
