@@ -1406,8 +1406,11 @@ function ReforgeLite:CreateOptionList ()
   self.computeButton = CreateFrame ("Button", "ReforgeLiteConfirmButton", self.content, "UIPanelButtonTemplate")
   self.computeButton:SetText (L["Compute"])
   self.computeButton:SetSize (self.computeButton:GetFontString():GetStringWidth() + 20, 22)
-  self.computeButton:SetScript ("OnClick", function (btn)
+  self.computeButton:SetScript ("PreClick", function (btn)
     if self.db.debug then btn.timeRan = GetTimePreciseSec() end
+    addonTable.GUI:ClearFocus()
+  end)
+  self.computeButton:SetScript ("OnClick", function (btn)
     local method = self:Compute ()
     if method then
       self.pdb.method = method

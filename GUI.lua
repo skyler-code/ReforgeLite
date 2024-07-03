@@ -10,6 +10,13 @@ function GUI:GenerateWidgetName ()
 end
 GUI.defaultParent = nil
 
+function GUI:ClearFocus()
+  LibDD:CloseDropDownMenus()
+  for _,v in ipairs(self.editBoxes) do
+    v:ClearFocus()
+  end
+end
+
 function GUI:SetTooltip (widget, tip)
   if tip then
     widget:SetScript ("OnEnter", function (self)
@@ -27,16 +34,19 @@ function GUI:SetTooltip (widget, tip)
 end
 
 GUI.editBoxes = {}
+GUI.editBoxes.insert = tinsert
+GUI.unusedEditBoxes = {}
 function GUI:CreateEditBox (parent, width, height, default, setter, fallbackValue)
   local box
-  if #self.editBoxes > 0 then
-    box = tremove (self.editBoxes, 1)
+  if #self.unusedEditBoxes > 0 then
+    box = tremove (self.unusedEditBoxes, 1)
     box:SetParent (parent)
     box:Show ()
     box:SetTextColor (1, 1, 1)
     box:EnableMouse (true)
   else
     box = CreateFrame ("EditBox", self:GenerateWidgetName (), parent, "InputBoxTemplate")
+    self.editBoxes:insert(box)
     box:SetAutoFocus (false)
     box:SetFontObject (ChatFontNormal)
     box:SetNumeric ()
@@ -48,7 +58,7 @@ function GUI:CreateEditBox (parent, width, height, default, setter, fallbackValu
       box:SetScript ("OnEditFocusLost", nil)
       box:SetScript ("OnEnter", nil)
       box:SetScript ("OnLeave", nil)
-      tinsert (self.editBoxes, box)
+      tinsert (self.unusedEditBoxes, box)
     end
   end
   if width then
