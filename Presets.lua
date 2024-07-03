@@ -274,61 +274,19 @@ do
         },
       },
       [specs.DEATHKNIGHTFrost] = {
-        [ENCHSLOT_2HWEAPON] = {
-          weights = {
-            0, 0, 0, 201, 115, 129, 163, 126
-          },
-          caps = MeleeCaps,
-        },
-        [GetSpellInfo(674) .. " (Oblit)"] = {
+        [GetSpellInfo(49020)] = { -- Obliterate
+          icon = 135771,
           weights = {
             0, 0, 0, 229, 116, 147, 164, 144
           },
-          caps = {
-            {
-              stat = StatHit,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = CAPS.MeleeHitCap,
-                  after = 106,
-                },
-                {
-                  preset = CAPS.MeleeDWHitCap,
-                },
-              },
-            },
-            {
-              stat = StatExp,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = CAPS.ExpSoftCap,
-                },
-              },
-            },
-          },
+          caps = { HitCap },
         },
-        [GetSpellInfo(674) .. " (Masterfrost)"] = {
+        ["Masterfrost"] = {
+          icon = 135833,
           weights = {
             0, 0, 0, 200, 120, 150, 100, 180
           },
-          caps = {
-            {
-              stat = StatHit,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = CAPS.SpellHitCap,
-                  after = 106,
-                },
-                {
-                  method = AtMost,
-                  preset = CAPS.MeleeHitCap,
-                },
-              },
-            },
-          },
+          caps = CasterCaps
         },
       },
       [specs.DEATHKNIGHTUnholy] = {
