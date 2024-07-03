@@ -289,23 +289,17 @@ do
           caps = CasterCaps
         },
       },
-      [specs.DEATHKNIGHTUnholy] = {
-        [VIDEO_OPTIONS_STANDARD] = {
-          icon = 133572,
-          prioritySort = 1,
-          weights = {
+      [specs.DEATHKNIGHTUnholy] = function()
+        local gurth = C_Item.IsEquippedItem(77191) or C_Item.IsEquippedItem(78478) or C_Item.IsEquippedItem(78487)
+        return {
+          weights = gurth and {
+            0, 0, 0, 200, 120, 160, 100, 130
+          } or {
             0, 0, 0, 200, 130, 160, 100, 110
           },
           caps = { HitCap },
-        },
-        [(C_Item.GetItemNameByID(78478) or "Gurthalak, Voice of the Deeps")] = {
-          icon = 531208,
-          weights = {
-            0, 0, 0, 200, 120, 160, 100, 130
-          },
-          caps = { HitCap },
-        },
-      },
+        }
+      end,
     },
     ["DRUID"] = {
       [specs.DRUIDBalance] = {
