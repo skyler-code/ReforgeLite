@@ -743,6 +743,16 @@ function ReforgeLite:FixScroll ()
   end
 end
 
+function ReforgeLite:SwapFrameLevels(window)
+  if not self.methodWindow then return end
+  local topWindow, bottomWindow = self:GetFrameOrder()
+  if (window or self) == topWindow then return end
+  bottomWindow:SetFrameLevel(topWindow:GetFrameLevel())
+  topWindow:SetFrameLevel(bottomWindow:GetFrameLevel() - 10)
+  bottomWindow:SetFrameActive(true)
+  topWindow:SetFrameActive(false)
+end
+
 function ReforgeLite:CreateFrame()
   self:InitPresets()
   self:SetFrameStrata ("DIALOG")
@@ -781,11 +791,7 @@ function ReforgeLite:CreateFrame()
   self:SetMovable (true)
   self:SetResizable (true)
   self:SetScript ("OnMouseDown", function (self, arg)
-    if self.methodWindow and self:GetFrameLevel () < self.methodWindow:GetFrameLevel () then
-      self:SetFrameLevel (self.methodWindow:GetFrameLevel () + 10)
-      self:SetFrameActive(true)
-      self.methodWindow:SetFrameActive(false)
-    end
+    self:SwapFrameLevels()
     if arg == "LeftButton" then
       self:StartMoving ()
       self.moving = true
@@ -1517,11 +1523,11 @@ function ReforgeLite:CreateOptionList ()
     ReforgeLite:UpdateMethodCategory ()
   end
 end
-function ReforgeLite:GetActiveFrame()
+function ReforgeLite:GetFrameOrder()
   if self.methodWindow and self.methodWindow:IsShown() and self.methodWindow:GetFrameLevel () > self:GetFrameLevel() then
-    return self.methodWindow
+    return self.methodWindow, self
   end
-  return self
+  return self, self.methodWindow
 end
 function ReforgeLite:FillSettings ()
   self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Open window when reforging"],
@@ -1532,13 +1538,16 @@ function ReforgeLite:FillSettings ()
   local activeWindowTitleOrderId = getOrderId('settings')
   self.settings:SetCellText (activeWindowTitleOrderId, 0, L["Active window color"], "LEFT", nil, "GameFontNormal")
   self.settings:SetCell (activeWindowTitleOrderId, 1, GUI:CreateColorPicker (self.settings, 20, 20, self.db.activeWindowTitle, function ()
-    self:GetActiveFrame():SetFrameActive(true)
+    self:GetFrameOrder():SetFrameActive(true)
   end), "LEFT")
 
   local inactiveWindowTitleOrderId = getOrderId('settings')
   self.settings:SetCellText (inactiveWindowTitleOrderId, 0, L["Inactive window color"], "LEFT", nil, "GameFontNormal")
   self.settings:SetCell (inactiveWindowTitleOrderId, 1, GUI:CreateColorPicker (self.settings, 20, 20, self.db.inactiveWindowTitle, function ()
-    self:GetActiveFrame():SetFrameActive(false)
+    local _, inactiveWindow = self:GetFrameOrder()
+    if inactiveWindow then
+      inactiveWindow:SetFrameActive(false)
+    end
   end), "LEFT")
 
   self.debugButton = CreateFrame ("Button", nil, self.settings, "UIPanelButtonTemplate")
@@ -1938,7 +1947,6 @@ function ReforgeLite:ShowMethodWindow ()
   if not self.methodWindow then
     self.methodWindow = CreateFrame ("Frame", "ReforgeLiteMethodWindow", UIParent, "BackdropTemplate")
     self.methodWindow:SetFrameStrata ("DIALOG")
-    self.methodWindow:SetFrameLevel (self:GetFrameLevel () + 10)
     self.methodWindow:ClearAllPoints ()
     self.methodWindow:SetSize(250, 506)
     if self.db.methodWindowX and self.db.methodWindowY then
@@ -1968,11 +1976,7 @@ function ReforgeLite:ShowMethodWindow ()
     self.methodWindow:EnableMouse (true)
     self.methodWindow:SetMovable (true)
     self.methodWindow:SetScript ("OnMouseDown", function (window, arg)
-      if window:GetFrameLevel () < self:GetFrameLevel () then
-        window:SetFrameLevel (self:GetFrameLevel () + 10)
-        window:SetFrameActive(true)
-        self:SetFrameActive(false)
-      end
+      self:SwapFrameLevels(window)
       if arg == "LeftButton" then
         window:StartMoving ()
         window.moving = true
@@ -2091,7 +2095,7 @@ function ReforgeLite:ShowMethodWindow ()
     self.methodOverride[i] = 0
   end
 
-  self.methodWindow:SetFrameLevel (self:GetFrameLevel () + 10)
+  self.methodWindow:SetFrameLevel(self:GetFrameLevel() + 10)
 
   for i, v in ipairs (self.methodWindow.items) do
     local item = Item:CreateFromEquipmentSlot(v.slotId)
