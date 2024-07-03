@@ -1408,7 +1408,7 @@ function ReforgeLite:CreateOptionList ()
   self.computeButton:SetSize (self.computeButton:GetFontString():GetStringWidth() + 20, 22)
   self.computeButton:SetScript ("PreClick", function (btn)
     if self.db.debug then btn.timeRan = GetTimePreciseSec() end
-    addonTable.GUI:ClearFocus()
+    GUI:ClearFocus()
   end)
   self.computeButton:SetScript ("OnClick", function (btn)
     local method = self:Compute ()
@@ -2112,7 +2112,7 @@ function ReforgeLite:ShowMethodWindow ()
     end
   end
   self:UpdateMethodChecks ()
-  addonTable.GUI:ClearFocus()
+  GUI:ClearFocus()
   self.methodWindow:Show ()
 end
 function ReforgeLite:IsReforgeMatching (slotId, reforge, override)
