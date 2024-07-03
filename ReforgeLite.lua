@@ -1320,7 +1320,7 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory:AddFrame (self.convertSpirit)
   self.convertSpirit.text = self.convertSpirit:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   self.convertSpirit.text:SetPoint ("LEFT", self.pawnButton, "RIGHT", 8, 0)
-  self.convertSpirit.text:SetText (L["Spirit to hit"] .. ": 0%")
+  self.convertSpirit.text:SetText (L["Spirit to hit"] .. ": "..PERCENTAGE_STRING:format(0))
 
   if playerClass == "PALADIN" or playerClass == "WARRIOR" or playerClass == "DEATHKNIGHT" then
     self.tankingModel = GUI:CreateCheckButton (self.content, STAT_AVOIDANCE .. " " ..PARENS_TEMPLATE:format(localeClass),
@@ -1734,7 +1734,7 @@ function ReforgeLite:RefreshMethodStats (relax)
         if v.percent then
           self.methodStats[i].value:SetText (format ("%.2f%%", mvalue))
         else
-          self.methodStats[i].value:SetText (format ("%s", mvalue))
+          self.methodStats[i].value:SetText (mvalue)
         end
         local override
         mvalue = v.mgetter (self.pdb.method, true)
@@ -1915,7 +1915,7 @@ function ReforgeLite:UpdateItems ()
     self.s2hFactor = pts * 50
   end
   if self.s2hFactor > 0 then
-    self.convertSpirit.text:SetText (L["Spirit to hit"] .. ": " .. self.s2hFactor .. "%")
+    self.convertSpirit.text:SetText (L["Spirit to hit"] .. ": " .. PERCENTAGE_STRING:format(self.s2hFactor))
     self.convertSpirit.text:Show ()
   else
     self.convertSpirit.text:Hide ()
