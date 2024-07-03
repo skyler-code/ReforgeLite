@@ -521,10 +521,10 @@ function ReforgeLite:ParseImportString(importStr)
 end
 
 function ReforgeLite:ParsePresetString(presetStr)
+  if not self.isDev then return end
   local success, preset = pcall(function () return addonTable.json.decode(presetStr) end)
   if success then
     DevTools_Dump(preset)
-
   end
 end
 
