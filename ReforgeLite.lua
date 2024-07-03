@@ -1203,6 +1203,13 @@ function ReforgeLite:UpdateStatWeightList ()
       self.pdb.weights[i] = val
       self:RefreshMethodStats ()
     end)
+    self.statWeights.inputs[i]:SetScript("OnTabPressed", function(frame)
+      if self.statWeights.inputs[i+1] then
+        self.statWeights.inputs[i+1]:SetFocus()
+      else
+        frame:ClearFocus()
+      end
+    end)
     self.statWeights:SetCell (row, col + 1, self.statWeights.inputs[i])
   end
 
