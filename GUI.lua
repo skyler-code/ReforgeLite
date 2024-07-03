@@ -53,6 +53,7 @@ function GUI:CreateEditBox (parent, width, height, default, setter, fallbackValu
     box:SetTextInsets (0, 0, 3, 3)
     box:SetMaxLetters (8)
     box:SetScript ("OnEnterPressed", box.ClearFocus)
+    box:SetScript ("OnEditFocusGained", function() LibDD:CloseDropDownMenus() end)
     box.Recycle = function (box)
       box:Hide ()
       box:SetScript ("OnEditFocusLost", nil)
