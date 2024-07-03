@@ -2112,6 +2112,7 @@ function ReforgeLite:ShowMethodWindow ()
     end
   end
   self:UpdateMethodChecks ()
+  addonTable.GUI:ClearFocus()
   self.methodWindow:Show ()
 end
 function ReforgeLite:IsReforgeMatching (slotId, reforge, override)
