@@ -808,9 +808,9 @@ function ReforgeLite:CreateFrame()
   tinsert(UISpecialFrames, self:GetName()) -- allow closing with escape
 
   self.title = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.title:SetPoint ("TOPLEFT", 12, -9)
-  self.title:SetTextColor (1, 1, 1)
   self.title:SetText (addonTitle)
+  self.title:SetTextColor (1, 1, 1)
+  self.title:SetPoint ("TOPLEFT", 12, floor(self.title:GetHeight()-self.titlebar:GetHeight()))
 
   self.close = CreateFrame ("Button", nil, self, "UIPanelCloseButtonNoScripts")
   self.close:SetSize(28, 28)
@@ -1993,9 +1993,9 @@ function ReforgeLite:ShowMethodWindow ()
     tinsert(UISpecialFrames, self.methodWindow:GetName()) -- allow closing with escape
 
     self.methodWindow.title = self.methodWindow:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-    self.methodWindow.title:SetPoint ("TOPLEFT", 10, -8)
-    self.methodWindow.title:SetTextColor (1, 1, 1)
     self.methodWindow.title:SetText (addonTitle.." Output")
+    self.methodWindow.title:SetTextColor (1, 1, 1)
+    self.methodWindow.title:SetPoint ("TOPLEFT", 12, self.methodWindow.title:GetHeight()-self.methodWindow.titlebar:GetHeight())
 
     self.methodWindow.close = CreateFrame ("Button", nil, self.methodWindow, "UIPanelCloseButtonNoScripts")
     self.methodWindow.close:SetPoint ("TOPRIGHT")
