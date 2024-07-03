@@ -195,6 +195,10 @@ local CasterCaps = { HitCapSpell }
 
 local specInfo = {}
 
+local function CreateIconMarkup(icon)
+  return CreateSimpleTextureMarkup(icon, 18, 18) .. " "
+end
+
 do
   local specs = {
     DEATHKNIGHTBlood = 398,
@@ -229,7 +233,7 @@ do
     WARRIORProtection = 845,
   }
 
-  for k,v in pairs(specs) do
+  for _,v in pairs(specs) do
     local _, tabName, _, icon = GetSpecializationInfoForSpecID(v)
     specInfo[v] = { name = tabName, icon = icon }
   end
@@ -334,7 +338,7 @@ do
           },
           caps = { HitCap },
         },
-        ["|T"..(C_Item.GetItemIconByID(78478) or "error")..":0|t " .. (C_Item.GetItemNameByID(78478) or "Gurthalak, Voice of the Deeps")] = {
+        [CreateIconMarkup(531208) .. " " .. (C_Item.GetItemNameByID(78478) or "Gurthalak, Voice of the Deeps")] = {
           weights = {
             0, 0, 0, 200, 120, 160, 100, 130
           },
@@ -351,7 +355,7 @@ do
       },
       [specs.DRUIDFeralCombat] = {
         [("%s (%s)"):format(GetSpellInfo(5487), TANK)] = { -- Bear
-          icon = select(3, GetSpellInfo(5487)),
+          icon = 132276,
           weights = {
             0, 54, 0, 25, 53, 7, 48, 37
           },
@@ -377,14 +381,14 @@ do
           },
         },
         [("%s (%s)"):format(GetSpellInfo(5487), STAT_DPS_SHORT)] = { -- Bear
-          icon = select(3, GetSpellInfo(5487)),
+          icon = 132276,
           weights = {
             0, -6, 0, 100, 50, 25, 100, -1
           },
           caps = MeleeCaps,
         },
         [("%s (%s)"):format(GetSpellInfo(768), "Monocat")] = { -- Cat
-          icon = select(3, GetSpellInfo(768)),
+          icon = 132115,
           weights = {
             0, 0, 0, 30, 31, 28, 30, 31
           },
@@ -410,7 +414,7 @@ do
           },
         },
         [("%s (%s)"):format(GetSpellInfo(768), "Bearweave")] = { -- Cat
-          icon = select(3, GetSpellInfo(768)),
+          icon = 132115,
           weights = {
             0, 0, 0, 33, 31, 26, 32, 30
           },
@@ -531,7 +535,7 @@ do
         },
       },
       [specs.MAGEFire] = {
-        [PERCENTAGE_STRING :format(15) .. " " .. STAT_HASTE] = {
+        [PERCENTAGE_STRING:format(15) .. " " .. STAT_HASTE] = {
           weights = {
             -1, -1, -1, 5, 3, 4, -1, 1
           },
@@ -549,7 +553,7 @@ do
             },
           },
         },
-        [PERCENTAGE_STRING :format(25) .. " " .. STAT_HASTE] = {
+        [PERCENTAGE_STRING:format(25) .. " " .. STAT_HASTE] = {
           weights = {
             -1, -1, -1, 5, 3, 4, -1, 1
           },
@@ -819,7 +823,7 @@ do
       },
       [specs.WARRIORFury] = {
         [GetSpellInfo(46917)] = { -- Titan's Grip
-          icon = select(3, GetSpellInfo(46917)),
+          icon = 236316,
           weights = {
             0, 0, 0, 200, 150, 100, 180, 130
           },
@@ -854,7 +858,7 @@ do
           },
         },
         [GetSpellInfo(81099)] = { -- Single-Minded Fury
-          icon = select(3, GetSpellInfo(81099)),
+          icon = 458974,
           weights = {
             0, 0, 0, 200, 150, 100, 180, 130
           },
@@ -980,12 +984,12 @@ function ReforgeLite:InitPresets()
         info.isSpec = 0
         info.value = v
         if specInfo[k] then
-          info.text = "|T"..specInfo[k].icon..":0|t " .. specInfo[k].name
+          info.text = CreateIconMarkup(specInfo[k].icon) .. specInfo[k].name
           info.sortKey = specInfo[k].name
           info.isSpec = 1
         end
         if v.icon then
-          info.text = "|T"..v.icon..":0|t " .. info.text
+          info.text = CreateIconMarkup(v.icon) .. info.text
         end
         if v.tip then
           info.tooltipTitle = v.tip
