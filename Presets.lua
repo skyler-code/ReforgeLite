@@ -290,13 +290,16 @@ do
         },
       },
       [specs.DEATHKNIGHTUnholy] = {
-        [PLAYER_DIFFICULTY1] = {
+        [VIDEO_OPTIONS_STANDARD] = {
+          icon = 133572,
+          prioritySort = 1,
           weights = {
             0, 0, 0, 200, 130, 160, 100, 110
           },
           caps = { HitCap },
         },
-        [CreateIconMarkup(531208) .. " " .. (C_Item.GetItemNameByID(78478) or "Gurthalak, Voice of the Deeps")] = {
+        [(C_Item.GetItemNameByID(78478) or "Gurthalak, Voice of the Deeps")] = {
+          icon = 531208,
           weights = {
             0, 0, 0, 200, 120, 160, 100, 130
           },
@@ -939,12 +942,12 @@ function ReforgeLite:InitPresets()
         info.notCheckable = true
         info.sortKey = v.name or k
         info.text = info.sortKey
-        info.isSpec = 0
+        info.prioritySort = v.prioritySort or 0
         info.value = v
         if specInfo[k] then
           info.text = CreateIconMarkup(specInfo[k].icon) .. specInfo[k].name
           info.sortKey = specInfo[k].name
-          info.isSpec = 1
+          info.prioritySort = -1
         end
         if v.icon then
           info.text = CreateIconMarkup(v.icon) .. info.text
@@ -969,8 +972,8 @@ function ReforgeLite:InitPresets()
         tinsert(menuList, info)
       end
       tsort(menuList, function (a, b)
-        if a.isSpec ~= b.isSpec then
-          return a.isSpec < b.isSpec
+        if a.prioritySort ~= b.prioritySort then
+          return a.prioritySort > b.prioritySort
         end
         return a.sortKey < b.sortKey
       end)
@@ -992,6 +995,7 @@ function ReforgeLite:InitPresets()
   local exportList = {
     [REFORGE_CURRENT] = function()
       local result = {
+        prioritySort = 1,
         caps = self.pdb.caps,
         weights = self.pdb.weights,
       }
