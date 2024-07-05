@@ -139,6 +139,10 @@ function GUI:CreateDropdown (parent, values, default, setter, width)
       frame:SetScript ("OnEnter", nil)
       frame:SetScript ("OnLeave", nil)
       frame.setter = nil
+      frame.value = nil
+      frame.selectedName = nil
+      frame.selectedID = nil
+      frame.selectedValue = nil
       tinsert (self.dropdowns, frame)
     end
   end
