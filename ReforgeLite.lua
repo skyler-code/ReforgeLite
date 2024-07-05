@@ -1127,7 +1127,6 @@ function ReforgeLite:SetStatWeights (weights, caps)
       else
         self.pdb.caps[i].stat = 0
         self.pdb.caps[i].points = {}
-        self:AddCapPoint (i)
       end
     end
     self:UpdateCapPoints (1)
