@@ -37,6 +37,7 @@ local gprint = print
 local function print(...)
     gprint("|cff33ff99"..addonName.."|r:",...)
 end
+addonTable.print = print
 
 local DefaultDB = {
   itemSize = 24,
