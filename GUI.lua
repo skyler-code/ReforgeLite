@@ -182,7 +182,7 @@ function GUI:CreateCheckButton (parent, text, default, setter)
 end
 
 GUI.imgButtons = {}
-function GUI:CreateImageButton (parent, width, height, img, pus, hlt, handler)
+function GUI:CreateImageButton (parent, width, height, img, pus, hlt, disabledTexture, handler)
   local btn
   if #self.imgButtons > 0 then
     btn = tremove (self.imgButtons, 1)
@@ -203,6 +203,9 @@ function GUI:CreateImageButton (parent, width, height, img, pus, hlt, handler)
   btn:SetPushedTexture (pus)
   if hlt then
     btn:SetHighlightTexture (hlt)
+  end
+  if disabledTexture then
+    btn:SetDisabledTexture(disabledTexture)
   end
   btn:SetSize(width, height)
   if handler then

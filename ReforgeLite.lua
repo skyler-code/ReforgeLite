@@ -995,7 +995,7 @@ function ReforgeLite:AddCapPoint (i, loading)
   end
 
   local rem = GUI:CreateImageButton (self.statCaps, 20, 20, "Interface\\PaperDollInfoFrame\\UI-GearManager-LeaveItem-Transparent",
-    "Interface\\PaperDollInfoFrame\\UI-GearManager-LeaveItem-Transparent", nil, function ()
+    "Interface\\PaperDollInfoFrame\\UI-GearManager-LeaveItem-Transparent", nil, nil, function ()
     self:RemoveCapPoint (i, point)
   end)
   local methodList = {
@@ -1004,8 +1004,8 @@ function ReforgeLite:AddCapPoint (i, loading)
     {value = addonTable.StatCapMethods.NewValue, name = ""}
   }
   local method = GUI:CreateDropdown (self.statCaps, methodList, 1,
-    function (val) self.pdb.caps[i].points[point].method = val end, 80)
-  local preset = GUI:CreateDropdown (self.statCaps, self.capPresets, 1, function (val)
+    function (_,val) self.pdb.caps[i].points[point].method = val end, 80)
+  local preset = GUI:CreateDropdown (self.statCaps, self.capPresets, 1, function (_,val)
     self.pdb.caps[i].points[point].preset = val
     self:UpdateCapPreset (i, point)
     self:ReorderCapPoint (i, point)
@@ -1183,14 +1183,14 @@ function ReforgeLite:UpdateStatWeightList ()
     self.statWeights:SetCell (1, 3, self.statWeights.buffs.strength, "LEFT")
     self.statWeights.buffs.flask = GUI:CreateDropdown (self.statWeights,
       {{value = 0, name = L["Other/No flask"]}, {value = 1, name = "300" .. ITEM_MOD_STRENGTH_SHORT},
-       {value = 2, name = "225" .. ITEM_MOD_MASTERY_RATING_SHORT}}, self.pdb.buffs.flask or 0, function (val)
+       {value = 2, name = "225" .. ITEM_MOD_MASTERY_RATING_SHORT}}, self.pdb.buffs.flask or 0, function (_,val)
       self.pdb.buffs.flask = (val ~= 0 and val)
       self:RefreshMethodStats ()
     end, 125)
     self.statWeights.buffs.food = GUI:CreateDropdown (self.statWeights,
       {{value = 0, name = L["Other/No food"]}, {value = 1, name = "90" .. ITEM_MOD_MASTERY_RATING_SHORT},
        {value = 2, name = "90" .. ITEM_MOD_DODGE_RATING_SHORT}, {value = 3, name = "90" .. ITEM_MOD_PARRY_RATING_SHORT},
-       {value = 4, name = "90" .. ITEM_MOD_STRENGTH_SHORT},{value = 5, name = "40" .. ITEM_MOD_STRENGTH_SHORT}}, self.pdb.buffs.food or 0, function (val)
+       {value = 4, name = "90" .. ITEM_MOD_STRENGTH_SHORT},{value = 5, name = "40" .. ITEM_MOD_STRENGTH_SHORT}}, self.pdb.buffs.food or 0, function (_,val)
       self.pdb.buffs.food = (val ~= 0 and val)
       self:RefreshMethodStats ()
     end, 125)
@@ -1268,7 +1268,7 @@ function ReforgeLite:CreateOptionList ()
   self:SetAnchor (self.statWeightsCategory, "TOPLEFT", self.content, "TOPLEFT", 2, -2)
 
   self.presetsButton = GUI:CreateImageButton (self.content, 24, 24, "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up",
-    "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down", "Interface\\Buttons\\UI-Common-MouseHilight", function (btn)
+    "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down", "Interface\\Buttons\\UI-Common-MouseHilight", nil, function (btn)
     LibDD:ToggleDropDownMenu (nil, nil, self.presetMenu, btn:GetName(), 0, 0)
   end)
   self.statWeightsCategory:AddFrame (self.presetsButton)
@@ -1380,7 +1380,7 @@ function ReforgeLite:CreateOptionList ()
     self.statCaps[i].stat = GUI:CreateDropdown (self.statCaps, statList, self.pdb.caps[i].stat,
       function (val) self.pdb.caps[i].stat = val end, 110)
     self.statCaps[i].add = GUI:CreateImageButton (self.statCaps, 20, 20, "Interface\\Buttons\\UI-PlusButton-Up",
-      "Interface\\Buttons\\UI-PlusButton-Down", "Interface\\Buttons\\UI-PlusButton-Hilight", function ()
+      "Interface\\Buttons\\UI-PlusButton-Down", "Interface\\Buttons\\UI-PlusButton-Hilight", "Interface\\Buttons\\UI-PlusButton-Disabled", function()
       self:AddCapPoint (i)
     end)
     GUI:SetTooltip (self.statCaps[i].add, L["Add cap"])
