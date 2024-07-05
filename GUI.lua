@@ -206,12 +206,8 @@ function GUI:CreateImageButton (parent, width, height, img, pus, hlt, disabledTe
   end
   btn:SetNormalTexture (img)
   btn:SetPushedTexture (pus)
-  if hlt then
-    btn:SetHighlightTexture (hlt)
-  end
-  if disabledTexture then
-    btn:SetDisabledTexture(disabledTexture)
-  end
+  btn:SetHighlightTexture (hlt or img)
+  btn:SetDisabledTexture(disabledTexture or img)
   btn:SetSize(width, height)
   if handler then
     btn:SetScript ("OnClick", handler)
