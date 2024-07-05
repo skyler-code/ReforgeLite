@@ -277,7 +277,7 @@ do
         [GetSpellInfo(49020)] = { -- Obliterate
           icon = 135771,
           weights = {
-            0, 0, 0, 229, 116, 147, 164, 144
+            0, 0, 0, 200, 120, 160, 50, 90
           },
           caps = { HitCap },
         },
