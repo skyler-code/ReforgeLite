@@ -118,6 +118,7 @@ function GUI:CreateDropdown (parent, values, default, setter, width)
     end)
     sel.SetValue = function (dropdown, value)
       dropdown.value = value
+      dropdown.selectedValue = value
       for i = 1, #dropdown.values do
         if dropdown.values[i].value == value then
           LibDD:UIDropDownMenu_SetText (dropdown, dropdown.values[i].name)
