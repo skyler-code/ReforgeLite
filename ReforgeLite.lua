@@ -1035,6 +1035,7 @@ function ReforgeLite:AddCapPoint (i, loading)
     self:UpdateCapPoints (i)
     self:UpdateContentSize ()
   end
+  self.statCaps[i].add:Enable()
 end
 function ReforgeLite:RemoveCapPoint (i, point, loading)
   local row = #self.pdb.caps[1].points + (i == 1 and 1 or #self.pdb.caps[2].points + 2)
@@ -1043,6 +1044,9 @@ function ReforgeLite:RemoveCapPoint (i, point, loading)
   if not loading then
     self:UpdateCapPoints (i)
     self:UpdateContentSize ()
+  end
+  if #self.pdb.caps[i].points == 0 then
+    self.statCaps[i].add:Disable()
   end
 end
 function ReforgeLite:ReorderCapPoint (i, point)
@@ -1125,11 +1129,9 @@ function ReforgeLite:SetStatWeights (weights, caps)
           self.pdb.caps[i].points[p].value = self.pdb.caps[i].points[p].value or 0
           self.pdb.caps[i].points[p].preset = self.pdb.caps[i].points[p].preset or 1
         end
-        self.statCaps[i].add:Enable()
       else
         self.pdb.caps[i].stat = 0
         self.pdb.caps[i].points = {}
-        self.statCaps[i].add:Disable()
       end
     end
     self:UpdateCapPoints (1)
@@ -1385,10 +1387,8 @@ function ReforgeLite:CreateOptionList ()
           while #self.pdb.caps[i].points > 0 do
             self:RemoveCapPoint (i, 1)
           end
-          self.statCaps[i].add:Disable()
         elseif dropdown.value == 0 then
           self:AddCapPoint(i)
-          self.statCaps[i].add:Enable()
         end
         self.pdb.caps[i].stat = val
       end, 110)
@@ -1401,10 +1401,13 @@ function ReforgeLite:CreateOptionList ()
     self.statCaps:SetCell (i, 2, self.statCaps[i].add, "LEFT")
   end
   for i = 1, 2 do
-    for point = 1, #self.pdb.caps[i].points do
+    for point in ipairs(self.pdb.caps[i].points) do
       self:AddCapPoint (i, point)
     end
     self:UpdateCapPoints (i)
+    if self.pdb.caps[i].stat == 0 then
+      self:RemoveCapPoint(i)
+    end
   end
   self.statCaps.onUpdate = function ()
     local row = 1
