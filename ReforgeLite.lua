@@ -1036,6 +1036,7 @@ function ReforgeLite:AddCapPoint (i, loading)
     self:UpdateContentSize ()
   end
   self.statCaps[i].add:Enable()
+  self.statCaps:OnUpdateFix()
 end
 function ReforgeLite:RemoveCapPoint (i, point, loading)
   local row = #self.pdb.caps[1].points + (i == 1 and 1 or #self.pdb.caps[2].points + 2)
