@@ -108,8 +108,8 @@ function GUI:CreateDropdown (parent, values, default, setter, width)
         info.text = dropdown.values[i].name
         info.func = function (inf)
           LibDD:UIDropDownMenu_SetSelectedValue (dropdown, inf.value)
+          if dropdown.setter then dropdown.setter (dropdown,inf.value) end
           dropdown.value = inf.value
-          if dropdown.setter then dropdown.setter (inf.value) end
         end
         info.value = dropdown.values[i].value
         info.checked = (dropdown.value == dropdown.values[i].value)

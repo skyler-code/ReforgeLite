@@ -1125,9 +1125,11 @@ function ReforgeLite:SetStatWeights (weights, caps)
           self.pdb.caps[i].points[p].value = self.pdb.caps[i].points[p].value or 0
           self.pdb.caps[i].points[p].preset = self.pdb.caps[i].points[p].preset or 1
         end
+        self.statCaps[i].add:Enable()
       else
         self.pdb.caps[i].stat = 0
         self.pdb.caps[i].points = {}
+        self.statCaps[i].add:Disable()
       end
     end
     self:UpdateCapPoints (1)
@@ -1378,7 +1380,18 @@ function ReforgeLite:CreateOptionList ()
   for i = 1, 2 do
     self.statCaps[i] = {}
     self.statCaps[i].stat = GUI:CreateDropdown (self.statCaps, statList, self.pdb.caps[i].stat,
-      function (val) self.pdb.caps[i].stat = val end, 110)
+      function (dropdown, val)
+        if val == 0 then
+          while #self.pdb.caps[i].points > 0 do
+            self:RemoveCapPoint (i, 1)
+          end
+          self.statCaps[i].add:Disable()
+        elseif dropdown.value == 0 then
+          self:AddCapPoint(i)
+          self.statCaps[i].add:Enable()
+        end
+        self.pdb.caps[i].stat = val
+      end, 110)
     self.statCaps[i].add = GUI:CreateImageButton (self.statCaps, 20, 20, "Interface\\Buttons\\UI-PlusButton-Up",
       "Interface\\Buttons\\UI-PlusButton-Down", "Interface\\Buttons\\UI-PlusButton-Hilight", "Interface\\Buttons\\UI-PlusButton-Disabled", function()
       self:AddCapPoint (i)
