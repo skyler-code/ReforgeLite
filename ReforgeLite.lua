@@ -585,7 +585,7 @@ function ReforgeLite:CreateCategory (name)
   c.button = CreateFrame ("Button", nil, c)
   c.button:ClearAllPoints ()
   c.button:SetSize (14,14)
-  c.button:SetPoint ("TOPLEFT", c, "TOPLEFT", 0, 0)
+  c.button:SetPoint ("TOPLEFT")
   c.button:SetHighlightTexture ("Interface\\Buttons\\UI-PlusButton-Hilight")
   c.button.UpdateTexture = function (self)
     if self:GetParent ().expanded then
