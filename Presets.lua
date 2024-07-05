@@ -629,9 +629,6 @@ do
                 preset = CAPS.SpellHitCap,
                 after = 82,
               },
-              {
-                preset = CAPS.MeleeDWHitCap,
-              },
             },
           },
           {
@@ -667,9 +664,6 @@ do
                 preset = CAPS.SpellHitCap,
                 after = 100,
               },
-              {
-                preset = CAPS.MeleeDWHitCap,
-              },
             },
           },
         },
@@ -690,9 +684,6 @@ do
               {
                 preset = CAPS.SpellHitCap,
                 after = 80,
-              },
-              {
-                preset = CAPS.MeleeDWHitCap,
               },
             },
           },
@@ -726,9 +717,6 @@ do
                 method = AtLeast,
                 preset = CAPS.SpellHitCap,
                 after = 50,
-              },
-              {
-                preset = CAPS.MeleeDWHitCap,
               },
             },
           },
@@ -791,25 +779,9 @@ do
                   preset = CAPS.MeleeHitCap,
                   after = 140,
                 },
-                {
-                  value = 1300,
-                  preset = 1,
-                  after = 125
-                },
-                {
-                  preset = CAPS.MeleeDWHitCap,
-                },
               },
             },
-            {
-              stat = StatExp,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = CAPS.ExpSoftCap,
-                },
-              },
-            },
+            SoftExpCap
           },
         },
         [GetSpellInfo(81099)] = { -- Single-Minded Fury
@@ -826,25 +798,9 @@ do
                   preset = CAPS.MeleeHitCap,
                   after = 140,
                 },
-                {
-                  value = 1300,
-                  preset = 1,
-                  after = 125
-                },
-                {
-                  preset = CAPS.MeleeDWHitCap,
-                },
               },
             },
-            {
-              stat = StatExp,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = CAPS.ExpSoftCap,
-                },
-              },
-            },
+            SoftExpCap
           },
         },
       },
