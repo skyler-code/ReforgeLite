@@ -752,7 +752,7 @@ function ReforgeLite:SwapFrameLevels(window)
     return
   end
   bottomWindow:SetFrameLevel(topWindow:GetFrameLevel())
-  topWindow:SetFrameLevel(bottomWindow:GetFrameLevel() - 10)
+  topWindow:SetFrameLevel(max(bottomWindow:GetFrameLevel() - 10, 1))
   bottomWindow:SetFrameActive(true)
   topWindow:SetFrameActive(false)
 end
