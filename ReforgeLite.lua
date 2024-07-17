@@ -2368,6 +2368,7 @@ function ReforgeLite:OnHide()
 end
 
 function ReforgeLite:OnCommand (cmd)
+  if InCombatLockdown() then print(ERROR_CAPS, ERR_AFFECTING_COMBAT) return end
   self:Show ()
 end
 
