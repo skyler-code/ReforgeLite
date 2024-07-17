@@ -747,7 +747,10 @@ end
 function ReforgeLite:SwapFrameLevels(window)
   if not self.methodWindow then return end
   local topWindow, bottomWindow = self:GetFrameOrder()
-  if (window or self) == topWindow then return end
+  if (window or self) == topWindow then
+    topWindow:SetFrameActive(true)
+    return
+  end
   bottomWindow:SetFrameLevel(topWindow:GetFrameLevel())
   topWindow:SetFrameLevel(bottomWindow:GetFrameLevel() - 10)
   bottomWindow:SetFrameActive(true)
@@ -2356,10 +2359,12 @@ function ReforgeLite:OnShow()
     self:CreateFrame()
     self.initialized = true
   end
-  if not self.methodWindow or not self.methodWindow:IsShown() then
-    self:SetFrameActive(true)
-  end
+  self:SwapFrameLevels()
   self:UpdateItems()
+end
+
+function ReforgeLite:OnHide()
+  self:SwapFrameLevels(self.methodWindow)
 end
 
 function ReforgeLite:OnCommand (cmd)
@@ -2385,6 +2390,7 @@ function ReforgeLite:ADDON_LOADED (addon)
   self:UnregisterEvent("ADDON_LOADED")
 
   self:SetScript("OnShow", self.OnShow)
+  self:SetScript("OnHide", self.OnHide)
 
   for k, v in pairs({ addonName, "reforge", REFORGE:lower() }) do
     _G["SLASH_"..addonName:upper()..k] = "/" .. v
