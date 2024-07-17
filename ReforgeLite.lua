@@ -1955,6 +1955,7 @@ local queueUpdateEvents = {
 }
 
 function ReforgeLite:QueueUpdate()
+  if not self:GetFrameOrder():IsShown() then return end
   RunNextFrame(function() self:UpdateItems() end)
   if self.methodWindow then
     RunNextFrame(function() self:UpdateMethodChecks() end)
