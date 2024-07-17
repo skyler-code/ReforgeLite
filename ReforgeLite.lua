@@ -2326,7 +2326,6 @@ end
 
 function ReforgeLite:FORGE_MASTER_ITEM_CHANGED()
   self.reforgeSent = nil
-  self:UpdateItems()
 end
 
 function ReforgeLite:FORGE_MASTER_OPENED()
