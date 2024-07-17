@@ -1865,8 +1865,10 @@ function ReforgeLite:GetReforgeIDFromString(item)
   return ((id and id ~= UNFORGE_INDEX) and (id - self.REFORGE_TABLE_BASE) or nil)
 end
 
-function ReforgeLite:UpdateItems ()
-  if not self.initialized then return end
+function ReforgeLite:UpdateItems()
+  local time = GetTime()
+  if self.lastRan == time then return end
+  self.lastRan = time
   for i, v in ipairs (self.itemData) do
     local item = Item:CreateFromEquipmentSlot(v.slotId)
     local stats = {}
@@ -1891,29 +1893,30 @@ function ReforgeLite:UpdateItems ()
     end
     for j, s in ipairs (self.itemStats) do
       if stats[s.name] and stats[s.name] ~= 0 then
-        self.itemData[i].stats[j]:SetText (stats[s.name])
+        v.stats[j]:SetText (stats[s.name])
         if s.name == reforgeSrc then
-          self.itemData[i].stats[j]:SetTextColor (1, 0.4, 0.4)
+          v.stats[j]:SetTextColor (1, 0.4, 0.4)
         elseif s.name == reforgeDst then
-          self.itemData[i].stats[j]:SetTextColor (0.6, 1, 0.6)
+          v.stats[j]:SetTextColor (0.6, 1, 0.6)
         else
-          self.itemData[i].stats[j]:SetTextColor (1, 1, 1)
+          v.stats[j]:SetTextColor (1, 1, 1)
         end
       else
-        self.itemData[i].stats[j]:SetText ("-")
-        self.itemData[i].stats[j]:SetTextColor (0.8, 0.8, 0.8)
+        v.stats[j]:SetText ("-")
+        v.stats[j]:SetTextColor (0.8, 0.8, 0.8)
       end
     end
   end
   for i, v in ipairs (self.itemStats) do
-    self.statTotals[i]:SetText (v.getter ())
+    self.statTotals[i]:SetText(v.getter())
   end
-  for i = 1, 2 do
-    for point = 1, #self.pdb.caps[i].points do
-      local value = self.pdb.caps[i].points[point].value
-      self:UpdateCapPreset (i, point)
-      if value ~= self.pdb.caps[i].points[point].value then
-        self:ReorderCapPoint (i, point)
+
+  for capIndex, cap in ipairs(self.pdb.caps) do
+    for pointIndex, point in ipairs(cap.points) do
+      local oldValue = point.value
+      self:UpdateCapPreset (capIndex, pointIndex)
+      if oldValue ~= point.value then
+        self:ReorderCapPoint (capIndex, pointIndex)
       end
     end
   end
