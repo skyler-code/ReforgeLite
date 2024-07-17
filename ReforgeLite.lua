@@ -2329,18 +2329,20 @@ function ReforgeLite:FORGE_MASTER_ITEM_CHANGED()
 end
 
 function ReforgeLite:FORGE_MASTER_OPENED()
-  if self.db.openOnReforge and (not self.methodWindow or not self.methodWindow:IsShown()) then
+  if self.db.openOnReforge and not self:IsShown() and (not self.methodWindow or not self.methodWindow:IsShown()) then
+    self.autoOpened = true
     self:Show()
   end
   self.reforgeSent = nil
 end
 
 function ReforgeLite:FORGE_MASTER_CLOSED()
-  if self.db.openOnReforge then
+  if self.autoOpened then
     self:Hide()
     if self.methodWindow then
       self.methodWindow:Hide()
     end
+    self.autoOpened = nil
   end
   self.reforgeSent = nil
 end
