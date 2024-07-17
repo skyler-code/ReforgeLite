@@ -1949,8 +1949,6 @@ local queueUpdateEvents = {
   ["COMBAT_RATING_UPDATE"] = true,
   ["MASTERY_UPDATE"] = true,
   ["PLAYER_EQUIPMENT_CHANGED"] = true,
-  ["FORGE_MASTER_OPENED"] = true,
-  ["FORGE_MASTER_CLOSED"] = true,
   ["FORGE_MASTER_ITEM_CHANGED"] = true,
 }
 
@@ -2386,6 +2384,8 @@ function ReforgeLite:ADDON_LOADED (addon)
   self.s2hFactor = 0
 
   self:SetUpHooks()
+  self:RegisterEvent("FORGE_MASTER_OPENED")
+  self:RegisterEvent("FORGE_MASTER_CLOSED")
 
   for event in pairs(queueUpdateEvents) do
     self:RegisterEvent(event)
