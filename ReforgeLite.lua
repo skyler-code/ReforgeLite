@@ -1866,9 +1866,6 @@ function ReforgeLite:GetReforgeIDFromString(item)
 end
 
 function ReforgeLite:UpdateItems()
-  local time = GetTime()
-  if self.lastRan == time then return end
-  self.lastRan = time
   for i, v in ipairs (self.itemData) do
     local item = Item:CreateFromEquipmentSlot(v.slotId)
     local stats = {}
@@ -1957,6 +1954,9 @@ local queueUpdateEvents = {
 
 function ReforgeLite:QueueUpdate()
   if not self:GetFrameOrder():IsShown() then return end
+  local time = GetTime()
+  if self.lastRan == time then return end
+  self.lastRan = time
   RunNextFrame(function() self:UpdateItems() end)
   if self.methodWindow then
     RunNextFrame(function() self:UpdateMethodChecks() end)
