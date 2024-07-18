@@ -423,30 +423,16 @@ do
         caps = RangedCaps,
       },
       [specs.HUNTERMarksmanship] = {
-        tip = "Sim it!",
         weights = {
           0, 0, 0, 200, 150, 110, 0, 80
         },
         caps = RangedCaps,
       },
       [specs.HUNTERSurvival] = {
-        tip = "Sim it! Check WoWHead/Discord for Haste caps!!",
         weights = {
-          0, 0, 0, 200, 110, 150, 0, 40
+          0, 0, 0, 200, 110, 80, 0, 40
         },
-        caps = {
-          HitCap,
-          {
-            stat = StatHaste,
-            points = {
-              {
-                method = AtLeast,
-                value = 757,
-                after = 80,
-              },
-            },
-          },
-        },
+        caps = RangedCaps,
       },
     },
     ["MAGE"] = {
