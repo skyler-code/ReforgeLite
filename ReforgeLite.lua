@@ -1016,6 +1016,9 @@ function ReforgeLite:AddCapPoint (i, loading)
       self:ReorderCapPoint (i, point)
       self:RefreshMethodStats ()
     end,
+    menuItemHidden = function(info)
+      return info.category and info.category ~= self.statCaps[i].stat.selectedValue
+    end
   })
   local value = GUI:CreateEditBox (self.statCaps, 40, 30, 0, function (val)
     self.pdb.caps[i].points[point].value = val

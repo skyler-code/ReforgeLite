@@ -103,20 +103,23 @@ function GUI:CreateDropdown (parent, values, options)
     sel = LibDD:Create_UIDropDownMenu(self:GenerateWidgetName(), parent)
     LibDD:UIDropDownMenu_SetInitializeFunction(sel, function (dropdown)
       self:ClearEditFocus()
-      local info = LibDD:UIDropDownMenu_CreateInfo()
-      for i = 1, #dropdown.values do
-        info.text = dropdown.values[i].name
+      for _, value in ipairs(dropdown.values) do
+        local info = LibDD:UIDropDownMenu_CreateInfo()
+        info.text = value.name
+        info.value = value.value
+        info.checked = (dropdown.value == value.value)
+        info.category = value.category
         info.func = function (inf)
           LibDD:UIDropDownMenu_SetSelectedValue (dropdown, inf.value)
           if dropdown.setter then dropdown.setter (dropdown,inf.value) end
           dropdown.value = inf.value
         end
-        info.value = dropdown.values[i].value
-        info.checked = (dropdown.value == dropdown.values[i].value)
         if options.menuItemDisabled then
           info.disabled = options.menuItemDisabled(info.value)
         end
-        LibDD:UIDropDownMenu_AddButton (info)
+        if not options.menuItemHidden or not options.menuItemHidden(info) then
+          LibDD:UIDropDownMenu_AddButton(info)
+        end
       end
     end)
     sel.SetValue = function (dropdown, value)

@@ -120,35 +120,40 @@ ReforgeLite.capPresets = {
     name = L["Melee hit cap"],
     getter = function ()
       return ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HIT) * (ReforgeLite:GetNeededMeleeHit () - ReforgeLite:GetMeleeHitBonus ())
-    end
+    end,
+    category = StatHit
   },
   {
     value = CAPS.SpellHitCap,
     name = L["Spell hit cap"],
     getter = function ()
       return ReforgeLite:RatingPerPoint (ReforgeLite.STATS.SPELLHIT) * (ReforgeLite:GetNeededSpellHit () - ReforgeLite:GetSpellHitBonus ())
-    end
+    end,
+    category = StatHit
   },
   {
     value = CAPS.MeleeDWHitCap,
     name = L["Melee DW hit cap"],
     getter = function ()
       return ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HIT) * (ReforgeLite:GetNeededMeleeHit () + 19 - ReforgeLite:GetMeleeHitBonus ())
-    end
+    end,
+    category = StatHit
   },
   {
     value = CAPS.ExpSoftCap,
     name = L["Expertise soft cap"],
     getter = function ()
       return ReforgeLite:RatingPerPoint (ReforgeLite.STATS.EXP) * (ReforgeLite:GetNeededExpertiseSoft () - ReforgeLite:GetExpertiseBonus ())
-    end
+    end,
+    category = StatExp
   },
   {
     value = CAPS.ExpHardCap,
     name = L["Expertise hard cap"],
     getter = function ()
       return ReforgeLite:RatingPerPoint (ReforgeLite.STATS.EXP) * (ReforgeLite:GetNeededExpertiseHard () - ReforgeLite:GetExpertiseBonus ())
-    end
+    end,
+    category = StatExp
   },
 }
 
