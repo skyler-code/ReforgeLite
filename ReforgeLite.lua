@@ -1436,7 +1436,7 @@ function ReforgeLite:CreateOptionList ()
       row = row + 1
       for point = 1, #self.pdb.caps[i].points do
         if self.statCaps.cells[row][2] and self.statCaps.cells[row][2].values then
-          UIDropDownMenu_SetWidth (self.statCaps.cells[row][2], self.statCaps:GetColumnWidth (2) - 20)
+          LibDD:UIDropDownMenu_SetWidth (self.statCaps.cells[row][2], self.statCaps:GetColumnWidth (2) - 20)
         end
         row = row + 1
       end
