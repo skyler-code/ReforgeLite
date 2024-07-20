@@ -112,10 +112,10 @@ local CAPS = {
   ExpSoftCap = 5,
   ExpHardCap = 6,
   FirstHasteBreak = 7,
-  SecondHasteTick = 8,
-  ThirdHasteTick = 9,
-  FourthHasteTick = 10,
-  FifthHasteTick = 11,
+  SecondHasteBreak = 8,
+  ThirdHasteBreak = 9,
+  FourthHasteBreak = 10,
+  FifthHasteBreak = 11,
 }
 
 ReforgeLite.capPresets = {
@@ -176,7 +176,7 @@ if addonTable.playerClass == "DRUID" then
     end,
   })
   tinsert(ReforgeLite.capPresets, {
-    value = CAPS.SecondHasteTick,
+    value = CAPS.SecondHasteBreak,
     category = StatHaste,
     name = ("15.65%% 9th %sWG / %sEfflo Tick"):format(CreateIconMarkup(236153), CreateIconMarkup(134222)),
     getter = function ()
@@ -197,7 +197,7 @@ elseif addonTable.playerClass == "PRIEST" then
     end,
   })
   tinsert(ReforgeLite.capPresets, {
-    value = CAPS.SecondHasteTick,
+    value = CAPS.SecondHasteBreak,
     category = StatHaste,
     name = ("24.97%% 2nd %sSWP Tick"):format(CreateIconMarkup(136207)),
     getter = function ()
@@ -209,7 +209,7 @@ elseif addonTable.playerClass == "PRIEST" then
     end,
   })
   tinsert(ReforgeLite.capPresets, {
-    value = CAPS.ThirdHasteTick,
+    value = CAPS.ThirdHasteBreak,
     category = StatHaste,
     name = ("30%% 2nd %sVT Tick"):format(CreateIconMarkup(135978)),
     getter = function ()
@@ -221,7 +221,7 @@ elseif addonTable.playerClass == "PRIEST" then
     end,
   })
   tinsert(ReforgeLite.capPresets, {
-    value = CAPS.FourthHasteTick,
+    value = CAPS.FourthHasteBreak,
     category = StatHaste,
     name = ("31.26%% 3rd %sDP Tick"):format(CreateIconMarkup(252997)),
     getter = function ()
@@ -234,7 +234,7 @@ elseif addonTable.playerClass == "PRIEST" then
   })
   if addonTable.playerRace == "Goblin" then
     tinsert(ReforgeLite.capPresets, {
-      value = CAPS.FifthHasteTick,
+      value = CAPS.FifthHasteBreak,
       category = StatHaste,
       name = ("41.67%% 3rd %sSWP Tick"):format(CreateIconMarkup(136207)),
       getter = function ()
@@ -242,6 +242,31 @@ elseif addonTable.playerClass == "PRIEST" then
       end,
     })
   end
+elseif addonTable.playerClass == "MAGE" then
+  tinsert(ReforgeLite.capPresets, {
+    value = CAPS.FirstHasteBreak,
+    category = StatHaste,
+    name = ("15%% 2nd %sCombustion Tick"):format(CreateIconMarkup(135824)),
+    getter = function ()
+      local percentNeeded = 6.348
+      if addonTable.playerRace == "Goblin" then
+        percentNeeded = 5.29
+      end
+      return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
+    end,
+  })
+  tinsert(ReforgeLite.capPresets, {
+    value = CAPS.SecondHasteBreak,
+    category = StatHaste,
+    name = ("25%% 3rd %sCombustion Tick"):format(CreateIconMarkup(135824)),
+    getter = function ()
+      local percentNeeded = 15.65
+      if addonTable.playerRace == "Goblin" then
+        percentNeeded = 14.509
+      end
+      return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
+    end,
+  })
 end
 
 ----------------------------------------- WEIGHT PRESETS ------------------------------
@@ -573,7 +598,7 @@ do
               points = {
                 {
                   method = AtLeast,
-                  value = addonTable.playerRace == "Goblin" and 678 or 813,
+                  preset = CAPS.FirstHasteBreak,
                   after = 2,
                 },
               },
@@ -591,7 +616,7 @@ do
               points = {
                 {
                   method = AtLeast,
-                  value = addonTable.playerRace == "Goblin" and 1858 or 2005,
+                  preset = CAPS.SecondHasteBreak,
                   after = 2,
                 },
               },
