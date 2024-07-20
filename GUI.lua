@@ -93,7 +93,7 @@ function GUI:CreateEditBox (parent, width, height, default, setter)
 end
 
 GUI.dropdowns = {}
-function GUI:CreateDropdown (parent, values, default, setter, width)
+function GUI:CreateDropdown (parent, values, options)
   local sel
   if #self.dropdowns > 0 then
     sel = tremove (self.dropdowns, 1)
@@ -147,13 +147,12 @@ function GUI:CreateDropdown (parent, values, default, setter, width)
       tinsert (self.dropdowns, frame)
     end
   end
-  sel.value = default
   sel.values = values
-  sel.setter = setter
+  sel.setter = options.setter
   LibDD:UIDropDownMenu_Initialize (sel, sel.Initialize)
-  sel:SetValue (default)
-  if width then
-    LibDD:UIDropDownMenu_SetWidth (sel, width)
+  sel:SetValue (options.default)
+  if options.width then
+    LibDD:UIDropDownMenu_SetWidth (sel, options.width)
   end
   return sel
 end

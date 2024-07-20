@@ -1006,14 +1006,17 @@ function ReforgeLite:AddCapPoint (i, loading)
     {value = addonTable.StatCapMethods.AtMost, name = L["At most"]},
     {value = addonTable.StatCapMethods.NewValue, name = ""}
   }
-  local method = GUI:CreateDropdown (self.statCaps, methodList, 1,
-    function (_,val) self.pdb.caps[i].points[point].method = val end, 80)
-  local preset = GUI:CreateDropdown (self.statCaps, self.capPresets, 1, function (_,val)
-    self.pdb.caps[i].points[point].preset = val
-    self:UpdateCapPreset (i, point)
-    self:ReorderCapPoint (i, point)
-    self:RefreshMethodStats ()
-  end, 80)
+  local method = GUI:CreateDropdown (self.statCaps, methodList, { default = 1, setter = function (_,val) self.pdb.caps[i].points[point].method = val end, width = 80 })
+  local preset = GUI:CreateDropdown (self.statCaps, self.capPresets, {
+    default = 1,
+    width = 80,
+    setter = function (_,val)
+      self.pdb.caps[i].points[point].preset = val
+      self:UpdateCapPreset (i, point)
+      self:ReorderCapPoint (i, point)
+      self:RefreshMethodStats ()
+    end,
+  })
   local value = GUI:CreateEditBox (self.statCaps, 40, 30, 0, function (val)
     self.pdb.caps[i].points[point].value = val
     self:ReorderCapPoint (i, point)
@@ -1192,17 +1195,21 @@ function ReforgeLite:UpdateStatWeightList ()
     self.statWeights:SetCell (1, 3, self.statWeights.buffs.strength, "LEFT")
     self.statWeights.buffs.flask = GUI:CreateDropdown (self.statWeights,
       {{value = 0, name = L["Other/No flask"]}, {value = 1, name = "300" .. ITEM_MOD_STRENGTH_SHORT},
-       {value = 2, name = "225" .. ITEM_MOD_MASTERY_RATING_SHORT}}, self.pdb.buffs.flask or 0, function (_,val)
-      self.pdb.buffs.flask = (val ~= 0 and val)
-      self:RefreshMethodStats ()
-    end, 125)
+       {value = 2, name = "225" .. ITEM_MOD_MASTERY_RATING_SHORT}}, {
+        default = self.pdb.buffs.flask or 0,
+        width = 125,
+        setter = function (_,val)
+          self.pdb.buffs.flask = (val ~= 0 and val)
+          self:RefreshMethodStats ()
+        end,
+    })
     self.statWeights.buffs.food = GUI:CreateDropdown (self.statWeights,
       {{value = 0, name = L["Other/No food"]}, {value = 1, name = "90" .. ITEM_MOD_MASTERY_RATING_SHORT},
        {value = 2, name = "90" .. ITEM_MOD_DODGE_RATING_SHORT}, {value = 3, name = "90" .. ITEM_MOD_PARRY_RATING_SHORT},
-       {value = 4, name = "90" .. ITEM_MOD_STRENGTH_SHORT},{value = 5, name = "40" .. ITEM_MOD_STRENGTH_SHORT}}, self.pdb.buffs.food or 0, function (_,val)
-      self.pdb.buffs.food = (val ~= 0 and val)
-      self:RefreshMethodStats ()
-    end, 125)
+       {value = 4, name = "90" .. ITEM_MOD_STRENGTH_SHORT},{value = 5, name = "40" .. ITEM_MOD_STRENGTH_SHORT}}, {default = self.pdb.buffs.food or 0, setter =  function (_,val)
+        self.pdb.buffs.food = (val ~= 0 and val)
+        self:RefreshMethodStats ()
+      end, width = 125})
     self.statWeights:SetCell (2, 1, self.statWeights.buffs.flask, "LEFT", -10, -10)
     self.statWeights:SetCell (2, 3, self.statWeights.buffs.food, "LEFT", -10, -10)
   end
@@ -1386,8 +1393,9 @@ function ReforgeLite:CreateOptionList ()
   end
   for i = 1, 2 do
     self.statCaps[i] = {}
-    self.statCaps[i].stat = GUI:CreateDropdown (self.statCaps, statList, self.pdb.caps[i].stat,
-      function (dropdown, val)
+    self.statCaps[i].stat = GUI:CreateDropdown (self.statCaps, statList, {
+      default = self.pdb.caps[i].stat,
+      setter = function (dropdown, val)
         if val == 0 then
           while #self.pdb.caps[i].points > 0 do
             self:RemoveCapPoint (i, 1)
@@ -1396,7 +1404,9 @@ function ReforgeLite:CreateOptionList ()
           self:AddCapPoint(i)
         end
         self.pdb.caps[i].stat = val
-      end, 110)
+      end,
+      width = 110,
+    })
     self.statCaps[i].add = GUI:CreateImageButton (self.statCaps, 20, 20, "Interface\\Buttons\\UI-PlusButton-Up",
       "Interface\\Buttons\\UI-PlusButton-Down", "Interface\\Buttons\\UI-PlusButton-Hilight", "Interface\\Buttons\\UI-PlusButton-Disabled", function()
       self:AddCapPoint (i)
