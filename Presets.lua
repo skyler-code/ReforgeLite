@@ -107,6 +107,8 @@ local CAPS = {
   MeleeDWHitCap = 4,
   ExpSoftCap = 5,
   ExpHardCap = 6,
+  DruidRejuvTick = 7,
+  DruidWGTick = 8,
 }
 
 ReforgeLite.capPresets = {
@@ -156,6 +158,25 @@ ReforgeLite.capPresets = {
     category = StatExp
   },
 }
+
+if addonTable.playerClass == "DRUID" then
+  tinsert(ReforgeLite.capPresets, {
+    value = CAPS.DruidRejuvTick,
+    name = "7.15% Extra Rejuvenation Tick",
+    getter = function ()
+      return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * 7.15)
+    end,
+    category = StatHaste
+  })
+  tinsert(ReforgeLite.capPresets, {
+    value = CAPS.DruidWGTick,
+    name = "15.65% Extra WG/Efflo Tick",
+    getter = function ()
+      return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * 15.65)
+    end,
+    category = StatHaste
+  })
+end
 
 ----------------------------------------- WEIGHT PRESETS ------------------------------
 
@@ -391,9 +412,8 @@ do
               stat = StatHaste,
               points = {
                 {
-                  preset = 1,
                   method = AtLeast,
-                  value = ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * 15.65),
+                  preset = CAPS.DruidRejuvTick,
                   after = 120,
                 },
               },
@@ -409,9 +429,8 @@ do
               stat = StatHaste,
               points = {
                 {
-                  preset = 1,
                   method = AtLeast,
-                  value = ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * 15.65),
+                  preset = CAPS.DruidRejuvTick,
                   after = 120,
                 },
               },
