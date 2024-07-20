@@ -166,13 +166,15 @@ ReforgeLite.capPresets = {
   },
 }
 
-local tierSlots = {INVSLOT_HEAD,INVSLOT_SHOULDER,INVSLOT_CHEST,INVSLOT_LEGS,INVSLOT_HAND}
 local function GetActiveItemSet()
   local itemSets = {}
-  for k,v in ipairs(tierSlots) do
-    local itemSetId = select(16, C_Item.GetItemInfo(GetInventoryItemID('player',v) or 0))
-    if itemSetId then
-      itemSets[itemSetId] = (itemSets[itemSetId] or 0) + 1
+  for _,v in ipairs({INVSLOT_HEAD,INVSLOT_SHOULDER,INVSLOT_CHEST,INVSLOT_LEGS,INVSLOT_HAND}) do
+    local item = Item:CreateFromEquipmentSlot(v)
+    if not item:IsItemEmpty() then
+      local itemSetId = select(16, C_Item.GetItemInfo(item:GetItemID()))
+      if itemSetId then
+        itemSets[itemSetId] = (itemSets[itemSetId] or 0) + 1
+      end
     end
   end
   return itemSets
