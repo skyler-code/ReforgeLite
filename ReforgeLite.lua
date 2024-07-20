@@ -1257,17 +1257,17 @@ function ReforgeLite:UpdateBuffs ()
     end
     if flask then
       self.statWeights.buffs.flask:SetValue (flask)
-      UIDropDownMenu_DisableDropDown (self.statWeights.buffs.flask)
+      LibDD:UIDropDownMenu_DisableDropDown (self.statWeights.buffs.flask)
     else
       self.statWeights.buffs.flask:SetValue (self.pdb.buffs.flask or 0)
-      UIDropDownMenu_EnableDropDown (self.statWeights.buffs.flask)
+      LibDD:UIDropDownMenu_EnableDropDown (self.statWeights.buffs.flask)
     end
     if food then
       self.statWeights.buffs.food:SetValue (food)
-      UIDropDownMenu_DisableDropDown (self.statWeights.buffs.food)
+      LibDD:UIDropDownMenu_DisableDropDown (self.statWeights.buffs.food)
     else
       self.statWeights.buffs.food:SetValue (self.pdb.buffs.food or 0)
-      UIDropDownMenu_EnableDropDown (self.statWeights.buffs.food)
+      LibDD:UIDropDownMenu_EnableDropDown (self.statWeights.buffs.food)
     end
   end
 end
