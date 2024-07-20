@@ -1029,8 +1029,8 @@ function ReforgeLite:AddCapPoint (i, loading)
   GUI:SetTooltip (after, L["Weight after cap"])
 
   self.statCaps:SetCell (row, 0, rem)
-  self.statCaps:SetCell (row, 1, method, "CENTER", 0, -10)
-  self.statCaps:SetCell (row, 2, preset, "CENTER", 0, -10)
+  self.statCaps:SetCell (row, 1, method, "LEFT", -20, -10)
+  self.statCaps:SetCell (row, 2, preset, "LEFT", -20, -10)
   self.statCaps:SetCell (row, 3, value)
   self.statCaps:SetCell (row, 4, after)
 
