@@ -114,10 +114,10 @@ function GUI:CreateDropdown (parent, values, options)
           if dropdown.setter then dropdown.setter (dropdown,inf.value) end
           dropdown.value = inf.value
         end
-        if options.menuItemDisabled then
-          info.disabled = options.menuItemDisabled(info.value)
+        if dropdown.menuItemDisabled then
+          info.disabled = dropdown.menuItemDisabled(info.value)
         end
-        if not options.menuItemHidden or not options.menuItemHidden(info) then
+        if not dropdown.menuItemHidden or not dropdown.menuItemHidden(info) then
           LibDD:UIDropDownMenu_AddButton(info)
         end
       end
@@ -155,6 +155,9 @@ function GUI:CreateDropdown (parent, values, options)
   end
   sel.values = values
   sel.setter = options.setter
+  sel.menuItemDisabled = options.menuItemDisabled
+  sel.menuItemHidden = options.menuItemHidden
+
   LibDD:UIDropDownMenu_Initialize (sel, sel.Initialize)
   sel:SetValue (options.default)
   if options.width then
