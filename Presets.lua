@@ -166,6 +166,18 @@ ReforgeLite.capPresets = {
   },
 }
 
+local tierSlots = {INVSLOT_HEAD,INVSLOT_SHOULDER,INVSLOT_CHEST,INVSLOT_LEGS,INVSLOT_HAND}
+local function GetActiveItemSet()
+  local itemSets = {}
+  for k,v in ipairs(tierSlots) do
+    local itemSetId = select(16, C_Item.GetItemInfo(GetInventoryItemID('player',v) or 0))
+    if itemSetId then
+      itemSets[itemSetId] = (itemSets[itemSetId] or 0) + 1
+    end
+  end
+  return itemSets
+end
+
 if addonTable.playerClass == "DRUID" then
   tinsert(ReforgeLite.capPresets, {
     value = CAPS.FirstHasteBreak,
@@ -189,10 +201,7 @@ elseif addonTable.playerClass == "PRIEST" then
     category = StatHaste,
     name = ("18.74%% 2nd %sDP Tick"):format(CreateIconMarkup(252997)),
     getter = function ()
-      local percentNeeded = 9.8
-      if addonTable.playerRace == "Goblin" then
-        percentNeeded = 8.7
-      end
+      local percentNeeded = addonTable.playerRace == "Goblin" and 8.7 or 9.8
       return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
     end,
   })
@@ -201,10 +210,7 @@ elseif addonTable.playerClass == "PRIEST" then
     category = StatHaste,
     name = ("24.97%% 2nd %sSWP Tick"):format(CreateIconMarkup(136207)),
     getter = function ()
-      local percentNeeded = 15.56
-      if addonTable.playerRace == "Goblin" then
-        percentNeeded = 14.41
-      end
+      local percentNeeded = addonTable.playerRace == "Goblin" and 14.41 or 15.56
       return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
     end,
   })
@@ -213,10 +219,7 @@ elseif addonTable.playerClass == "PRIEST" then
     category = StatHaste,
     name = ("30%% 2nd %sVT Tick"):format(CreateIconMarkup(135978)),
     getter = function ()
-      local percentNeeded = 20.21
-      if addonTable.playerRace == "Goblin" then
-        percentNeeded = 19.03
-      end
+      local percentNeeded = addonTable.playerRace == "Goblin" and 19.03 or 20.21
       return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
     end,
   })
@@ -225,10 +228,7 @@ elseif addonTable.playerClass == "PRIEST" then
     category = StatHaste,
     name = ("31.26%% 3rd %sDP Tick"):format(CreateIconMarkup(252997)),
     getter = function ()
-      local percentNeeded = 21.37
-      if addonTable.playerRace == "Goblin" then
-        percentNeeded = 20.17
-      end
+      local percentNeeded = addonTable.playerRace == "Goblin" and 20.17 or 21.37
       return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
     end,
   })
@@ -248,7 +248,7 @@ elseif addonTable.playerClass == "MAGE" then
     category = StatHaste,
     name = ("15%% 2nd %sCombustion Tick"):format(CreateIconMarkup(135824)),
     getter = function ()
-      local percentNeeded = 6.348
+      local percentNeeded = addonTable.playerRace == "Goblin" and 5.29 or 6.348
       if addonTable.playerRace == "Goblin" then
         percentNeeded = 5.29
       end
@@ -260,9 +260,25 @@ elseif addonTable.playerClass == "MAGE" then
     category = StatHaste,
     name = ("25%% 3rd %sCombustion Tick"):format(CreateIconMarkup(135824)),
     getter = function ()
-      local percentNeeded = 15.65
+      local percentNeeded = addonTable.playerRace == "Goblin" and 14.509 or 15.65
+      return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
+    end,
+  })
+  tinsert(ReforgeLite.capPresets, {
+    value = CAPS.ThirdHasteBreak,
+    category = StatHaste,
+    name = ("1 Sec %sArcane Blast"):format(CreateIconMarkup(135735)),
+    getter = function()
+      local percentNeeded = 13.8
+      local firelordCount = GetActiveItemSet()[931] or 0
       if addonTable.playerRace == "Goblin" then
-        percentNeeded = 14.509
+        if firelordCount >= 4 then
+          percentNeeded = 2.43
+        else
+          percentNeeded = 12.68
+        end
+      elseif firelordCount >= 4 then
+        percentNeeded = 3.459
       end
       return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
     end,
@@ -548,39 +564,18 @@ do
     },
     ["MAGE"] = {
       [specs.MAGEArcane] = {
-        [PLAYER_DIFFICULTY1] = {
-          weights = {
-            0, 0, 0, 5, 1, 4, -1, 3
-          },
-          caps = {
-            HitCapSpell,
-            {
-              stat = StatHaste,
-              points = {
-                {
-                  method = AtLeast,
-                  value = addonTable.playerRace == "Goblin" and 1623 or 1767,
-                  after = 2,
-                },
-              },
-            },
-          },
+        weights = {
+          0, 0, 0, 5, 1, 4, -1, 3
         },
-        ["T11 4pc"] = {
-          icon = 464778,
-          weights = {
-            0, 0, 0, 5, 1, 4, -1, 3
-          },
-          caps = {
-            HitCapSpell,
-            {
-              stat = StatHaste,
-              points = {
-                {
-                  method = AtLeast,
-                  value = addonTable.playerRace == "Goblin" and 311 or 443,
-                  after = 2,
-                },
+        caps = {
+          HitCapSpell,
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.ThirdHasteBreak,
+                after = 2,
               },
             },
           },
