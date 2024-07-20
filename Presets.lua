@@ -92,6 +92,10 @@ function ReforgeLite:GetNeededExpertiseHard ()
   end
 end
 
+local function CreateIconMarkup(icon)
+  return CreateSimpleTextureMarkup(icon, 18, 18) .. " "
+end
+
 local AtLeast = addonTable.StatCapMethods.AtLeast
 local AtMost = addonTable.StatCapMethods.AtMost
 
@@ -107,8 +111,11 @@ local CAPS = {
   MeleeDWHitCap = 4,
   ExpSoftCap = 5,
   ExpHardCap = 6,
-  DruidRejuvTick = 7,
-  DruidWGTick = 8,
+  FirstHasteBreak = 7,
+  SecondHasteTick = 8,
+  ThirdHasteTick = 9,
+  FourthHasteTick = 10,
+  FifthHasteTick = 11,
 }
 
 ReforgeLite.capPresets = {
@@ -161,21 +168,80 @@ ReforgeLite.capPresets = {
 
 if addonTable.playerClass == "DRUID" then
   tinsert(ReforgeLite.capPresets, {
-    value = CAPS.DruidRejuvTick,
-    name = "7.15% Extra Rejuvenation Tick",
+    value = CAPS.FirstHasteBreak,
+    category = StatHaste,
+    name = ("7.15%% 5th %sRejuv Tick"):format(CreateIconMarkup(136081)),
     getter = function ()
       return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * 7.15)
     end,
-    category = StatHaste
   })
   tinsert(ReforgeLite.capPresets, {
-    value = CAPS.DruidWGTick,
-    name = "15.65% Extra WG/Efflo Tick",
+    value = CAPS.SecondHasteTick,
+    category = StatHaste,
+    name = ("15.65%% 9th %sWG / %sEfflo Tick"):format(CreateIconMarkup(236153), CreateIconMarkup(134222)),
     getter = function ()
       return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * 15.65)
     end,
-    category = StatHaste
   })
+elseif addonTable.playerClass == "PRIEST" then
+  tinsert(ReforgeLite.capPresets, {
+    value = CAPS.FirstHasteBreak,
+    category = StatHaste,
+    name = ("18.74%% 2nd %sDP Tick"):format(CreateIconMarkup(252997)),
+    getter = function ()
+      local percentNeeded = 9.8
+      if addonTable.playerRace == "Goblin" then
+        percentNeeded = 8.7
+      end
+      return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
+    end,
+  })
+  tinsert(ReforgeLite.capPresets, {
+    value = CAPS.SecondHasteTick,
+    category = StatHaste,
+    name = ("24.97%% 2nd %sSWP Tick"):format(CreateIconMarkup(136207)),
+    getter = function ()
+      local percentNeeded = 15.56
+      if addonTable.playerRace == "Goblin" then
+        percentNeeded = 14.41
+      end
+      return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
+    end,
+  })
+  tinsert(ReforgeLite.capPresets, {
+    value = CAPS.ThirdHasteTick,
+    category = StatHaste,
+    name = ("30%% 2nd %sVT Tick"):format(CreateIconMarkup(135978)),
+    getter = function ()
+      local percentNeeded = 20.21
+      if addonTable.playerRace == "Goblin" then
+        percentNeeded = 19.03
+      end
+      return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
+    end,
+  })
+  tinsert(ReforgeLite.capPresets, {
+    value = CAPS.FourthHasteTick,
+    category = StatHaste,
+    name = ("31.26%% 3rd %sDP Tick"):format(CreateIconMarkup(252997)),
+    getter = function ()
+      local percentNeeded = 21.37
+      if addonTable.playerRace == "Goblin" then
+        percentNeeded = 20.17
+      end
+      return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
+    end,
+  })
+  if addonTable.playerRace == "Goblin" then
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.FifthHasteTick,
+      category = StatHaste,
+      name = ("41.67%% 3rd %sSWP Tick"):format(CreateIconMarkup(136207)),
+      getter = function ()
+        return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * 29.7)
+      end,
+    })
+  end
 end
 
 ----------------------------------------- WEIGHT PRESETS ------------------------------
@@ -220,10 +286,6 @@ local RangedCaps = { HitCap }
 local CasterCaps = { HitCapSpell }
 
 local specInfo = {}
-
-local function CreateIconMarkup(icon)
-  return CreateSimpleTextureMarkup(icon, 18, 18) .. " "
-end
 
 do
   local specs = {
@@ -413,7 +475,7 @@ do
               points = {
                 {
                   method = AtLeast,
-                  preset = CAPS.DruidRejuvTick,
+                  preset = CAPS.FirstHasteBreak,
                   after = 120,
                 },
               },
@@ -430,7 +492,7 @@ do
               points = {
                 {
                   method = AtLeast,
-                  preset = CAPS.DruidRejuvTick,
+                  preset = CAPS.FirstHasteBreak,
                   after = 120,
                 },
               },
