@@ -1051,6 +1051,7 @@ function ReforgeLite:RemoveCapPoint (i, point, loading)
   end
   if #self.pdb.caps[i].points == 0 then
     self.statCaps[i].add:Disable()
+    self.statCaps[i].stat:SetValue(0)
   end
 end
 function ReforgeLite:ReorderCapPoint (i, point)
