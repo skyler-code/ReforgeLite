@@ -1406,6 +1406,9 @@ function ReforgeLite:CreateOptionList ()
         self.pdb.caps[i].stat = val
       end,
       width = 110,
+      menuItemDisabled = function(val)
+        return val > 0 and self.statCaps[3-i].stat.value == val
+      end
     })
     self.statCaps[i].add = GUI:CreateImageButton (self.statCaps, 20, 20, "Interface\\Buttons\\UI-PlusButton-Up",
       "Interface\\Buttons\\UI-PlusButton-Down", "Interface\\Buttons\\UI-PlusButton-Hilight", "Interface\\Buttons\\UI-PlusButton-Disabled", function()

@@ -113,6 +113,9 @@ function GUI:CreateDropdown (parent, values, options)
         end
         info.value = dropdown.values[i].value
         info.checked = (dropdown.value == dropdown.values[i].value)
+        if options.menuItemDisabled then
+          info.disabled = options.menuItemDisabled(info.value)
+        end
         LibDD:UIDropDownMenu_AddButton (info)
       end
     end)
