@@ -150,6 +150,8 @@ function GUI:CreateDropdown (parent, values, options)
       frame.selectedName = nil
       frame.selectedID = nil
       frame.selectedValue = nil
+      frame.menuItemDisabled = nil
+      frame.menuItemHidden = nil
       tinsert (self.dropdowns, frame)
     end
   end
