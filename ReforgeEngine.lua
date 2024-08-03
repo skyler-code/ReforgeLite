@@ -220,10 +220,12 @@ function ReforgeLite:ResetMethod ()
 end
 
 function ReforgeLite:CapAllows (cap, value)
-  for i = 1, #cap.points do
-    if cap.points[i].method == addonTable.StatCapMethods.AtLeast and value < cap.points[i].value then
+  for _,v in ipairs(cap.points) do
+    if v.method == addonTable.StatCapMethods.AtLeast and value < v.value then
       return false
-    elseif cap.points[i].method == addonTable.StatCapMethods.AtMost and value > cap.points[i].value then
+    elseif v.method == addonTable.StatCapMethods.AtMost and value > v.value then
+      return false
+    elseif v.method == addonTable.StatCapMethods.Exactly and value ~= v.value then
       return false
     end
   end

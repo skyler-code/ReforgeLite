@@ -125,6 +125,7 @@ addonTable.StatCapMethods = {
   AtLeast = 1,
   AtMost = 2,
   NewValue = 3,
+  Exactly = 4,
 }
 
 function ReforgeLite:UpgradeDBCaps (caps)
@@ -1004,6 +1005,7 @@ function ReforgeLite:AddCapPoint (i, loading)
   local methodList = {
     {value = addonTable.StatCapMethods.AtLeast, name = L["At least"]},
     {value = addonTable.StatCapMethods.AtMost, name = L["At most"]},
+    {value = addonTable.StatCapMethods.Exactly, name = L["Exactly"]},
     {value = addonTable.StatCapMethods.NewValue, name = ""}
   }
   local method = GUI:CreateDropdown (self.statCaps, methodList, { default = 1, setter = function (_,val) self.pdb.caps[i].points[point].method = val end, width = 80 })

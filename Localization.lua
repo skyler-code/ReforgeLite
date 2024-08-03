@@ -1,9 +1,7 @@
 local _, addonTable = ...
 local L = {}
 local gameLocale = GetLocale()
-if gameLocale == "enGB" then
-  gameLocale = "enUS"
-end
+
 local L_enUS = {}
 L_enUS["Active window color"] = "Active window color"
 L_enUS["Add cap"] = "Add cap"
@@ -46,6 +44,7 @@ L_enUS["Sum"] = "Sum"
 L_enUS["Tanking model"] = "Tanking model"
 L_enUS["Weight after cap"] = "Weight after cap"
 L_enUS["EquipPreString"] = ""
+L_enUS["Exactly"] = "Exactly"
 
 if gameLocale == "frFR" then
   L["Active window color"] = "Couleur de la fenêtre active"
@@ -87,6 +86,7 @@ if gameLocale == "frFR" then
   L["Sum"] = "Résu"
   L["Tanking model"] = "Modèle de tanking"
   L["Weight after cap"] = "Valeur après cap"
+  L["Exactly"] = "Exactement"
 
 elseif gameLocale == "deDE" then -- German
   L["Active window color"] = "Aktive Fensterfarbe"
@@ -102,6 +102,7 @@ elseif gameLocale == "deDE" then -- German
 --   L["Enter pawn string"] = ""
 --   L["Enter WoWSims JSON"] = ""
 --   L["Enter the preset name"] = ""
+  L["Exactly"] = "Genau"
   L["Expertise hard cap"] = "Waffenkunde Hardcap"
   L["Expertise soft cap"] = "Waffenkunde Softcap"
   L["Export"] = "Export"
@@ -171,6 +172,7 @@ elseif gameLocale == "koKR" then
   L["Weight after cap"] = "조건 값 이후 가중치"
   L["Item Import Mismatch"] = "%s은(는) 현재 장착된 %s와 일치하지 않습니다. ReforgeLite는 장착된 아이템만 지원합니다."
   L["EquipPreString"] = ITEM_SPELL_TRIGGER_ONEQUIP .. " "
+  L["Exactly"] = "정확히"
 
 elseif gameLocale == "esMX" then
 --   L["Active window color"] = ""
@@ -212,6 +214,7 @@ elseif gameLocale == "esMX" then
 --   L["Tanking model"] = ""
   L["Weight after cap"] = "Peso despues del cap"
   L["Item Import Mismatch"] = "%s no coincide con tu %s equipado actualmente. ReforgeLite solo admite elementos equipados."
+  L["Exactly"] = "Exactamente"
 
 elseif gameLocale == "ruRU" then
   L["Active window color"] = "Цвет активного окна"
@@ -254,6 +257,7 @@ elseif gameLocale == "ruRU" then
   L["Tanking model"] = "Режим танка"
   L["Weight after cap"] = "Вес после порога"
   L["Item Import Mismatch"] = "%s не соответствует вашему текущему экипированному %s. ReforgeLite поддерживает только экипированные предметы."
+  L["Exactly"] = "Точно"
 
 elseif gameLocale == "zhCN" then
   L["Active window color"] = "激活窗口的颜色"
@@ -296,6 +300,7 @@ elseif gameLocale == "zhCN" then
   L["Tanking model"] = "坦克模式"
   L["Weight after cap"] = "超过上限后权重"
   L["Item Import Mismatch"] = "%s 与您当前装备的 %s 不匹配。ReforgeLite 仅支持装备物品。"
+  L["Exactly"] = "确切地"
 
 elseif gameLocale == "esES" then
   L["Active window color"] = "Color de ventana activa"
@@ -337,6 +342,7 @@ elseif gameLocale == "esES" then
   L["Tanking model"] = "Tanking model" -- Needs review
   L["Weight after cap"] = "Peso despues del cap"
   L["Item Import Mismatch"] = "%s no coincide con tu %s equipado actualmente. ReforgeLite solo admite elementos equipados."
+  L["Exactly"] = "Exactamente"
 
 elseif gameLocale == "zhTW" then
   L["Active window color"] = "當前視窗的顏色"
@@ -378,20 +384,17 @@ elseif gameLocale == "zhTW" then
   L["Tanking model"] = "坦克模式"
   L["Weight after cap"] = "超過上限後比重"
   L["Item Import Mismatch"] = "%s 与您当前装备的 %s 不匹配。ReforgeLite 仅支持装备物品。"
-
+  L["Exactly"] = "確切地"
 end
 
 setmetatable (L_enUS, {__index = function (self, key)
   rawset (self, key, key)
   return key
 end})
-if gameLocale == "enUS" then
-  L = L_enUS
-else
-  setmetatable (L, {__index = function (self, key)
-    rawset (self, key, L_enUS[key])
-    return L_enUS[key]
-  end})
-end
+
+setmetatable (L, {__index = function (self, key)
+  rawset (self, key, L_enUS[key])
+  return L_enUS[key]
+end})
 
 addonTable.L = L
