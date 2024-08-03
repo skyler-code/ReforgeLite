@@ -933,27 +933,28 @@ function ReforgeLite:CreateItemTable ()
     self.itemData[i]:SetSize(self.db.itemSize, self.db.itemSize)
     self.itemTable:SetCell (i, 0, self.itemData[i])
     self.itemData[i]:EnableMouse (true)
-    self.itemData[i]:SetScript ("OnEnter", function (self)
-      GameTooltip:SetOwner (self, "ANCHOR_LEFT")
-      local hasItem, hasCooldown, repairCost = GameTooltip:SetInventoryItem ("player", self.slotId)
+    self.itemData[i]:SetScript ("OnEnter", function (frame)
+      GameTooltip:SetOwner (frame, "ANCHOR_LEFT")
+      local hasItem, hasCooldown, repairCost = GameTooltip:SetInventoryItem ("player", frame.slotId)
       if not hasItem then
-        local text = _G[strupper (self.slot)]
-        if self.checkRelic then
+        local text = _G[strupper (frame.slot)]
+        if frame.checkRelic then
           text = _G["RELICSLOT"]
         end
         GameTooltip:SetText (text)
       end
       GameTooltip:Show ()
     end)
-    self.itemData[i]:SetScript ("OnLeave", function (self)
-      GameTooltip:Hide ()
+    self.itemData[i]:SetScript ("OnLeave", function ()
+      GameTooltip:Hide()
     end)
-    self.itemData[i]:SetScript ("OnMouseDown", function ()
-      self.pdb.itemsLocked[i] = not self.pdb.itemsLocked[i] or nil
-      if self.pdb.itemsLocked[i] then
-        self.itemData[i].locked:Show ()
+    self.itemData[i]:SetScript ("OnMouseDown", function (frame)
+      if not frame.itemGUID then return end
+      self.pdb.itemsLocked[frame.itemGUID] = not self.pdb.itemsLocked[frame.itemGUID] and 1 or nil
+      if self.pdb.itemsLocked[frame.itemGUID] then
+        frame.locked:Show ()
       else
-        self.itemData[i].locked:Hide ()
+        frame.locked:Hide ()
       end
     end)
     self.itemData[i].slotId, self.itemData[i].slotTexture, self.itemData[i].checkRelic = GetInventorySlotInfo (v)
@@ -967,9 +968,6 @@ function ReforgeLite:CreateItemTable ()
     self.itemData[i].locked = self.itemData[i]:CreateTexture (nil, "OVERLAY")
     self.itemData[i].locked:SetAllPoints (self.itemData[i])
     self.itemData[i].locked:SetTexture ("Interface\\PaperDollInfoFrame\\UI-GearManager-LeaveItem-Transparent")
-    if not self.pdb.itemsLocked[i] then
-      self.itemData[i].locked:Hide ()
-    end
 
     self.itemData[i].stats = {}
     for j, s in ipairs (self.itemStats) do
@@ -1906,6 +1904,7 @@ function ReforgeLite:UpdateItems()
       v.item = item:GetItemLink()
       v.itemId = item:GetItemID()
       v.ilvl = item:GetCurrentItemLevel()
+      v.itemGUID = item:GetItemGUID()
       v.texture:SetTexture(item:GetItemIcon())
       stats = GetItemStats(v.item)
       v.reforge = self:GetReforgeID(v.slotId)
@@ -1921,7 +1920,13 @@ function ReforgeLite:UpdateItems()
       v.itemId = nil
       v.ilvl = nil
       v.reforge = nil
+      v.itemGUID = nil
       v.texture:SetTexture (v.slotTexture)
+    end
+    if self.pdb.itemsLocked[v.itemGUID] then
+      v.locked:Show()
+    else
+      v.locked:Hide()
     end
     for j, s in ipairs (self.itemStats) do
       if stats[s.name] and stats[s.name] ~= 0 then

@@ -233,9 +233,10 @@ function ReforgeLite:CapAllows (cap, value)
 end
 
 function ReforgeLite:IsItemLocked (slot)
-  if self.pdb.itemsLocked[slot] then return true end
   local slotData = self.itemData[slot]
-  return not slotData.item or slotData.ilvl < 200
+  return not slotData.item
+  or slotData.ilvl < 200
+  or self.pdb.itemsLocked[slotData.itemGUID]
 end
 
 ------------------------------------- CLASSIC REFORGE ------------------------------
