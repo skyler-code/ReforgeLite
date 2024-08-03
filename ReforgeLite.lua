@@ -1918,6 +1918,9 @@ function ReforgeLite:UpdateItems()
       end
     else
       v.item = nil
+      v.itemId = nil
+      v.ilvl = nil
+      v.reforge = nil
       v.texture:SetTexture (v.slotTexture)
     end
     for j, s in ipairs (self.itemStats) do
