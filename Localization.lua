@@ -91,7 +91,7 @@ if gameLocale == "frFR" then
 elseif gameLocale == "deDE" then -- German
   L["Active window color"] = "Aktive Fensterfarbe"
   L["Add cap"] = "Neues Cap"
-  L["At least"] = "mindestens"
+  L["At least"] = "Mindestens"
   L["At most"] = "Maximal"
   L["Best result"] = "Bestes Resultat"
   L["Cap value"] = "Capwert tooltip" -- Needs review
