@@ -1484,6 +1484,19 @@ function ReforgeLite:CreateOptionList ()
   self.quality.label:SetPoint ("BOTTOM", self.quality, "TOP", 0, 0)
   self.quality.label:SetTextColor (1, 1, 1)
   self.quality.label:SetText (SPEED)
+
+  self.quality.helpButton = CreateFrame("Button",nil,self.quality,"MainHelpPlateButton")
+  self.quality.helpButton:SetPoint("BOTTOMLEFT",self.quality.label, "BOTTOMRIGHT",0,-20)
+  self.quality.helpButton:SetScale(0.45)
+  self.quality.helpButton:SetScript("OnEnter", function(btn)
+    GameTooltip:SetOwner(btn, "ANCHOR_RIGHT");
+    GameTooltip:SetText(L["This is a performance workaround. Sliding to the right will reduce the number of calculations performed and the accuracy of the result."],nil,nil,nil,nil,true);
+    GameTooltip:Show()
+  end)
+	self.quality.helpButton:SetScript("OnLeave", function(btn)
+    GameTooltip:Hide()
+  end)
+
   self.quality.lowtext = self.quality:CreateFontString (nil, "ARTWORK", "GameFontHighlightSmall")
   self.quality.lowtext:SetPoint ("TOPLEFT", self.quality, "BOTTOMLEFT", 2, 3)
   self.quality.lowtext:SetText ("1")
