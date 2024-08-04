@@ -55,6 +55,7 @@ function GUI:Unlock()
         frame.locked = nil
         if frame.mouseDisabled then
           frame:EnableMouse(true)
+          frame.mouseDisabled = nil
         end
         if frame.prevColor then
           frame:SetTextColor (unpack(frame.prevColor))
