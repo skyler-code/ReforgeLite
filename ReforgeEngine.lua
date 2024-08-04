@@ -403,7 +403,7 @@ function ReforgeLite:ChooseReforgeClassic (data, reforgeOptions, scores, codes)
       self.__chooseLoops = 0
       coroutine.yield()
     else
-      self.__chooseLoops = self.__chooseLoops + 1
+      self.__chooseLoops = (self.__chooseLoops or 0) + 1
     end
     local s1 = data.caps[1].init
     local s2 = data.caps[2].init
@@ -574,7 +574,7 @@ function ReforgeLite:ChooseReforgeS2H (data, reforgeOptions, scores, codes)
       self.__chooseLoops = 0
       coroutine.yield()
     else
-      self.__chooseLoops = self.__chooseLoops + 1
+      self.__chooseLoops = (self.__chooseLoops or 0) + 1
     end
     local code = codes[k]
     local hit = data.cap.init
@@ -748,7 +748,7 @@ function ReforgeLite:ChooseReforgeTank (data, reforgeOptions, scores, codes)
       self.__chooseLoops = 0
       coroutine.yield()
     else
-      self.__chooseLoops = self.__chooseLoops + 1
+      self.__chooseLoops = (self.__chooseLoops or 0) + 1
     end
     local code = codes[k]
     local dodge_rating = data.init.dodge
@@ -818,7 +818,7 @@ function ReforgeLite:ComputeReforgeCore (data, reforgeOptions)
         self.__chooseLoops = 0
         coroutine.yield()
       else
-        self.__chooseLoops = self.__chooseLoops + 1
+        self.__chooseLoops = (self.__chooseLoops or 0) + 1
       end
       local code = codes[k]
       local s1 = k % TABLE_SIZE
@@ -847,10 +847,8 @@ function ReforgeLite:ComputeReforge (initFunc, optionFunc, chooseFunc)
     reforgeOptions[i] = self[optionFunc] (self, data.method.items[i], data, i)
   end
 
-  self.__chooseLoops = 0
   local scores, codes = self:ComputeReforgeCore(data, reforgeOptions)
 
-  self.__chooseLoops = 0
   local code = self[chooseFunc] (self, data, reforgeOptions, scores, codes)
   self.__chooseLoops = nil
   scores, codes = nil, nil
