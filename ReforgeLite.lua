@@ -2175,34 +2175,51 @@ end
 
 --------------------------------------------------------------------------
 
+local reforgeCo = nil
 local function ClearReforgeWindow()
   ClearCursor()
   C_Reforge.SetReforgeFromCursorItem ()
   ClearCursor()
 end
 
+function ReforgeLite:DoReforge()
+  if self.pdb.method and self.methodWindow and ReforgeFrameIsVisible() then
+    if reforgeCo then
+      self:StopReforging()
+    else
+      ClearReforgeWindow()
+      self.methodWindow.reforge:SetText (CANCEL)
+      reforgeCo = coroutine.create( function() self:DoReforgeUpdate() end )
+      coroutine.resume(reforgeCo)
+    end
+  end
+end
+
 function ReforgeLite:StopReforging()
-  self.curReforgeItem = nil
-  self.reforgingNow = nil
-  self.methodWindow.reforge:SetScript ("OnUpdate", nil)
-  self.methodWindow.reforge:SetText (REFORGE)
+  reforgeCo = nil
+  if self.methodWindow then
+    self.methodWindow.reforge:SetText(REFORGE)
+  end
   ClearReforgeWindow()
+  collectgarbage()
+end
+
+function ReforgeLite:ContinueReforge()
+  if not (self.pdb.method and self.methodWindow.reforge:IsShown() and ReforgeFrameIsVisible()) then
+    self:StopReforging()
+    return
+  end
+  if reforgeCo then
+    coroutine.resume(reforgeCo)
+  end
 end
 
 function ReforgeLite:DoReforgeUpdate ()
-  if not (self.curReforgeItem and self.pdb.method and self.methodWindow.reforge:IsShown() and ReforgeFrameIsVisible()) then
-    self:StopReforging()
-  end
-  if self.reforgeSent then return end
-  while self.curReforgeItem <= #self.methodWindow.items do
-    local slotInfo = self.methodWindow.items[self.curReforgeItem]
-    local newReforge = self.pdb.method.items[self.curReforgeItem].reforge
-    if slotInfo.item and not self:IsReforgeMatching(slotInfo.slotId, newReforge, self.methodOverride[self.curReforgeItem]) then
-      if self.reforgingNow ~= slotInfo.slotId then
-        self.reforgingNow = slotInfo.slotId
-        PickupInventoryItem(self.reforgingNow)
-        C_Reforge.SetReforgeFromCursorItem()
-      end
+  for slotId, slotInfo in ipairs(self.methodWindow.items) do
+    local newReforge = self.pdb.method.items[slotId].reforge
+    if slotInfo.item and not self:IsReforgeMatching(slotInfo.slotId, newReforge, self.methodOverride[slotId]) then
+      PickupInventoryItem(slotInfo.slotId)
+      C_Reforge.SetReforgeFromCursorItem()
       if newReforge then
         local id = UNFORGE_INDEX
         local stats = GetItemStats (slotInfo.item)
@@ -2211,35 +2228,18 @@ function ReforgeLite:DoReforgeUpdate ()
           if (stats[self.itemStats[srcstat].name] or 0) ~= 0 and (stats[self.itemStats[dststat].name] or 0) == 0 then
             id = id + 1
           end
-          if srcstat == self.pdb.method.items[self.curReforgeItem].src and dststat == self.pdb.method.items[self.curReforgeItem].dst then
-            self.reforgeSent = true
+          if srcstat == self.pdb.method.items[slotId].src and dststat == self.pdb.method.items[slotId].dst then
             C_Reforge.ReforgeItem (id)
-            return
+            coroutine.yield()
           end
         end
-        self:StopReforging()
-      elseif self:GetReforgeID(self.reforgingNow) then
-        self.reforgeSent = true
+      elseif self:GetReforgeID(slotInfo.slotId) then
         C_Reforge.ReforgeItem (UNFORGE_INDEX)
+        coroutine.yield()
       end
-      return
     end
-    self.curReforgeItem = self.curReforgeItem + 1
   end
   self:StopReforging()
-end
-
-function ReforgeLite:DoReforge ()
-  if self.pdb.method and self.methodWindow and ReforgeFrameIsVisible() then
-    if self.curReforgeItem then
-      self:StopReforging()
-    else
-      self.curReforgeItem = INVSLOT_FIRST_EQUIPPED
-      ClearReforgeWindow()
-      self.methodWindow.reforge:SetScript ("OnUpdate", function () self:DoReforgeUpdate() end)
-      self.methodWindow.reforge:SetText (CANCEL)
-    end
-  end
 end
 
 --------------------------------------------------------------------------
@@ -2279,7 +2279,7 @@ end
 --------------------------------------------------------------------------
 
 function ReforgeLite:FORGE_MASTER_ITEM_CHANGED()
-  self.reforgeSent = nil
+  self:ContinueReforge()
 end
 
 function ReforgeLite:FORGE_MASTER_OPENED()
@@ -2287,7 +2287,7 @@ function ReforgeLite:FORGE_MASTER_OPENED()
     self.autoOpened = true
     self:Show()
   end
-  self.reforgeSent = nil
+  self:StopReforging()
 end
 
 function ReforgeLite:FORGE_MASTER_CLOSED()
@@ -2298,7 +2298,7 @@ function ReforgeLite:FORGE_MASTER_CLOSED()
     end
     self.autoOpened = nil
   end
-  self.reforgeSent = nil
+  self:StopReforging()
 end
 
 function ReforgeLite:OnEvent(event, ...)
