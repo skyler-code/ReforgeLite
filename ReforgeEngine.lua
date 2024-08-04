@@ -885,13 +885,22 @@ function ReforgeLite:Compute ()
 end
 
 function ReforgeLite:StartCompute(btn)
+  local function endProcess()
+    btn:RenderText(L["Compute"])
+    addonTable.GUI:Unlock()
+  end
   local co = coroutine.create( function() self:Compute() end )
-  C_Timer.NewTicker(0, function(timer)
-    local success = coroutine.resume(co)
-    if not success then
-      timer:Cancel()
-      btn:RenderText(L["Compute"])
-      addonTable.GUI:Unlock()
-    end
-  end)
+  coroutine.resume(co)
+  local routineStatus = coroutine.status(co)
+  if routineStatus == "dead" then
+    endProcess()
+  elseif routineStatus == "suspended" then
+    C_Timer.NewTicker(0, function(timer)
+      local success = coroutine.resume(co)
+      if not success then
+        timer:Cancel()
+        endProcess()
+      end
+    end)
+  end
 end
