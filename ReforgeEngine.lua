@@ -1,6 +1,5 @@
 local addonName, addonTable = ...
 local REFORGE_COEFF = 0.4
-local REFORGE_CHEAT = 5
 
 local ReforgeLite = addonTable.ReforgeLite
 local L = addonTable.L
@@ -330,8 +329,6 @@ function ReforgeLite:InitReforgeClassic ()
     end
   end
 
-  REFORGE_CHEAT = self.db.reforgeCheat
-
   local data = {}
   data.method = method
   data.weights = DeepCopy (self.pdb.weights)
@@ -386,9 +383,6 @@ function ReforgeLite:InitReforgeClassic ()
     data.caps[2].stat = 0
     data.caps[2].init = 0
   end
-  if data.caps[2].stat == 0 then
-    REFORGE_CHEAT = 1
-  end
 
   if self.s2hFactor > 0 then
     if data.weights[self.STATS.SPIRIT] == 0 and (data.caps[1].stat == self.STATS.HIT or data.caps[2].stat == self.STATS.HIT) then
@@ -403,6 +397,10 @@ function ReforgeLite:ChooseReforgeClassic (data, reforgeOptions, scores, codes)
   local bestCode = {nil, nil, nil, nil}
   local bestScore = {0, 0, 0, 0}
   for k, score in pairs (scores) do
+    self.__chooseLoops = self.__chooseLoops + 1
+    if self.__chooseLoops % 50000 == 0 then
+      coroutine.yield()
+    end
     local s1 = data.caps[1].init
     local s2 = data.caps[2].init
     local code = codes[k]
@@ -520,8 +518,6 @@ function ReforgeLite:InitReforgeS2H ()
     end
   end
 
-  REFORGE_CHEAT = self.db.reforgeCheat
-
   local usecap = 1
   if self.pdb.caps[1].stat == 0 then
     usecap = 2
@@ -570,6 +566,10 @@ function ReforgeLite:ChooseReforgeS2H (data, reforgeOptions, scores, codes)
   local bestCode = {nil, nil}
   local bestScore = {0, 0}
   for k, score in pairs (scores) do
+    self.__chooseLoops = self.__chooseLoops + 1
+    if self.__chooseLoops % 50000 == 0 then
+      coroutine.yield()
+    end
     local code = codes[k]
     local hit = data.cap.init
     local spi = data.spi
@@ -682,8 +682,6 @@ function ReforgeLite:InitReforgeTank ()
   end
   method.tankingModel = self.pdb.tankingModel
 
-  REFORGE_CHEAT = self.db.reforgeCheat
-
   local data = {}
   data.method = method
   if playerClass == "WARRIOR" or playerClass == "PALADIN" then
@@ -740,6 +738,10 @@ function ReforgeLite:ChooseReforgeTank (data, reforgeOptions, scores, codes)
   local bestCode = {nil, nil}
   local bestScore = {0, 0}
   for k, score in pairs (scores) do
+    self.__chooseLoops = self.__chooseLoops + 1
+    if self.__chooseLoops % 50000 == 0 then
+      coroutine.yield()
+    end
     local code = codes[k]
     local dodge_rating = data.init.dodge
     local parry_rating = data.init.parry
@@ -796,7 +798,7 @@ StaticPopupDialogs["REFORGELITE_COMPUTEERROR"] = {
 function ReforgeLite:ComputeReforgeCore (data, reforgeOptions)
   local TABLE_SIZE = 10000
   local scores, codes = {}, {}
-  local linit = floor (data.caps[1].init / REFORGE_CHEAT + random ()) + floor (data.caps[2].init / REFORGE_CHEAT + random ()) * TABLE_SIZE
+  local linit = floor (data.caps[1].init + random ()) + floor (data.caps[2].init + random ()) * TABLE_SIZE
   scores[linit] = 0
   codes[linit] = ""
   for i = 1, #self.itemData do
@@ -810,7 +812,7 @@ function ReforgeLite:ComputeReforgeCore (data, reforgeOptions)
       for j = 1, #opt do
         local o = opt[j]
         local nscore = score + o.score
-        local nk = s1 + floor (o.d1 / REFORGE_CHEAT + random ()) + (s2 + floor (o.d2 / REFORGE_CHEAT + random ())) * TABLE_SIZE
+        local nk = s1 + floor (o.d1 + random ()) + (s2 + floor (o.d2 + random ())) * TABLE_SIZE
         if newscores[nk] == nil or nscore > newscores[nk] then
           if newscores[nk] == nil then
             count = count + 1
@@ -820,6 +822,7 @@ function ReforgeLite:ComputeReforgeCore (data, reforgeOptions)
         end
       end
     end
+    coroutine.yield()
     scores, codes = newscores, newcodes
   end
   return scores, codes
@@ -831,32 +834,29 @@ function ReforgeLite:ComputeReforge (initFunc, optionFunc, chooseFunc)
     reforgeOptions[i] = self[optionFunc] (self, data.method.items[i], data, i)
   end
 
-  local success, scores, codes = pcall (self.ComputeReforgeCore, self, data, reforgeOptions)
+  local scores, codes = self:ComputeReforgeCore(data, reforgeOptions)
 
-  if success then
-    local code = self[chooseFunc] (self, data, reforgeOptions, scores, codes)
-    scores, codes = nil, nil
-    collectgarbage ("collect")
-    for i = 1, #data.method.items do
-      local opt = reforgeOptions[i][code:byte (i)]
-      if self.s2hFactor == 100 then
-        if opt.dst == self.STATS.HIT and data.method.items[i].stats[self.STATS.SPIRIT] == 0 then
-          opt.dst = self.STATS.SPIRIT
-        end
+  self.__chooseLoops = 0
+  local code = self[chooseFunc] (self, data, reforgeOptions, scores, codes)
+  self.__chooseLoops = nil
+  scores, codes = nil, nil
+  collectgarbage ("collect")
+  for i = 1, #data.method.items do
+    local opt = reforgeOptions[i][code:byte (i)]
+    if self.s2hFactor == 100 then
+      if opt.dst == self.STATS.HIT and data.method.items[i].stats[self.STATS.SPIRIT] == 0 then
+        opt.dst = self.STATS.SPIRIT
       end
-      data.method.items[i].src = opt.src
-      data.method.items[i].dst = opt.dst
     end
-    self.methodDebug = { data = DeepCopy(data) }
-    self:FinalizeReforge (data)
-    self.methodDebug.method = DeepCopy(data.method)
-    if data.method then
-      self.pdb.method = data.method
-      self:UpdateMethodCategory ()
-    end
-  else
-    self.methodDebug = { data = DeepCopy(data) }
-    StaticPopup_Show ("REFORGELITE_COMPUTEERROR", scores)
+    data.method.items[i].src = opt.src
+    data.method.items[i].dst = opt.dst
+  end
+  self.methodDebug = { data = DeepCopy(data) }
+  self:FinalizeReforge (data)
+  self.methodDebug.method = DeepCopy(data.method)
+  if data.method then
+    self.pdb.method = data.method
+    self:UpdateMethodCategory ()
   end
 end
 
@@ -869,4 +869,16 @@ function ReforgeLite:Compute ()
   else
     self:ComputeReforge ("InitReforgeClassic", "GetItemReforgeOptions", "ChooseReforgeClassic")
   end
+end
+
+function ReforgeLite:StartCompute(btn)
+  local co = coroutine.create( function() self:Compute() end )
+  C_Timer.NewTicker(0, function(timer)
+    local success = coroutine.resume(co)
+    if not success then
+      timer:Cancel()
+      btn:UpdateText(L["Compute"])
+      btn:Enable()
+    end
+  end)
 end
