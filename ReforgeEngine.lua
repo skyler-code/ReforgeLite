@@ -850,21 +850,23 @@ function ReforgeLite:ComputeReforge (initFunc, optionFunc, chooseFunc)
     self.methodDebug = { data = DeepCopy(data) }
     self:FinalizeReforge (data)
     self.methodDebug.method = DeepCopy(data.method)
-    return data.method
+    if data.method then
+      self.pdb.method = data.method
+      self:UpdateMethodCategory ()
+    end
   else
     self.methodDebug = { data = DeepCopy(data) }
     StaticPopup_Show ("REFORGELITE_COMPUTEERROR", scores)
-    return nil
   end
 end
 
 function ReforgeLite:Compute ()
   if self.pdb.tankingModel then
-    return self:ComputeReforge ("InitReforgeTank", "GetItemReforgeOptionsTank", "ChooseReforgeTank")
+    self:ComputeReforge ("InitReforgeTank", "GetItemReforgeOptionsTank", "ChooseReforgeTank")
   elseif self.s2hFactor > 0 and ((self.pdb.caps[1].stat == self.STATS.HIT and self.pdb.caps[2].stat == 0) or
                                  (self.pdb.caps[2].stat == self.STATS.HIT and self.pdb.caps[1].stat == 0)) then
-    return self:ComputeReforge ("InitReforgeS2H", "GetItemReforgeOptionsS2H", "ChooseReforgeS2H")
+    self:ComputeReforge ("InitReforgeS2H", "GetItemReforgeOptionsS2H", "ChooseReforgeS2H")
   else
-    return self:ComputeReforge ("InitReforgeClassic", "GetItemReforgeOptions", "ChooseReforgeClassic")
+    self:ComputeReforge ("InitReforgeClassic", "GetItemReforgeOptions", "ChooseReforgeClassic")
   end
 end

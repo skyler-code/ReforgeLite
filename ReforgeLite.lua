@@ -1449,21 +1449,8 @@ function ReforgeLite:CreateOptionList ()
   self.computeButton = CreateFrame ("Button", "ReforgeLiteConfirmButton", self.content, "UIPanelButtonTemplate")
   self.computeButton:SetText (L["Compute"])
   self.computeButton:SetSize (self.computeButton:GetFontString():GetStringWidth() + 20, 22)
-  self.computeButton:SetScript ("PreClick", function (btn)
-    if self.db.debug then btn.timeRan = GetTimePreciseSec() end
-    GUI:ClearFocus()
-  end)
-  self.computeButton:SetScript ("OnClick", function (btn)
-    local method = self:Compute ()
-    if method then
-      self.pdb.method = method
-      self:UpdateMethodCategory ()
-      if btn.timeRan then
-        print(TIME_ELAPSED, GetTimePreciseSec() - btn.timeRan)
-        btn.timeRan = nil
-      end
-    end
-  end)
+  self.computeButton:SetScript ("PreClick", function (btn) GUI:ClearFocus() end)
+  self.computeButton:SetScript ("OnClick", function() self:Compute() end)
 
   self:UpdateStatWeightList ()
 
