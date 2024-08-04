@@ -62,7 +62,7 @@ function ReforgeLite:DebugMethod()
     if self.methodDebug then
         self:DisplayMessage (website, addonTable.json.encode(self.methodDebug))
     else
-        self:DisplayMessage (website, "<no data>")
+        self:DisplayMessage (website, "<no data>\n nty <3")
     end
 end
 
