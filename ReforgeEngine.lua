@@ -877,8 +877,8 @@ function ReforgeLite:StartCompute(btn)
     local success = coroutine.resume(co)
     if not success then
       timer:Cancel()
-      btn:UpdateText(L["Compute"])
-      btn:Enable()
+      btn:RenderText(L["Compute"])
+      addonTable.GUI:Unlock()
     end
   end)
 end

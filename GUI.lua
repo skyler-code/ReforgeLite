@@ -22,6 +22,55 @@ function GUI:ClearFocus()
   self:ClearEditFocus()
 end
 
+function GUI:Lock()
+  for _, frames in ipairs({self.panelButtons, self.imgButtons, self.editBoxes, self.checkButtons}) do
+    for _, frame in ipairs(frames) do
+      if frame:IsEnabled() then
+        frame.locked = true
+        frame:Disable()
+        if frame:IsMouseEnabled() then
+          frame:EnableMouse(false)
+          frame.mouseDisabled = true
+        end
+        if frame.SetTextColor then
+          frame.prevColor = {frame:GetTextColor()}
+          frame:SetTextColor (0.5, 0.5, 0.5)
+        end
+      end
+    end
+  end
+  for _, dropdown in ipairs(self.dropdowns) do
+    if not dropdown.isDisabled then
+      LibDD:UIDropDownMenu_DisableDropDown(dropdown)
+      dropdown.locked = true
+    end
+  end
+end
+
+function GUI:Unlock()
+  for _, frames in ipairs({self.panelButtons, self.imgButtons, self.editBoxes, self.checkButtons}) do
+    for _, frame in ipairs(frames) do
+      if frame.locked then
+        frame:Enable()
+        frame.locked = nil
+        if frame.mouseDisabled then
+          frame:EnableMouse(true)
+        end
+        if frame.prevColor then
+          frame:SetTextColor (unpack(frame.prevColor))
+          frame.prevColor = nil
+        end
+      end
+    end
+  end
+  for _, dropdown in ipairs(self.dropdowns) do
+    if dropdown.locked then
+      LibDD:UIDropDownMenu_EnableDropDown(dropdown)
+      dropdown.locked = nil
+    end
+  end
+end
+
 function GUI:SetTooltip (widget, tip)
   if tip then
     widget:SetScript ("OnEnter", function (self)
@@ -92,15 +141,19 @@ function GUI:CreateEditBox (parent, width, height, default, setter)
   return box
 end
 
+
 GUI.dropdowns = {}
+GUI.dropdowns.insert = tinsert
+GUI.unusedDropdowns = {}
 function GUI:CreateDropdown (parent, values, options)
   local sel
-  if #self.dropdowns > 0 then
-    sel = tremove (self.dropdowns, 1)
+  if #self.unusedDropdowns > 0 then
+    sel = tremove (self.unusedDropdowns, 1)
     sel:SetParent (parent)
     sel:Show ()
   else
     sel = LibDD:Create_UIDropDownMenu(self:GenerateWidgetName(), parent)
+    self.dropdowns:insert(sel)
     LibDD:UIDropDownMenu_SetInitializeFunction(sel, function (dropdown)
       self:ClearEditFocus()
       for _, value in ipairs(dropdown.values) do
@@ -152,7 +205,7 @@ function GUI:CreateDropdown (parent, values, options)
       frame.selectedValue = nil
       frame.menuItemDisabled = nil
       frame.menuItemHidden = nil
-      tinsert (self.dropdowns, frame)
+      tinsert (self.unusedDropdowns, frame)
     end
   end
   sel.values = values
@@ -169,21 +222,24 @@ function GUI:CreateDropdown (parent, values, options)
 end
 
 GUI.checkButtons = {}
+GUI.checkButtons.insert = tinsert
+GUI.unusedCheckButtons = {}
 function GUI:CreateCheckButton (parent, text, default, setter)
   local btn
-  if #self.checkButtons > 0 then
-    btn = tremove (self.checkButtons, 1)
+  if #self.unusedCheckButtons > 0 then
+    btn = tremove (self.unusedCheckButtons, 1)
     btn:SetParent (parent)
     btn:Show ()
   else
     local name = self:GenerateWidgetName ()
     btn = CreateFrame ("CheckButton", name, parent, "UICheckButtonTemplate")
+    self.checkButtons:insert(btn)
     btn.Recycle = function (btn)
       btn:Hide ()
       btn:SetScript ("OnEnter", nil)
       btn:SetScript ("OnLeave", nil)
       btn:SetScript ("OnClick", nil)
-      tinsert (self.checkButtons, btn)
+      tinsert (self.unusedCheckButtons, btn)
     end
   end
   btn.Text:SetText(text)
@@ -197,21 +253,24 @@ function GUI:CreateCheckButton (parent, text, default, setter)
 end
 
 GUI.imgButtons = {}
+GUI.imgButtons.insert = tinsert
+GUI.unusedImgButtons = {}
 function GUI:CreateImageButton (parent, width, height, img, pus, hlt, disabledTexture, handler)
   local btn
-  if #self.imgButtons > 0 then
-    btn = tremove (self.imgButtons, 1)
+  if #self.unusedImgButtons > 0 then
+    btn = tremove (self.unusedImgButtons, 1)
     btn:SetParent (parent)
     btn:Show ()
   else
     local name = self:GenerateWidgetName ()
     btn = CreateFrame ("Button", name, parent)
+    self.imgButtons:insert(btn)
     btn.Recycle = function (f)
       f:Hide ()
       f:SetScript ("OnEnter", nil)
       f:SetScript ("OnLeave", nil)
       f:SetScript ("OnClick", nil)
-      tinsert (self.imgButtons, f)
+      tinsert (self.unusedImgButtons, f)
     end
   end
   btn:SetNormalTexture (img)
@@ -222,6 +281,38 @@ function GUI:CreateImageButton (parent, width, height, img, pus, hlt, disabledTe
   if handler then
     btn:SetScript ("OnClick", handler)
   end
+  return btn
+end
+
+GUI.panelButtons = {}
+GUI.panelButtons.insert = tinsert
+GUI.unusedPanelButtons = {}
+function GUI:CreatePanelButton(parent, text, handler)
+  local btn
+  if #self.unusedPanelButtons > 0 then
+    btn = tremove(self.unusedPanelButtons, 1)
+    btn:SetParent(parent)
+    btn:Show()
+  else
+    local name = self:GenerateWidgetName ()
+    btn = CreateFrame("Button", name, parent, "UIPanelButtonTemplate")
+    self.panelButtons:insert(btn)
+    btn.Recycle = function (f)
+      f:SetText("")
+      f:Hide ()
+      f:SetScript ("OnEnter", nil)
+      f:SetScript ("OnLeave", nil)
+      f:SetScript ("OnPreClick", nil)
+      f:SetScript ("OnClick", nil)
+      tinsert (self.unusedPanelButtons, f)
+    end
+    btn.RenderText = function(f, ...)
+      f:SetText(...)
+      f:SetSize(f:GetFontString():GetStringWidth() + 20, 22)
+    end
+  end
+  btn:RenderText(text)
+  btn:SetScript("OnClick", handler)
   return btn
 end
 
