@@ -15,10 +15,11 @@ function ReforgeLite:GetPlayerBuffs ()
   local kings, strength, flask, food
   local i = 1
   while true do
-    local id = select (10, UnitAura ("player", i))
-    if id == nil then
+    local aura = C_UnitAuras.GetBuffDataByIndex("player", i)
+    if aura == nil then
       return kings, strength, flask, food
     else
+      local id = aura.spellId
       if id == 79063 or id == 79061 or id == 90363 then
         kings = true
       elseif id == 57330 or id == 93435 or id == 8076 or id == 6673 then
