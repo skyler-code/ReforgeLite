@@ -1031,7 +1031,9 @@ function ReforgeLite:AddCapPoint (i, loading)
   end)
 
   GUI:SetTooltip (rem, L["Remove cap"])
-  GUI:SetTooltip (value, L["Cap value"])
+  GUI:SetTooltip (value, function()
+    return L["Cap value"] ..'\n'.. ("%.2f"):format((self.pdb.caps[i].points[point].value or 0) / self:RatingPerPoint(self.pdb.caps[i].stat))
+  end)
   GUI:SetTooltip (after, L["Weight after cap"])
 
   self.statCaps:SetCell (row, 0, rem)
