@@ -87,7 +87,7 @@ if gameLocale == "frFR" then
   L["Tanking model"] = "Modèle de tanking"
   L["Weight after cap"] = "Valeur après cap"
   L["Exactly"] = "Exactement"
-  L["This is a performance workaround. Sliding to the right will reduce the number of calculations performed and the accuracy of the result."] = "Il s'agit d'une solution de contournement en matière de performances. Glisser vers la droite réduira le nombre de calculs effectués et la précision du résultat."
+  L["Slide to the left if the calculation slows your game too much."] = "Glissez vers la gauche si le calcul ralentit trop votre jeu."
 
 elseif gameLocale == "deDE" then -- German
   L["Active window color"] = "Aktive Fensterfarbe"
@@ -130,7 +130,7 @@ elseif gameLocale == "deDE" then -- German
 --   L["Tanking model"] = ""
   L["Weight after cap"] = "Gewichtung über Cap"
   L["Item Import Mismatch"] = "%s stimmt nicht mit Ihrem aktuell ausgerüsteten %s überein. ReforgeLite unterstützt nur ausgerüstete Gegenstände."
-  L["This is a performance workaround. Sliding to the right will reduce the number of calculations performed and the accuracy of the result."] = "Dies ist ein Workaround, um die Leistung zu verbessern. Durch Verschieben nach rechts wird die Anzahl der durchgeführten Berechnungen und die Genauigkeit des Ergebnisses reduziert."
+  L["Slide to the left if the calculation slows your game too much."] = "Schieben Sie es nach links, wenn die Berechnung Ihr Spiel zu sehr verlangsamt."
 
 elseif gameLocale == "koKR" then
   L["StatFormat"] = "^%s %+(%d+)$"
@@ -175,7 +175,7 @@ elseif gameLocale == "koKR" then
   L["Item Import Mismatch"] = "%s은(는) 현재 장착된 %s와 일치하지 않습니다. ReforgeLite는 장착된 아이템만 지원합니다."
   L["EquipPreString"] = ITEM_SPELL_TRIGGER_ONEQUIP .. " "
   L["Exactly"] = "정확히"
-  L["This is a performance workaround. Sliding to the right will reduce the number of calculations performed and the accuracy of the result."] = "이는 성능 해결 방법입니다. 오른쪽으로 밀면 수행되는 계산 횟수와 결과의 정확도가 감소합니다."
+  L["Slide to the left if the calculation slows your game too much."] = "계산으로 인해 게임 속도가 너무 느려지면 왼쪽으로 밉니다."
 
 elseif gameLocale == "ruRU" then
   L["Active window color"] = "Цвет активного окна"
@@ -219,7 +219,7 @@ elseif gameLocale == "ruRU" then
   L["Weight after cap"] = "Вес после порога"
   L["Item Import Mismatch"] = "%s не соответствует вашему текущему экипированному %s. ReforgeLite поддерживает только экипированные предметы."
   L["Exactly"] = "Точно"
-  L["This is a performance workaround. Sliding to the right will reduce the number of calculations performed and the accuracy of the result."] = "Это обходной путь производительности. Скольжение вправо уменьшит количество выполняемых вычислений и точность результата."
+  L["Slide to the left if the calculation slows your game too much."] = "Сдвиньте влево, если расчет слишком сильно замедляет вашу игру."
 
 elseif gameLocale == "zhCN" then
   L["Active window color"] = "激活窗口的颜色"
@@ -263,7 +263,7 @@ elseif gameLocale == "zhCN" then
   L["Weight after cap"] = "超过上限后权重"
   L["Item Import Mismatch"] = "%s 与您当前装备的 %s 不匹配。ReforgeLite 仅支持装备物品。"
   L["Exactly"] = "确切地"
-  L["This is a performance workaround. Sliding to the right will reduce the number of calculations performed and the accuracy of the result."] = "这是一种性能解决方法。向右滑动将减少执行的计算次数和结果的准确性。"
+  L["Slide to the left if the calculation slows your game too much."] = "如果计算导致你的游戏速度太慢，请向左滑动。"
 
 elseif gameLocale == "esES" or gameLocale == "esMX" then
   L["Active window color"] = "Color de ventana activa"
@@ -306,7 +306,7 @@ elseif gameLocale == "esES" or gameLocale == "esMX" then
   L["Weight after cap"] = "Peso despues del cap"
   L["Item Import Mismatch"] = "%s no coincide con tu %s equipado actualmente. ReforgeLite solo admite elementos equipados."
   L["Exactly"] = "Exactamente"
-  L["This is a performance workaround. Sliding to the right will reduce the number of calculations performed and the accuracy of the result."] = "Esta es una solución alternativa para el rendimiento. Deslizarse hacia la derecha reducirá la cantidad de cálculos realizados y la precisión del resultado."
+  L["Slide to the left if the calculation slows your game too much."] = "Deslízate hacia la izquierda si el cálculo ralentiza demasiado tu juego."
 
 elseif gameLocale == "zhTW" then
   L["Active window color"] = "當前視窗的顏色"
@@ -349,7 +349,7 @@ elseif gameLocale == "zhTW" then
   L["Weight after cap"] = "超過上限後比重"
   L["Item Import Mismatch"] = "%s 与您当前装备的 %s 不匹配。ReforgeLite 仅支持装备物品。"
   L["Exactly"] = "確切地"
-  L["This is a performance workaround. Sliding to the right will reduce the number of calculations performed and the accuracy of the result."] = "這是一種效能解決方法。向右滑動將減少執行的計算次數和結果的準確性。"
+  L["Slide to the left if the calculation slows your game too much."] = "如果計算使遊戲速度減慢太多，請向左滑動。"
 end
 
 setmetatable (L_enUS, {__index = function (self, key)

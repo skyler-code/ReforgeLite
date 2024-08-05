@@ -47,6 +47,8 @@ local DefaultDB = {
   openOnReforge = true,
   updateTooltip = true,
 
+  speed = 10,
+
   activeWindowTitle = {0.6, 0, 0},
   inactiveWindowTitle = {0.5, 0.5, 0.5},
 
@@ -1438,6 +1440,41 @@ function ReforgeLite:CreateOptionList ()
   end)
 
   self:UpdateStatWeightList ()
+
+  self.quality = CreateFrame ("Slider", nil, self.content, "HorizontalSliderTemplate")
+  self:SetAnchor (self.quality, "LEFT", self.computeButton, "RIGHT", 10, 0)
+  self.quality:SetSize(150, 15)
+  self.quality:SetMinMaxValues (1, 20)
+  self.quality:SetValueStep (1)
+  self.quality:SetValue (self.db.speed)
+  self.quality:EnableMouseWheel (false)
+  self.quality:SetScript ("OnValueChanged", function (slider)
+    self.db.speed = slider:GetValue ()
+  end)
+
+  self.quality.label = self.quality:CreateFontString (nil, "OVERLAY", "GameFontNormal")
+  self.quality.label:SetPoint ("BOTTOM", self.quality, "TOP", 0, 0)
+  self.quality.label:SetTextColor (1, 1, 1)
+  self.quality.label:SetText (SPEED)
+
+  self.quality.helpButton = CreateFrame("Button",nil,self.quality,"MainHelpPlateButton")
+  self.quality.helpButton:SetPoint("BOTTOMLEFT",self.quality.label, "BOTTOMRIGHT",0,-20)
+  self.quality.helpButton:SetScale(0.45)
+  self.quality.helpButton:SetScript("OnEnter", function(btn)
+    GameTooltip:SetOwner(btn, "ANCHOR_RIGHT");
+    GameTooltip:SetText(L["Slide to the left if the calculation slows your game too much."],nil,nil,nil,nil,true);
+    GameTooltip:Show()
+  end)
+	self.quality.helpButton:SetScript("OnLeave", function(btn)
+    GameTooltip:Hide()
+  end)
+
+  self.quality.lowtext = self.quality:CreateFontString (nil, "ARTWORK", "GameFontHighlightSmall")
+  self.quality.lowtext:SetPoint ("TOPLEFT", self.quality, "BOTTOMLEFT", 2, 3)
+  self.quality.lowtext:SetText (SLOW)
+  self.quality.hightext = self.quality:CreateFontString (nil, "ARTWORK", "GameFontHighlightSmall")
+  self.quality.hightext:SetPoint ("TOPRIGHT", self.quality, "BOTTOMRIGHT", -2, 3)
+  self.quality.hightext:SetText (FAST)
 
   self.storedCategory = self:CreateCategory (L["Best result"])
   self:SetAnchor (self.storedCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
