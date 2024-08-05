@@ -31,6 +31,9 @@ function GUI:Lock()
         if frame:IsMouseEnabled() then
           frame:EnableMouse(false)
           frame.mouseDisabled = true
+        elseif frame:IsMouseMotionEnabled() then
+          frame:SetMouseMotionEnabled(false)
+          frame.mouseMotionDisabled = true
         end
         if frame.SetTextColor then
           frame.prevColor = {frame:GetTextColor()}
@@ -56,6 +59,9 @@ function GUI:Unlock()
         if frame.mouseDisabled then
           frame:EnableMouse(true)
           frame.mouseDisabled = nil
+        elseif frame.mouseMotionDisabled then
+          frame:SetMouseMotionEnabled(true)
+          frame.mouseMotionDisabled = nil
         end
         if frame.prevColor then
           frame:SetTextColor (unpack(frame.prevColor))
