@@ -999,7 +999,7 @@ function ReforgeLite:CreateItemTable ()
 end
 
 function ReforgeLite:AddCapPoint (i, loading)
-  local row = (loading or #self.pdb.caps[i].points + 1)-- + (i == 1 and 1 or #self.pdb.caps[i-1].points + 2)
+  local row = (loading or #self.pdb.caps[i].points + 1)
   if i == 1 then
     row = row + 1
   else
@@ -1109,7 +1109,13 @@ function ReforgeLite:ReorderCapPoint (i, point)
 end
 function ReforgeLite:UpdateCapPreset (i, point)
   local preset = self.pdb.caps[i].points[point].preset
-  local row = point + (i == 1 and 1 or #self.pdb.caps[1].points + 2)
+  local subRows = 1
+  for k, v in ipairs(self.pdb.caps) do
+    if k < i then
+      subRows = subRows + #v.points
+    end
+  end
+  local row = i + subRows
   if self.capPresets[preset] == nil then
     preset = 1
   end
@@ -1125,7 +1131,13 @@ function ReforgeLite:UpdateCapPreset (i, point)
   self.statCaps.cells[row][3]:SetText (self.pdb.caps[i].points[point].value)
 end
 function ReforgeLite:UpdateCapPoints (i)
-  local base = (i == 1 and 1 or #self.pdb.caps[1].points + 2)
+  local subRows = 0
+  for k, v in ipairs(self.pdb.caps) do
+    if k < i then
+      subRows = subRows + #v.points
+    end
+  end
+  local base = i + subRows
   for point = 1, #self.pdb.caps[i].points do
     self.statCaps.cells[base + point][1]:SetValue (self.pdb.caps[i].points[point].method)
     self.statCaps.cells[base + point][2]:SetValue (self.pdb.caps[i].points[point].preset)
@@ -1177,8 +1189,9 @@ function ReforgeLite:SetStatWeights (weights, caps)
         self.pdb.caps[i].points = {}
       end
     end
-    self:UpdateCapPoints (1)
-    self:UpdateCapPoints (2)
+    for i=1,3 do
+      self:UpdateCapPoints (i)
+    end
     self.statCaps.onUpdate ()
     self:UpdateContentSize ()
     RunNextFrame(function() self:CapUpdater() end)
@@ -1186,10 +1199,10 @@ function ReforgeLite:SetStatWeights (weights, caps)
   self:RefreshMethodStats ()
 end
 function ReforgeLite:CapUpdater ()
-  self.statCaps[1].stat:SetValue (self.pdb.caps[1].stat)
-  self.statCaps[2].stat:SetValue (self.pdb.caps[2].stat)
-  self:UpdateCapPoints (1)
-  self:UpdateCapPoints (2)
+  for i=1,3 do
+    self.statCaps[i].stat:SetValue (self.pdb.caps[i].stat)
+    self:UpdateCapPoints (i)
+  end
 end
 function ReforgeLite:CustomPresetsExist()
   return (next(ReforgeLite.db.customPresets) or next(ReforgeLite.cdb.customPresets)) ~= nil
