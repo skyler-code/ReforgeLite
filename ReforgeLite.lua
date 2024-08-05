@@ -451,7 +451,7 @@ end
 
 ReforgeLite.reforgeTable = reforgeTable
 
-local REFORGE_COEFF = 0.4
+addonTable.REFORGE_COEFF = 0.4
 ReforgeLite.spiritBonus = playerRace == "Human" and 1.03 or 1
 
 function ReforgeLite:UpdateWindowSize ()
@@ -2151,14 +2151,14 @@ function ReforgeLite:IsReforgeMatching (slotId, reforge, override)
 
   if oreforge then
     local osrc, odst = unpack(reforgeTable[oreforge])
-    local oamount = floor ((stats[self.itemStats[osrc].name] or 0) * REFORGE_COEFF)
+    local oamount = floor ((stats[self.itemStats[osrc].name] or 0) * addonTable.REFORGE_COEFF)
     deltas[osrc] = deltas[osrc] + oamount
     deltas[odst] = deltas[odst] - oamount
   end
 
   if reforge then
     local src, dst = unpack(reforgeTable[reforge])
-    local amount = floor ((stats[self.itemStats[src].name] or 0) * REFORGE_COEFF)
+    local amount = floor ((stats[self.itemStats[src].name] or 0) * addonTable.REFORGE_COEFF)
     deltas[src] = deltas[src] - amount
     deltas[dst] = deltas[dst] + amount
   end

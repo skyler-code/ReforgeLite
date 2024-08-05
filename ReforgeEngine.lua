@@ -1,5 +1,5 @@
 local addonName, addonTable = ...
-local REFORGE_COEFF = 0.4
+local REFORGE_COEFF = addonTable.REFORGE_COEFF
 local MAX_LOOPS = 100000
 
 local ReforgeLite = addonTable.ReforgeLite
@@ -564,7 +564,7 @@ function ReforgeLite:InitReforgeS2H ()
     data.spi = data.spi + data.method.items[i].stats[self.STATS.SPIRIT]
   end
   data.initial[self.STATS.SPIRIT] = floor (data.initial[self.STATS.SPIRIT] * self.spiritBonus + 0.5)
-  
+
   data.caps = {{stat = self.STATS.HIT, init = data.cap.init}, {stat = self.STATS.SPIRIT, init = data.spi}}
 
   return data
