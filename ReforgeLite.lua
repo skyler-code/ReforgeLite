@@ -375,7 +375,7 @@ ReforgeLite.tankingStats = {
       mgetter = function (method)
         return method.stats.parry or 0
       end,
-      getter = GetDodgeChance
+      getter = GetParryChance
     },
     [ReforgeLite.STATS.MASTERY] = {
       tip = BLOCK,
@@ -406,7 +406,7 @@ ReforgeLite.tankingStats = {
       mgetter = function (method)
         return method.stats.parry or 0
       end,
-      getter = GetDodgeChance
+      getter = GetParryChance
     },
     [ReforgeLite.STATS.MASTERY] = {
       tip = BLOCK,
