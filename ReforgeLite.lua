@@ -100,6 +100,17 @@ local DefaultDBProfile = {
           preset = 1
         }
       }
+    },
+    {
+      stat = 0,
+      points = {
+        {
+          method = 1,
+          value = 0,
+          after = 0,
+          preset = 1
+        }
+      }
     }
   },
   itemsLocked = {},
@@ -957,7 +968,18 @@ function ReforgeLite:CreateItemTable ()
 end
 
 function ReforgeLite:AddCapPoint (i, loading)
-  local row = (loading or #self.pdb.caps[i].points + 1) + (i == 1 and 1 or #self.pdb.caps[1].points + 2)
+  local row = (loading or #self.pdb.caps[i].points + 1)-- + (i == 1 and 1 or #self.pdb.caps[i-1].points + 2)
+  if i == 1 then
+    row = row + 1
+  else
+    local subRows = 0
+    for k, v in ipairs(self.pdb.caps) do
+      if k < i then
+        subRows = subRows + #v.points
+      end
+    end
+    row = row + i + subRows
+  end
   local point = (loading or #self.pdb.caps[i].points + 1)
   self.statCaps:AddRow (row)
 
@@ -1051,7 +1073,14 @@ function ReforgeLite:AddCapPoint (i, loading)
   self.statCaps:OnUpdateFix()
 end
 function ReforgeLite:RemoveCapPoint (i, point, loading)
-  local row = #self.pdb.caps[1].points + (i == 1 and 1 or #self.pdb.caps[2].points + 2)
+  local subRows = 1
+  for k, v in ipairs(self.pdb.caps) do
+    if k < i then
+      subRows = subRows + #v.points
+    end
+  end
+  local row = i + subRows
+
   tremove (self.pdb.caps[i].points, point)
   self.statCaps:DeleteRow (row)
   if not loading then
@@ -1133,7 +1162,7 @@ function ReforgeLite:SetStatWeights (weights, caps)
     end
   end
   if caps then
-    for i = 1, 2 do
+    for i = 1, 3 do
       local count = 0
       if caps[i] then
         count = #caps[i].points
@@ -1380,7 +1409,7 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory:AddFrame (self.statWeights)
   self.statWeights:SetRowHeight (self.db.itemSize + 2)
 
-  self.statCaps = GUI:CreateTable (2, 4, nil, self.db.itemSize + 2)
+  self.statCaps = GUI:CreateTable (3, 4, nil, self.db.itemSize + 2)
   self.statWeightsCategory:AddFrame (self.statCaps)
   self:SetAnchor (self.statCaps, "TOPLEFT", self.statWeights, "BOTTOMLEFT", 0, -10)
   self.statCaps:SetPoint ("RIGHT", -5, 0)
@@ -1410,7 +1439,7 @@ function ReforgeLite:CreateOptionList ()
       end
     end
   end
-  for i = 1, 2 do
+  for i = 1, 3 do
     self.statCaps[i] = {}
     self.statCaps[i].stat = GUI:CreateDropdown (self.statCaps, statList, {
       default = self.pdb.caps[i].stat,
@@ -1431,7 +1460,13 @@ function ReforgeLite:CreateOptionList ()
       end,
       width = 110,
       menuItemDisabled = function(val)
-        return val > 0 and self.statCaps[3-i].stat.value == val
+        if val > 0 then
+          for k,v in ipairs(self.statCaps) do
+            if k~=i and v.stat.value == val then
+              return true
+            end
+          end
+        end
       end
     })
     self.statCaps[i].add = GUI:CreateImageButton (self.statCaps, 20, 20, "Interface\\Buttons\\UI-PlusButton-Up",
@@ -1460,7 +1495,7 @@ function ReforgeLite:CreateOptionList ()
     self.statCaps:SetCell (i, 2, self.statCaps[i].add, "LEFT")
     self.statCaps:SetCell (i, 3, self.statCaps[i].darkIntent, "LEFT")
   end
-  for i = 1, 2 do
+  for i = 1, 3 do
     for point in ipairs(self.pdb.caps[i].points) do
       self:AddCapPoint (i, point)
     end
@@ -1473,7 +1508,7 @@ function ReforgeLite:CreateOptionList ()
   self.statCaps:ToggleStatDropdownToCorrectState()
   self.statCaps.onUpdate = function ()
     local row = 1
-    for i = 1, 2 do
+    for i = 1, 3 do
       row = row + 1
       for point = 1, #self.pdb.caps[i].points do
         if self.statCaps.cells[row][2] and self.statCaps.cells[row][2].values then
