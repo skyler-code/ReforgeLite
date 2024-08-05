@@ -82,7 +82,7 @@ function GUI:SetTooltip (widget, tip)
   if tip then
     widget:SetScript ("OnEnter", function (self)
       GameTooltip:SetOwner (self, "ANCHOR_LEFT")
-      GameTooltip:SetText (tip)
+      GameTooltip:SetText (type(tip) == "function" and tip() or tip)
       GameTooltip:Show ()
     end)
     widget:SetScript ("OnLeave", function ()
