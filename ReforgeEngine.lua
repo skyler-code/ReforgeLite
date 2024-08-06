@@ -882,7 +882,6 @@ function ReforgeLite:ComputeReforge (initFunc, optionFunc, chooseFunc)
 end
 
 function ReforgeLite:Compute ()
-  --DevTools_Dump(({})[2]:IsObject())
   if self.pdb.tankingModel then
     self:ComputeReforge ("InitReforgeTank", "GetItemReforgeOptionsTank", "ChooseReforgeTank")
   elseif self.s2hFactor > 0 and ((self.pdb.caps[1].stat == self.STATS.HIT and self.pdb.caps[2].stat == 0) or
@@ -899,9 +898,8 @@ function ReforgeLite:StartCompute(btn)
     addonTable.GUI:Unlock()
   end
   local co = coroutine.create( function() self:Compute() end )
-  print(coroutine.resume(co))
+  coroutine.resume(co)
   local routineStatus = coroutine.status(co)
-  print(routineStatus)
   if routineStatus == "dead" then
     endProcess()
   elseif routineStatus == "suspended" then
