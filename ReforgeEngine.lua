@@ -460,9 +460,6 @@ function ReforgeLite:ChooseReforgeClassic (data, reforgeOptions, scores, codes)
       bestCode[allow] = code
       bestScore[allow] = score
     end
-    if allow == 1 then
-      DevTools_Dump(bestCode[1])
-    end
   end
   return bestCode[1] or bestCode[2] or bestCode[3] or bestCode[4] or bestCode[5] or bestCode[6] or bestCode[7] or bestCode[8] or bestCode[9] or bestCode[10]
 end
