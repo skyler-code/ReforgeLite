@@ -66,7 +66,6 @@ function ReforgeLite:DebugMethod()
     end
 end
 
-
-function ReforgeLite:ExportPreset(name, preset)
+function ReforgeLite:ExportJSON(name, preset)
     self:DisplayMessage(name, addonTable.json.encode(preset))
 end
