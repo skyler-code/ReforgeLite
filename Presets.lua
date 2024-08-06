@@ -295,6 +295,16 @@ elseif addonTable.playerClass == "MAGE" then
       return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
     end,
   })
+elseif addonTable.playerClass == "DEATHKNIGHT" then
+  tinsert(ReforgeLite.capPresets, {
+    value = CAPS.FirstHasteBreak,
+    category = StatHaste,
+    name = ("%s %s %s"):format(CreateIconMarkup(135770), STAT_RUNE_REGEN_FORMAT:format(7.5), STAT_RUNE_REGEN),
+    getter = function ()
+      return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * 11.11)
+    end,
+    tooltipTitle = "Degen"
+  })
 end
 
 ----------------------------------------- WEIGHT PRESETS ------------------------------
