@@ -417,8 +417,7 @@ function ReforgeLite:RunYieldCheck()
 end
 
 function ReforgeLite:ChooseReforgeClassic (data, reforgeOptions, scores, codes)
-  local bestCode = {nil, nil, nil, nil, nil, nil, nil, nil, nil}
-  local bestScore = {0, 0, 0, 0, 0, 0, 0, 0, 0}
+  local bestCode, bestScore = {}, {}
   for k, score in pairs (scores) do
     self:RunYieldCheck()
     local s1 = data.caps[1].init
@@ -444,25 +443,29 @@ function ReforgeLite:ChooseReforgeClassic (data, reforgeOptions, scores, codes)
       a3 = a3 and self:CapAllows (data.caps[3], s3)
       score = score + self:GetCapScore (data.caps[3], s3)
     end
-    local allow = 0
+    local maxAllow = 0
     if a1 then
-      allow = 5
+      maxAllow = 5
     end
     if a2 then
-      allow = allow + 3
+      maxAllow = maxAllow + 3
     end
     if a3 then
-      allow = allow + 1
+      maxAllow = maxAllow + 1
     end
 
-    allow = 10 - allow
+    local allow = 10 - maxAllow
 
-    if bestCode[allow] == nil or score > bestScore[allow] then
+    if bestCode[allow] == nil or score > (bestScore[allow] or 0) then
       bestCode[allow] = code
       bestScore[allow] = score
     end
   end
-  return bestCode[1] or bestCode[2] or bestCode[3] or bestCode[4] or bestCode[5] or bestCode[6] or bestCode[7] or bestCode[8] or bestCode[9] or bestCode[10]
+  for i = 1, 10 do
+    if bestCode[i] then
+      return bestCode[i]
+    end
+  end
 end
 
 ----------------------------------- SPIRIT-TO-HIT REFORGE ------------------------------
