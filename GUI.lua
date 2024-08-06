@@ -179,6 +179,8 @@ function GUI:CreateDropdown (parent, values, options)
         info.value = value.value
         info.checked = (dropdown.value == value.value)
         info.category = value.category
+        info.tooltipTitle = value.tooltipTitle
+        info.tooltipOnButton = value.tooltipTitle ~= nil
         info.func = function (inf)
           LibDD:UIDropDownMenu_SetSelectedValue (dropdown, inf.value)
           if dropdown.setter then dropdown.setter (dropdown,inf.value) end
