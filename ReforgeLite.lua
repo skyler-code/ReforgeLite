@@ -1058,6 +1058,7 @@ function ReforgeLite:RemoveCapPoint (i, point, loading)
     self:UpdateContentSize ()
   end
   if #self.pdb.caps[i].points == 0 then
+    self.pdb.caps[i].stat = 0
     self.statCaps[i].add:Disable()
     self.statCaps[i].stat:SetValue(0)
   end
