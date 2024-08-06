@@ -244,10 +244,19 @@ function ReforgeLite:IsItemLocked (slot)
   or self.pdb.itemsLocked[slotData.itemGUID]
 end
 
+function ReforgeLite:RunYieldCheck()
+  if self.__chooseLoops == self.__maxLoops then
+    self.__chooseLoops = nil
+    coroutine.yield()
+  else
+    self.__chooseLoops = (self.__chooseLoops or 0) + 1
+  end
+end
+
 ------------------------------------- CLASSIC REFORGE ------------------------------
 
 function ReforgeLite:MakeReforgeOption (item, data, src, dst)
-  local delta1, delta2, dscore = 0, 0, 0
+  local delta1, delta2, delta3, dscore = 0, 0, 0, 0
   if src then
     local amount = floor (item.stats[src] * REFORGE_COEFF)
     if src == self.STATS.SPIRIT then
@@ -257,6 +266,8 @@ function ReforgeLite:MakeReforgeOption (item, data, src, dst)
       delta1 = delta1 - amount
     elseif src == data.caps[2].stat then
       delta2 = delta2 - amount
+    elseif src == data.caps[3].stat then
+      delta3 = delta3 - amount
     elseif src == self.STATS.SPIRIT then
       dscore = dscore - data.weights[src] * amount
       if self.s2hFactor > 0 then
@@ -264,6 +275,8 @@ function ReforgeLite:MakeReforgeOption (item, data, src, dst)
           delta1 = delta1 - floor (amount * self.s2hFactor / 100 + random ())
         elseif data.caps[2].stat == self.STATS.HIT then
           delta2 = delta2 - floor (amount * self.s2hFactor / 100 + random ())
+        elseif data.caps[3].stat == self.STATS.HIT then
+          delta3 = delta3 - floor (amount * self.s2hFactor / 100 + random ())
         end
       end
     else
@@ -279,6 +292,8 @@ function ReforgeLite:MakeReforgeOption (item, data, src, dst)
       delta1 = delta1 + amount
     elseif dst == data.caps[2].stat then
       delta2 = delta2 + amount
+    elseif dst == data.caps[3].stat then
+      delta3 = delta3 - amount
     elseif dst == self.STATS.SPIRIT then
       dscore = dscore + data.weights[dst] * amount
       if self.s2hFactor > 0 then
@@ -286,13 +301,15 @@ function ReforgeLite:MakeReforgeOption (item, data, src, dst)
           delta1 = delta1 + floor (amount * self.s2hFactor / 100 + random ())
         elseif data.caps[2].stat == self.STATS.HIT then
           delta2 = delta2 + floor (amount * self.s2hFactor / 100 + random ())
+        elseif data.caps[3].stat == self.STATS.HIT then
+          delta3 = delta3 + floor (amount * self.s2hFactor / 100 + random ())
         end
       end
     else
       dscore = dscore + data.weights[dst] * amount
     end
   end
-  return {d1 = delta1, d2 = delta2, score = dscore, src = src, dst = dst}
+  return {d1 = delta1, d2 = delta2, d3 = delta3, score = dscore, src = src, dst = dst}
 end
 function ReforgeLite:GetItemReforgeOptions (item, data, slot)
   if self:IsItemLocked (slot) then
@@ -309,7 +326,7 @@ function ReforgeLite:GetItemReforgeOptions (item, data, slot)
       for dst = 1, #self.itemStats do
         if item.stats[dst] == 0 then
           local o = self:MakeReforgeOption (item, data, src, dst)
-          local pos = o.d1 + o.d2 * 10000
+          local pos = (o.d1 + o.d2 * 10000 + o.d3 * 10000)
           if not aopt[pos] or aopt[pos].score < o.score then
             aopt[pos] = o
           end
@@ -319,6 +336,7 @@ function ReforgeLite:GetItemReforgeOptions (item, data, slot)
   end
   local opt = {}
   for _, v in pairs (aopt) do
+    -- self:RunYieldCheck()
     tinsert (opt, v)
   end
   return opt
@@ -326,8 +344,7 @@ end
 function ReforgeLite:InitReforgeClassic ()
   local method = { items = {} }
   for i = 1, #self.itemData do
-    method.items[i] = {}
-    method.items[i].stats = {}
+    method.items[i] = { stats = {} }
     local item = self.itemData[i].item
     local stats = (item and GetItemStats (item) or {})
     for j = 1, #self.itemStats do
@@ -341,6 +358,7 @@ function ReforgeLite:InitReforgeClassic ()
   data.caps = DeepCopy (self.pdb.caps)
   data.caps[1].init = 0
   data.caps[2].init = 0
+  data.caps[3].init = 0
   data.initial = {}
 
   for i = 1, #self.itemStats do
@@ -380,13 +398,14 @@ function ReforgeLite:InitReforgeClassic ()
     end
   end
   if self.s2hFactor > 0 then
-    if data.weights[self.STATS.SPIRIT] == 0 and (data.caps[1].stat == self.STATS.HIT or data.caps[2].stat == self.STATS.HIT) then
+    if data.weights[self.STATS.SPIRIT] == 0 and (data.caps[1].stat == self.STATS.HIT or data.caps[2].stat == self.STATS.HIT or data.caps[3].stat == self.STATS.HIT) then
       data.weights[self.STATS.SPIRIT] = 1
     end
   end
 
   return data
 end
+
 local maxLoops
 function ReforgeLite:RunYieldCheck()
   if (self.__chooseLoops or 0) >= maxLoops then
@@ -398,19 +417,21 @@ function ReforgeLite:RunYieldCheck()
 end
 
 function ReforgeLite:ChooseReforgeClassic (data, reforgeOptions, scores, codes)
-  local bestCode = {nil, nil, nil, nil}
-  local bestScore = {0, 0, 0, 0}
+  local bestCode = {nil, nil, nil, nil, nil, nil, nil, nil, nil}
+  local bestScore = {0, 0, 0, 0, 0, 0, 0, 0, 0}
   for k, score in pairs (scores) do
     self:RunYieldCheck()
     local s1 = data.caps[1].init
     local s2 = data.caps[2].init
+    local s3 = data.caps[3].init
     local code = codes[k]
     for i = 1, #code do
       local b = code:byte (i)
       s1 = s1 + reforgeOptions[i][b].d1
       s2 = s2 + reforgeOptions[i][b].d2
+      s3 = s3 + reforgeOptions[i][b].d3
     end
-    local a1, a2 = true, true
+    local a1, a2, a3 = true, true, true
     if data.caps[1].stat > 0 then
       a1 = a1 and self:CapAllows (data.caps[1], s1)
       score = score + self:GetCapScore (data.caps[1], s1)
@@ -419,13 +440,32 @@ function ReforgeLite:ChooseReforgeClassic (data, reforgeOptions, scores, codes)
       a2 = a2 and self:CapAllows (data.caps[2], s2)
       score = score + self:GetCapScore (data.caps[2], s2)
     end
-    local allow = a1 and (a2 and 1 or 2) or (a2 and 3 or 4)
+    if data.caps[3].stat > 0 then
+      a3 = a3 and self:CapAllows (data.caps[3], s3)
+      score = score + self:GetCapScore (data.caps[3], s3)
+    end
+    local allow = 0
+    if a1 then
+      allow = 5
+    end
+    if a2 then
+      allow = allow + 3
+    end
+    if a3 then
+      allow = allow + 1
+    end
+
+    allow = 10 - allow
+
     if bestCode[allow] == nil or score > bestScore[allow] then
       bestCode[allow] = code
       bestScore[allow] = score
     end
+    if allow == 1 then
+      DevTools_Dump(bestCode[1])
+    end
   end
-  return bestCode[1] or bestCode[2] or bestCode[3] or bestCode[4]
+  return bestCode[1] or bestCode[2] or bestCode[3] or bestCode[4] or bestCode[5] or bestCode[6] or bestCode[7] or bestCode[8] or bestCode[9] or bestCode[10]
 end
 
 ----------------------------------- SPIRIT-TO-HIT REFORGE ------------------------------
@@ -847,6 +887,7 @@ function ReforgeLite:ComputeReforge (initFunc, optionFunc, chooseFunc)
 end
 
 function ReforgeLite:Compute ()
+  --DevTools_Dump(({})[2]:IsObject())
   if self.pdb.tankingModel then
     self:ComputeReforge ("InitReforgeTank", "GetItemReforgeOptionsTank", "ChooseReforgeTank")
   elseif self.s2hFactor > 0 and ((self.pdb.caps[1].stat == self.STATS.HIT and self.pdb.caps[2].stat == 0) or
