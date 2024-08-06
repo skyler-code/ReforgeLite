@@ -486,13 +486,12 @@ function ReforgeLite:GetStatScore (stat, value)
   if self.pdb.tankingModel then
     return self.pdb.weights[stat] * value
   end
-  if stat == self.pdb.caps[1].stat then
-    return self:GetCapScore (self.pdb.caps[1], value)
-  elseif stat == self.pdb.caps[2].stat then
-    return self:GetCapScore (self.pdb.caps[2], value)
-  else
-    return self.pdb.weights[stat] * value
+  for _,v in ipairs(self.pdb.caps) do
+    if stat == v.stat then
+      return self:GetCapScore (v, value)
+    end
   end
+  return self.pdb.weights[stat] * value
 end
 
 function ReforgeLite:ParseWoWSimsString(importStr)
