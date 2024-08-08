@@ -786,17 +786,6 @@ end
 
 -----------------------------------------------------------------------------
 
-StaticPopupDialogs["REFORGELITE_COMPUTEERROR"] = {
-  text = L["ReforgeLite failed to compute your optimal reforge. Try increasing the speed by moving the speed slider.\nError message: %s"],
-  button1 = OKAY,
-  button2 = nil,
-  OnAccept = function ()
-  end,
-  timeout = 0,
-  whileDead = 1,
-  hideOnEscape = 1
-}
-
 function ReforgeLite:ComputeReforgeCore (data, reforgeOptions)
   local TABLE_SIZE = 10000
   local scores, codes = {}, {}
