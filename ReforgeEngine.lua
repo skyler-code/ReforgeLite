@@ -34,7 +34,7 @@ function ReforgeLite:GetPlayerBuffs ()
         food = 4
       elseif id == 57371 then -- 40 strength food
         food = 5
-      elseif id == 79472 then -- 300 strength flask
+      elseif id == 79472 or id == 92731 then -- 300 strength flask
         flask = 1
       elseif id == 79635 then -- 225 mastery elixir
         flask = 2
