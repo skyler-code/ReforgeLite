@@ -1076,6 +1076,15 @@ function ReforgeLite:SetTankingModel (model)
     self:RefreshMethodStats ()
   end
 end
+function ReforgeLite:CollapseStatCaps()
+  local caps = DeepCopy(self.pdb.caps)
+  table.sort(caps, function(a,b)
+    local aIsNone = a.stat == 0 and 1 or 0
+    local bIsNone = b.stat == 0 and 1 or 0
+    return aIsNone < bIsNone
+  end)
+  self:SetStatWeights(nil, caps)
+end
 function ReforgeLite:SetStatWeights (weights, caps)
   if weights then
     self.pdb.weights = DeepCopy (weights)
@@ -1367,6 +1376,9 @@ function ReforgeLite:CreateOptionList ()
           self.statCaps[i].darkIntent:Hide()
         end
         self.pdb.caps[i].stat = val
+        if val == 0 then
+          self:CollapseStatCaps()
+        end
         self.statCaps:ToggleStatDropdownToCorrectState()
       end,
       width = 110,
