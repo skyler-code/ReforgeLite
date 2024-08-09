@@ -1124,6 +1124,7 @@ function ReforgeLite:SetStatWeights (weights, caps)
     for i=1,2 do
       self:UpdateCapPoints (i)
     end
+    self.statCaps:ToggleDarkIntentButton()
     self.statCaps:ToggleStatDropdownToCorrectState()
     self.statCaps.onUpdate ()
     self:UpdateContentSize ()
@@ -1370,15 +1371,11 @@ function ReforgeLite:CreateOptionList ()
         elseif dropdown.value == 0 then
           self:AddCapPoint(i)
         end
-        if val == self.STATS.HASTE then
-          self.statCaps[i].darkIntent:Show()
-        else
-          self.statCaps[i].darkIntent:Hide()
-        end
         self.pdb.caps[i].stat = val
         if val == 0 then
           self:CollapseStatCaps()
         end
+        self.statCaps:ToggleDarkIntentButton()
         self.statCaps:ToggleStatDropdownToCorrectState()
       end,
       width = 110,
@@ -1421,6 +1418,15 @@ function ReforgeLite:CreateOptionList ()
     self:UpdateCapPoints (i)
     if self.pdb.caps[i].stat == 0 then
       self:RemoveCapPoint(i)
+    end
+  end
+  self.statCaps.ToggleDarkIntentButton = function(caps)
+    for _, cap in ipairs(caps) do
+      if cap.stat.selectedValue == self.STATS.HASTE then
+        cap.darkIntent:Show()
+      else
+        cap.darkIntent:Hide()
+      end
     end
   end
   self.statCaps.ToggleStatDropdownToCorrectState = function(caps)
