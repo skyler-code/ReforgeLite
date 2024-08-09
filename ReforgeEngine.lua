@@ -811,7 +811,7 @@ end
 function ReforgeLite:ComputeReforgeCore (data, reforgeOptions)
   local TABLE_SIZE = 10000
   local scores, codes = {}, {}
-  local linit = (ceil(data.caps[1].init) + ceil(data.caps[2].init)  + ceil (data.caps[3].init)) * TABLE_SIZE
+  local linit = ceil(data.caps[1].init) + ceil(data.caps[2].init) * TABLE_SIZE
   scores[linit] = 0
   codes[linit] = ""
   for i = 1, #self.itemData do
@@ -826,7 +826,7 @@ function ReforgeLite:ComputeReforgeCore (data, reforgeOptions)
       for j = 1, #opt do
         local o = opt[j]
         local nscore = score + o.score
-        local nk = s1 + ceil (o.d1) + (s2 + ceil (o.d2)) + (s2 + ceil (o.d3)) * TABLE_SIZE
+        local nk = s1 + ceil (o.d1) + (s2 + ceil (o.d2)) * TABLE_SIZE
         if newscores[nk] == nil or nscore > newscores[nk] then
           if newscores[nk] == nil then
             count = count + 1
