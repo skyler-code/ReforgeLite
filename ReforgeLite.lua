@@ -990,6 +990,7 @@ function ReforgeLite:AddCapPoint (i, loading)
   GUI:SetTooltip (rem, L["Remove cap"])
   GUI:SetTooltip (value, function()
     local cap = self.pdb.caps[i]
+    if cap.stat == self.STATS.SPIRIT then return end
     local pointValue = (cap.points[point].value or 0)
     local rating = ("%.2f"):format(pointValue / self:RatingPerPoint(cap.stat))
     if cap.stat == self.STATS.HIT then

@@ -80,13 +80,23 @@ end
 
 function GUI:SetTooltip (widget, tip)
   if tip then
-    widget:SetScript ("OnEnter", function (self)
-      GameTooltip:SetOwner (self, "ANCHOR_LEFT")
-      GameTooltip:SetText (type(tip) == "function" and tip() or tip)
-      GameTooltip:Show ()
+    widget:SetScript ("OnEnter", function (tipFrame)
+      local tipText
+      if type(tip) == "function" then
+        tipText = tip()
+      else
+        tipText = tip
+      end
+      if tipText then
+        GameTooltip:SetOwner(tipFrame, "ANCHOR_LEFT")
+        GameTooltip:SetText(tipText)
+        GameTooltip:Show()
+      end
     end)
-    widget:SetScript ("OnLeave", function ()
-      GameTooltip:Hide ()
+    widget:SetScript ("OnLeave", function (tipFrame)
+      if GameTooltip:GetOwner() == tipFrame then
+        GameTooltip:Hide()
+      end
     end)
   else
     widget:SetScript ("OnEnter", nil)
