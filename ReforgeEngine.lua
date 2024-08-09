@@ -366,26 +366,15 @@ function ReforgeLite:InitReforgeClassic ()
   if self.s2hFactor > 0 then
     data.initial[self.STATS.HIT] = data.initial[self.STATS.HIT] - ceil(reforgedSpirit * self.spiritBonus * self.s2hFactor / 100)
   end
-  if data.caps[1].stat > 0 then
-    data.caps[1].init = data.initial[data.caps[1].stat]
-    for i = 1, #data.method.items do
-      data.caps[1].init = data.caps[1].init + data.method.items[i].stats[data.caps[1].stat]
-    end
-  end
-  if data.caps[2].stat > 0 then
-    data.caps[2].init = data.initial[data.caps[2].stat]
-    for i = 1, #data.method.items do
-      data.caps[2].init = data.caps[2].init + data.method.items[i].stats[data.caps[2].stat]
-    end
-  end
-  if data.caps[1].stat == 0 then
-    data.caps[1], data.caps[2] = data.caps[2], data.caps[1]
-  end
-  if data.caps[2].stat == data.caps[1].stat then
-    data.caps[2].stat = 0
-    data.caps[2].init = 0
-  end
 
+  for _,v in ipairs(data.caps) do
+    if v.stat > 0 then
+      v.init = data.initial[v.stat]
+      for i = 1, #data.method.items do
+        v.init = v.init + data.method.items[i].stats[v.stat]
+      end
+    end
+  end
   if self.s2hFactor > 0 then
     if data.weights[self.STATS.SPIRIT] == 0 and (data.caps[1].stat == self.STATS.HIT or data.caps[2].stat == self.STATS.HIT) then
       data.weights[self.STATS.SPIRIT] = 1

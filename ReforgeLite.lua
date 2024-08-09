@@ -1148,8 +1148,10 @@ function ReforgeLite:SetStatWeights (weights, caps)
         self.pdb.caps[i].points = {}
       end
     end
-    self:UpdateCapPoints (1)
-    self:UpdateCapPoints (2)
+    for i=1,3 do
+      self:UpdateCapPoints (i)
+    end
+    self.statCaps:ToggleStatDropdownToCorrectState()
     self.statCaps.onUpdate ()
     self:UpdateContentSize ()
     RunNextFrame(function() self:CapUpdater() end)
@@ -1396,6 +1398,7 @@ function ReforgeLite:CreateOptionList ()
           self:AddCapPoint(i)
         end
         self.pdb.caps[i].stat = val
+        self.statCaps:ToggleStatDropdownToCorrectState()
       end,
       width = 110,
       menuItemDisabled = function(val)
@@ -1418,7 +1421,20 @@ function ReforgeLite:CreateOptionList ()
     if self.pdb.caps[i].stat == 0 then
       self:RemoveCapPoint(i)
     end
+    if i > 1 and self.pdb.caps[i-1].stat == 0 then
+      self.statCaps[i].stat:DisableDropdown()
+    end
   end
+  self.statCaps.ToggleStatDropdownToCorrectState = function(caps)
+    for i = 2, #caps do
+      if self.pdb.caps[i-1].stat == 0  then
+        caps[i].stat:DisableDropdown()
+      else
+        caps[i].stat:EnableDropdown()
+      end
+    end
+  end
+  self.statCaps:ToggleStatDropdownToCorrectState()
   self.statCaps.onUpdate = function ()
     local row = 1
     for i = 1, 2 do
