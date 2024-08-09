@@ -290,7 +290,7 @@ function ReforgeLite:MakeReforgeOption (item, data, src, dst)
     elseif dst == data.caps[2].stat then
       delta2 = delta2 + amount
     elseif dst == data.caps[3].stat then
-      delta3 = delta3 - amount
+      delta3 = delta3 + amount
     elseif dst == self.STATS.SPIRIT then
       dscore = dscore + data.weights[dst] * amount
       if self.s2hFactor > 0 then
