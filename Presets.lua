@@ -188,8 +188,7 @@ local function GetHasteRequired(percentNeeded, hasteMod)
     else
       actHasteMod = hasteMod or 1
     end
-    local baseHaste = (actHasteMod - 1) * 100
-    return ceil((percentNeeded - baseHaste) * ReforgeLite:RatingPerPoint(ReforgeLite.STATS.HASTE) / actHasteMod)
+    return ceil((percentNeeded - (actHasteMod - 1) * 100) * ReforgeLite:RatingPerPoint(ReforgeLite.STATS.HASTE) / actHasteMod)
   end
 end
 
