@@ -61,6 +61,7 @@ local DefaultDB = {
 }
 local DefaultDBProfile = {
   targetLevel = 3,
+  darkIntent = false,
 
   buffs = {
   },
@@ -1397,6 +1398,11 @@ function ReforgeLite:CreateOptionList ()
         elseif dropdown.value == 0 then
           self:AddCapPoint(i)
         end
+        if val == self.STATS.HASTE then
+          self.statCaps[i].darkIntent:Show()
+        else
+          self.statCaps[i].darkIntent:Hide()
+        end
         self.pdb.caps[i].stat = val
         self.statCaps:ToggleStatDropdownToCorrectState()
       end,
@@ -1410,8 +1416,28 @@ function ReforgeLite:CreateOptionList ()
       self:AddCapPoint (i)
     end)
     GUI:SetTooltip (self.statCaps[i].add, L["Add cap"])
+    self.statCaps[i].darkIntent = GUI:CreateCheckButton(
+      self.statCaps,
+      CreateSimpleTextureMarkup(463285, 20, 20),
+      self.pdb.darkIntent,
+      function(val)
+        self.pdb.darkIntent = val
+        for pointIndex, point in ipairs(self.pdb.caps[i].points) do
+          local oldValue = point.value
+          self:UpdateCapPreset(i, pointIndex)
+          if oldValue ~= point.value then
+            self:ReorderCapPoint (i, pointIndex)
+          end
+        end
+      end
+    )
+    if self.pdb.caps[i].stat ~= self.STATS.HASTE then
+      self.statCaps[i].darkIntent:Hide()
+    end
+    GUI:SetTooltip (self.statCaps[i].darkIntent, ("%s %s - %s +%s%%"):format(CreateSimpleTextureMarkup(463285, 30, 30),GetSpellInfo(85767),format(STAT_FORMAT, STAT_HASTE),3))
     self.statCaps:SetCell (i, 0, self.statCaps[i].stat, "LEFT", -20, -10)
     self.statCaps:SetCell (i, 2, self.statCaps[i].add, "LEFT")
+    self.statCaps:SetCell (i, 3, self.statCaps[i].darkIntent, "LEFT")
   end
   for i = 1, 2 do
     for point in ipairs(self.pdb.caps[i].points) do
@@ -1420,9 +1446,6 @@ function ReforgeLite:CreateOptionList ()
     self:UpdateCapPoints (i)
     if self.pdb.caps[i].stat == 0 then
       self:RemoveCapPoint(i)
-    end
-    if i > 1 and self.pdb.caps[i-1].stat == 0 then
-      self.statCaps[i].stat:DisableDropdown()
     end
   end
   self.statCaps.ToggleStatDropdownToCorrectState = function(caps)
