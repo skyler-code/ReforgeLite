@@ -195,52 +195,9 @@ end
 
 -----------------------------------------------------------------
 
-local function CreateStaticPopup(name, text, options)
-  StaticPopupDialogs[name] = {
-    text = text,
-    button1 = ACCEPT,
-    button2 = CANCEL,
-    hasEditBox = true,
-    editBoxWidth = 350,
-    OnAccept = function (self)
-      options.func(self.editBox:GetText ())
-    end,
-    EditBoxOnEnterPressed = function (self)
-      local importStr = self:GetParent ().editBox:GetText ()
-      if importStr ~= "" then
-        options.func(importStr)
-        self:GetParent ():Hide ()
-      end
-    end,
-    EditBoxOnTextChanged = function (self, data)
-      if data ~= "" then
-        self:GetParent ().button1:Enable ()
-      else
-        self:GetParent ().button1:Disable ()
-      end
-    end,
-    EditBoxOnEscapePressed = function(self)
-      self:GetParent():Hide();
-    end,
-    OnShow = function (self)
-      LibDD:CloseDropDownMenus()
-      self.editBox:SetText ("")
-      self.button1:Disable ()
-      self.editBox:SetFocus ()
-    end,
-    OnHide = function (self)
-      ChatEdit_FocusActiveWindow ()
-      self.editBox:SetText ("")
-    end,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = true
-  }
-end
-
-CreateStaticPopup("REFORGE_LITE_PARSE_PAWN", L["Enter pawn string"], { func = function(text) ReforgeLite:ParseImportString(text) end })
-CreateStaticPopup("REFORGE_LITE_PARSE_WOWSIMS", L["Enter WoWSims JSON"], { func = function(text) ReforgeLite:ParseWoWSimsString(text) end } )
-CreateStaticPopup("REFORGE_LITE_SAVE_PRESET", L["Enter the preset name"], { func = function(text)
+GUI.CreateStaticPopup("REFORGE_LITE_PARSE_PAWN", L["Enter pawn string"], { func = function(text) ReforgeLite:ParseImportString(text) end })
+GUI.CreateStaticPopup("REFORGE_LITE_PARSE_WOWSIMS", L["Enter WoWSims JSON"], { func = function(text) ReforgeLite:ParseWoWSimsString(text) end } )
+GUI.CreateStaticPopup("REFORGE_LITE_SAVE_PRESET", L["Enter the preset name"], { func = function(text)
   ReforgeLite.cdb.customPresets[text] = {
     caps = DeepCopy(ReforgeLite.pdb.caps),
     weights = DeepCopy(ReforgeLite.pdb.weights)
@@ -248,7 +205,6 @@ CreateStaticPopup("REFORGE_LITE_SAVE_PRESET", L["Enter the preset name"], { func
   ReforgeLite:InitCustomPresets()
   ReforgeLite.deletePresetButton:Enable()
 end })
-
 
 ReforgeLite.itemSlots = {
   "HEADSLOT",
