@@ -44,7 +44,7 @@ function GUI:Lock()
   end
   for _, dropdown in ipairs(self.dropdowns) do
     if not dropdown.isDisabled then
-      LibDD:UIDropDownMenu_DisableDropDown(dropdown)
+      dropdown:DisableDropdown()
       dropdown.locked = true
     end
   end
@@ -72,7 +72,7 @@ function GUI:Unlock()
   end
   for _, dropdown in ipairs(self.dropdowns) do
     if dropdown.locked then
-      LibDD:UIDropDownMenu_EnableDropDown(dropdown)
+      dropdown:EnableDropdown()
       dropdown.locked = nil
     end
   end
@@ -194,6 +194,12 @@ function GUI:CreateDropdown (parent, values, options)
         end
       end
       LibDD:UIDropDownMenu_SetText (dropdown, "")
+    end
+    sel.EnableDropdown = function(dropdown)
+      LibDD:UIDropDownMenu_EnableDropDown (dropdown)
+    end
+    sel.DisableDropdown = function(dropdown)
+      LibDD:UIDropDownMenu_DisableDropDown (dropdown)
     end
     LibDD:UIDropDownMenu_JustifyText (sel, "LEFT")
     sel:SetHeight (50)
