@@ -989,7 +989,11 @@ function ReforgeLite:AddCapPoint (i, loading)
 
   GUI:SetTooltip (rem, L["Remove cap"])
   GUI:SetTooltip (value, function()
-    return L["Cap value"] ..'\n'.. ("%.2f"):format((self.pdb.caps[i].points[point].value or 0) / self:RatingPerPoint(self.pdb.caps[i].stat))
+    local cap = self.pdb.caps[i]
+    if cap.stat == self.STATS.HIT then
+      return ("%s\n%s: %s\n%s: %s"):format(L["Cap value"], MELEE, ("%.2f"):format((cap.points[point].value or 0) / self:RatingPerPoint(cap.stat)), STAT_CATEGORY_SPELL, ("%.2f"):format((cap.points[point].value or 0) / self:RatingPerPoint(self.STATS.SPELLHIT)))
+    end
+    return L["Cap value"] ..'\n'.. ("%.2f"):format((cap.points[point].value or 0) / self:RatingPerPoint(cap.stat))
   end)
   GUI:SetTooltip (after, L["Weight after cap"])
 
