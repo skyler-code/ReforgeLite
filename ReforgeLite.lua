@@ -1567,7 +1567,7 @@ function ReforgeLite:FillSettings ()
     end
   end), "LEFT")
 
-  self.debugButton = GUI:CreatePanelButton (self.content, L["Debug"], function(btn) self:DebugMethod () end)
+  self.debugButton = GUI:CreatePanelButton (self.settings, L["Debug"], function(btn) self:DebugMethod () end)
   self.settings:SetCell (getOrderId('settings'), 0, self.debugButton, "LEFT")
 
   if self.isDev then
