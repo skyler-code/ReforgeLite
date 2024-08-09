@@ -393,9 +393,6 @@ function ReforgeLite:InitReforgeClassic ()
       end
     end
   end
-  if data.caps[1].stat == 0 then -- this is going to bug
-    data.caps[1], data.caps[2] = data.caps[2], data.caps[1]
-  end
   if self.s2hFactor > 0 then
     if data.weights[self.STATS.SPIRIT] == 0 and (data.caps[1].stat == self.STATS.HIT or data.caps[2].stat == self.STATS.HIT or data.caps[3].stat == self.STATS.HIT) then
       data.weights[self.STATS.SPIRIT] = 1
