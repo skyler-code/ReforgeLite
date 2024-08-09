@@ -1112,7 +1112,7 @@ function ReforgeLite:SetStatWeights (weights, caps)
         self.pdb.caps[i].points = {}
       end
     end
-    for i=1,3 do
+    for i=1,2 do
       self:UpdateCapPoints (i)
     end
     self.statCaps:ToggleStatDropdownToCorrectState()
