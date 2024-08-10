@@ -1083,11 +1083,11 @@ function ReforgeLite:SetTankingModel (model)
 end
 function ReforgeLite:CollapseStatCaps()
   local caps = DeepCopy(self.pdb.caps)
-  table.sort(caps, function(a,b)
-    local aIsNone = a.stat == 0 and 1 or 0
-    local bIsNone = b.stat == 0 and 1 or 0
-    return aIsNone < bIsNone
-  end)
+  for i = 1, #caps do
+    if caps[i].stat == 0 then
+      tinsert(caps, tremove(caps, i))
+    end
+  end
   self:SetStatWeights(nil, caps)
 end
 function ReforgeLite:SetStatWeights (weights, caps)
