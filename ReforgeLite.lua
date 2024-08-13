@@ -33,6 +33,12 @@ local function DeepCopy (t, cache)
 end
 addonTable.DeepCopy = DeepCopy
 
+local function round(v, bracket)
+	bracket = bracket or 1
+	return floor(v/bracket + ((v >= 0 and 1) or -1) * 0.5) * bracket
+end
+addonTable.round = round
+
 local gprint = print
 local function print(...)
     gprint("|cff33ff99"..addonName.."|r:",...)
@@ -992,9 +998,23 @@ function ReforgeLite:AddCapPoint (i, loading)
     local cap = self.pdb.caps[i]
     if cap.stat == self.STATS.SPIRIT then return end
     local pointValue = (cap.points[point].value or 0)
-    local rating = ("%.2f"):format(pointValue / self:RatingPerPoint(cap.stat))
+    local rating = round(pointValue / self:RatingPerPoint(cap.stat), 0.01)
     if cap.stat == self.STATS.HIT then
-      return ("%s\n%s: %s\n%s: %s"):format(L["Cap value"], MELEE, rating, STAT_CATEGORY_SPELL, ("%.2f"):format(pointValue / self:RatingPerPoint(self.STATS.SPELLHIT)))
+      local meleeHitBonus = self:GetMeleeHitBonus()
+      if meleeHitBonus > 0 then
+        rating = ("%s%% + %s%% = %s"):format(rating, meleeHitBonus, rating + meleeHitBonus)
+      end
+      local spellHitRating = round(pointValue / self:RatingPerPoint(self.STATS.SPELLHIT), 0.01)
+      local spellHitBonus = self:GetSpellHitBonus()
+      if spellHitBonus > 0 then
+        spellHitRating = ("%s%% + %s%% = %s"):format(spellHitRating,spellHitBonus,spellHitRating+spellHitBonus)
+      end
+      rating = ("%s: %s%%\n%s: %s%%"):format(MELEE, rating, STAT_CATEGORY_SPELL, spellHitRating)
+    elseif cap.stat == self.STATS.EXP then
+      local expBonus = self:GetExpertiseBonus()
+      if expBonus > 0 then
+        rating = ("%s + %s = %s"):format(rating, expBonus, rating + expBonus)
+      end
     end
     return ("%s\n%s"):format(L["Cap value"], rating)
   end)
