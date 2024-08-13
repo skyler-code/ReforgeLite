@@ -1025,6 +1025,7 @@ function ReforgeLite:RemoveCapPoint (i, point, loading)
     self.pdb.caps[i].stat = 0
     self.statCaps[i].add:Disable()
     self.statCaps[i].stat:SetValue(0)
+    self.statCaps:ToggleDarkIntentButton()
   end
 end
 function ReforgeLite:ReorderCapPoint (i, point)
@@ -1359,6 +1360,24 @@ function ReforgeLite:CreateOptionList ()
   for i, v in ipairs (self.itemStats) do
     tinsert (statList, {value = i, name = v.long})
   end
+  self.statCaps.ToggleDarkIntentButton = function(caps)
+    for _, cap in ipairs(caps) do
+      if cap.stat.selectedValue == self.STATS.HASTE then
+        cap.darkIntent:Show()
+      else
+        cap.darkIntent:Hide()
+      end
+    end
+  end
+  self.statCaps.ToggleStatDropdownToCorrectState = function(caps)
+    for i = 2, #caps do
+      if self.pdb.caps[i-1].stat == 0  then
+        caps[i].stat:DisableDropdown()
+      else
+        caps[i].stat:EnableDropdown()
+      end
+    end
+  end
   for i = 1, 2 do
     self.statCaps[i] = {}
     self.statCaps[i].stat = GUI:CreateDropdown (self.statCaps, statList, {
@@ -1403,9 +1422,7 @@ function ReforgeLite:CreateOptionList ()
         end
       end
     )
-    if self.pdb.caps[i].stat ~= self.STATS.HASTE then
-      self.statCaps[i].darkIntent:Hide()
-    end
+    self.statCaps[i].darkIntent:Hide()
     GUI:SetTooltip (self.statCaps[i].darkIntent, ("%s %s - %s +%s%%"):format(CreateSimpleTextureMarkup(463285, 30, 30),GetSpellInfo(85767),format(STAT_FORMAT, STAT_HASTE),3))
     self.statCaps:SetCell (i, 0, self.statCaps[i].stat, "LEFT", -20, -10)
     self.statCaps:SetCell (i, 2, self.statCaps[i].add, "LEFT")
@@ -1420,24 +1437,7 @@ function ReforgeLite:CreateOptionList ()
       self:RemoveCapPoint(i)
     end
   end
-  self.statCaps.ToggleDarkIntentButton = function(caps)
-    for _, cap in ipairs(caps) do
-      if cap.stat.selectedValue == self.STATS.HASTE then
-        cap.darkIntent:Show()
-      else
-        cap.darkIntent:Hide()
-      end
-    end
-  end
-  self.statCaps.ToggleStatDropdownToCorrectState = function(caps)
-    for i = 2, #caps do
-      if self.pdb.caps[i-1].stat == 0  then
-        caps[i].stat:DisableDropdown()
-      else
-        caps[i].stat:EnableDropdown()
-      end
-    end
-  end
+  self.statCaps:ToggleDarkIntentButton()
   self.statCaps:ToggleStatDropdownToCorrectState()
   self.statCaps.onUpdate = function ()
     local row = 1
