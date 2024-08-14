@@ -63,6 +63,28 @@ function ReforgeLite:GetExpertiseBonus ()
   end
   return bonus
 end
+function ReforgeLite:GetMeleeHasteBonus()
+  return addonTable.round((GetMeleeHaste()+100)/(GetCombatRatingBonus(CR_HASTE_MELEE)+100), 0.0001)
+end
+function ReforgeLite:GetRangedHasteBonus()
+  return addonTable.round((GetRangedHaste()+100)/(GetCombatRatingBonus(CR_HASTE_RANGED)+100), 0.0001)
+end
+local function PlayerHasSpellHasteBuff()
+  return select(5, ReforgeLite:GetPlayerBuffs())
+end
+function ReforgeLite:GetSpellHasteBonus()
+  local baseBonus = (UnitSpellHaste('PLAYER')+100)/(GetCombatRatingBonus(CR_HASTE_SPELL)+100)
+  if self.pdb.spellHaste or self.pdb.darkIntent then
+    local spellHaste, darkIntent = PlayerHasSpellHasteBuff()
+    if self.pdb.spellHaste and not spellHaste then
+      baseBonus = baseBonus * 1.05
+    end
+    if self.pdb.darkIntent and not darkIntent then
+      baseBonus = baseBonus * 1.03
+    end
+  end
+  return addonTable.round(baseBonus, 0.000001)
+end
 function ReforgeLite:GetNeededMeleeHit ()
   local diff = self.pdb.targetLevel
   if diff <= 2 then
@@ -180,104 +202,69 @@ local function GetActiveItemSet()
   return itemSets
 end
 
-local function GetHasteRequired(percentNeeded, hasteMod)
+local function GetSpellHasteRequired(percentNeeded)
   return function()
-    local actHasteMod
-    if type(hasteMod) == "function" then
-      actHasteMod = hasteMod()
-    else
-      actHasteMod = hasteMod or 1
-    end
-    return ceil((percentNeeded - (actHasteMod - 1) * 100) * ReforgeLite:RatingPerPoint(ReforgeLite.STATS.HASTE) / actHasteMod)
+    local hasteMod = ReforgeLite:GetSpellHasteBonus()
+    return ceil((percentNeeded - (hasteMod - 1) * 100) * ReforgeLite:RatingPerPoint(ReforgeLite.STATS.HASTE) / hasteMod)
   end
 end
 
 if addonTable.playerClass == "DRUID" then
-  local function getHasteModifier()
-    local haste = 1.05
-    if ReforgeLite.pdb.darkIntent then
-      haste = haste * 1.03
-    end
-    return haste
-  end
   tinsert(ReforgeLite.capPresets, {
     value = CAPS.FirstHasteBreak,
     category = StatHaste,
-    name = ("7.15%% 5th %sRejuv Tick"):format(CreateIconMarkup(136081)),
-    getter = GetHasteRequired(12.51, getHasteModifier),
+    name = ("12.51%% 5th %sRejuv Tick"):format(CreateIconMarkup(136081)),
+    getter = GetSpellHasteRequired(12.51),
   })
   tinsert(ReforgeLite.capPresets, {
     value = CAPS.SecondHasteBreak,
     category = StatHaste,
-    name = ("15.65%% 9th %sWG / %sEfflo Tick"):format(CreateIconMarkup(236153), CreateIconMarkup(134222)),
-    getter = GetHasteRequired(21.4345, getHasteModifier),
+    name = ("21.43%% 9th %sWG / %sEfflo Tick"):format(CreateIconMarkup(236153), CreateIconMarkup(134222)),
+    getter = GetSpellHasteRequired(21.4345),
   })
 elseif addonTable.playerClass == "PRIEST" then
-  local function getHasteModifier()
-    local haste = 1.05 * 1.03
-    if addonTable.playerRace == "Goblin" then
-      haste =  haste * 1.01
-    end
-    if ReforgeLite.pdb.darkIntent then
-      haste = haste * 1.03
-    end
-    return haste
-  end
   tinsert(ReforgeLite.capPresets, {
     value = CAPS.FirstHasteBreak,
     category = StatHaste,
     name = ("18.74%% 2nd %sDP Tick"):format(CreateIconMarkup(252997)),
-    getter = GetHasteRequired(18.74, getHasteModifier),
+    getter = GetSpellHasteRequired(18.74),
   })
   tinsert(ReforgeLite.capPresets, {
     value = CAPS.SecondHasteBreak,
     category = StatHaste,
     name = ("24.97%% 2nd %sSWP Tick"):format(CreateIconMarkup(136207)),
-    getter = GetHasteRequired(24.97, getHasteModifier),
+    getter = GetSpellHasteRequired(24.97),
   })
   tinsert(ReforgeLite.capPresets, {
     value = CAPS.ThirdHasteBreak,
     category = StatHaste,
-    name = ("30%% 2nd %sVT Tick"):format(CreateIconMarkup(135978)),
-    getter = GetHasteRequired(30.015, getHasteModifier),
+    name = ("30.01%% 2nd %sVT Tick"):format(CreateIconMarkup(135978)),
+    getter = GetSpellHasteRequired(30.01),
   })
   tinsert(ReforgeLite.capPresets, {
     value = CAPS.FourthHasteBreak,
     category = StatHaste,
     name = ("31.26%% 3rd %sDP Tick"):format(CreateIconMarkup(252997)),
-    getter = GetHasteRequired(31.26, getHasteModifier),
+    getter = GetSpellHasteRequired(31.26),
   })
-  if addonTable.playerRace == "Goblin" then
-    tinsert(ReforgeLite.capPresets, {
-      value = CAPS.FifthHasteBreak,
-      category = StatHaste,
-      name = ("41.67%% 3rd %sSWP Tick"):format(CreateIconMarkup(136207)),
-      getter = GetHasteRequired(41.675, getHasteModifier),
-    })
-  end
+  tinsert(ReforgeLite.capPresets, {
+    value = CAPS.FifthHasteBreak,
+    category = StatHaste,
+    name = ("41.67%% 3rd %sSWP Tick"):format(CreateIconMarkup(136207)),
+    getter = GetSpellHasteRequired(41.675),
+  })
 elseif addonTable.playerClass == "MAGE" then
-  local function getHasteModifier()
-    local netherHaste = select(5, GetTalentInfo (1, 15))/100+1
-    local haste = 1.05 * netherHaste
-    if addonTable.playerRace == "Goblin" then
-      haste = haste * 1.01
-    end
-    if ReforgeLite.pdb.darkIntent then
-      haste = haste * 1.03
-    end
-    return haste
-  end
   tinsert(ReforgeLite.capPresets, {
     value = CAPS.FirstHasteBreak,
     category = StatHaste,
     name = ("15%% 2nd %sCombustion Tick"):format(CreateIconMarkup(135824)),
-    getter = GetHasteRequired(15.01, getHasteModifier),
+    getter = GetSpellHasteRequired(15.01),
   })
   tinsert(ReforgeLite.capPresets, {
     value = CAPS.SecondHasteBreak,
     category = StatHaste,
     name = ("25%% 3rd %sCombustion Tick"):format(CreateIconMarkup(135824)),
-    getter = GetHasteRequired(25.08, getHasteModifier),
+    getter = GetSpellHasteRequired(25.08),
   })
   tinsert(ReforgeLite.capPresets, {
     value = CAPS.ThirdHasteBreak,

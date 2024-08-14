@@ -11,13 +11,13 @@ local missChance = (playerRace == "NIGHTELF" and 7 or 5)
 local floor, tinsert, unpack, pairs, random = floor, tinsert, unpack, pairs, random
 
 ---------------------------------------------------------------------------------------
-function ReforgeLite:GetPlayerBuffs ()
-  local kings, strength, flask, food
+function ReforgeLite:GetPlayerBuffs()
+  local kings, strength, flask, food, spellHaste, darkIntent
   local i = 1
   while true do
     local aura = C_UnitAuras.GetBuffDataByIndex("player", i)
     if aura == nil then
-      return kings, strength, flask, food
+      return kings, strength, flask, food, spellHaste, darkIntent
     else
       local id = aura.spellId
       if id == 79063 or id == 79061 or id == 90363 then
@@ -38,6 +38,10 @@ function ReforgeLite:GetPlayerBuffs ()
         flask = 1
       elseif id == 79635 then -- 225 mastery elixir
         flask = 2
+      elseif id == 49868 or id == 24907 or id == 2895 then
+        spellHaste = true
+      elseif id == 85768 or id == 85767 then
+        darkIntent = true
       end
     end
     i = i + 1

@@ -67,6 +67,7 @@ local DefaultDB = {
 }
 local DefaultDBProfile = {
   targetLevel = 3,
+  spellHaste = true,
   darkIntent = false,
 
   buffs = {
