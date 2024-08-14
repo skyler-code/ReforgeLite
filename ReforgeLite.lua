@@ -873,7 +873,6 @@ function ReforgeLite:CreateItemTable ()
   self.itemLevel = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   self.itemLevel:SetPoint ("TOPLEFT", 12, -28)
   self.itemLevel:SetTextColor (1, 1, 0.8)
-  self.itemLevel:SetText (STAT_AVERAGE_ITEM_LEVEL .. ": 0")
 
   self.itemTable = GUI:CreateTable (#self.itemSlots + 1, #self.itemStats, self.db.itemSize, self.db.itemSize + 4, {0.5, 0.5, 0.5, 1}, self)
   self.itemTable:SetPoint ("TOPLEFT", self.itemLevel, "BOTTOMLEFT", 0, -10)
