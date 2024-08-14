@@ -85,6 +85,16 @@ function ReforgeLite:GetSpellHasteBonus()
   end
   return addonTable.round(baseBonus, 0.000001)
 end
+function ReforgeLite:GetHasteBonuses()
+  return self:GetMeleeHasteBonus(), self:GetRangedHasteBonus(), self:GetSpellHasteBonus()
+end
+function ReforgeLite:CalcHasteWithBonus(haste, hasteBonus)
+  return ((hasteBonus - 1) * 100) + haste * hasteBonus
+end
+function ReforgeLite:CalcHasteWithBonuses(haste)
+  local meleeBonus, rangedBonus, spellBonus = self:GetHasteBonuses()
+  return self:CalcHasteWithBonus(haste, meleeBonus), self:CalcHasteWithBonus(haste, rangedBonus), self:CalcHasteWithBonus(haste, spellBonus)
+end
 function ReforgeLite:GetNeededMeleeHit ()
   local diff = self.pdb.targetLevel
   if diff <= 2 then

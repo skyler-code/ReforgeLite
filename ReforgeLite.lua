@@ -1015,6 +1015,9 @@ function ReforgeLite:AddCapPoint (i, loading)
       if expBonus > 0 then
         rating = ("%s + %s = %s"):format(rating, expBonus, rating + expBonus)
       end
+    elseif cap.stat == self.STATS.HASTE then
+      local meleeHaste, rangedHaste, spellHaste = self:CalcHasteWithBonuses(rating)
+      rating = ("%s: %.2f\n%s: %s\n%s: %s"):format(MELEE, meleeHaste, RANGED, rangedHaste, STAT_CATEGORY_SPELL, spellHaste)
     end
     return ("%s\n%s"):format(L["Cap value"], rating)
   end)
