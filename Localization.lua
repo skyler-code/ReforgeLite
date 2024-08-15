@@ -342,6 +342,8 @@ elseif gameLocale == "zhTW" then
   L["Item Import Mismatch"] = "%s 与您当前装备的 %s 不匹配。ReforgeLite 仅支持装备物品。"
   L["Exactly"] = "確切地"
   L["Slide to the left if the calculation slows your game too much."] = "如果計算使遊戲速度減慢太多，請向左滑動。"
+  L["EquipPreString"] = ITEM_SPELL_TRIGGER_ONEQUIP .. " "
+  L["StatFormat"] = "^+(%d+)%s$"
 end
 
 setmetatable (L_enUS, {__index = function (self, key)
