@@ -125,7 +125,7 @@ function ReforgeLite:GetNeededExpertiseHard ()
 end
 
 local function CreateIconMarkup(icon)
-  return CreateSimpleTextureMarkup(icon, 18, 18) .. " "
+  return CreateSimpleTextureMarkup(icon, 16, 16) .. " "
 end
 
 local AtLeast = addonTable.StatCapMethods.AtLeast
