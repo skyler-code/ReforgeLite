@@ -166,10 +166,10 @@ function ReforgeLite:UpdateMethodStats (method)
       method.stats[method.items[i].dst] = method.stats[method.items[i].dst] + method.items[i].amount
     end
   end
-  method.stats[self.STATS.SPIRIT] = floor (method.stats[self.STATS.SPIRIT] * self.spiritBonus + 0.5)
+  method.stats[self.STATS.SPIRIT] = Round(method.stats[self.STATS.SPIRIT] * self.spiritBonus)
   if self.s2hFactor > 0 then
     method.stats[self.STATS.HIT] = method.stats[self.STATS.HIT] +
-      floor ((method.stats[self.STATS.SPIRIT] - oldspi) * self.s2hFactor / 100 + 0.5)
+      Round((method.stats[self.STATS.SPIRIT] - oldspi) * self.s2hFactor / 100)
   end
   if method.tankingModel then
     local dodge_bonus, parry_bonus, mastery_bonus = self:GetBuffBonuses ()
@@ -368,7 +368,7 @@ function ReforgeLite:InitReforgeClassic ()
     end
   end
   if self.s2hFactor > 0 then
-    data.initial[self.STATS.HIT] = data.initial[self.STATS.HIT] - floor (reforgedSpirit * self.spiritBonus * self.s2hFactor / 100 + 0.5)
+    data.initial[self.STATS.HIT] = data.initial[self.STATS.HIT] - Round(reforgedSpirit * self.spiritBonus * self.s2hFactor / 100)
   end
 
   for _,v in ipairs(data.caps) do
@@ -549,14 +549,14 @@ function ReforgeLite:InitReforgeS2H ()
       data.initial[dst] = data.initial[dst] - amount
     end
   end
-  data.initial[self.STATS.HIT] = data.initial[self.STATS.HIT] - floor (self.itemStats[self.STATS.SPIRIT].getter () * self.s2hFactor / 100 + 0.5)
+  data.initial[self.STATS.HIT] = data.initial[self.STATS.HIT] - Round(self.itemStats[self.STATS.SPIRIT].getter () * self.s2hFactor / 100)
   data.cap.init = data.initial[self.STATS.HIT]
-  data.spi = floor (data.initial[self.STATS.SPIRIT] + 0.5)
+  data.spi = Round(data.initial[self.STATS.SPIRIT])
   for i = 1, #data.method.items do
     data.cap.init = data.cap.init + data.method.items[i].stats[self.STATS.HIT]
     data.spi = data.spi + data.method.items[i].stats[self.STATS.SPIRIT]
   end
-  data.initial[self.STATS.SPIRIT] = floor (data.initial[self.STATS.SPIRIT] * self.spiritBonus + 0.5)
+  data.initial[self.STATS.SPIRIT] = Round(data.initial[self.STATS.SPIRIT] * self.spiritBonus)
 
   data.caps = {{stat = self.STATS.HIT, init = data.cap.init}, {stat = self.STATS.SPIRIT, init = data.spi}}
 
@@ -576,8 +576,8 @@ function ReforgeLite:ChooseReforgeS2H (data, reforgeOptions, scores, codes)
       hit = hit + reforgeOptions[i][b].d1
       spi = spi + reforgeOptions[i][b].d2
     end
-    spi = floor (spi * self.spiritBonus + 0.5)
-    hit = hit + floor (spi * self.s2hFactor / 100 + 0.5)
+    spi = Round(spi * self.spiritBonus)
+    hit = hit + Round(spi * self.s2hFactor / 100)
     local allow = self:CapAllows (data.cap, hit) and 1 or 2
     score = score + self:GetCapScore (data.cap, hit) + data.weights[self.STATS.SPIRIT] * spi
     if bestCode[allow] == nil or score > bestScore[allow] then

@@ -513,7 +513,7 @@ function ReforgeLite:ParsePawnString (values)
     factor = 100
   end
   for k, v in pairs (raw) do
-    raw[k] = floor (v * factor + 0.5)
+    raw[k] = Round(v * factor)
   end
 
   local weights = {}
@@ -1777,7 +1777,7 @@ function ReforgeLite:RefreshMethodStats (relax)
       else
         self.methodTank:Hide2 ()
       end
-      self.methodStats.score:SetText (floor (score + 0.5))
+      self.methodStats.score:SetText (Round(score))
       SetTextDelta (self.methodStats.scoreDelta, score, self:GetCurrentScore ())
       for i, v in ipairs (self.itemStats) do
         local mvalue = v.mgetter (self.pdb.method)
@@ -2209,8 +2209,8 @@ function ReforgeLite:IsReforgeMatching (slotId, reforge, override)
     deltas[dst] = deltas[dst] + amount
   end
 
-  deltas[self.STATS.SPIRIT] = floor (deltas[self.STATS.SPIRIT] * self.spiritBonus + 0.5)
-  deltas[self.STATS.HIT] = deltas[self.STATS.HIT] + floor (deltas[self.STATS.SPIRIT] * self.s2hFactor / 100 + 0.5)
+  deltas[self.STATS.SPIRIT] = Round(deltas[self.STATS.SPIRIT] * self.spiritBonus)
+  deltas[self.STATS.HIT] = deltas[self.STATS.HIT] + Round(deltas[self.STATS.SPIRIT] * self.s2hFactor / 100)
 
   for i = 1, #self.itemStats do
     if self:GetStatScore (i, self.pdb.method.stats[i]) ~= self:GetStatScore (i, self.pdb.method.stats[i] - deltas[i]) then
