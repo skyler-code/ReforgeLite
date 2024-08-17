@@ -64,10 +64,10 @@ function ReforgeLite:GetExpertiseBonus ()
   return bonus
 end
 function ReforgeLite:GetMeleeHasteBonus()
-  return addonTable.round((GetMeleeHaste()+100)/(GetCombatRatingBonus(CR_HASTE_MELEE)+100), 0.0001)
+  return RoundToSignificantDigits((GetMeleeHaste()+100)/(GetCombatRatingBonus(CR_HASTE_MELEE)+100), 4)
 end
 function ReforgeLite:GetRangedHasteBonus()
-  return addonTable.round((GetRangedHaste()+100)/(GetCombatRatingBonus(CR_HASTE_RANGED)+100), 0.0001)
+  return RoundToSignificantDigits((GetRangedHaste()+100)/(GetCombatRatingBonus(CR_HASTE_RANGED)+100), 4)
 end
 local function PlayerHasSpellHasteBuff()
   return select(5, ReforgeLite:GetPlayerBuffs())
@@ -83,7 +83,7 @@ function ReforgeLite:GetSpellHasteBonus()
       baseBonus = baseBonus * 1.03
     end
   end
-  return addonTable.round(baseBonus, 0.000001)
+  return RoundToSignificantDigits(baseBonus, 6)
 end
 function ReforgeLite:GetHasteBonuses()
   return self:GetMeleeHasteBonus(), self:GetRangedHasteBonus(), self:GetSpellHasteBonus()
