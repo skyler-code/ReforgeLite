@@ -1668,7 +1668,7 @@ function ReforgeLite:GetCurrentScore ()
       score = score + self:GetStatScore (i, self.itemStats[i].getter ())
     end
   end
-  return score
+  return RoundToSignificantDigits(score, 2)
 end
 function ReforgeLite:UpdateMethodCategory ()
   if self.methodCategory == nil then
@@ -1789,7 +1789,7 @@ function ReforgeLite:RefreshMethodStats (relax)
       else
         self.methodTank:Hide2 ()
       end
-      self.methodStats.score:SetText (Round(score))
+      self.methodStats.score:SetText (score)
       SetTextDelta (self.methodStats.scoreDelta, score, self:GetCurrentScore ())
       for i, v in ipairs (self.itemStats) do
         local mvalue = v.mgetter (self.pdb.method)

@@ -67,7 +67,7 @@ function ReforgeLite:GetMethodScore (method)
       score = score + self:GetStatScore (i, method.stats[i])
     end
   end
-  return score
+  return RoundToSignificantDigits(score, 2)
 end
 
 local itemBonuses = {
