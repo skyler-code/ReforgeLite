@@ -10,6 +10,7 @@ ReforgeLite.isDev = C_AddOns.GetAddOnMetadata(addonName, "Version") == "@project
 local L = addonTable.L
 local GUI = addonTable.GUI
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
+addonTable.MAX_LOOPS = 125000
 
 local function DeepCopy (t, cache)
   if type (t) ~= "table" then
@@ -47,7 +48,7 @@ local DefaultDB = {
   openOnReforge = true,
   updateTooltip = true,
 
-  speed = 10,
+  speed = addonTable.MAX_LOOPS * 0.8,
 
   activeWindowTitle = {0.6, 0, 0},
   inactiveWindowTitle = {0.5, 0.5, 0.5},
@@ -191,6 +192,9 @@ function ReforgeLite:UpgradeDB ()
     db.classProfiles[playerClass] = DefaultDBClassProfile
   else
     MergeTables (db.classProfiles[playerClass], DefaultDBClassProfile)
+  end
+  if db.speed <= 20 then
+    db.speed = addonTable.MAX_LOOPS*(db.speed/20)
   end
 end
 
@@ -1492,8 +1496,9 @@ function ReforgeLite:CreateOptionList ()
   self.quality = CreateFrame ("Slider", nil, self.content, "HorizontalSliderTemplate")
   self:SetAnchor (self.quality, "LEFT", self.computeButton, "RIGHT", 10, 0)
   self.quality:SetSize(150, 15)
-  self.quality:SetMinMaxValues (1, 20)
-  self.quality:SetValueStep (1)
+  self.quality:SetMinMaxValues (1000, addonTable.MAX_LOOPS)
+  self.quality:SetValueStep (1000)
+  self.quality:SetObeyStepOnDrag(true)
   self.quality:SetValue (self.db.speed)
   self.quality:EnableMouseWheel (false)
   self.quality:SetScript ("OnValueChanged", function (slider)

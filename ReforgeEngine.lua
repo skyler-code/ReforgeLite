@@ -1,6 +1,5 @@
 local addonName, addonTable = ...
 local REFORGE_COEFF = addonTable.REFORGE_COEFF
-local MAX_LOOPS = 100000
 
 local ReforgeLite = addonTable.ReforgeLite
 local L = addonTable.L
@@ -387,9 +386,9 @@ function ReforgeLite:InitReforgeClassic ()
 
   return data
 end
-
+local maxLoops
 function ReforgeLite:RunYieldCheck()
-  if self.__chooseLoops == self.__maxLoops then
+  if self.__chooseLoops == maxLoops then
     self.__chooseLoops = nil
     coroutine.yield()
   else
@@ -818,8 +817,7 @@ function ReforgeLite:ComputeReforge (initFunc, optionFunc, chooseFunc)
     reforgeOptions[i] = self[optionFunc] (self, data.method.items[i], data, i)
   end
 
-  local _, maxQuality = self.quality:GetMinMaxValues()
-  self.__maxLoops = MAX_LOOPS * (self.db.speed / maxQuality)
+  maxLoops = self.db.speed
 
   local scores, codes = self:ComputeReforgeCore(data, reforgeOptions)
 
