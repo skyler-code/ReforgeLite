@@ -1359,30 +1359,25 @@ function ReforgeLite:CreateOptionList ()
     self.pdb.tankingModel = nil
   end
 
-  local playerLevel = UnitLevel("player")
+  local levelList = {}
+  for _,v in ipairs({{PVP,0},{LFG_TYPE_HEROIC_DUNGEON,2},{LFG_TYPE_RAID,3}}) do
+    local label, value = unpack(v)
+    tinsert(levelList, {value = value, name = ("%s (+%d)"):format(label, value)})
+  end
 
-  self.targetLevelText = self.statWeightsCategory:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self:SetAnchor(self.targetLevelText, "TOPLEFT", self.tankingModel or self.pawnButton, "BOTTOMLEFT", 0, -5)
-  self.targetLevelText:SetTextColor (1, 1, 1)
-  self.targetLevelText:SetText(STAT_TARGET_LEVEL..": "..playerLevel.. " +")
-  self.statWeightsCategory:AddFrame (self.targetLevelText)
-
-  self.targetLevel = GUI:CreateEditBox (self.content, 25, 30, self.pdb.targetLevel, function (val)
-    self.pdb.targetLevel = val
-    self.targetLevelResult:SetText("= "..playerLevel + self.pdb.targetLevel)
-    self:UpdateItems()
-  end)
-  self:SetAnchor (self.targetLevel, "LEFT", self.targetLevelText, "RIGHT", 10, 0)
-  self.statWeightsCategory:AddFrame (self.targetLevel)
-
-  self.targetLevelResult = self.statWeightsCategory:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self:SetAnchor(self.targetLevelResult, "LEFT", self.targetLevel, "RIGHT", 6, 0)
-  self.targetLevelResult:SetTextColor (1, 1, 1)
-  self.targetLevelResult:SetText("= "..playerLevel + self.pdb.targetLevel)
-  self.statWeightsCategory:AddFrame (self.targetLevelResult)
+  self.targetLevel = GUI:CreateDropdown(self.content, levelList, {
+    default =  self.pdb.targetLevel,
+    setter = function(_,val) self.pdb.targetLevel = val; self:UpdateItems() end,
+    width = 150,
+  })
+  self.statWeightsCategory:AddFrame(self.targetLevel)
+  self.targetLevel.text = self.targetLevel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+  self.targetLevel.text:SetText(STAT_TARGET_LEVEL)
+  self:SetAnchor(self.targetLevel.text, "TOPLEFT", self.tankingModel or self.pawnButton, "BOTTOMLEFT", 0, -8)
+  self.targetLevel:SetPoint("BOTTOMLEFT", self.targetLevel.text, "BOTTOMLEFT", 150, -20)
 
   self.statWeights = GUI:CreateTable (ceil (#self.itemStats / 2), 4)
-  self:SetAnchor (self.statWeights, "TOPLEFT", self.targetLevelText, "BOTTOMLEFT", 0, -8)
+  self:SetAnchor (self.statWeights, "TOPLEFT", self.targetLevel.text, "BOTTOMLEFT", 0, -8)
   self.statWeights:SetPoint ("RIGHT", -5, 0)
   self.statWeightsCategory:AddFrame (self.statWeights)
   self.statWeights:SetRowHeight (self.db.itemSize + 2)
