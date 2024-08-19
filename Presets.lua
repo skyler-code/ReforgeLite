@@ -383,6 +383,7 @@ do
     ["DEATHKNIGHT"] = {
       [specs.DEATHKNIGHTBlood] = {
         [RAID] = {
+          targetLevel = 3,
           weights = {
             0, 110, 100, 150, 20, 50, 120, 200
           },
@@ -408,6 +409,7 @@ do
           },
         },
         [LFG_TYPE_DUNGEON] = {
+          targetLevel = 2,
           weights = {
             0, 0, 0, 200, 0, 50, 200, 150
           },
@@ -1041,6 +1043,10 @@ function ReforgeLite:InitPresets()
   self.presetMenu.list = self.presets
   LibDD:UIDropDownMenu_Initialize(self.presetMenu, menuListInit({
     onClick = function(info)
+      if info.value.targetLevel then
+        self.pdb.targetLevel = info.value.targetLevel
+        self.targetLevel:SetValue(info.value.targetLevel)
+      end
       self:SetStatWeights(info.value.weights, info.value.caps or {})
       self:SetTankingModel (info.value.tanking)
     end
