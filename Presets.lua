@@ -415,7 +415,7 @@ do
         },
       },
       [specs.DEATHKNIGHTFrost] = {
-        [GetSpellInfo(49020)] = { -- Obliterate
+        [addonTable.GetSpellName(49020)] = { -- Obliterate
           icon = 135771,
           weights = {
             0, 0, 0, 200, 120, 160, 50, 90
@@ -450,7 +450,7 @@ do
         caps = CasterCaps,
       },
       [specs.DRUIDFeralCombat] = {
-        [("%s (%s)"):format(GetSpellInfo(5487), TANK)] = { -- Bear
+        [("%s (%s)"):format(addonTable.GetSpellName(5487), TANK)] = { -- Bear
           icon = 132276,
           weights = {
             0, 54, 0, 25, 53, 7, 48, 37
@@ -476,14 +476,14 @@ do
             },
           },
         },
-        [("%s (%s)"):format(GetSpellInfo(5487), STAT_DPS_SHORT)] = { -- Bear
+        [("%s (%s)"):format(addonTable.GetSpellName(5487), STAT_DPS_SHORT)] = { -- Bear
           icon = 132276,
           weights = {
             0, -6, 0, 100, 50, 25, 100, -1
           },
           caps = MeleeCaps,
         },
-        [("%s (%s)"):format(GetSpellInfo(768), "Monocat")] = { -- Cat
+        [("%s (%s)"):format(addonTable.GetSpellName(768), "Monocat")] = { -- Cat
           icon = 132115,
           weights = {
             0, 0, 0, 30, 31, 28, 30, 31
@@ -509,7 +509,7 @@ do
             },
           },
         },
-        [("%s (%s)"):format(GetSpellInfo(768), "Bearweave")] = { -- Cat
+        [("%s (%s)"):format(addonTable.GetSpellName(768), "Bearweave")] = { -- Cat
           icon = 132115,
           weights = {
             0, 0, 0, 33, 31, 26, 32, 30
@@ -869,7 +869,7 @@ do
         caps = MeleeCaps
       },
       [specs.WARRIORFury] = {
-        [GetSpellInfo(46917)] = { -- Titan's Grip
+        [addonTable.GetSpellName(46917)] = { -- Titan's Grip
           icon = 236316,
           weights = {
             0, 0, 0, 200, 150, 100, 180, 130
@@ -888,7 +888,7 @@ do
             SoftExpCap
           },
         },
-        [GetSpellInfo(81099)] = { -- Single-Minded Fury
+        [addonTable.GetSpellName(81099)] = { -- Single-Minded Fury
           icon = 458974,
           weights = {
             0, 0, 0, 200, 150, 100, 180, 130

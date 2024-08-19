@@ -8,16 +8,14 @@ local playerClass, playerRace = addonTable.playerClass, addonTable.playerRace
 local missChance = (playerRace == "NIGHTELF" and 7 or 5)
 
 local floor, tinsert, unpack, pairs, random = floor, tinsert, unpack, pairs, random
+local GetItemStats = C_Item.GetItemStats or GetItemStats
 
 ---------------------------------------------------------------------------------------
 function ReforgeLite:GetPlayerBuffs()
   local kings, strength, flask, food, spellHaste, darkIntent
-  local i = 1
-  while true do
-    local aura = C_UnitAuras.GetBuffDataByIndex("player", i)
-    if aura == nil then
-      return kings, strength, flask, food, spellHaste, darkIntent
-    else
+  for k,v in pairs({C_UnitAuras.GetAuraSlots('player','helpful')}) do
+    local aura = C_UnitAuras.GetAuraDataBySlot('player',v)
+    if aura then
       local id = aura.spellId
       if id == 79063 or id == 79061 or id == 90363 then
         kings = true
@@ -43,8 +41,8 @@ function ReforgeLite:GetPlayerBuffs()
         darkIntent = true
       end
     end
-    i = i + 1
   end
+  return kings, strength, flask, food, spellHaste, darkIntent
 end
 function ReforgeLite:DiminishStat (rating, stat)
   return rating > 0 and 1 / (0.0152366 + 0.956 / (rating / self:RatingPerPoint (stat))) or 0

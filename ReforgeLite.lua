@@ -1,6 +1,7 @@
 local addonName, addonTable = ...
 local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "title")
 local CreateColor, WHITE_FONT_COLOR, ITEM_MOD_SPIRIT_SHORT = CreateColor, WHITE_FONT_COLOR, ITEM_MOD_SPIRIT_SHORT
+local GetItemStats = C_Item.GetItemStats or GetItemStats
 
 local ReforgeLite = CreateFrame("Frame", addonName, UIParent, "BackdropTemplate")
 addonTable.ReforgeLite = ReforgeLite
@@ -39,6 +40,15 @@ local function print(...)
     gprint("|cff33ff99"..addonName.."|r:",...)
 end
 addonTable.print = print
+
+local function GetSpellName(id)
+  if C_Spell.GetSpellName then
+    return C_Spell.GetSpellName(id)
+  end
+  local spellName = GetSpellInfo(id)
+  return spellName
+end
+addonTable.GetSpellName = GetSpellName
 
 local DefaultDB = {
   itemSize = 24,
@@ -1195,11 +1205,11 @@ function ReforgeLite:UpdateStatWeightList ()
   end
   if self.pdb.tankingModel then
     self.statWeights.buffs = {}
-    self.statWeights.buffs.kings = GUI:CreateCheckButton (self.statWeights, GetSpellInfo(20217), self.pdb.buffs.kings, function (val)
+    self.statWeights.buffs.kings = GUI:CreateCheckButton (self.statWeights, GetSpellName(20217), self.pdb.buffs.kings, function (val)
       self.pdb.buffs.kings = val
       self:RefreshMethodStats ()
     end)
-    self.statWeights.buffs.strength = GUI:CreateCheckButton (self.statWeights, GetSpellInfo(57330), self.pdb.buffs.strength, function (val)
+    self.statWeights.buffs.strength = GUI:CreateCheckButton (self.statWeights, GetSpellName(57330), self.pdb.buffs.strength, function (val)
       self.pdb.buffs.strength = val
       self:RefreshMethodStats ()
     end)
@@ -1452,7 +1462,7 @@ function ReforgeLite:CreateOptionList ()
       end
     )
     self.statCaps[i].darkIntent:Hide()
-    GUI:SetTooltip (self.statCaps[i].darkIntent, ("%s %s - %s +%s%%"):format(CreateSimpleTextureMarkup(463285, 30, 30),GetSpellInfo(85767),format(STAT_FORMAT, STAT_HASTE),3))
+    GUI:SetTooltip (self.statCaps[i].darkIntent, ("%s %s - %s +%s%%"):format(CreateSimpleTextureMarkup(463285, 30, 30),GetSpellName(85767),format(STAT_FORMAT, STAT_HASTE),3))
     self.statCaps:SetCell (i, 0, self.statCaps[i].stat, "LEFT", -20, -10)
     self.statCaps:SetCell (i, 2, self.statCaps[i].add, "LEFT")
     self.statCaps:SetCell (i, 3, self.statCaps[i].darkIntent, "LEFT")
