@@ -1359,11 +1359,11 @@ function ReforgeLite:CreateOptionList ()
     self.pdb.tankingModel = nil
   end
 
-  local levelList = {}
-  for _,v in ipairs({{PVP,0},{LFG_TYPE_HEROIC_DUNGEON,2},{LFG_TYPE_RAID,3}}) do
-    local label, value = unpack(v)
-    tinsert(levelList, {value = value, name = ("%s (+%d)"):format(label, value)})
-  end
+  local levelList = {
+    {value=0,name=("%s (+%d)"):format(PVP, 0)},
+    {value=2,name=("%s (+%d)"):format(LFG_TYPE_HEROIC_DUNGEON, 2)},
+    {value=3,name=("%s (+%d)"):format(LFG_TYPE_RAID, 3)}
+  }
 
   self.targetLevel = GUI:CreateDropdown(self.content, levelList, {
     default =  self.pdb.targetLevel,
