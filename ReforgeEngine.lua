@@ -857,6 +857,7 @@ function ReforgeLite:StartCompute(btn)
   local function endProcess()
     btn:RenderText(L["Compute"])
     addonTable.GUI:Unlock()
+    self:RefreshMethodWindow()
   end
   local co = coroutine.create( function() self:Compute() end )
   coroutine.resume(co)
