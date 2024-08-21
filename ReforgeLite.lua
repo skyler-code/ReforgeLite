@@ -2181,7 +2181,7 @@ function ReforgeLite:ShowMethodWindow()
 
   self.methodWindow:SetFrameLevel(self:GetFrameLevel() + 10)
 
-  self:RefreshMethodWindow()
+  RunNextFrame(function() self:RefreshMethodWindow() end)
 
   GUI:ClearFocus()
   self.methodWindow:Show ()
@@ -2379,6 +2379,9 @@ function ReforgeLite:FORGE_MASTER_OPENED()
   if self.db.openOnReforge and not self:IsShown() and (not self.methodWindow or not self.methodWindow:IsShown()) then
     self.autoOpened = true
     self:Show()
+  end
+  if self.methodWindow and self.methodWindow:IsShown() then
+    self:RefreshMethodWindow()
   end
   self:StopReforging()
 end
