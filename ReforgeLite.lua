@@ -906,19 +906,18 @@ function ReforgeLite:CreateItemTable ()
     self.itemData[i]:EnableMouse (true)
     self.itemData[i]:SetScript ("OnEnter", function (frame)
       GameTooltip:SetOwner (frame, "ANCHOR_LEFT")
-      local hasItem, hasCooldown, repairCost = GameTooltip:SetInventoryItem ("player", frame.slotId)
-      if not hasItem then
-        local text = _G[strupper (frame.slot)]
+      if frame.item then
+        GameTooltip:SetInventoryItem("player", frame.slotId)
+      else
+        local text = _G[strupper(frame.slot)]
         if frame.checkRelic then
-          text = _G["RELICSLOT"]
+          text = RELICSLOT
         end
-        GameTooltip:SetText (text)
+        GameTooltip:SetText(text)
       end
       GameTooltip:Show ()
     end)
-    self.itemData[i]:SetScript ("OnLeave", function ()
-      GameTooltip:Hide()
-    end)
+    self.itemData[i]:SetScript ("OnLeave", function () GameTooltip:Hide() end)
     self.itemData[i]:SetScript ("OnMouseDown", function (frame)
       if not frame.itemGUID then return end
       self.pdb.itemsLocked[frame.itemGUID] = not self.pdb.itemsLocked[frame.itemGUID] and 1 or nil
@@ -2095,24 +2094,23 @@ function ReforgeLite:CreateMethodWindow()
     self.methodWindow.items[i]:SetScript ("OnEnter", function (itemSlot)
       GameTooltip:SetOwner(itemSlot, "ANCHOR_LEFT")
       if itemSlot.item then
-        local slotId = GetInventorySlotInfo(v)
-        GameTooltip:SetInventoryItem("player", slotId)
+        GameTooltip:SetInventoryItem("player", itemSlot.slotId)
       else
-        local text = _G[strupper (itemSlot.slot)]
+        local text = _G[itemSlot.slot:upper()]
         if itemSlot.checkRelic then
-          text = _G["RELICSLOT"]
+          text = RELICSLOT
         end
-        GameTooltip:SetText (text)
+        GameTooltip:SetText(text)
       end
-      GameTooltip:Show ()
+      GameTooltip:Show()
     end)
     self.methodWindow.items[i]:SetScript ("OnLeave", function () GameTooltip:Hide() end)
     self.methodWindow.items[i]:SetScript ("OnDragStart", function (itemSlot)
       if itemSlot.item and ReforgeFrameIsVisible() then
-        PickupInventoryItem(GetInventorySlotInfo(v))
+        PickupInventoryItem(itemSlot.slotId)
       end
     end)
-    self.methodWindow.items[i].slotId, self.methodWindow.items[i].slotTexture, self.methodWindow.items[i].checkRelic = GetInventorySlotInfo (v)
+    self.methodWindow.items[i].slotId, self.methodWindow.items[i].slotTexture, self.methodWindow.items[i].checkRelic = GetInventorySlotInfo(v)
     self.methodWindow.items[i].checkRelic = self.methodWindow.items[i].checkRelic and UnitHasRelicSlot ("player")
     if self.methodWindow.items[i].checkRelic then
       self.methodWindow.items[i].slotTexture = "Interface\\Paperdoll\\UI-PaperDoll-Slot-Relic.blp"
