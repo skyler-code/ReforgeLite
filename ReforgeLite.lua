@@ -477,7 +477,7 @@ function ReforgeLite:ParseWoWSimsString(importStr)
     end
     self.pdb.method.items = newItems
     self:UpdateMethodStats(self.pdb.method)
-    self:UpdateMethodCategory ()
+    self:UpdateMethodCategory()
   else -- error
     print(wowsims)
   end
@@ -1654,7 +1654,7 @@ function ReforgeLite:GetCurrentScore ()
   end
   return RoundToSignificantDigits(score, 2)
 end
-function ReforgeLite:UpdateMethodCategory ()
+function ReforgeLite:UpdateMethodCategory()
   if self.methodCategory == nil then
     self.methodCategory = self:CreateCategory (L["Result"])
     self:SetAnchor (self.methodCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
@@ -1739,6 +1739,7 @@ function ReforgeLite:UpdateMethodCategory ()
 
   self:RefreshMethodStats (true)
 
+  self:RefreshMethodWindow()
   self:UpdateContentSize ()
 end
 function ReforgeLite:RefreshMethodStats (relax)
@@ -2066,6 +2067,7 @@ function ReforgeLite:CreateMethodWindow()
   self.methodWindow:SetScript ("OnShow", function (frame)
     self:SetFrameActive(false)
     frame:SetFrameActive(true)
+    self:RefreshMethodWindow()
   end)
   self:SetFrameActive(false)
 
@@ -2141,10 +2143,11 @@ function ReforgeLite:CreateMethodWindow()
   self.methodWindow.cost = CreateFrame ("Frame", "ReforgeLiteReforgeCost", self.methodWindow, "SmallMoneyFrameTemplate")
   MoneyFrame_SetType (self.methodWindow.cost, "REFORGE")
   self.methodWindow.cost:SetPoint ("LEFT", self.methodWindow.reforge, "RIGHT", 5, 0)
+  self:RefreshMethodWindow()
 end
 
 function ReforgeLite:RefreshMethodWindow()
-  if not self.methodWindow or not self.methodWindow:IsShown() then
+  if not self.methodWindow then
     return
   end
   for i = 1, #self.itemSlots do
@@ -2179,10 +2182,8 @@ function ReforgeLite:ShowMethodWindow()
 
   self.methodWindow:SetFrameLevel(self:GetFrameLevel() + 10)
 
-  RunNextFrame(function() self:RefreshMethodWindow() end)
-
   GUI:ClearFocus()
-  self.methodWindow:Show ()
+  self.methodWindow:Show()
 end
 
 function ReforgeLite:IsReforgeMatching (slotId, reforge, override)
@@ -2378,7 +2379,7 @@ function ReforgeLite:FORGE_MASTER_OPENED()
     self.autoOpened = true
     self:Show()
   end
-  if self.methodWindow and self.methodWindow:IsShown() then
+  if self.methodWindow then
     self:RefreshMethodWindow()
   end
   self:StopReforging()

@@ -196,6 +196,7 @@ function ReforgeLite:UpdateMethodStats (method)
     end
   end
 end
+
 function ReforgeLite:FinalizeReforge (data)
   for _,item in ipairs(data.method.items) do
     item.reforge = nil
@@ -206,6 +207,7 @@ function ReforgeLite:FinalizeReforge (data)
   end
   self:UpdateMethodStats (data.method)
 end
+
 function ReforgeLite:ResetMethod ()
   local method = { items = {} }
   for i = 1, #self.itemData do
@@ -218,7 +220,7 @@ function ReforgeLite:ResetMethod ()
   method.tankingModel = self.pdb.tankingModel
   self:UpdateMethodStats (method)
   self.pdb.method = method
-  self:UpdateMethodCategory ()
+  self:UpdateMethodCategory()
 end
 
 function ReforgeLite:CapAllows (cap, value)
@@ -857,7 +859,6 @@ function ReforgeLite:StartCompute(btn)
   local function endProcess()
     btn:RenderText(L["Compute"])
     addonTable.GUI:Unlock()
-    self:RefreshMethodWindow()
   end
   local co = coroutine.create( function() self:Compute() end )
   coroutine.resume(co)
