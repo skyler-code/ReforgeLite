@@ -452,7 +452,7 @@ do
         caps = CasterCaps,
       },
       [specs.DRUIDFeralCombat] = {
-        [("%s (%s)"):format(addonTable.GetSpellName(5487), TANK)] = { -- Bear
+        [("%s (%s)"):format(addonTable.GetSpellName(5487), TANK)] = { -- Bear Form (Tank)
           icon = 132276,
           weights = {
             0, 54, 0, 25, 53, 7, 48, 37
@@ -478,14 +478,14 @@ do
             },
           },
         },
-        [("%s (%s)"):format(addonTable.GetSpellName(5487), STAT_DPS_SHORT)] = { -- Bear
+        [("%s (%s)"):format(addonTable.GetSpellName(5487), STAT_DPS_SHORT)] = { -- Bear Form (DPS)
           icon = 132276,
           weights = {
             0, -6, 0, 100, 50, 25, 100, -1
           },
           caps = MeleeCaps,
         },
-        [("%s (%s)"):format(addonTable.GetSpellName(768), "Monocat")] = { -- Cat
+        [("%s (%s)"):format(addonTable.GetSpellName(768), "Monocat")] = { -- Cat Form (Monocat)
           icon = 132115,
           weights = {
             0, 0, 0, 30, 31, 28, 30, 31
@@ -511,7 +511,7 @@ do
             },
           },
         },
-        [("%s (%s)"):format(addonTable.GetSpellName(768), "Bearweave")] = { -- Cat
+        [("%s (%s)"):format(addonTable.GetSpellName(768), "Bearweave")] = { -- Cat Form (Bearweave)
           icon = 132115,
           weights = {
             0, 0, 0, 33, 31, 26, 32, 30
@@ -579,7 +579,7 @@ do
     ["MAGE"] = {
       [specs.MAGEArcane] = {
         weights = {
-          0, 0, 0, 5, 1, 4, -1, 3
+          0, 0, 0, 5, 1, 4, 0, 3
         },
         caps = {
           HitCapSpell,
@@ -598,7 +598,7 @@ do
       [specs.MAGEFire] = {
         [PERCENTAGE_STRING:format(15) .. " " .. STAT_HASTE] = {
           weights = {
-            -1, -1, -1, 5, 3, 4, -1, 1
+            0, 0, 0, 5, 3, 4, 0, 1
           },
           caps = {
             HitCapSpell,
@@ -616,7 +616,7 @@ do
         },
         [PERCENTAGE_STRING:format(25) .. " " .. STAT_HASTE] = {
           weights = {
-            -1, -1, -1, 5, 3, 4, -1, 1
+            0, 0, 0, 5, 3, 4, 0, 1
           },
           caps = {
             HitCapSpell,
