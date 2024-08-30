@@ -867,8 +867,8 @@ function ReforgeLite:StartCompute(btn)
     endProcess()
   elseif routineStatus == "suspended" then
     C_Timer.NewTicker(0, function(timer)
-      local success = coroutine.resume(co)
-      if not success then
+      coroutine.resume(co)
+      if coroutine.status(co) == "dead" then
         timer:Cancel()
         endProcess()
       end
