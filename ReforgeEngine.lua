@@ -862,13 +862,13 @@ function ReforgeLite:StartCompute(btn)
   end
   local co = coroutine.create( function() self:Compute() end )
   coroutine.resume(co)
-  local routineStatus = coroutine.status(co)
-  if routineStatus == "dead" then
+  local normalStatus = { suspended = true, running = true }
+  if not normalStatus[coroutine.status(co)] then
     endProcess()
-  elseif routineStatus == "suspended" then
+  else
     C_Timer.NewTicker(0, function(timer)
       coroutine.resume(co)
-      if coroutine.status(co) == "dead" then
+      if not normalStatus[coroutine.status(co)] then
         timer:Cancel()
         endProcess()
       end
