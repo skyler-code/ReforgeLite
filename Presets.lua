@@ -301,7 +301,7 @@ elseif addonTable.playerClass == "DEATHKNIGHT" then
     category = StatHaste,
     name = ("%s %s %s"):format(CreateIconMarkup(135770), STAT_RUNE_REGEN_FORMAT:format(7.5), STAT_RUNE_REGEN),
     getter = function ()
-      return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * 11.11)
+      return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * 11.09)
     end,
     tooltipTitle = "Degen"
   })
