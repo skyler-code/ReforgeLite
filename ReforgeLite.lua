@@ -979,7 +979,6 @@ function ReforgeLite:AddCapPoint (i, loading)
     self:UpdateCapPoints (i)
     self:UpdateContentSize ()
   end
-  self.statCaps[i].add:Enable()
   self.statCaps:OnUpdateFix()
 end
 function ReforgeLite:RemoveCapPoint(i, point)
@@ -997,7 +996,6 @@ function ReforgeLite:RemoveCapPoint(i, point)
   self:UpdateContentSize()
   if #self.pdb.caps[i].points == 0 then
     self.pdb.caps[i].stat = 0
-    self.statCaps[i].add:Disable()
     self.statCaps[i].stat:SetValue(0)
     self.statCaps:ToggleDarkIntentButton()
     self:CollapseStatCaps()
@@ -1115,7 +1113,7 @@ function ReforgeLite:SetStatWeights (weights, caps)
       end
     end
     self.statCaps:ToggleDarkIntentButton()
-    self.statCaps:ToggleStatDropdownToCorrectState()
+    self.statCaps:ToggleChildrenToCorrectState()
     self.statCaps.onUpdate ()
     self:UpdateContentSize ()
     RunNextFrame(function() self:CapUpdater() end)
@@ -1353,12 +1351,19 @@ function ReforgeLite:CreateOptionList ()
       end
     end
   end
-  self.statCaps.ToggleStatDropdownToCorrectState = function(caps)
-    for i = 2, #caps do
-      if self.pdb.caps[i-1].stat == 0  then
-        caps[i].stat:DisableDropdown()
+  self.statCaps.ToggleChildrenToCorrectState = function(caps)
+    for i = 1, #caps do
+      if i > 1 then
+        if self.pdb.caps[i-1].stat == 0  then
+          caps[i].stat:DisableDropdown()
+        else
+          caps[i].stat:EnableDropdown()
+        end
+      end
+      if self.pdb.caps[i].stat == 0 then
+        self.statCaps[i].add:Disable()
       else
-        caps[i].stat:EnableDropdown()
+        self.statCaps[i].add:Enable()
       end
     end
   end
@@ -1379,7 +1384,7 @@ function ReforgeLite:CreateOptionList ()
           self:CollapseStatCaps()
         end
         self.statCaps:ToggleDarkIntentButton()
-        self.statCaps:ToggleStatDropdownToCorrectState()
+        self.statCaps:ToggleChildrenToCorrectState()
       end,
       width = 110,
       menuItemDisabled = function(val)
@@ -1426,7 +1431,7 @@ function ReforgeLite:CreateOptionList ()
     end
   end
   self.statCaps:ToggleDarkIntentButton()
-  self.statCaps:ToggleStatDropdownToCorrectState()
+  self.statCaps:ToggleChildrenToCorrectState()
   self.statCaps.onUpdate = function ()
     for _, v in ipairs(self.statCaps.cells) do
       if v[2] and v[2].values then
