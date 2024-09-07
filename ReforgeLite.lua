@@ -53,36 +53,15 @@ local DefaultDB = {
     caps = {
       {
         stat = 0,
-        points = {
-          {
-            method = 1,
-            value = 0,
-            after = 0,
-            preset = 1
-          }
-        }
+        points = {}
       },
       {
         stat = 0,
-        points = {
-          {
-            method = 1,
-            value = 0,
-            after = 0,
-            preset = 1
-          }
-        }
+        points = {}
       },
       {
         stat = 0,
-        points = {
-          {
-            method = 1,
-            value = 0,
-            after = 0,
-            preset = 1
-          }
-        }
+        points = {}
       }
     },
     itemsLocked = {},
