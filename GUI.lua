@@ -84,7 +84,7 @@ function GUI:SetTooltip (widget, tip)
       local tooltipFunc = "SetText"
       local tipText
       if type(tip) == "function" then
-        tipText = tip()
+        tipText = tip(tipFrame)
       else
         tipText = tip
       end
@@ -141,6 +141,8 @@ function GUI:CreateEditBox (parent, width, height, default, setter)
       box:SetScript ("OnEditFocusLost", nil)
       box:SetScript ("OnEnter", nil)
       box:SetScript ("OnLeave", nil)
+      box.capIndex = nil
+      box.capPoint = nil
       self.editBoxes[box:GetName()] = nil
       tinsert (self.unusedEditBoxes, box)
     end
@@ -159,7 +161,7 @@ function GUI:CreateEditBox (parent, width, height, default, setter)
     end
     frame:SetText (value)
     if setter then
-      setter (value)
+      setter (frame, value)
     end
     frame.prevValue = nil
   end)
@@ -197,7 +199,7 @@ function GUI:CreateDropdown (parent, values, options)
         if dropdown.menuItemDisabled then
           info.disabled = dropdown.menuItemDisabled(info.value)
         end
-        if not dropdown.menuItemHidden or not dropdown.menuItemHidden(info) then
+        if not dropdown.menuItemHidden or not dropdown:menuItemHidden(info) then
           LibDD:UIDropDownMenu_AddButton(info)
         end
       end
@@ -238,8 +240,10 @@ function GUI:CreateDropdown (parent, values, options)
       frame.selectedValue = nil
       frame.menuItemDisabled = nil
       frame.menuItemHidden = nil
+      frame.capIndex = nil
+      frame.capPoint = nil
       self.dropdowns[frame:GetName()] = nil
-      tinsert(self.unusedDropdowns, frame)
+      tinsert (self.unusedDropdowns, frame)
     end
   end
   sel.values = values
@@ -273,6 +277,8 @@ function GUI:CreateCheckButton (parent, text, default, setter)
       btn:SetScript ("OnEnter", nil)
       btn:SetScript ("OnLeave", nil)
       btn:SetScript ("OnClick", nil)
+      btn.capIndex = nil
+      btn.capPoint = nil
       self.checkButtons[btn:GetName()] = nil
       tinsert (self.unusedCheckButtons, btn)
     end
@@ -304,6 +310,8 @@ function GUI:CreateImageButton (parent, width, height, img, pus, hlt, disabledTe
       f:SetScript ("OnEnter", nil)
       f:SetScript ("OnLeave", nil)
       f:SetScript ("OnClick", nil)
+      f.capIndex = nil
+      f.capPoint = nil
       self.imgButtons[f:GetName()] = nil
       tinsert (self.unusedImgButtons, f)
     end
@@ -339,6 +347,8 @@ function GUI:CreatePanelButton(parent, text, handler)
       f:SetScript ("OnLeave", nil)
       f:SetScript ("OnPreClick", nil)
       f:SetScript ("OnClick", nil)
+      f.capIndex = nil
+      f.capPoint = nil
       self.panelButtons[btn:GetName()] = nil
       tinsert (self.unusedPanelButtons, f)
     end
