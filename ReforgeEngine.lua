@@ -243,15 +243,6 @@ function ReforgeLite:IsItemLocked (slot)
   or self.pdb.itemsLocked[slotData.itemGUID]
 end
 
-function ReforgeLite:RunYieldCheck()
-  if self.__chooseLoops == self.__maxLoops then
-    self.__chooseLoops = nil
-    coroutine.yield()
-  else
-    self.__chooseLoops = (self.__chooseLoops or 0) + 1
-  end
-end
-
 ------------------------------------- CLASSIC REFORGE ------------------------------
 
 function ReforgeLite:MakeReforgeOption (item, data, src, dst)
