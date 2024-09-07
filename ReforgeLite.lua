@@ -980,16 +980,15 @@ function ReforgeLite:AddCapPoint (i, loading)
     end
     row = row + i + subRows
   end
-  local point = (loading or #self.pdb.caps[i].points + 1)
-  self.statCaps:AddRow (row)
+  self.statCaps:AddRow(row)
 
   if not loading then
     tinsert (self.pdb.caps[i].points, 1, {value = 0, method = 1, after = 0, preset = 1})
   end
 
   local rem = GUI:CreateImageButton (self.statCaps, 20, 20, "Interface\\PaperDollInfoFrame\\UI-GearManager-LeaveItem-Transparent",
-    "Interface\\PaperDollInfoFrame\\UI-GearManager-LeaveItem-Transparent", nil, nil, function ()
-    self:RemoveCapPoint (i, point)
+    "Interface\\PaperDollInfoFrame\\UI-GearManager-LeaveItem-Transparent", nil, nil, function (btn)
+    self:RemoveCapPoint (btn.capIndex, btn.capPoint)
   end)
   local methodList = {
     {value = addonTable.StatCapMethods.AtLeast, name = L["At least"]},
@@ -997,35 +996,41 @@ function ReforgeLite:AddCapPoint (i, loading)
     {value = addonTable.StatCapMethods.Exactly, name = L["Exactly"]},
     {value = addonTable.StatCapMethods.NewValue, name = ""}
   }
-  local method = GUI:CreateDropdown (self.statCaps, methodList, { default = 1, setter = function (_,val) self.pdb.caps[i].points[point].method = val end, width = 80 })
+  local method = GUI:CreateDropdown (self.statCaps, methodList, {
+    default = 1,
+    setter = function (dropdown,val)
+      self.pdb.caps[dropdown.capIndex].points[dropdown.capPoint].method = val
+    end,
+    width = 80,
+  })
   local preset = GUI:CreateDropdown (self.statCaps, self.capPresets, {
     default = 1,
     width = 80,
-    setter = function (_,val)
-      self.pdb.caps[i].points[point].preset = val
-      self:UpdateCapPreset (i, point)
-      self:ReorderCapPoint (i, point)
-      self:RefreshMethodStats ()
+    setter = function (dropdown,val)
+      self.pdb.caps[dropdown.capIndex].points[dropdown.capPoint].preset = val
+      self:UpdateCapPreset(dropdown.capIndex, dropdown.capPoint)
+      self:ReorderCapPoint(dropdown.capIndex, dropdown.capPoint)
+      self:RefreshMethodStats()
     end,
-    menuItemHidden = function(info)
-      return info.category and info.category ~= self.statCaps[i].stat.selectedValue
+    menuItemHidden = function(dropdown,info)
+      return info.category and info.category ~= self.statCaps[dropdown.capIndex].stat.selectedValue
     end
   })
-  local value = GUI:CreateEditBox (self.statCaps, 40, 30, 0, function (val)
-    self.pdb.caps[i].points[point].value = val
-    self:ReorderCapPoint (i, point)
+  local value = GUI:CreateEditBox (self.statCaps, 40, 30, 0, function (f,val)
+    self.pdb.caps[f.capIndex].points[f.capPoint].value = val
+    self:ReorderCapPoint (f.capIndex, f.capPoint)
     self:RefreshMethodStats ()
   end)
-  local after = GUI:CreateEditBox (self.statCaps, 40, 30, 0, function (val)
-    self.pdb.caps[i].points[point].after = val
+  local after = GUI:CreateEditBox (self.statCaps, 40, 30, 0, function (f,val)
+    self.pdb.caps[f.capIndex].points[f.capPoint].after = val
     self:RefreshMethodStats ()
   end)
 
   GUI:SetTooltip (rem, L["Remove cap"])
-  GUI:SetTooltip (value, function()
-    local cap = self.pdb.caps[i]
-    if cap.stat == self.STATS.SPIRIT then return end
-    local pointValue = (cap.points[point].value or 0)
+  GUI:SetTooltip (value, function(f)
+    local cap = self.pdb.caps[f.capIndex]
+    if cap.stat == self.STATS.SPIRIT or cap.stat == 0 then return end
+    local pointValue = (cap.points[f.capPoint].value or 0)
     local rating = pointValue / self:RatingPerPoint(cap.stat)
     if cap.stat == self.STATS.HIT then
       local meleeHitBonus = self:GetMeleeHitBonus()
@@ -1072,7 +1077,7 @@ function ReforgeLite:AddCapPoint (i, loading)
   self.statCaps[i].add:Enable()
   self.statCaps:OnUpdateFix()
 end
-function ReforgeLite:RemoveCapPoint (i, point, loading)
+function ReforgeLite:RemoveCapPoint(i, point)
   local subRows = 1
   for k, v in ipairs(self.pdb.caps) do
     if k < i then
@@ -1082,16 +1087,15 @@ function ReforgeLite:RemoveCapPoint (i, point, loading)
   local row = i + subRows
 
   tremove (self.pdb.caps[i].points, point)
-  self.statCaps:DeleteRow (row)
-  if not loading then
-    self:UpdateCapPoints (i)
-    self:UpdateContentSize ()
-  end
+  self.statCaps:DeleteRow(row)
+  self:UpdateCapPoints (i)
+  self:UpdateContentSize()
   if #self.pdb.caps[i].points == 0 then
     self.pdb.caps[i].stat = 0
     self.statCaps[i].add:Disable()
     self.statCaps[i].stat:SetValue(0)
     self.statCaps:ToggleDarkIntentButton()
+    self:CollapseStatCaps()
   end
 end
 function ReforgeLite:ReorderCapPoint (i, point)
@@ -1111,13 +1115,12 @@ function ReforgeLite:ReorderCapPoint (i, point)
 end
 function ReforgeLite:UpdateCapPreset (i, point)
   local preset = self.pdb.caps[i].points[point].preset
-  local subRows = 1
+  local row = i + point
   for k, v in ipairs(self.pdb.caps) do
     if k < i then
-      subRows = subRows + #v.points
+      row = row + #v.points
     end
   end
-  local row = i + subRows
   if self.capPresets[preset] == nil then
     preset = 1
   end
@@ -1145,6 +1148,12 @@ function ReforgeLite:UpdateCapPoints (i)
     self.statCaps.cells[base + point][2]:SetValue (self.pdb.caps[i].points[point].preset)
     self:UpdateCapPreset (i, point)
     self.statCaps.cells[base + point][4]:SetText (self.pdb.caps[i].points[point].after)
+    for k = 0, #self.statCaps.cells[base+point] do
+      if self.statCaps.cells[base+point][k] then
+        self.statCaps.cells[base+point][k].capIndex = i
+        self.statCaps.cells[base+point][k].capPoint = point
+      end
+    end
   end
 end
 function ReforgeLite:SetTankingModel (model)
@@ -1200,9 +1209,6 @@ function ReforgeLite:SetStatWeights (weights, caps)
         self.pdb.caps[i].points = {}
       end
     end
-    for i=1,2 do
-      self:UpdateCapPoints (i)
-    end
     self.statCaps:ToggleDarkIntentButton()
     self.statCaps:ToggleStatDropdownToCorrectState()
     self.statCaps.onUpdate ()
@@ -1211,10 +1217,10 @@ function ReforgeLite:SetStatWeights (weights, caps)
   end
   self:RefreshMethodStats ()
 end
-function ReforgeLite:CapUpdater ()
-  for i=1,3 do
-    self.statCaps[i].stat:SetValue (self.pdb.caps[i].stat)
-    self:UpdateCapPoints (i)
+function ReforgeLite:CapUpdater()
+  for capIndex, cap in ipairs(self.pdb.caps) do
+    self.statCaps[capIndex].stat:SetValue(cap.stat)
+    self:UpdateCapPoints(capIndex)
   end
 end
 function ReforgeLite:CustomPresetsExist()
@@ -1282,7 +1288,7 @@ function ReforgeLite:UpdateStatWeightList ()
     col = 1 + 2 * col
 
     self.statWeights:SetCellText (row, col, v.long, "LEFT")
-    self.statWeights.inputs[i] = GUI:CreateEditBox (self.statWeights, 60, self.db.itemSize, self.pdb.weights[i], function (val)
+    self.statWeights.inputs[i] = GUI:CreateEditBox (self.statWeights, 60, self.db.itemSize, self.pdb.weights[i], function (f,val)
       self.pdb.weights[i] = val
       self:RefreshMethodStats ()
     end)
@@ -1309,7 +1315,7 @@ function ReforgeLite:UpdateStatWeightList ()
 end
 function ReforgeLite:UpdateBuffs ()
   if self.pdb.tankingModel then
-    local kings, strength, flask, food = self:GetPlayerBuffs ()
+    local kings, strength, flask, food = self:GetPlayerBuffs()
     if kings then
       self.statWeights.buffs.kings:SetChecked (true)
       self.statWeights.buffs.kings:Disable ()
@@ -1508,25 +1514,18 @@ function ReforgeLite:CreateOptionList ()
     self.statCaps:SetCell (i, 3, self.statCaps[i].darkIntent, "LEFT")
   end
   for i = 1, 3 do
-    for point in ipairs(self.pdb.caps[i].points) do
-      self:AddCapPoint (i, point)
-    end
-    self:UpdateCapPoints (i)
-    if self.pdb.caps[i].stat == 0 then
-      self:RemoveCapPoint(i)
+    if self.pdb.caps[i].stat ~= 0 then
+      for point in ipairs(self.pdb.caps[i].points) do
+        self:AddCapPoint (i, point)
+      end
     end
   end
   self.statCaps:ToggleDarkIntentButton()
   self.statCaps:ToggleStatDropdownToCorrectState()
   self.statCaps.onUpdate = function ()
-    local row = 1
-    for i = 1, 3 do
-      row = row + 1
-      for point = 1, #self.pdb.caps[i].points do
-        if self.statCaps.cells[row][2] and self.statCaps.cells[row][2].values then
-          LibDD:UIDropDownMenu_SetWidth (self.statCaps.cells[row][2], self.statCaps:GetColumnWidth (2) - 20)
-        end
-        row = row + 1
+    for _, v in ipairs(self.statCaps.cells) do
+      if v[2] and v[2].values then
+        LibDD:UIDropDownMenu_SetWidth(v[2], self.statCaps:GetColumnWidth(2) - 20)
       end
     end
   end
