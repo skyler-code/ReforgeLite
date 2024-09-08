@@ -2299,7 +2299,7 @@ function ReforgeLite:StopReforging()
 end
 
 function ReforgeLite:ContinueReforge()
-  if not (self.pdb.method and self.methodWindow and self.methodWindow.reforge:IsShown() and ReforgeFrameIsVisible()) then
+  if not (self.pdb.method and self.methodWindow and self.methodWindow:IsShown() and ReforgeFrameIsVisible()) then
     self:StopReforging()
     return
   end
