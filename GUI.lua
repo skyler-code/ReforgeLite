@@ -331,7 +331,7 @@ function GUI:CreatePanelButton(parent, text, handler)
     end
     btn.RenderText = function(f, ...)
       f:SetText(...)
-      f:SetSize(f:GetFontString():GetStringWidth() + 20, 22)
+      f:FitToText()
     end
   end
   btn:RenderText(text)
