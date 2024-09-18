@@ -899,7 +899,6 @@ function ReforgeLite:CreateItemTable ()
   for i, v in ipairs (self.itemSlots) do
     self.itemData[i] = CreateFrame ("Frame", nil, self.itemTable)
     self.itemData[i].slot = v
-    self.itemData[i].originalStats = {}
     self.itemData[i]:ClearAllPoints ()
     self.itemData[i]:SetSize(self.db.itemSize, self.db.itemSize)
     self.itemTable:SetCell (i, 0, self.itemData[i])
