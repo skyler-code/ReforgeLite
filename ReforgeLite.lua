@@ -128,7 +128,7 @@ local function ReforgeFrameIsVisible()
   return ReforgingFrame and ReforgingFrame:IsShown()
 end
 
-ReforgeLite.dbkey = ("%s-%s"):format(UnitFullName("player"))
+ReforgeLite.dbkey = FULL_PLAYER_NAME:format(UnitName("player"), GetRealmName())
 addonTable.localeClass, addonTable.playerClass, addonTable.playerClassID = UnitClass ("player")
 addonTable.playerRace = select(2,UnitRace ("player"))
 local playerClass, playerRace, localeClass = addonTable.playerClass, addonTable.playerRace, addonTable.localeClass
