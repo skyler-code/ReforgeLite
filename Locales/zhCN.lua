@@ -1,7 +1,5 @@
 local _, addonTable = ...
-if addonTable.Locale ~= "zhCN" then
-  return
-end
+if addonTable.Locale ~= "zhCN" then return end
 
 local L = addonTable.L
 
