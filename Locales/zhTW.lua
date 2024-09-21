@@ -1,8 +1,8 @@
-if (GAME_LOCALE or GetLocale()) ~= "zhTW" then
+local _, addonTable = ...
+if addonTable.Locale ~= "zhTW" then
   return
 end
 
-local _, addonTable = ...
 local L = addonTable.L
 
 --@localization(locale="zhTW", format="lua_additive_table")@
