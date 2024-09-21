@@ -188,6 +188,9 @@ function ReforgeLite:UpgradeDB ()
     pdb.weights = db.statWeights
     db.statWeights = nil
   end
+  while #pdb.caps > #DefaultDBProfile.caps do
+    tremove(pdb.caps)
+  end
   self:UpgradeDBCaps (pdb.caps)
   db.convertSpirit = nil
   if pdb.storedMethod then
