@@ -10,6 +10,7 @@
 embeds.xml
 
 util\json.lua
+util\tables.lua
 
 locales.xml
 
