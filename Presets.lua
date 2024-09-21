@@ -918,11 +918,12 @@ do
       },
     },
   }
-  if ReforgeLite.isDev then
-    ReforgeLite.presets = presets
-  else
-    ReforgeLite.presets = presets[addonTable.playerClass]
-  end
+  --[===[@non-debug@
+  ReforgeLite.presets = presets[addonTable.playerClass]
+  --@end-non-debug@]===]
+  --@debug@
+  ReforgeLite.presets = presets
+  --@end-debug@
 end
 
 function ReforgeLite:InitCustomPresets()

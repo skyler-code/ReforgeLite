@@ -6,8 +6,6 @@ local GetItemStats = C_Item.GetItemStats or GetItemStats
 local ReforgeLite = CreateFrame("Frame", addonName, UIParent, "BackdropTemplate")
 addonTable.ReforgeLite = ReforgeLite
 
-ReforgeLite.isDev = C_AddOns.GetAddOnMetadata(addonName, "Version") == "@project-version@"
-
 local L = addonTable.L
 local GUI = addonTable.GUI
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
@@ -491,19 +489,22 @@ function ReforgeLite:ParseImportString(importStr)
   version = tonumber (version)
   if version and version > 1 then return end
   if not (pos and version and name and values) or name == "" or values == "" then
+    --@debug@
     self:ParsePresetString(importStr)
+    --@end-debug@
     return
   end
   self:ParsePawnString(values)
 end
 
+--@debug@
 function ReforgeLite:ParsePresetString(presetStr)
-  if not self.isDev then return end
   local success, preset = pcall(function () return addonTable.json.decode(presetStr) end)
   if success then
     DevTools_Dump(preset)
   end
 end
+--@end-debug@
 
 function ReforgeLite:ParsePawnString (values)
 
@@ -1329,13 +1330,13 @@ function ReforgeLite:CreateOptionList ()
     self.deletePresetButton:Disable()
   end
 
-  if self.isDev then
-    self.exportPresetButton = GUI:CreatePanelButton (self.content, L["Export"], function(btn)
-      LibDD:ToggleDropDownMenu (nil, nil, self.exportPresetMenu, btn:GetName(), 0, 0)
-    end)
-    self.statWeightsCategory:AddFrame (self.exportPresetButton)
-    self.exportPresetButton:SetPoint ("LEFT", self.deletePresetButton, "RIGHT", 5, 0)
-  end
+  --@debug@
+  self.exportPresetButton = GUI:CreatePanelButton (self.content, L["Export"], function(btn)
+    LibDD:ToggleDropDownMenu (nil, nil, self.exportPresetMenu, btn:GetName(), 0, 0)
+  end)
+  self.statWeightsCategory:AddFrame (self.exportPresetButton)
+  self.exportPresetButton:SetPoint ("LEFT", self.deletePresetButton, "RIGHT", 5, 0)
+  --@end-debug@
 
   self.pawnButton = GUI:CreatePanelButton (self.content, L["Import Pawn"], function(btn) StaticPopup_Show ("REFORGE_LITE_PARSE_PAWN") end)
   self.statWeightsCategory:AddFrame (self.pawnButton)
@@ -1611,15 +1612,15 @@ function ReforgeLite:FillSettings ()
   self.debugButton = GUI:CreatePanelButton (self.settings, L["Debug"], function(btn) self:DebugMethod () end)
   self.settings:SetCell (getOrderId('settings'), 0, self.debugButton, "LEFT")
 
-  if self.isDev then
-    self.settings:AddRow()
-    self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton(
-      self.settings,
-      "Debug Mode",
-      self.db.debug,
-      function (val) self.db.debug = val or nil end
-    ), "LEFT")
-  end
+--@debug@
+  self.settings:AddRow()
+  self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton(
+    self.settings,
+    "Debug Mode",
+    self.db.debug,
+    function (val) self.db.debug = val or nil end
+  ), "LEFT")
+--@end-debug@
 end
 function ReforgeLite:GetCurrentScore ()
   local score = 0
