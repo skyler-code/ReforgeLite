@@ -6,5 +6,4 @@ end})
 local L = addonTable.L
 
 --@localization(locale="enUS", format="lua_additive_table", handle-subnamespaces="none")@
-
 L["EquipPredicate"] = ""
