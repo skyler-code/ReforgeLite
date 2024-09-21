@@ -267,7 +267,7 @@ function ReforgeLite:CreateItemStats()
       mgetter = function (method, orig)
         return (orig and method.orig_stats and method.orig_stats[i]) or method.stats[i]
       end,
-      parser = short and L["StatFormat"]:gsub("%%s", _G[name_]) or (L["EquipPreString"] .. _G[name_]:gsub("%%s", "(.+)"))
+      parser = short and L["^+(%d+) %s$"]:gsub("%%s", _G[name_]) or (L["EquipPredicate"] .. _G[name_]:gsub("%%s", "(.+)"))
     }
   end
   local CR_HIT, CR_CRIT, CR_HASTE = CR_HIT_SPELL, CR_CRIT_SPELL, CR_HASTE_SPELL
@@ -291,7 +291,7 @@ function ReforgeLite:CreateItemStats()
       end,
       parser = function(line)
         if CreateColor(line:GetTextColor()):IsEqualTo(WHITE_FONT_COLOR) then
-          return strmatch(line:GetText(), L["StatFormat"]:gsub("%%s", ITEM_MOD_SPIRIT_SHORT))
+          return strmatch(line:GetText(), L["^+(%d+) %s$"]:gsub("%%s", ITEM_MOD_SPIRIT_SHORT))
         end
       end
     },

@@ -11,7 +11,8 @@ embeds.xml
 
 util\json.lua
 
-Localization.lua
+locales.xml
+
 GUI.lua
 ReforgeLite.lua
 ReforgeEngine.lua
