@@ -219,92 +219,99 @@ local function GetSpellHasteRequired(percentNeeded)
   end
 end
 
-if addonTable.playerClass == "DRUID" then
-  tinsert(ReforgeLite.capPresets, {
-    value = CAPS.FirstHasteBreak,
-    category = StatHaste,
-    name = ("12.51%% 5th %sRejuv Tick"):format(CreateIconMarkup(136081)),
-    getter = GetSpellHasteRequired(12.51),
-  })
-  tinsert(ReforgeLite.capPresets, {
-    value = CAPS.SecondHasteBreak,
-    category = StatHaste,
-    name = ("21.43%% 9th %sWG / %sEfflo Tick"):format(CreateIconMarkup(236153), CreateIconMarkup(134222)),
-    getter = GetSpellHasteRequired(21.4345),
-  })
-elseif addonTable.playerClass == "PRIEST" then
-  tinsert(ReforgeLite.capPresets, {
-    value = CAPS.FirstHasteBreak,
-    category = StatHaste,
-    name = ("18.74%% 2nd %sDP Tick"):format(CreateIconMarkup(252997)),
-    getter = GetSpellHasteRequired(18.74),
-  })
-  tinsert(ReforgeLite.capPresets, {
-    value = CAPS.SecondHasteBreak,
-    category = StatHaste,
-    name = ("24.97%% 2nd %sSWP Tick"):format(CreateIconMarkup(136207)),
-    getter = GetSpellHasteRequired(24.97),
-  })
-  tinsert(ReforgeLite.capPresets, {
-    value = CAPS.ThirdHasteBreak,
-    category = StatHaste,
-    name = ("30.01%% 2nd %sVT Tick"):format(CreateIconMarkup(135978)),
-    getter = GetSpellHasteRequired(30.01),
-  })
-  tinsert(ReforgeLite.capPresets, {
-    value = CAPS.FourthHasteBreak,
-    category = StatHaste,
-    name = ("31.26%% 3rd %sDP Tick"):format(CreateIconMarkup(252997)),
-    getter = GetSpellHasteRequired(31.26),
-  })
-  tinsert(ReforgeLite.capPresets, {
-    value = CAPS.FifthHasteBreak,
-    category = StatHaste,
-    name = ("41.67%% 3rd %sSWP Tick"):format(CreateIconMarkup(136207)),
-    getter = GetSpellHasteRequired(41.675),
-  })
-elseif addonTable.playerClass == "MAGE" then
-  tinsert(ReforgeLite.capPresets, {
-    value = CAPS.FirstHasteBreak,
-    category = StatHaste,
-    name = ("15%% 2nd %sCombustion Tick"):format(CreateIconMarkup(135824)),
-    getter = GetSpellHasteRequired(15.01),
-  })
-  tinsert(ReforgeLite.capPresets, {
-    value = CAPS.SecondHasteBreak,
-    category = StatHaste,
-    name = ("25%% 3rd %sCombustion Tick"):format(CreateIconMarkup(135824)),
-    getter = GetSpellHasteRequired(25.08),
-  })
-  tinsert(ReforgeLite.capPresets, {
-    value = CAPS.ThirdHasteBreak,
-    category = StatHaste,
-    name = ("1 Sec %sArcane Blast"):format(CreateIconMarkup(135735)),
-    getter = function()
-      local percentNeeded = 13.8
-      local firelordCount = GetActiveItemSet()[931] or 0
-      if addonTable.playerRace == "Goblin" then
-        if firelordCount >= 4 then
-          percentNeeded = 2.43
-        else
-          percentNeeded = 12.68
+
+do
+  local nameFormat = "%s%s%% +%s %s "..L["ticks"]
+  if addonTable.playerClass == "DRUID" then
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.FirstHasteBreak,
+      category = StatHaste,
+      name = nameFormat:format(CreateIconMarkup(136081), 18.74, 2, addonTable.GetSpellName(774)),
+      getter = GetSpellHasteRequired(12.51),
+    })
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.SecondHasteBreak,
+      category = StatHaste,
+      name = nameFormat:format(CreateIconMarkup(236153)..CreateIconMarkup(134222), 21.43, 1, addonTable.GetSpellName(48438) .. " / " .. addonTable.GetSpellName(81269)),
+      getter = GetSpellHasteRequired(21.4345),
+    })
+  elseif addonTable.playerClass == "PRIEST" then
+    local devouringPlague, devouringPlagueMarkup = addonTable.GetSpellName(2944), CreateIconMarkup(252997)
+    local shadowWordPain, shadowWordPainMarkup = addonTable.GetSpellName(589), CreateIconMarkup(136207)
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.FirstHasteBreak,
+      category = StatHaste,
+      name = nameFormat:format(devouringPlagueMarkup, 18.74, 2, devouringPlague),
+      getter = GetSpellHasteRequired(18.74),
+    })
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.SecondHasteBreak,
+      category = StatHaste,
+      name = nameFormat:format(shadowWordPainMarkup, 24.97, 2, shadowWordPain),
+      getter = GetSpellHasteRequired(24.97),
+    })
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.ThirdHasteBreak,
+      category = StatHaste,
+      name = nameFormat:format(CreateIconMarkup(135978), 30.01, 2, addonTable.GetSpellName(589)),
+      getter = GetSpellHasteRequired(30.01),
+    })
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.FourthHasteBreak,
+      category = StatHaste,
+      name = nameFormat:format(devouringPlagueMarkup, 31.26, 3, devouringPlague),
+      getter = GetSpellHasteRequired(31.26),
+    })
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.FifthHasteBreak,
+      category = StatHaste,
+      name = nameFormat:format(shadowWordPainMarkup, 41.67, 3, shadowWordPain),
+      getter = GetSpellHasteRequired(41.675),
+    })
+  elseif addonTable.playerClass == "MAGE" then
+    local combustion, combustionMarkup = addonTable.GetSpellName(11129), CreateIconMarkup(135824)
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.FirstHasteBreak,
+      category = StatHaste,
+      name = nameFormat:format(combustionMarkup, 15, 2, combustion),
+      getter = GetSpellHasteRequired(15.01),
+    })
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.SecondHasteBreak,
+      category = StatHaste,
+      name = nameFormat:format(combustionMarkup, 25, 3, combustion),
+      getter = GetSpellHasteRequired(25.08),
+    })
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.ThirdHasteBreak,
+      category = StatHaste,
+      name = ("%s %s %s"):format(CreateIconMarkup(135735), D_SECONDS:format(1), addonTable.GetSpellName(30451)),
+      getter = function()
+        local percentNeeded = 13.8
+        local firelordCount = GetActiveItemSet()[931] or 0
+        if addonTable.playerRace == "Goblin" then
+          if firelordCount >= 4 then
+            percentNeeded = 2.43
+          else
+            percentNeeded = 12.68
+          end
+        elseif firelordCount >= 4 then
+          percentNeeded = 3.459
         end
-      elseif firelordCount >= 4 then
-        percentNeeded = 3.459
-      end
-      return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
-    end,
-  })
-elseif addonTable.playerClass == "DEATHKNIGHT" then
-  tinsert(ReforgeLite.capPresets, {
-    value = CAPS.FirstHasteBreak,
-    category = StatHaste,
-    name = ("%s %s %s"):format(CreateIconMarkup(135770), STAT_RUNE_REGEN_FORMAT:format(7.5), STAT_RUNE_REGEN),
-    getter = function ()
-      return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * 11.09)
-    end,
-    tooltipTitle = "Degen"
-  })
+        return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
+      end,
+    })
+  elseif addonTable.playerClass == "DEATHKNIGHT" then
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.FirstHasteBreak,
+      category = StatHaste,
+      name = ("%s %s %s"):format(CreateIconMarkup(135770), STAT_RUNE_REGEN_FORMAT:format(7.5), STAT_RUNE_REGEN),
+      getter = function ()
+        return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * 11.09)
+      end,
+      tooltipTitle = "Degen"
+    })
+  end
 end
 
 ----------------------------------------- WEIGHT PRESETS ------------------------------
