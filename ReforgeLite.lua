@@ -753,10 +753,19 @@ function ReforgeLite:CreateFrame()
   end)
   tinsert(UISpecialFrames, self:GetName()) -- allow closing with escape
 
+  self.titleIcon = CreateFrame("Frame", nil, self)
+  self.titleIcon:SetSize(16, 16)
+  self.titleIcon:SetPoint ("TOPLEFT", 12, floor(self.titleIcon:GetHeight()-self.titlebar:GetHeight()))
+
+  self.titleIcon.texture = self.titleIcon:CreateTexture("ARTWORK")
+  self.titleIcon.texture:SetAllPoints(self.titleIcon)
+  self.titleIcon.texture:SetTexture([[Interface\Reforging\Reforge-Portrait]])
+
+
   self.title = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   self.title:SetText (addonTitle)
   self.title:SetTextColor (1, 1, 1)
-  self.title:SetPoint ("TOPLEFT", 12, floor(self.title:GetHeight()-self.titlebar:GetHeight()))
+  self.title:SetPoint ("BOTTOMLEFT", self.titleIcon, "BOTTOMRIGHT", 2, 2)
 
   self.close = CreateFrame ("Button", nil, self, "UIPanelCloseButtonNoScripts")
   self.close:SetSize(28, 28)
