@@ -384,12 +384,10 @@ function ReforgeLite:ParseWoWSimsString(importStr)
         print(L["%s does not match your currently equipped %s. ReforgeLite only supports equipped items."]:format(importItemLink, equippedItemInfo.item))
         return
       end
-      item.reforge = nil
       if simItemInfo.reforging then
-        item.reforge = simItemInfo.reforging - self.REFORGE_TABLE_BASE
-        item.src, item.dst = unpack(self.reforgeTable[item.reforge])
+        local reforge = simItemInfo.reforging - self.REFORGE_TABLE_BASE
+        item.src, item.dst = unpack(self.reforgeTable[reforge])
       end
-      item.stats = nil
     end
     self.pdb.method.items = newItems
     self:UpdateMethodStats(self.pdb.method)
@@ -2090,7 +2088,7 @@ function ReforgeLite:RefreshMethodWindow()
       v.texture:SetTexture (v.slotTexture)
     end
     local slotInfo = self.pdb.method.items[i]
-    if slotInfo.reforge then
+    if slotInfo.src and slotInfo.dst then
       v.reforge:SetText (format ("%d %s > %s", slotInfo.amount, self.itemStats[slotInfo.src].long, self.itemStats[slotInfo.dst].long))
       v.reforge:SetTextColor (1, 1, 1)
     else
@@ -2137,7 +2135,7 @@ function ReforgeLite:IsReforgeMatching (slotId, reforge, override)
     deltas[odst] = deltas[odst] - oamount
   end
 
-  if reforge then
+  if reforge and reforge ~= UNFORGE_INDEX then
     local src, dst = unpack(reforgeTable[reforge])
     local amount = floor ((stats[self.itemStats[src].name] or 0) * addonTable.REFORGE_COEFF)
     deltas[src] = deltas[src] - amount
@@ -2163,12 +2161,13 @@ function ReforgeLite:UpdateMethodChecks ()
       local item = Item:CreateFromEquipmentSlot(v.slotId)
       v.item = item:GetItemLink()
       v.texture:SetTexture (item:GetItemIcon() or v.slotTexture)
-      if item:IsItemEmpty() or self:IsReforgeMatching (v.slotId, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
+      local methodItem = self.pdb.method.items[i]
+      if item:IsItemEmpty() or self:IsReforgeMatching (v.slotId, self:GetReforgeTableIndex(methodItem.src, methodItem.dst), self.methodOverride[i]) then
         v.check:SetChecked (true)
       else
         anyDiffer = true
         v.check:SetChecked (false)
-        if self.pdb.method.items[i].reforge then
+        if methodItem.src and methodItem.dst then
           local itemCost = select (11, C_Item.GetItemInfo (v.item)) or 0
           cost = cost + (itemCost > 0 and itemCost or 100000)
         end
@@ -2236,7 +2235,8 @@ end
 
 function ReforgeLite:DoReforgeUpdate ()
   for slotId, slotInfo in ipairs(self.methodWindow.items) do
-    local newReforge = self.pdb.method.items[slotId].reforge
+    local item = self.pdb.method.items[slotId]
+    local newReforge = self:GetReforgeTableIndex(item.src, item.dst)
     if slotInfo.item and not self:IsReforgeMatching(slotInfo.slotId, newReforge, self.methodOverride[slotId]) then
       PickupInventoryItem(slotInfo.slotId)
       C_Reforge.SetReforgeFromCursorItem()

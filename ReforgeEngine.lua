@@ -200,9 +200,6 @@ end
 function ReforgeLite:FinalizeReforge (data)
   for _,item in ipairs(data.method.items) do
     item.reforge = nil
-    if item.src and item.dst then
-      item.reforge = self:GetReforgeTableIndex(item.src, item.dst)
-    end
     item.stats = nil
   end
   self:UpdateMethodStats (data.method)
@@ -213,7 +210,6 @@ function ReforgeLite:ResetMethod ()
   for i = 1, #self.itemData do
     method.items[i] = {}
     if self.itemData[i].reforge then
-      method.items[i].reforge = self.itemData[i].reforge
       method.items[i].src, method.items[i].dst = unpack(self.reforgeTable[self.itemData[i].reforge])
     end
   end
