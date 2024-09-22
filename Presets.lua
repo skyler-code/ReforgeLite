@@ -933,11 +933,10 @@ end
 
 function ReforgeLite:InitCustomPresets()
   local customPresets = {}
-  for _, db in ipairs({self.db, self.cdb}) do
-    for k, v in pairs(db.customPresets) do
-      v.name = k
-      tinsert(customPresets, v)
-    end
+  for k, v in pairs(self.cdb.customPresets) do
+    local preset = addonTable.DeepCopy(v)
+    preset.name = k
+    tinsert(customPresets, preset)
   end
   self.presets[CUSTOM] = customPresets
 end

@@ -29,70 +29,64 @@ local function GetSpellName(id)
 end
 addonTable.GetSpellName = GetSpellName
 
+local ITEM_SIZE = 24
+
 local DefaultDB = {
-  itemSize = 24,
-  windowWidth = 800,
-  windowHeight = 564,
-
-  openOnReforge = true,
-  updateTooltip = true,
-
-  speed = addonTable.MAX_LOOPS * 0.8,
-
-  activeWindowTitle = {0.6, 0, 0},
-  inactiveWindowTitle = {0.5, 0.5, 0.5},
-
-  customPresets = {
+  global = {
+    windowWidth = 800,
+    windowHeight = 564,
+    windowY = false,
+    windowX = false,
+    methodWindowX = false,
+    methodWindowY = false,
+    openOnReforge = true,
+    updateTooltip = true,
+    speed = addonTable.MAX_LOOPS * 0.8,
+    activeWindowTitle = {0.6, 0, 0},
+    inactiveWindowTitle = {0.5, 0.5, 0.5},
   },
-  profiles = {
-  },
-  classProfiles = {
-  },
-}
-local DefaultDBProfile = {
-  targetLevel = 3,
-  spellHaste = true,
-  darkIntent = false,
-
-  buffs = {
-  },
-  weights = {0, 0, 0, 0, 0, 0, 0, 0},
-  caps = {
-    {
-      stat = 0,
-      points = {
-        {
-          method = 1,
-          value = 0,
-          after = 0,
-          preset = 1
+  char = {
+    targetLevel = 3,
+    spellHaste = true,
+    darkIntent = false,
+    buffs = {},
+    weights = {0, 0, 0, 0, 0, 0, 0, 0},
+    caps = {
+      {
+        stat = 0,
+        points = {
+          {
+            method = 1,
+            value = 0,
+            after = 0,
+            preset = 1
+          }
+        }
+      },
+      {
+        stat = 0,
+        points = {
+          {
+            method = 1,
+            value = 0,
+            after = 0,
+            preset = 1
+          }
         }
       }
     },
-    {
-      stat = 0,
-      points = {
-        {
-          method = 1,
-          value = 0,
-          after = 0,
-          preset = 1
-        }
-      }
-    }
+    itemsLocked = {},
+    categoryStates = { [SETTINGS] = true },
   },
-  itemsLocked = {},
-  categoryStates = { [SETTINGS] = true },
-}
-local DefaultDBClassProfile = {
-  customPresets = {}
+  class = {
+    customPresets = {}
+  },
 }
 
 local function ReforgeFrameIsVisible()
   return ReforgingFrame and ReforgingFrame:IsShown()
 end
 
-ReforgeLite.dbkey = FULL_PLAYER_NAME:format(UnitName("player"), GetRealmName())
 addonTable.localeClass, addonTable.playerClass, addonTable.playerClassID = UnitClass ("player")
 addonTable.playerRace = select(2,UnitRace ("player"))
 local playerClass, playerRace, localeClass = addonTable.playerClass, addonTable.playerRace, addonTable.localeClass
@@ -105,73 +99,27 @@ addonTable.StatCapMethods = {
   Exactly = 4,
 }
 
-function ReforgeLite:UpgradeDBCaps (caps)
-  for i = 1, #caps do
-    if caps[i].points == nil or caps[i].value or caps[i].method or caps[i].after then
-      caps[i].points = {}
-      caps[i].points[1] = {
-        method = caps[i].method or 1,
-        value = caps[i].value or 0,
-        after = caps[i].after or 0
-      }
-      for j = 1, #caps[i].points do
-        if not caps[i].points[j].preset then
-          caps[i].points[j].preset = 1
-        end
-      end
-      caps[i].method = nil
-      caps[i].value = nil
-      caps[i].after = nil
-    end
-  end
-end
-function ReforgeLite:UpgradeDB ()
-  if not ReforgeLiteDB then
-    ReforgeLiteDB = DefaultDB
-  else
-    MergeTables (ReforgeLiteDB, DefaultDB)
-  end
+function ReforgeLite:UpgradeDB()
   local db = ReforgeLiteDB
-  if not db.profiles[self.dbkey] then
-    db.profiles[self.dbkey] = DefaultDBProfile
-  else
-    MergeTables (db.profiles[self.dbkey], DefaultDBProfile)
+  if db.classProfiles then
+    db.class = DeepCopy(db.classProfiles)
+    db.classProfiles = nil
   end
-  local pdb = db.profiles[self.dbkey]
-  for k, v in pairs (pdb) do
-    if db[k] ~= nil then
-      pdb[k] = db[k]
-      db[k] = nil
+  if db.profiles then
+    db.char = DeepCopy(db.profiles)
+    db.profiles = nil
+  end
+  if not db.global then
+    db.global = {}
+    for k, v in pairs(db) do
+      local default = DefaultDB.global[k]
+      if default ~= nil then
+        if default ~= v then
+          db.global[k] = DeepCopy(v)
+        end
+        db[k] = nil
+      end
     end
-  end
-  if db.statCaps then
-    pdb.caps = db.statCaps
-    db.statCaps = nil
-  end
-  if db.statWeights then
-    pdb.weights = db.statWeights
-    db.statWeights = nil
-  end
-  while #pdb.caps > #DefaultDBProfile.caps do
-    tremove(pdb.caps)
-  end
-  self:UpgradeDBCaps (pdb.caps)
-  db.convertSpirit = nil
-  if pdb.storedMethod then
-    pdb.storedMethod.caps = nil
-    pdb.storedMethod.weights = nil
-  end
-  if pdb.method then
-    pdb.method.caps = nil
-    pdb.method.weights = nil
-  end
-  if not db.classProfiles[playerClass] then
-    db.classProfiles[playerClass] = DefaultDBClassProfile
-  else
-    MergeTables (db.classProfiles[playerClass], DefaultDBClassProfile)
-  end
-  if db.speed <= 20 then
-    db.speed = addonTable.MAX_LOOPS*(db.speed/20)
   end
 end
 
@@ -747,15 +695,15 @@ function ReforgeLite:CreateFrame()
     if self.moving then
       self:StopMovingOrSizing ()
       self.moving = false
-      self.db.windowX = self:GetLeft ()
-      self.db.windowY = self:GetTop ()
+      self.db.windowX = self:GetLeft()
+      self.db.windowY = self:GetTop()
     end
   end)
   tinsert(UISpecialFrames, self:GetName()) -- allow closing with escape
 
   self.titleIcon = CreateFrame("Frame", nil, self)
   self.titleIcon:SetSize(16, 16)
-  self.titleIcon:SetPoint ("TOPLEFT", 12, floor(self.titleIcon:GetHeight()-self.titlebar:GetHeight()))
+  self.titleIcon:SetPoint ("TOPLEFT", 12, floor(self.titleIcon:GetHeight())-floor(self.titlebar:GetHeight()))
 
   self.titleIcon.texture = self.titleIcon:CreateTexture("ARTWORK")
   self.titleIcon.texture:SetAllPoints(self.titleIcon)
@@ -765,7 +713,7 @@ function ReforgeLite:CreateFrame()
   self.title = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   self.title:SetText (addonTitle)
   self.title:SetTextColor (1, 1, 1)
-  self.title:SetPoint ("BOTTOMLEFT", self.titleIcon, "BOTTOMRIGHT", 2, 2)
+  self.title:SetPoint ("BOTTOMLEFT", self.titleIcon, "BOTTOMRIGHT", 2, 1)
 
   self.close = CreateFrame ("Button", nil, self, "UIPanelCloseButtonNoScripts")
   self.close:SetSize(28, 28)
@@ -860,7 +808,7 @@ function ReforgeLite:CreateItemTable ()
   self.itemLevel:SetPoint ("TOPLEFT", 12, -28)
   self.itemLevel:SetTextColor (1, 1, 0.8)
 
-  self.itemTable = GUI:CreateTable (#self.itemSlots + 1, #self.itemStats, self.db.itemSize, self.db.itemSize + 4, {0.5, 0.5, 0.5, 1}, self)
+  self.itemTable = GUI:CreateTable (#self.itemSlots + 1, #self.itemStats, ITEM_SIZE, ITEM_SIZE + 4, {0.5, 0.5, 0.5, 1}, self)
   self.itemTable:SetPoint ("TOPLEFT", self.itemLevel, "BOTTOMLEFT", 0, -10)
   self.itemTable:SetPoint ("BOTTOM", 0, 10)
   self.itemTable:SetWidth (400)
@@ -878,7 +826,7 @@ function ReforgeLite:CreateItemTable ()
     self.itemData[i] = CreateFrame ("Frame", nil, self.itemTable)
     self.itemData[i].slot = v
     self.itemData[i]:ClearAllPoints ()
-    self.itemData[i]:SetSize(self.db.itemSize, self.db.itemSize)
+    self.itemData[i]:SetSize(ITEM_SIZE, ITEM_SIZE)
     self.itemTable:SetCell (i, 0, self.itemData[i])
     self.itemData[i]:EnableMouse (true)
     self.itemData[i]:SetScript ("OnEnter", function (frame)
@@ -1155,7 +1103,7 @@ function ReforgeLite:CapUpdater ()
   self:UpdateCapPoints (2)
 end
 function ReforgeLite:CustomPresetsExist()
-  return (next(ReforgeLite.db.customPresets) or next(ReforgeLite.cdb.customPresets)) ~= nil
+  return next(ReforgeLite.cdb.customPresets) ~= nil
 end
 function ReforgeLite:UpdateStatWeightList ()
   local stats = self.itemStats
@@ -1219,7 +1167,7 @@ function ReforgeLite:UpdateStatWeightList ()
     col = 1 + 2 * col
 
     self.statWeights:SetCellText (row, col, v.long, "LEFT")
-    self.statWeights.inputs[i] = GUI:CreateEditBox (self.statWeights, 60, self.db.itemSize, self.pdb.weights[i], function (val)
+    self.statWeights.inputs[i] = GUI:CreateEditBox (self.statWeights, 60, ITEM_SIZE, self.pdb.weights[i], function (val)
       self.pdb.weights[i] = val
       self:RefreshMethodStats ()
     end)
@@ -1356,13 +1304,13 @@ function ReforgeLite:CreateOptionList ()
   self:SetAnchor (self.statWeights, "TOPLEFT", self.targetLevel.text, "BOTTOMLEFT", 0, -8)
   self.statWeights:SetPoint ("RIGHT", -5, 0)
   self.statWeightsCategory:AddFrame (self.statWeights)
-  self.statWeights:SetRowHeight (self.db.itemSize + 2)
+  self.statWeights:SetRowHeight (ITEM_SIZE + 2)
 
-  self.statCaps = GUI:CreateTable (2, 4, nil, self.db.itemSize + 2)
+  self.statCaps = GUI:CreateTable (2, 4, nil, ITEM_SIZE + 2)
   self.statWeightsCategory:AddFrame (self.statCaps)
   self:SetAnchor (self.statCaps, "TOPLEFT", self.statWeights, "BOTTOMLEFT", 0, -10)
   self.statCaps:SetPoint ("RIGHT", -5, 0)
-  self.statCaps:SetRowHeight (self.db.itemSize + 2)
+  self.statCaps:SetRowHeight (ITEM_SIZE + 2)
   self.statCaps:SetColumnWidth (1, 100)
   self.statCaps:SetColumnWidth (3, 50)
   self.statCaps:SetColumnWidth (4, 50)
@@ -1542,7 +1490,7 @@ function ReforgeLite:CreateOptionList ()
   self.settingsCategory:AddFrame (self.settings)
   self:SetAnchor (self.settings, "TOPLEFT", self.settingsCategory, "BOTTOMLEFT", 0, -5)
   self.settings:SetPoint ("RIGHT", self.content, -10, 0)
-  self.settings:SetRowHeight (self.db.itemSize + 2)
+  self.settings:SetRowHeight (ITEM_SIZE + 2)
 
   self:FillSettings ()
 
@@ -1640,10 +1588,10 @@ function ReforgeLite:UpdateMethodCategory()
     self.methodCategory:AddFrame (self.importWowSims)
     self:SetAnchor (self.importWowSims, "TOPLEFT", self.methodCategory, "BOTTOMLEFT", 0, -5)
 
-    self.methodStats = GUI:CreateTable (#self.itemStats, 2, self.db.itemSize, 60, {0.5, 0.5, 0.5, 1})
+    self.methodStats = GUI:CreateTable (#self.itemStats, 2, ITEM_SIZE, 60, {0.5, 0.5, 0.5, 1})
     self.methodCategory:AddFrame (self.methodStats)
     self:SetAnchor (self.methodStats, "TOPLEFT", self.importWowSims, "BOTTOMLEFT", 0, -5)
-    self.methodStats:SetRowHeight (self.db.itemSize + 2)
+    self.methodStats:SetRowHeight (ITEM_SIZE + 2)
     self.methodStats:SetColumnWidth (60)
 
     self.methodStats:SetCellText (0, 0, L["Score"], "LEFT", {1, 0.8, 0})
@@ -2052,9 +2000,9 @@ function ReforgeLite:CreateMethodWindow()
   self.methodWindow:ClearAllPoints ()
   self.methodWindow.itemTable:SetPoint ("TOPLEFT", 12, -28)
   self.methodWindow.itemTable:SetRowHeight (26)
-  self.methodWindow.itemTable:SetColumnWidth (1, self.db.itemSize)
-  self.methodWindow.itemTable:SetColumnWidth (2, self.db.itemSize + 2)
-  self.methodWindow.itemTable:SetColumnWidth (3, 274 - self.db.itemSize * 2)
+  self.methodWindow.itemTable:SetColumnWidth (1, ITEM_SIZE)
+  self.methodWindow.itemTable:SetColumnWidth (2, ITEM_SIZE + 2)
+  self.methodWindow.itemTable:SetColumnWidth (3, 274 - ITEM_SIZE * 2)
 
   self.methodOverride = {}
   for i = 1, #self.itemSlots do
@@ -2066,7 +2014,7 @@ function ReforgeLite:CreateMethodWindow()
     self.methodWindow.items[i] = CreateFrame ("Frame", nil, self.methodWindow.itemTable)
     self.methodWindow.items[i].slot = v
     self.methodWindow.items[i]:ClearAllPoints ()
-    self.methodWindow.items[i]:SetSize(self.db.itemSize, self.db.itemSize)
+    self.methodWindow.items[i]:SetSize(ITEM_SIZE, ITEM_SIZE)
     self.methodWindow.itemTable:SetCell (i, 2, self.methodWindow.items[i])
     self.methodWindow.items[i]:EnableMouse (true)
     self.methodWindow.items[i]:RegisterForDrag("LeftButton")
@@ -2406,11 +2354,17 @@ function ReforgeLite:ADDON_LOADED (addon)
   if addon ~= addonName then return end
   self:Hide()
   self:UpgradeDB()
-  self.db = ReforgeLiteDB
-  self.pdb = self.db.profiles[self.dbkey]
-  self.cdb = self.db.classProfiles[playerClass]
 
-  self.pdb.reforgeIDs = nil
+  local db = LibStub("AceDB-3.0"):New(addonName.."DB", DefaultDB)
+
+  self.db = db.global
+  self.pdb = db.char
+  self.cdb = db.class
+
+  while #self.pdb.caps > #DefaultDB.char.caps do
+    tremove(self.pdb.caps)
+  end
+
   self.s2hFactor = 0
 
   self:SetUpHooks()

@@ -3,5 +3,6 @@ package-as: ReforgeLite
 externals:
   libs/LibStub: https://repos.curseforge.com/wow/libstub/trunk
   libs/LibUIDropDownMenu: https://repos.wowace.com/wow/libuidropdownmenu/trunk/LibUIDropDownMenu
+  libs/AceDB-3.0: https://repos.wowace.com/wow/ace3/trunk/AceDB-3.0
 
 enable-nolib-creation: no
