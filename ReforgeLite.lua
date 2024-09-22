@@ -466,14 +466,13 @@ end
 --@debug@
 function ReforgeLite:ParsePresetString(presetStr)
   local success, preset = pcall(function () return addonTable.json.decode(presetStr) end)
-  if success then
+  if type(success.caps) == "table" then
     DevTools_Dump(preset)
   end
 end
 --@end-debug@
 
 function ReforgeLite:ParsePawnString (values)
-
   local raw = {}
   local average = 0
   local total = 0

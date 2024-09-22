@@ -1065,6 +1065,7 @@ function ReforgeLite:InitPresets()
   }
   addonTable.MergeTables(exportList, self.presets)
 
+  --@debug@
   self.exportPresetMenu = LibDD:Create_UIDropDownMenu("ReforgeLiteExportPresetMenu", self)
   self.exportPresetMenu.list = exportList
   LibDD:UIDropDownMenu_Initialize(self.exportPresetMenu, menuListInit({
@@ -1072,6 +1073,7 @@ function ReforgeLite:InitPresets()
       self:ExportJSON(info.sortKey, info.value)
     end
   }), "MENU")
+  --@end-debug@
 
   self.presetDelMenu = LibDD:Create_UIDropDownMenu("ReforgeLitePresetDelMenu", self)
   LibDD:UIDropDownMenu_Initialize(self.presetDelMenu, function (menu, level)
