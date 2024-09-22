@@ -432,7 +432,7 @@ function ReforgeLite:ParseWoWSimsString(importStr)
       local equippedItemInfo = self.itemData[slot]
       if simItemInfo.id ~= equippedItemInfo.itemId then
         local _, importItemLink = C_Item.GetItemInfo(simItemInfo.id)
-        print(L["Item Import Mismatch"]:format(importItemLink, equippedItemInfo.item))
+        print(L["%s does not match your currently equipped %s. ReforgeLite only supports equipped items."]:format(importItemLink, equippedItemInfo.item))
         return
       end
       item.reforge = nil
