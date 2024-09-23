@@ -16,24 +16,25 @@ local function MergeTables(dst, src)
 end
 addonTable.MergeTables = MergeTables
 
-local function DeepCopy(t, cache)
-    if type(t) ~= "table" then
-        return t
-    end
-    local copy = {}
-    for i, v in pairs(t) do
-        if type(v) ~= "table" then
-            copy[i] = v
+local function DeepCopy(orig, copies)
+    copies = copies or {}
+    local orig_type = type(orig)
+    local copy
+    if orig_type == 'table' then
+        if copies[orig] then
+            copy = copies[orig]
         else
-            cache = cache or {}
-            cache[t] = copy
-            if cache[v] then
-                copy[i] = cache[v]
-            else
-                copy[i] = DeepCopy(v, cache)
+            copy = {}
+            copies[orig] = copy
+            for orig_key, orig_value in next, orig, nil do
+                copy[DeepCopy(orig_key, copies)] = DeepCopy(orig_value, copies)
             end
+            setmetatable(copy, DeepCopy(getmetatable(orig), copies))
         end
+    else -- number, string, boolean, etc
+        copy = orig
     end
     return copy
 end
+
 addonTable.DeepCopy = DeepCopy
