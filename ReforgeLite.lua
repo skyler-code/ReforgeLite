@@ -340,8 +340,8 @@ end
 function ReforgeLite:GetCapScore (cap, value)
   local score = 0
   for i = #cap.points, 1, -1 do
-    if value > cap.points[i].value then
-      score = score + cap.points[i].after * (value - cap.points[i].value)
+    if cap.points[i].value and value > cap.points[i].value then
+      score = score + (cap.points[i].after or 0) * (value - cap.points[i].value)
       value = cap.points[i].value
     end
   end
@@ -1050,7 +1050,7 @@ function ReforgeLite:UpdateCapPoints (i)
     self.statCaps.cells[base + point][1]:SetValue (self.pdb.caps[i].points[point].method)
     self.statCaps.cells[base + point][2]:SetValue (self.pdb.caps[i].points[point].preset)
     self:UpdateCapPreset (i, point)
-    self.statCaps.cells[base + point][4]:SetText (self.pdb.caps[i].points[point].after)
+    self.statCaps.cells[base + point][4]:SetText (self.pdb.caps[i].points[point].after or 0)
     for k = 0, #self.statCaps.cells[base+point] do
       if self.statCaps.cells[base+point][k] then
         self.statCaps.cells[base+point][k].capIndex = i
