@@ -1074,7 +1074,9 @@ function ReforgeLite:InitPresets()
   self.exportPresetMenu.list = exportList
   LibDD:UIDropDownMenu_Initialize(self.exportPresetMenu, menuListInit({
     onClick = function(info)
-      self:ExportJSON(info.sortKey, info.value)
+      local output = addonTable.DeepCopy(info.value)
+      output.prioritySort = nil
+      self:ExportJSON(info.sortKey, output)
     end
   }), "MENU")
   --@end-debug@

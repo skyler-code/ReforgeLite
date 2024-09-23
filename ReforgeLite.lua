@@ -11,7 +11,6 @@ local GUI = addonTable.GUI
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 addonTable.MAX_LOOPS = 125000
 
-local MergeTables = addonTable.MergeTables
 local DeepCopy = addonTable.DeepCopy
 
 local gprint = print
@@ -415,7 +414,7 @@ end
 --@debug@
 function ReforgeLite:ParsePresetString(presetStr)
   local success, preset = pcall(function () return addonTable.json.decode(presetStr) end)
-  if type(success.caps) == "table" then
+  if success and type(preset.caps) == "table" then
     DevTools_Dump(preset)
   end
 end
