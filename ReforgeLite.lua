@@ -1804,6 +1804,7 @@ function ReforgeLite:GetReforgeID (slotId)
   end
 end
 
+--@do-not-package@
 -- In case blizzard ever brings back reforge ids
 -- local reforgeIdStringCache = setmetatable({}, {
 --   __index = function(self, key)
@@ -1817,6 +1818,7 @@ end
 --   local id = reforgeIdStringCache[item]
 --   return ((id and id ~= UNFORGE_INDEX) and (id - self.REFORGE_TABLE_BASE) or nil)
 -- end
+--@end-do-not-package@
 
 function ReforgeLite:UpdateItems()
   for i, v in ipairs (self.itemData) do
