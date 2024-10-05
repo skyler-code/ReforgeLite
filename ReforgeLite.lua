@@ -1804,18 +1804,19 @@ function ReforgeLite:GetReforgeID (slotId)
   end
 end
 
-local reforgeIdStringCache = setmetatable({}, {
-  __index = function(self, key)
-    local id = tonumber(key:match ("item:%d+:%d+:%d+:%d+:%d+:%d+:%-?%d+:%-?%d+:%d+:(%d+)")) or false
-    rawset(self, key, id)
-    return id
-  end
-})
+-- In case blizzard ever brings back reforge ids
+-- local reforgeIdStringCache = setmetatable({}, {
+--   __index = function(self, key)
+--     local id = tonumber(key:match ("item:%d+:%d+:%d+:%d+:%d+:%d+:%-?%d+:%-?%d+:%d+:(%d+)")) or false
+--     rawset(self, key, id)
+--     return id
+--   end
+-- })
 
-function ReforgeLite:GetReforgeIDFromString(item)
-  local id = reforgeIdStringCache[item]
-  return ((id and id ~= UNFORGE_INDEX) and (id - self.REFORGE_TABLE_BASE) or nil)
-end
+-- function ReforgeLite:GetReforgeIDFromString(item)
+--   local id = reforgeIdStringCache[item]
+--   return ((id and id ~= UNFORGE_INDEX) and (id - self.REFORGE_TABLE_BASE) or nil)
+-- end
 
 function ReforgeLite:UpdateItems()
   for i, v in ipairs (self.itemData) do
@@ -2269,7 +2270,7 @@ function ReforgeLite:OnTooltipSetItem (tip)
   if not item then return end
   for _, region in pairs({tip:GetRegions()}) do
     if region:GetObjectType() == "FontString" and region:GetText() == REFORGED then
-      local reforgeId = self:GetReforgeIDFromString(item) or SearchTooltipForReforgeID(tip)
+      local reforgeId = SearchTooltipForReforgeID(tip)
       if not reforgeId or reforgeId == UNFORGE_INDEX then return end
       local srcId, destId = unpack(reforgeTable[reforgeId])
       region:SetText(("%s (%s > %s)"):format(REFORGED, self.itemStats[srcId].long, self.itemStats[destId].long))
