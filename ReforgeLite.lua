@@ -2382,7 +2382,7 @@ function ReforgeLite:ADDON_LOADED (addon)
   self:SetScript("OnShow", self.OnShow)
   self:SetScript("OnHide", self.OnHide)
 
-  for k, v in pairs({ addonName, "reforge", REFORGE:lower(), "rfl" }) do
+  for k, v in ipairs({ addonName, "reforge", REFORGE:lower(), "rfl" }) do
     _G["SLASH_"..addonName:upper()..k] = "/" .. v
   end
   SlashCmdList[addonName:upper()] = function(...) self:OnCommand(...) end
