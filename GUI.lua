@@ -771,6 +771,7 @@ function GUI.CreateStaticPopup(name, text, options)
     button2 = CANCEL,
     hasEditBox = true,
     editBoxWidth = 350,
+    maxLetters = 10000,
     OnAccept = function (self)
       options.func(self.editBox:GetText ())
     end,
