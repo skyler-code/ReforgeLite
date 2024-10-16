@@ -13,8 +13,9 @@ local GetItemStats = C_Item.GetItemStats or GetItemStats
 ---------------------------------------------------------------------------------------
 function ReforgeLite:GetPlayerBuffs()
   local kings, strength, flask, food, spellHaste, darkIntent
-  for k,v in pairs({C_UnitAuras.GetAuraSlots('player','helpful')}) do
-    local aura = C_UnitAuras.GetAuraDataBySlot('player',v)
+  local slots = {C_UnitAuras.GetAuraSlots('player','helpful')}
+  for i = 2, #slots do
+    local aura = C_UnitAuras.GetAuraDataBySlot('player',slots[i])
     if aura then
       local id = aura.spellId
       if id == 79063 or id == 79061 or id == 90363 then
