@@ -125,8 +125,6 @@ end
 
 -----------------------------------------------------------------
 
-GUI.CreateStaticPopup("REFORGE_LITE_PARSE_PAWN", L["Enter pawn string"], { func = function(text) ReforgeLite:ParseImportString(text) end })
-GUI.CreateStaticPopup("REFORGE_LITE_PARSE_WOWSIMS", L["Enter WoWSims JSON"], { func = function(text) ReforgeLite:ParseWoWSimsString(text) end } )
 GUI.CreateStaticPopup("REFORGE_LITE_SAVE_PRESET", L["Enter the preset name"], { func = function(text)
   ReforgeLite.cdb.customPresets[text] = {
     caps = DeepCopy(ReforgeLite.pdb.caps),
@@ -221,6 +219,7 @@ function ReforgeLite:CreateItemStats()
 end
 ReforgeLite:CreateItemStats()
 
+--@debug@
 local itemStatsLocale = {
   [6]  = ReforgeLite.STATS.SPIRIT, -- SPIRIT
   [13] = ReforgeLite.STATS.DODGE, -- DODGE
@@ -231,6 +230,7 @@ local itemStatsLocale = {
   [37] = ReforgeLite.STATS.EXP, -- EXPERTISE
   [49] = ReforgeLite.STATS.MASTERY, -- MASTERY
 }
+--@end-debug@
 
 ReforgeLite.tankingStats = {
   ["DEATHKNIGHT"] = DeepCopy (ReforgeLite.itemStats),
@@ -371,7 +371,7 @@ function ReforgeLite:GetStatScore (stat, value)
   end
 end
 
-function ReforgeLite:ParseWoWSimsString(importStr)
+function ReforgeLite:ValidateWoWSimsString(importStr)
   local success, wowsims = pcall(function () return addonTable.json.decode(importStr) end)
   if success and (wowsims or {}).player then
     local newItems = DeepCopy(self.pdb.method.items)
@@ -380,8 +380,7 @@ function ReforgeLite:ParseWoWSimsString(importStr)
       local equippedItemInfo = self.itemData[slot]
       if simItemInfo.id ~= equippedItemInfo.itemId then
         local _, importItemLink = C_Item.GetItemInfo(simItemInfo.id)
-        print(L["%s does not match your currently equipped %s. ReforgeLite only supports equipped items."]:format(importItemLink, equippedItemInfo.item))
-        return
+        return L["%s does not match your currently equipped %s. ReforgeLite only supports equipped items."]:format(importItemLink or ("item:"..simItemInfo.id), equippedItemInfo.item)
       end
       item.reforge = nil
       if simItemInfo.reforging then
@@ -390,25 +389,14 @@ function ReforgeLite:ParseWoWSimsString(importStr)
       end
       item.stats = nil
     end
-    self.pdb.method.items = newItems
-    self:UpdateMethodStats(self.pdb.method)
-    self:UpdateMethodCategory()
-  else -- error
-    print(wowsims)
+    return newItems
   end
 end
 
-function ReforgeLite:ParseImportString(importStr)
-  local pos, _, version, name, values = strfind (importStr, "^%s*%(%s*Pawn%s*:%s*v(%d+)%s*:%s*\"([^\"]+)\"%s*:%s*(.+)%s*%)%s*$")
-  version = tonumber (version)
-  if version and version > 1 then return end
-  if not (pos and version and name and values) or name == "" or values == "" then
-    --@debug@
-    self:ParsePresetString(importStr)
-    --@end-debug@
-    return
-  end
-  self:ParsePawnString(values)
+function ReforgeLite:ApplyWoWSimsImport(newItems)
+  self.pdb.method.items = newItems
+  self:UpdateMethodStats(self.pdb.method)
+  self:UpdateMethodCategory()
 end
 
 --@debug@
@@ -420,7 +408,17 @@ function ReforgeLite:ParsePresetString(presetStr)
 end
 --@end-debug@
 
-function ReforgeLite:ParsePawnString (values)
+function ReforgeLite:ValidatePawnString(importStr)
+  local pos, _, version, name, values = strfind (importStr, "^%s*%(%s*Pawn%s*:%s*v(%d+)%s*:%s*\"([^\"]+)\"%s*:%s*(.+)%s*%)%s*$")
+  version = tonumber (version)
+  if version and version > 1 then return end
+  if not (pos and version and name and values) or name == "" or values == "" then
+    return
+  end
+  return values
+end
+
+function ReforgeLite:ParsePawnString(values)
   local raw = {}
   local average = 0
   local total = 0
@@ -1260,7 +1258,7 @@ function ReforgeLite:CreateOptionList ()
   self.exportPresetButton:SetPoint ("LEFT", self.deletePresetButton, "RIGHT", 5, 0)
   --@end-debug@
 
-  self.pawnButton = GUI:CreatePanelButton (self.content, L["Import Pawn"], function(btn) StaticPopup_Show ("REFORGE_LITE_PARSE_PAWN") end)
+  self.pawnButton = GUI:CreatePanelButton (self.content, L["Import Pawn"], function(btn) self:ImportPawn() end)
   self.statWeightsCategory:AddFrame (self.pawnButton)
   self:SetAnchor (self.pawnButton, "TOPLEFT", self.presetsButton, "BOTTOMLEFT", 0, -5)
 
@@ -1584,7 +1582,7 @@ function ReforgeLite:UpdateMethodCategory()
     self.methodCategory = self:CreateCategory (L["Result"])
     self:SetAnchor (self.methodCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
 
-    self.importWowSims = GUI:CreatePanelButton (self.methodCategory, L["Import WoWSims"], function(btn) StaticPopup_Show("REFORGE_LITE_PARSE_WOWSIMS") end)
+    self.importWowSims = GUI:CreatePanelButton (self.methodCategory, L["Import WoWSims"], function(btn) self:ImportWoWSims() end)
     self.methodCategory:AddFrame (self.importWowSims)
     self:SetAnchor (self.importWowSims, "TOPLEFT", self.methodCategory, "BOTTOMLEFT", 0, -5)
 
