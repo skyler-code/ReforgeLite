@@ -30,8 +30,8 @@ function ReforgeLite:DisplayMessage(name, message)
     editbox:SetText(message)
     editbox.editBox:SetFocus()
     editbox.editBox:HighlightText()
-    editbox:SetCallback("OnLeave", function(widget)	widget.editBox:HighlightText() widget:SetFocus() end)
-    editbox:SetCallback("OnEnter", function(widget)	widget.editBox:HighlightText() widget:SetFocus() end)
+    editbox:SetCallback("OnLeave", function(widget) widget.editBox:HighlightText() widget:SetFocus() end)
+    editbox:SetCallback("OnEnter", function(widget) widget.editBox:HighlightText() widget:SetFocus() end)
     editbox:SetCallback("OnTextChanged", function(widget) widget.editBox:SetText(message) widget.editBox:HighlightText() end)
 end
 
