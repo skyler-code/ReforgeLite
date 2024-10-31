@@ -58,7 +58,7 @@ function ReforgeLite:ImportPawn()
         local values = self:ValidatePawnString(editbox.editBox:GetText())
         if values then
             frame:Hide()
-            ReforgeLite:ParsePawnString(values)
+            self:ParsePawnString(values)
         else
             frame:SetStatusText(ERROR_CAPS)
         end
