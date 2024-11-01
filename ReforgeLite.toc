@@ -10,7 +10,7 @@
 
 #@no-lib-strip@
 embeds.xml
-#@end-no-lib-strip
+#@end-no-lib-strip@
 
 util\json.lua
 util\tables.lua
