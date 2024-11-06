@@ -1379,7 +1379,7 @@ function ReforgeLite:CreateOptionList ()
       end
     )
     self.statCaps[i].darkIntent:Hide()
-    GUI:SetTooltip (self.statCaps[i].darkIntent, ("%s %s - %s +%s%%"):format(CreateSimpleTextureMarkup(463285, 30, 30),GetSpellName(85767),format(STAT_FORMAT, STAT_HASTE),3))
+    GUI:SetTooltip (self.statCaps[i].darkIntent, { spellID = 85767 })
     self.statCaps:SetCell (i, 0, self.statCaps[i].stat, "LEFT", -20, -10)
     self.statCaps:SetCell (i, 2, self.statCaps[i].add, "LEFT")
     self.statCaps:SetCell (i, 3, self.statCaps[i].darkIntent, "LEFT")
