@@ -1087,7 +1087,7 @@ function ReforgeLite:InitPresets()
     addonTable.GUI:ClearEditFocus()
     local menuList = {}
     for _, db in ipairs({self.db, self.cdb}) do
-      for k in pairs(db.customPresets) do
+      for k in pairs(db.customPresets or {}) do
         local info = LibDD:UIDropDownMenu_CreateInfo()
         info.notCheckable = true
         info.text = k
