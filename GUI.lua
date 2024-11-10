@@ -594,30 +594,34 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
     return self.colPos[j] - self.colPos[j - 1]
   end
   t.AlignCell = function (self, i, j)
-    if self.cells[i][j].align == "FILL" then
-      self.cells[i][j]:SetPoint ("TOPLEFT", self, "TOPLEFT", self:GetCellX (j - 1) + x, self:GetCellY (i - 1) + y)
-      self.cells[i][j]:SetPoint ("BOTTOMRIGHT", self, "BOTTOMRIGHT", self:GetCellX (j) + x, self:GetCellY (i) + y)
+    local cell = self.cells[i][j]
+    local x = cell.offsX or 0
+    local y = cell.offsY or 0
+    local alignment = cell.align
+    if alignment == "FILL" then
+      cell:SetPoint ("TOPLEFT", self, "TOPLEFT", self:GetCellX (j - 1) + x, self:GetCellY (i - 1) + y)
+      cell:SetPoint ("BOTTOMRIGHT", self, "BOTTOMRIGHT", self:GetCellX (j) + x, self:GetCellY (i) + y)
 
-    elseif self.cells[i][j].align == "TOPLEFT" then
-      self.cells[i][j]:SetPoint ("TOPLEFT", self, "TOPLEFT", self:GetCellX (j - 1) + 2 + x, self:GetCellY (i - 1) - 2 + y)
-    elseif self.cells[i][j].align == "LEFT" then
-      self.cells[i][j]:SetPoint ("LEFT", self, "TOPLEFT", self:GetCellX (j - 1) + 2 + x, self:GetCellY (i - 0.5) + y)
-    elseif self.cells[i][j].align == "BOTTOMLEFT" then
-      self.cells[i][j]:SetPoint ("BOTTOMLEFT", self, "TOPLEFT", self:GetCellX (j - 1) + 2 + x, self:GetCellY (i) + 2 + y)
+    elseif alignment == "TOPLEFT" then
+      cell:SetPoint ("TOPLEFT", self, "TOPLEFT", self:GetCellX (j - 1) + 2 + x, self:GetCellY (i - 1) - 2 + y)
+    elseif alignment == "LEFT" then
+      cell:SetPoint ("LEFT", self, "TOPLEFT", self:GetCellX (j - 1) + 2 + x, self:GetCellY (i - 0.5) + y)
+    elseif alignment == "BOTTOMLEFT" then
+      cell:SetPoint ("BOTTOMLEFT", self, "TOPLEFT", self:GetCellX (j - 1) + 2 + x, self:GetCellY (i) + 2 + y)
 
-    elseif self.cells[i][j].align == "TOP" then
-      self.cells[i][j]:SetPoint ("TOP", self, "TOPLEFT", self:GetCellX (j - 0.5) + x, self:GetCellY (j - 1) - 2 + y)
-    elseif self.cells[i][j].align == "CENTER" then
-      self.cells[i][j]:SetPoint ("CENTER", self, "TOPLEFT", self:GetCellX (j - 0.5) + x, self:GetCellY (i - 0.5) + y)
-    elseif self.cells[i][j].align == "BOTTOM" then
-      self.cells[i][j]:SetPoint ("BOTTOM", self, "TOPLEFT", self:GetCellX (j - 0.5) + x, self:GetCellY (j) + 2 + y)
+    elseif alignment == "TOP" then
+      cell:SetPoint ("TOP", self, "TOPLEFT", self:GetCellX (j - 0.5) + x, self:GetCellY (j - 1) - 2 + y)
+    elseif alignment == "CENTER" then
+      cell:SetPoint ("CENTER", self, "TOPLEFT", self:GetCellX (j - 0.5) + x, self:GetCellY (i - 0.5) + y)
+    elseif alignment == "BOTTOM" then
+      cell:SetPoint ("BOTTOM", self, "TOPLEFT", self:GetCellX (j - 0.5) + x, self:GetCellY (j) + 2 + y)
 
-    elseif self.cells[i][j].align == "TOPRIGHT" then
-      self.cells[i][j]:SetPoint ("TOPRIGHT", self, "TOPLEFT", self:GetCellX (j) - 2 + x, self:GetCellY (i - 1) - 2 + y)
-    elseif self.cells[i][j].align == "RIGHT" then
-      self.cells[i][j]:SetPoint ("RIGHT", self, "TOPLEFT", self:GetCellX (j) - 2 + x, self:GetCellY (i - 0.5) + y)
-    elseif self.cells[i][j].align == "BOTTOMRIGHT" then
-      self.cells[i][j]:SetPoint ("BOTTOMRIGHT", self, "TOPLEFT", self:GetCellX (j) - 2 + x, self:GetCellY (i) + 2 + y)
+    elseif alignment == "TOPRIGHT" then
+      cell:SetPoint ("TOPRIGHT", self, "TOPLEFT", self:GetCellX (j) - 2 + x, self:GetCellY (i - 1) - 2 + y)
+    elseif alignment == "RIGHT" then
+      cell:SetPoint ("RIGHT", self, "TOPLEFT", self:GetCellX (j) - 2 + x, self:GetCellY (i - 0.5) + y)
+    elseif alignment == "BOTTOMRIGHT" then
+      cell:SetPoint ("BOTTOMRIGHT", self, "TOPLEFT", self:GetCellX (j) - 2 + x, self:GetCellY (i) + 2 + y)
     end
   end
   t.OnUpdateFix = function (self)
