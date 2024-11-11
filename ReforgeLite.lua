@@ -2234,28 +2234,30 @@ function ReforgeLite:ContinueReforge()
   end
 end
 
-function ReforgeLite:DoReforgeUpdate ()
-  for slotId, slotInfo in ipairs(self.methodWindow.items) do
-    local newReforge = self.pdb.method.items[slotId].reforge
-    if slotInfo.item and not self:IsReforgeMatching(slotInfo.slotId, newReforge, self.methodOverride[slotId]) then
-      PickupInventoryItem(slotInfo.slotId)
-      C_Reforge.SetReforgeFromCursorItem()
-      if newReforge then
-        local id = UNFORGE_INDEX
-        local stats = GetItemStats (slotInfo.item)
-        for s, reforgeInfo in ipairs(reforgeTable) do
-          local srcstat, dststat = unpack(reforgeInfo)
-          if (stats[self.itemStats[srcstat].name] or 0) ~= 0 and (stats[self.itemStats[dststat].name] or 0) == 0 then
-            id = id + 1
+function ReforgeLite:DoReforgeUpdate()
+  if self.methodWindow then
+    for slotId, slotInfo in ipairs(self.methodWindow.items) do
+      local newReforge = self.pdb.method.items[slotId].reforge
+      if slotInfo.item and not self:IsReforgeMatching(slotInfo.slotId, newReforge, self.methodOverride[slotId]) then
+        PickupInventoryItem(slotInfo.slotId)
+        C_Reforge.SetReforgeFromCursorItem()
+        if newReforge then
+          local id = UNFORGE_INDEX
+          local stats = GetItemStats (slotInfo.item)
+          for s, reforgeInfo in ipairs(reforgeTable) do
+            local srcstat, dststat = unpack(reforgeInfo)
+            if (stats[self.itemStats[srcstat].name] or 0) ~= 0 and (stats[self.itemStats[dststat].name] or 0) == 0 then
+              id = id + 1
+            end
+            if srcstat == self.pdb.method.items[slotId].src and dststat == self.pdb.method.items[slotId].dst then
+              C_Reforge.ReforgeItem (id)
+              coroutine.yield()
+            end
           end
-          if srcstat == self.pdb.method.items[slotId].src and dststat == self.pdb.method.items[slotId].dst then
-            C_Reforge.ReforgeItem (id)
-            coroutine.yield()
-          end
+        elseif self:GetReforgeID(slotInfo.slotId) then
+          C_Reforge.ReforgeItem (UNFORGE_INDEX)
+          coroutine.yield()
         end
-      elseif self:GetReforgeID(slotInfo.slotId) then
-        C_Reforge.ReforgeItem (UNFORGE_INDEX)
-        coroutine.yield()
       end
     end
   end
