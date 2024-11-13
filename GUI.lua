@@ -121,6 +121,7 @@ function GUI:CreateEditBox (parent, width, height, default, setter)
     box:Show ()
     box:SetTextColor (1, 1, 1)
     box:EnableMouse (true)
+    self.editBoxes[box:GetName()] = box
   else
     box = CreateFrame ("EditBox", self:GenerateWidgetName (), parent, "InputBoxTemplate")
     self.editBoxes[box:GetName()] = box
@@ -174,6 +175,7 @@ function GUI:CreateDropdown (parent, values, options)
     sel = tremove (self.unusedDropdowns, 1)
     sel:SetParent (parent)
     sel:Show ()
+    self.dropdowns[sel:GetName()] = sel
   else
     sel = LibDD:Create_UIDropDownMenu(self:GenerateWidgetName(), parent)
     self.dropdowns[sel:GetName()] = sel
@@ -259,6 +261,7 @@ function GUI:CreateCheckButton (parent, text, default, setter)
     btn = tremove (self.unusedCheckButtons, 1)
     btn:SetParent (parent)
     btn:Show ()
+    self.checkButtons[btn:GetName()] = btn
   else
     local name = self:GenerateWidgetName ()
     btn = CreateFrame ("CheckButton", name, parent, "UICheckButtonTemplate")
@@ -322,6 +325,7 @@ function GUI:CreatePanelButton(parent, text, handler)
     btn = tremove(self.unusedPanelButtons, 1)
     btn:SetParent(parent)
     btn:Show()
+    self.panelButtons[btn:GetName()] = btn
   else
     local name = self:GenerateWidgetName ()
     btn = CreateFrame("Button", name, parent, "UIPanelButtonTemplate")
