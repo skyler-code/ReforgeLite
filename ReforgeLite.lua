@@ -1227,7 +1227,7 @@ function ReforgeLite:UpdateBuffs ()
   end
 end
 function ReforgeLite:CreateOptionList ()
-  self.statWeightsCategory = self:CreateCategory (L["Stat weights"])
+  self.statWeightsCategory = self:CreateCategory (L["Stat Weights"])
   self:SetAnchor (self.statWeightsCategory, "TOPLEFT", self.content, "TOPLEFT", 2, -2)
 
   self.presetsButton = GUI:CreateImageButton (self.content, 24, 24, "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up",
@@ -1444,7 +1444,7 @@ function ReforgeLite:CreateOptionList ()
   self.quality.helpButton:SetScale(0.45)
   GUI:SetTooltip(self.quality.helpButton, L["Slide to the left if the calculation slows your game too much."])
 
-  self.storedCategory = self:CreateCategory (L["Best result"])
+  self.storedCategory = self:CreateCategory (L["Best Result"])
   self:SetAnchor (self.storedCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
   self.storedScore = self.content:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   self.storedCategory:AddFrame (self.storedScore)
