@@ -43,6 +43,9 @@ local DefaultDB = {
     speed = addonTable.MAX_LOOPS * 0.8,
     activeWindowTitle = {0.6, 0, 0},
     inactiveWindowTitle = {0.5, 0.5, 0.5},
+    highlightTooltip = false,
+    highlightSourceStatColor = {1, 0.501, 0.501,1},
+    highlightDestStatColor = {0, 1, 0.74,1},
   },
   char = {
     targetLevel = 3,
@@ -1482,15 +1485,25 @@ function ReforgeLite:CreateOptionList ()
     self:ClearStoredMethod ()
   end
 
-  self.settingsCategory = self:CreateCategory (SETTINGS)
-  self:SetAnchor (self.settingsCategory, "TOPLEFT", self.storedClear, "BOTTOMLEFT", 0, -10)
-  self.settings = GUI:CreateTable (5, 1, nil, 200)
+  self.enhancedTooltipsCategory = self:CreateCategory (USE_UBERTOOLTIPS)
+  self:SetAnchor (self.enhancedTooltipsCategory, "TOPLEFT", self.storedClear, "BOTTOMLEFT", 0, -10)
+  self.enhancedTooltips = GUI:CreateTable (4, 1, nil, 200)
+  self.enhancedTooltipsCategory:AddFrame (self.enhancedTooltips)
+  self:SetAnchor (self.enhancedTooltips, "TOPLEFT", self.enhancedTooltipsCategory, "BOTTOMLEFT", 0, -5)
+  self.enhancedTooltips:SetPoint ("RIGHT", self.content, -10, 0)
+  self.enhancedTooltips:SetRowHeight (ITEM_SIZE + 2)
+
+  self:FillEnhancedTooltips()
+
+  self.settingsCategory = self:CreateCategory (L["Window Settings"])
+  self:SetAnchor (self.settingsCategory, "TOPLEFT", self.enhancedTooltips, "BOTTOMLEFT", 0, -10)
+  self.settings = GUI:CreateTable (4, 1, nil, 200)
   self.settingsCategory:AddFrame (self.settings)
   self:SetAnchor (self.settings, "TOPLEFT", self.settingsCategory, "BOTTOMLEFT", 0, -5)
   self.settings:SetPoint ("RIGHT", self.content, -10, 0)
   self.settings:SetRowHeight (ITEM_SIZE + 2)
 
-  self:FillSettings ()
+  self:FillSettings()
 
   self.lastElement = CreateFrame ("Frame", nil, self.content)
   self.lastElement:ClearAllPoints ()
@@ -1508,11 +1521,26 @@ function ReforgeLite:GetFrameOrder()
   end
   return self, self.methodWindow
 end
-function ReforgeLite:FillSettings ()
+
+function ReforgeLite:FillEnhancedTooltips ()
+  self.enhancedTooltips:SetCell (getOrderId('enhancedTooltips'), 0, GUI:CreateCheckButton (self.enhancedTooltips, L["Summarize reforged stats"],
+    self.db.updateTooltip, function (val) self.db.updateTooltip = val end), "LEFT")
+
+  self.enhancedTooltips:SetCell (getOrderId('enhancedTooltips'), 0, GUI:CreateCheckButton (self.enhancedTooltips, L["Highlight reforged stats"],
+    self.db.highlightTooltip, function (val) self.db.highlightTooltip = val end), "LEFT")
+
+  local sourceStatOrderId = getOrderId('enhancedTooltips')
+  self.enhancedTooltips:SetCellText (sourceStatOrderId, 0, L["Source stat color"], "LEFT", nil, "GameFontNormal")
+  self.enhancedTooltips:SetCell (sourceStatOrderId, 1, GUI:CreateColorPicker (self.enhancedTooltips, 20, 20, self.db.highlightSourceStatColor), "LEFT")
+
+  local destStatOrderId = getOrderId('enhancedTooltips')
+  self.enhancedTooltips:SetCellText (destStatOrderId, 0, L["Destination stat color"], "LEFT", nil, "GameFontNormal")
+  self.enhancedTooltips:SetCell (destStatOrderId, 1, GUI:CreateColorPicker (self.enhancedTooltips, 20, 20, self.db.highlightDestStatColor), "LEFT")
+end
+
+function ReforgeLite:FillSettings()
   self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Open window when reforging"],
     self.db.openOnReforge, function (val) self.db.openOnReforge = val end), "LEFT")
-  self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Show reforged stats in item tooltips"],
-    self.db.updateTooltip, function (val) self.db.updateTooltip = val end), "LEFT")
 
   local activeWindowTitleOrderId = getOrderId('settings')
   self.settings:SetCellText (activeWindowTitleOrderId, 0, L["Active window color"], "LEFT", nil, "GameFontNormal")
@@ -1542,6 +1570,7 @@ function ReforgeLite:FillSettings ()
   ), "LEFT")
 --@end-debug@
 end
+
 function ReforgeLite:GetCurrentScore ()
   local score = 0
   local unhit = 100 + 0.8 * max (0, self.pdb.targetLevel)
@@ -1773,8 +1802,14 @@ local function SearchTooltipForReforgeID(tip)
         if statValue then
           if not existingStats[statInfo.name] then
             destStat = statId
+            if ReforgeLite.db.highlightTooltip then
+              region:SetTextColor(unpack(ReforgeLite.db.highlightDestStatColor))
+            end
           elseif existingStats[statInfo.name] - tonumber(statValue) > 0 then
             srcStat = statId
+            if ReforgeLite.db.highlightTooltip then
+              region:SetTextColor(unpack(ReforgeLite.db.highlightSourceStatColor))
+            end
           end
         end
       end
@@ -2267,13 +2302,13 @@ end
 --------------------------------------------------------------------------
 
 function ReforgeLite:OnTooltipSetItem (tip)
-  if not self.db.updateTooltip then return end
+  if not self.db.updateTooltip and not self.db.highlightTooltip then return end
   local _, item = tip:GetItem()
   if not item then return end
   for _, region in pairs({tip:GetRegions()}) do
     if region:GetObjectType() == "FontString" and region:GetText() == REFORGED then
       local reforgeId = SearchTooltipForReforgeID(tip)
-      if not reforgeId or reforgeId == UNFORGE_INDEX then return end
+      if not reforgeId or reforgeId == UNFORGE_INDEX or not self.db.updateTooltip then return end
       local srcId, destId = unpack(reforgeTable[reforgeId])
       region:SetText(("%s (%s > %s)"):format(REFORGED, self.itemStats[srcId].long, self.itemStats[destId].long))
       return
