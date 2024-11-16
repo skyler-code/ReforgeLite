@@ -80,11 +80,11 @@ end
 
 function GUI:SetTooltip (widget, tip)
   if tip then
-    widget:SetScript ("OnEnter", function (tipFrame)
+    widget:SetScript ("OnEnter", function (widgetFrame)
       local tooltipFunc = "SetText"
       local tipText
       if type(tip) == "function" then
-        tipText = tip(tipFrame)
+        tipText = tip(widgetFrame)
       else
         tipText = tip
       end
@@ -95,7 +95,7 @@ function GUI:SetTooltip (widget, tip)
         end
       end
       if tipText then
-        GameTooltip:SetOwner(tipFrame, "ANCHOR_LEFT")
+        GameTooltip:SetOwner(widgetFrame, "ANCHOR_LEFT")
         GameTooltip[tooltipFunc](GameTooltip, tipText)
         GameTooltip:Show()
       end
