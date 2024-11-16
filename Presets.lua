@@ -667,7 +667,7 @@ do
         [PET_DEFENSIVE] = {
           tanking = true,
           weights = {
-            0, 4, 4, 3, 0, 0, 3, 5
+            -1, 100, 100, 20, 0, 0, 50, 80
           },
         },
         [DAMAGE] = {

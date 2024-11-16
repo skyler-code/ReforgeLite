@@ -58,7 +58,7 @@ function ReforgeLite:GetMethodScore (method)
       score = score + method.stats.block * self.pdb.weights[self.STATS.MASTERY]
     else
       for i = 1, #self.itemStats do
-        if i ~= self.STATS.DODGE and i ~= self.STATS.PARRY then
+        if i ~= self.STATS.DODGE and i ~= self.STATS.PARRY and i ~= self.STATS.SPIRIT then
           score = score + method.stats[i] * self.pdb.weights[i]
         end
       end
