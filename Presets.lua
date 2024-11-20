@@ -434,7 +434,7 @@ do
           weights = {
             0, 0, 0, 200, 120, 150, 100, 180
           },
-          caps = CasterCaps
+          caps = { HitCap },
         },
       },
       [specs.DEATHKNIGHTUnholy] = function()
