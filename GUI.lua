@@ -255,9 +255,9 @@ end
 
 GUI.checkButtons = {}
 GUI.unusedCheckButtons = {}
-function GUI:CreateCheckButton (parent, text, default, setter)
+function GUI:CreateCheckButton (parent, text, default, setter, forceNew)
   local btn
-  if #self.unusedCheckButtons > 0 then
+  if #self.unusedCheckButtons > 0 and not forceNew then
     btn = tremove (self.unusedCheckButtons, 1)
     btn:SetParent (parent)
     btn:Show ()

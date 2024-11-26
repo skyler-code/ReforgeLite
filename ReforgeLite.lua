@@ -2078,7 +2078,7 @@ function ReforgeLite:CreateMethodWindow()
     self.methodWindow.items[i].reforge:SetText ("")
 
     self.methodWindow.items[i].check = GUI:CreateCheckButton (self.methodWindow.itemTable, "", false,
-      function (val) self.methodOverride[i] = (val and 1 or -1) self:UpdateMethodChecks () end)
+      function (val) self.methodOverride[i] = (val and 1 or -1) self:UpdateMethodChecks () end, true)
     self.methodWindow.itemTable:SetCell (i, 1, self.methodWindow.items[i].check)
   end
   self.methodWindow.reforge = GUI:CreatePanelButton (self.methodWindow, REFORGE, function(btn) self:DoReforge() end)
