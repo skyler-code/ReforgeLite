@@ -225,18 +225,18 @@ do
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.FirstHasteBreak,
       category = StatHaste,
-      name = nameFormat:format(CreateIconMarkup(136081), 18.74, 2, addonTable.GetSpellName(774)),
+      name = nameFormat:format(CreateIconMarkup(136081), 18.74, 2, C_Spell.GetSpellName(774)),
       getter = GetSpellHasteRequired(12.51),
     })
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.SecondHasteBreak,
       category = StatHaste,
-      name = nameFormat:format(CreateIconMarkup(236153)..CreateIconMarkup(134222), 21.43, 1, addonTable.GetSpellName(48438) .. " / " .. addonTable.GetSpellName(81269)),
+      name = nameFormat:format(CreateIconMarkup(236153)..CreateIconMarkup(134222), 21.43, 1, C_Spell.GetSpellName(48438) .. " / " .. C_Spell.GetSpellName(81269)),
       getter = GetSpellHasteRequired(21.4345),
     })
   elseif addonTable.playerClass == "PRIEST" then
-    local devouringPlague, devouringPlagueMarkup = addonTable.GetSpellName(2944), CreateIconMarkup(252997)
-    local shadowWordPain, shadowWordPainMarkup = addonTable.GetSpellName(589), CreateIconMarkup(136207)
+    local devouringPlague, devouringPlagueMarkup = C_Spell.GetSpellName(2944), CreateIconMarkup(252997)
+    local shadowWordPain, shadowWordPainMarkup = C_Spell.GetSpellName(589), CreateIconMarkup(136207)
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.FirstHasteBreak,
       category = StatHaste,
@@ -252,7 +252,7 @@ do
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.ThirdHasteBreak,
       category = StatHaste,
-      name = nameFormat:format(CreateIconMarkup(135978), 30.01, 2, addonTable.GetSpellName(589)),
+      name = nameFormat:format(CreateIconMarkup(135978), 30.01, 2, C_Spell.GetSpellName(589)),
       getter = GetSpellHasteRequired(30.01),
     })
     tinsert(ReforgeLite.capPresets, {
@@ -268,7 +268,7 @@ do
       getter = GetSpellHasteRequired(41.675),
     })
   elseif addonTable.playerClass == "MAGE" then
-    local combustion, combustionMarkup = addonTable.GetSpellName(11129), CreateIconMarkup(135824)
+    local combustion, combustionMarkup = C_Spell.GetSpellName(11129), CreateIconMarkup(135824)
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.FirstHasteBreak,
       category = StatHaste,
@@ -284,7 +284,7 @@ do
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.ThirdHasteBreak,
       category = StatHaste,
-      name = ("%s %s %s"):format(CreateIconMarkup(135735), D_SECONDS:format(1), addonTable.GetSpellName(30451)),
+      name = ("%s %s %s"):format(CreateIconMarkup(135735), D_SECONDS:format(1), C_Spell.GetSpellName(30451)),
       getter = function()
         local percentNeeded = 13.8
         local firelordCount = GetActiveItemSet()[931] or 0
@@ -422,7 +422,7 @@ do
         },
       },
       [specs.DEATHKNIGHTFrost] = {
-        [addonTable.GetSpellName(49020)] = { -- Obliterate
+        [C_Spell.GetSpellName(49020)] = { -- Obliterate
           icon = 135771,
           weights = {
             0, 0, 0, 200, 120, 160, 50, 90
@@ -457,7 +457,7 @@ do
         caps = CasterCaps,
       },
       [specs.DRUIDFeralCombat] = {
-        [("%s (%s)"):format(addonTable.GetSpellName(5487), TANK)] = { -- Bear Form (Tank)
+        [("%s (%s)"):format(C_Spell.GetSpellName(5487), TANK)] = { -- Bear Form (Tank)
           icon = 132276,
           weights = {
             0, 54, 0, 25, 53, 7, 48, 37
@@ -483,14 +483,14 @@ do
             },
           },
         },
-        [("%s (%s)"):format(addonTable.GetSpellName(5487), STAT_DPS_SHORT)] = { -- Bear Form (DPS)
+        [("%s (%s)"):format(C_Spell.GetSpellName(5487), STAT_DPS_SHORT)] = { -- Bear Form (DPS)
           icon = 132276,
           weights = {
             0, -6, 0, 100, 50, 25, 100, -1
           },
           caps = MeleeCaps,
         },
-        [("%s (%s)"):format(addonTable.GetSpellName(768), L["Monocat"])] = { -- Cat Form (Monocat)
+        [("%s (%s)"):format(C_Spell.GetSpellName(768), L["Monocat"])] = { -- Cat Form (Monocat)
           icon = 132115,
           weights = {
             0, 0, 0, 30, 31, 28, 30, 31
@@ -516,7 +516,7 @@ do
             },
           },
         },
-        [("%s (%s)"):format(addonTable.GetSpellName(768), L["Bearweave"])] = { -- Cat Form (Bearweave)
+        [("%s (%s)"):format(C_Spell.GetSpellName(768), L["Bearweave"])] = { -- Cat Form (Bearweave)
           icon = 132115,
           weights = {
             0, 0, 0, 33, 31, 26, 32, 30
@@ -876,7 +876,7 @@ do
         caps = MeleeCaps
       },
       [specs.WARRIORFury] = {
-        [addonTable.GetSpellName(46917)] = { -- Titan's Grip
+        [C_Spell.GetSpellName(46917)] = { -- Titan's Grip
           icon = 236316,
           weights = {
             0, 0, 0, 200, 150, 100, 180, 130
@@ -895,7 +895,7 @@ do
             SoftExpCap
           },
         },
-        [addonTable.GetSpellName(81099)] = { -- Single-Minded Fury
+        [C_Spell.GetSpellName(81099)] = { -- Single-Minded Fury
           icon = 458974,
           weights = {
             0, 0, 0, 200, 150, 100, 180, 130

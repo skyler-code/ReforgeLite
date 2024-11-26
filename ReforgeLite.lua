@@ -19,15 +19,6 @@ local function print(...)
 end
 addonTable.print = print
 
-local function GetSpellName(id)
-  if C_Spell.GetSpellName then
-    return C_Spell.GetSpellName(id)
-  end
-  local spellName = GetSpellInfo(id)
-  return spellName
-end
-addonTable.GetSpellName = GetSpellName
-
 local ITEM_SIZE = 24
 
 local DefaultDB = {
@@ -1130,11 +1121,11 @@ function ReforgeLite:UpdateStatWeightList ()
   end
   if self.pdb.tankingModel then
     self.statWeights.buffs = {}
-    self.statWeights.buffs.kings = GUI:CreateCheckButton (self.statWeights, GetSpellName(20217), self.pdb.buffs.kings, function (val)
+    self.statWeights.buffs.kings = GUI:CreateCheckButton (self.statWeights, C_Spell.GetSpellName(20217), self.pdb.buffs.kings, function (val)
       self.pdb.buffs.kings = val
       self:RefreshMethodStats ()
     end)
-    self.statWeights.buffs.strength = GUI:CreateCheckButton (self.statWeights, GetSpellName(57330), self.pdb.buffs.strength, function (val)
+    self.statWeights.buffs.strength = GUI:CreateCheckButton (self.statWeights, C_Spell.GetSpellName(57330), self.pdb.buffs.strength, function (val)
       self.pdb.buffs.strength = val
       self:RefreshMethodStats ()
     end)
