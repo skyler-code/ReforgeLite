@@ -373,15 +373,14 @@ function ReforgeLite:ValidateWoWSimsString(importStr)
       local simItemInfo = wowsims.player.equipment.items[slot] or {}
       local equippedItemInfo = self.itemData[slot]
       if simItemInfo.id ~= equippedItemInfo.itemId then
-        local _, importItemLink = C_Item.GetItemInfo(simItemInfo.id)
+        local importItemLink = Item:CreateFromItemID(simItemInfo.id):GetItemLink()
         return L["%s does not match your currently equipped %s. ReforgeLite only supports equipped items."]:format(importItemLink or ("item:"..simItemInfo.id), equippedItemInfo.item)
       end
-      item.reforge = nil
       if simItemInfo.reforging then
-        item.reforge = simItemInfo.reforging - self.REFORGE_TABLE_BASE
-        item.src, item.dst = unpack(self.reforgeTable[item.reforge])
+        item.src, item.dst = unpack(self.reforgeTable[simItemInfo.reforging - self.REFORGE_TABLE_BASE])
+      else
+        item.src, item.dst = nil, nil
       end
-      item.stats = nil
     end
     return newItems
   end
@@ -389,7 +388,7 @@ end
 
 function ReforgeLite:ApplyWoWSimsImport(newItems)
   self.pdb.method.items = newItems
-  self:UpdateMethodStats(self.pdb.method)
+  self:FinalizeReforge(self.pdb)
   self:UpdateMethodCategory()
 end
 

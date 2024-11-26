@@ -162,6 +162,8 @@ function ReforgeLite:UpdateMethodStats (method)
       method.items[i].amount = floor ((stats[self.itemStats[method.items[i].src].name] or 0) * REFORGE_COEFF)
       method.stats[method.items[i].src] = method.stats[method.items[i].src] - method.items[i].amount
       method.stats[method.items[i].dst] = method.stats[method.items[i].dst] + method.items[i].amount
+    else
+      method.items[i].amount = nil
     end
   end
   method.stats[self.STATS.SPIRIT] = Round(method.stats[self.STATS.SPIRIT] * self.spiritBonus)
