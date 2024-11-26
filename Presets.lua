@@ -441,9 +441,9 @@ do
         local gurth = C_Item.IsEquippedItem(77191) or C_Item.IsEquippedItem(78478) or C_Item.IsEquippedItem(78487)
         return {
           weights = gurth and {
-            0, 0, 0, 200, 120, 160, 100, 130
+            0, 0, 0, 200, 120, 160, 100, 130 -- Needs research
           } or {
-            0, 0, 0, 200, 130, 160, 100, 110
+            0, 0, 0, 261, 233, 240, 113, 187
           },
           caps = { HitCap },
         }
