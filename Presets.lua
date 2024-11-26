@@ -1076,7 +1076,7 @@ function ReforgeLite:InitPresets()
     onClick = function(info)
       local output = addonTable.DeepCopy(info.value)
       output.prioritySort = nil
-      self:ExportJSON(info.sortKey, output)
+      self:ExportJSON(output, info.sortKey)
     end
   }), "MENU")
   --@end-debug@

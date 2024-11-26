@@ -24,7 +24,7 @@ end
 function ReforgeLite:DisplayMessage(name, message)
     local frame, editbox = CreateDataFrame()
     frame:SetTitle(L["Export"])
-    frame:SetStatusText(name)
+    frame:SetStatusText(name or "")
     editbox:DisableButton(true)
     editbox:SetLabel()
     editbox:SetText(message)
@@ -44,7 +44,7 @@ function ReforgeLite:DebugMethod()
     end
 end
 
-function ReforgeLite:ExportJSON(name, preset)
+function ReforgeLite:ExportJSON(preset, name)
     self:DisplayMessage(name, addonTable.json.encode(preset))
 end
 
