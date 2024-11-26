@@ -92,8 +92,8 @@ function ReforgeLite:GetBuffBonuses ()
   local dodge_bonus = 0
   local parry_bonus = floor ((strength - cur_strength) * 0.27)
   local mastery_bonus = 0
-  for i = 1, #self.itemData do
-    local bonus = itemBonuses[GetInventoryItemID ("player", self.itemData[i].slotId)]
+  for i = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED do
+    local bonus = itemBonuses[GetInventoryItemID ("player", i)]
     if bonus then
       extra_strength = extra_strength + bonus[1]
       dodge_bonus = dodge_bonus + bonus[2]
