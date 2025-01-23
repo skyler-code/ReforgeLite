@@ -1776,7 +1776,7 @@ function ReforgeLite:GetReforgeTableIndex(src, dst)
   return UNFORGE_INDEX
 end
 
-local function SearchTooltipForReforgeID(tip)
+function ReforgeLite:SearchTooltipForReforgeID(tip)
   local _, item = tip:GetItem()
   local existingStats = GetItemStats(item)
   local srcStat, destStat
@@ -1792,13 +1792,13 @@ local function SearchTooltipForReforgeID(tip)
         if statValue then
           if not existingStats[statInfo.name] then
             destStat = statId
-            if ReforgeLite.db.highlightTooltip then
-              region:SetTextColor(unpack(ReforgeLite.db.highlightDestStatColor))
+            if self.db.highlightTooltip then
+              region:SetTextColor(unpack(self.db.highlightDestStatColor))
             end
           elseif existingStats[statInfo.name] - tonumber(statValue) > 0 then
             srcStat = statId
-            if ReforgeLite.db.highlightTooltip then
-              region:SetTextColor(unpack(ReforgeLite.db.highlightSourceStatColor))
+            if self.db.highlightTooltip then
+              region:SetTextColor(unpack(self.db.highlightSourceStatColor))
             end
           end
         end
@@ -1806,22 +1806,22 @@ local function SearchTooltipForReforgeID(tip)
       if srcStat and destStat then break end
     end
   end
-  return ReforgeLite:GetReforgeTableIndex(srcStat, destStat)
+  return self:GetReforgeTableIndex(srcStat, destStat)
 end
 
 local reforgeIdTooltip
-function GetReforgeIdForInventorySlot(slotId)
+function ReforgeLite:GetReforgeIdForInventorySlot(slotId)
     if ignoredSlots[slotId] then return end
     if not reforgeIdTooltip then
         reforgeIdTooltip = CreateFrame("GameTooltip", addonName.."Tooltip", nil, "GameTooltipTemplate")
         reforgeIdTooltip:SetOwner(UIParent, "ANCHOR_NONE")
     end
     reforgeIdTooltip:SetInventoryItem("player", slotId)
-    return SearchTooltipForReforgeID(reforgeIdTooltip)
+    return self:SearchTooltipForReforgeID(reforgeIdTooltip)
 end
 
 function ReforgeLite:GetReforgeID (slotId)
-  local reforgeId = GetReforgeIdForInventorySlot(slotId)
+  local reforgeId = self:GetReforgeIdForInventorySlot(slotId)
   if reforgeId and reforgeId > UNFORGE_INDEX then
     return reforgeId
   end
@@ -2297,7 +2297,7 @@ function ReforgeLite:OnTooltipSetItem (tip)
   if not item then return end
   for _, region in pairs({tip:GetRegions()}) do
     if region:GetObjectType() == "FontString" and region:GetText() == REFORGED then
-      local reforgeId = SearchTooltipForReforgeID(tip)
+      local reforgeId = self:SearchTooltipForReforgeID(tip)
       if not reforgeId or reforgeId == UNFORGE_INDEX or not self.db.updateTooltip then return end
       local srcId, destId = unpack(reforgeTable[reforgeId])
       region:SetText(("%s (%s > %s)"):format(REFORGED, self.itemStats[srcId].long, self.itemStats[destId].long))
@@ -2308,15 +2308,14 @@ end
 
 function ReforgeLite:SetUpHooks ()
   local tooltips = {
-    "GameTooltip",
-    "ShoppingTooltip1",
-    "ShoppingTooltip2",
-    "ItemRefTooltip",
-    "ItemRefShoppingTooltip1",
-    "ItemRefShoppingTooltip2",
+    GameTooltip,
+    ShoppingTooltip1,
+    ShoppingTooltip2,
+    ItemRefTooltip,
+    ItemRefShoppingTooltip1,
+    ItemRefShoppingTooltip2,
   }
-  for _,tooltipName in ipairs(tooltips) do
-    local tooltip = _G[tooltipName]
+  for _, tooltip in ipairs(tooltips) do
     if tooltip then
       tooltip:HookScript("OnTooltipSetItem", function(tip) self:OnTooltipSetItem(tip) end)
     end
