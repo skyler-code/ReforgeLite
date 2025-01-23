@@ -979,7 +979,6 @@ function ReforgeLite:RemoveCapPoint (i, point, loading)
     self.pdb.caps[i].stat = 0
     self.statCaps[i].add:Disable()
     self.statCaps[i].stat:SetValue(0)
-    self.statCaps:ToggleDarkIntentButton()
   end
 end
 function ReforgeLite:ReorderCapPoint (i, point)
@@ -1079,7 +1078,6 @@ function ReforgeLite:SetStatWeights (weights, caps)
     for i=1,2 do
       self:UpdateCapPoints (i)
     end
-    self.statCaps:ToggleDarkIntentButton()
     self.statCaps:ToggleStatDropdownToCorrectState()
     self.statCaps.onUpdate ()
     self:UpdateContentSize ()
@@ -1291,6 +1289,28 @@ function ReforgeLite:CreateOptionList ()
   self:SetAnchor(self.targetLevel.text, "TOPLEFT", self.tankingModel or self.pawnButton, "BOTTOMLEFT", 0, -8)
   self.targetLevel:SetPoint("BOTTOMLEFT", self.targetLevel.text, "BOTTOMLEFT", self.targetLevel.text:GetStringWidth(), -20)
 
+  self.buffsContextMenu = GUI:CreateImageButton (self.content, 24, 24, "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up",
+    "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down", "Interface\\Buttons\\UI-Common-MouseHilight", nil, function (btn)
+    local function IsSelected(value)
+        return self.pdb[value]
+    end
+    local function SetSelected(value)
+        self.pdb[value] = not self.pdb[value]
+    end
+
+    MenuUtil.CreateCheckboxContextMenu(btn,
+        IsSelected,
+        SetSelected,
+        {CreateSimpleTextureMarkup(463285, 20, 20) .. " " .. C_Spell.GetSpellName(80398), "darkIntent"},
+        {CreateSimpleTextureMarkup(136092, 20, 20) .. " " .. L["Spell Haste"], "spellHaste"}
+    )
+  end)
+  self.statWeightsCategory:AddFrame (self.buffsContextMenu)
+  self:SetAnchor (self.buffsContextMenu, "TOPLEFT", self.targetLevel, "TOPRIGHT", 0 , 5)
+  self.buffsContextMenu.tip = self.buffsContextMenu:CreateFontString (nil, "OVERLAY", "GameFontNormal")
+  self.buffsContextMenu.tip:SetPoint ("LEFT", self.buffsContextMenu, "RIGHT", 5, 0)
+  self.buffsContextMenu.tip:SetText (L["Buffs"])
+
   self.statWeights = GUI:CreateTable (ceil (#self.itemStats / 2), 4)
   self:SetAnchor (self.statWeights, "TOPLEFT", self.targetLevel.text, "BOTTOMLEFT", 0, -8)
   self.statWeights:SetPoint ("RIGHT", -5, 0)
@@ -1308,15 +1328,6 @@ function ReforgeLite:CreateOptionList ()
   local statList = {{value = 0, name = NONE}}
   for i, v in ipairs (self.itemStats) do
     tinsert (statList, {value = i, name = v.long})
-  end
-  self.statCaps.ToggleDarkIntentButton = function(caps)
-    for _, cap in ipairs(caps) do
-      if cap.stat.selectedValue == self.STATS.HASTE then
-        cap.darkIntent:Show()
-      else
-        cap.darkIntent:Hide()
-      end
-    end
   end
   self.statCaps.ToggleStatDropdownToCorrectState = function(caps)
     for i = 2, #caps do
@@ -1343,7 +1354,6 @@ function ReforgeLite:CreateOptionList ()
         if val == 0 then
           self:CollapseStatCaps()
         end
-        self.statCaps:ToggleDarkIntentButton()
         self.statCaps:ToggleStatDropdownToCorrectState()
       end,
       width = 110,
@@ -1356,26 +1366,8 @@ function ReforgeLite:CreateOptionList ()
       self:AddCapPoint (i)
     end)
     GUI:SetTooltip (self.statCaps[i].add, L["Add cap"])
-    self.statCaps[i].darkIntent = GUI:CreateCheckButton(
-      self.statCaps,
-      CreateSimpleTextureMarkup(463285, 20, 20),
-      self.pdb.darkIntent,
-      function(val)
-        self.pdb.darkIntent = val
-        for pointIndex, point in ipairs(self.pdb.caps[i].points) do
-          local oldValue = point.value
-          self:UpdateCapPreset(i, pointIndex)
-          if oldValue ~= point.value then
-            self:ReorderCapPoint (i, pointIndex)
-          end
-        end
-      end
-    )
-    self.statCaps[i].darkIntent:Hide()
-    GUI:SetTooltip (self.statCaps[i].darkIntent, { spellID = 85767 })
     self.statCaps:SetCell (i, 0, self.statCaps[i].stat, "LEFT", -20, -10)
     self.statCaps:SetCell (i, 2, self.statCaps[i].add, "LEFT")
-    self.statCaps:SetCell (i, 3, self.statCaps[i].darkIntent, "LEFT")
   end
   for i = 1, 2 do
     for point in ipairs(self.pdb.caps[i].points) do
@@ -1386,7 +1378,6 @@ function ReforgeLite:CreateOptionList ()
       self:RemoveCapPoint(i)
     end
   end
-  self.statCaps:ToggleDarkIntentButton()
   self.statCaps:ToggleStatDropdownToCorrectState()
   self.statCaps.onUpdate = function ()
     local row = 1
