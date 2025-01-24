@@ -1296,6 +1296,15 @@ function ReforgeLite:CreateOptionList ()
     end
     local function SetSelected(value)
         self.pdb[value] = not self.pdb[value]
+        for capIndex, cap in ipairs(self.pdb.caps) do
+          for pointIndex, point in ipairs(cap.points) do
+            local oldValue = point.value
+            self:UpdateCapPreset(capIndex, pointIndex)
+            if oldValue ~= point.value then
+              self:ReorderCapPoint (capIndex, pointIndex)
+            end
+          end
+        end
     end
 
     MenuUtil.CreateCheckboxContextMenu(btn,
