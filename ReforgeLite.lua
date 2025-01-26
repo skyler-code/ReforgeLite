@@ -1289,8 +1289,12 @@ function ReforgeLite:CreateOptionList ()
   self:SetAnchor(self.targetLevel.text, "TOPLEFT", self.tankingModel or self.pawnButton, "BOTTOMLEFT", 0, -8)
   self.targetLevel:SetPoint("BOTTOMLEFT", self.targetLevel.text, "BOTTOMLEFT", self.targetLevel.text:GetStringWidth(), -20)
 
-  self.buffsContextMenu = GUI:CreateImageButton (self.content, 24, 24, "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up",
-    "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down", "Interface\\Buttons\\UI-Common-MouseHilight", nil, function (btn)
+  self.buffsContextMenu = CreateFrame("DropdownButton", nil, self.content, "WowStyle1FilterDropdownTemplate");
+  self.buffsContextMenu:SetText(L["Buffs"]);
+  self.statWeightsCategory:AddFrame(self.buffsContextMenu)
+  self:SetAnchor(self.buffsContextMenu, "TOPLEFT", self.targetLevel, "TOPRIGHT", 0 , 5)
+
+  self.buffsContextMenu:SetupMenu(function(dropdown, rootDescription)
     local function IsSelected(value)
         return self.pdb[value]
     end
@@ -1306,19 +1310,14 @@ function ReforgeLite:CreateOptionList ()
           end
         end
     end
-
-    MenuUtil.CreateCheckboxContextMenu(btn,
-        IsSelected,
-        SetSelected,
-        {CreateSimpleTextureMarkup(463285, 20, 20) .. " " .. C_Spell.GetSpellName(80398), "darkIntent"},
-        {CreateSimpleTextureMarkup(136092, 20, 20) .. " " .. L["Spell Haste"], "spellHaste"}
-    )
+    local buffsContextValues = {
+      { text = CreateSimpleTextureMarkup(463285, 20, 20) .. " " .. C_Spell.GetSpellName(80398), key = "darkIntent"},
+      { text = CreateSimpleTextureMarkup(136092, 20, 20) .. " " .. L["Spell Haste"], key = "spellHaste"}
+    }
+    for _, box in ipairs(buffsContextValues) do
+        rootDescription:CreateCheckbox(box.text, IsSelected, SetSelected, box.key)
+    end
   end)
-  self.statWeightsCategory:AddFrame (self.buffsContextMenu)
-  self:SetAnchor (self.buffsContextMenu, "TOPLEFT", self.targetLevel, "TOPRIGHT", 0 , 5)
-  self.buffsContextMenu.tip = self.buffsContextMenu:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.buffsContextMenu.tip:SetPoint ("LEFT", self.buffsContextMenu, "RIGHT", 5, 0)
-  self.buffsContextMenu.tip:SetText (L["Buffs"])
 
   self.statWeights = GUI:CreateTable (ceil (#self.itemStats / 2), 4)
   self:SetAnchor (self.statWeights, "TOPLEFT", self.targetLevel.text, "BOTTOMLEFT", 0, -8)
