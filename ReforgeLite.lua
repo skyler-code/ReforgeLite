@@ -795,19 +795,19 @@ function ReforgeLite:CreateFrame()
 end
 
 function ReforgeLite:CreateItemTable ()
-  self.itemLevel = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.itemLevel:SetPoint ("TOPLEFT", 12, -28)
-  self.itemLevel:SetTextColor (1, 1, 0.8)
-
-  self.itemTable = GUI:CreateTable (#self.itemSlots + 1, #self.itemStats, ITEM_SIZE, ITEM_SIZE + 4, {0.5, 0.5, 0.5, 1}, self)
-  self.itemTable:SetPoint ("TOPLEFT", self.itemLevel, "BOTTOMLEFT", 0, -10)
-  self.itemTable:SetPoint ("BOTTOM", 0, 10)
-  self.itemTable:SetWidth (400)
-
   local lockTip = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   lockTip:SetTextColor (1, 1, 1)
   lockTip:SetText (L["Click an item to lock it"])
-  lockTip:SetPoint ("BOTTOMRIGHT", self.itemTable, "TOPRIGHT", 0, 10)
+  lockTip:SetPoint ("TOPLEFT", 12, -28)
+
+  self.itemTable = GUI:CreateTable (#self.itemSlots + 1, #self.itemStats, ITEM_SIZE, ITEM_SIZE + 4, {0.5, 0.5, 0.5, 1}, self)
+  self.itemTable:SetPoint ("TOPLEFT", lockTip, "BOTTOMLEFT", 0, -10)
+  self.itemTable:SetPoint ("BOTTOM", 0, 10)
+  self.itemTable:SetWidth (400)
+
+  self.itemLevel = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
+  self.itemLevel:SetPoint ("BOTTOMRIGHT", self.itemTable, "TOPRIGHT", 0, 10)
+  self.itemLevel:SetTextColor (1, 1, 0.8)
 
   for i, v in ipairs (self.itemStats) do
     self.itemTable:SetCellText (0, i, v.tip)
