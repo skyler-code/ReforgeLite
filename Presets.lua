@@ -305,7 +305,7 @@ do
       category = StatHaste,
       name = ("%s %s %s"):format(CreateIconMarkup(135735), D_SECONDS:format(1), C_Spell.GetSpellName(30451)),
       getter = function()
-        local percentNeeded = 13.8
+        local percentNeeded = 13.86
         local firelordCount = GetActiveItemSet()[931] or 0
         if addonTable.playerRace == "Goblin" then
           if firelordCount >= 4 then
