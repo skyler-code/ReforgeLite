@@ -1291,6 +1291,7 @@ function ReforgeLite:CreateOptionList ()
 
   self.buffsContextMenu = CreateFrame("DropdownButton", nil, self.content, "WowStyle1FilterDropdownTemplate");
   self.buffsContextMenu:SetText(L["Buffs"]);
+  self.buffsContextMenu.resizeToTextPadding = 25
   self.statWeightsCategory:AddFrame(self.buffsContextMenu)
   self:SetAnchor(self.buffsContextMenu, "TOPLEFT", self.targetLevel, "TOPRIGHT", 0 , 5)
 
