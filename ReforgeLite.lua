@@ -2404,6 +2404,13 @@ function ReforgeLite:OnCommand (cmd)
   self:Show ()
 end
 
+function ReforgeLite:PLAYER_REGEN_DISABLED()
+  if self.methodWindow then
+    self.methodWindow:Hide()
+  end
+  self:Hide()
+end
+
 function ReforgeLite:ADDON_LOADED (addon)
   if addon ~= addonName then return end
   self:Hide()
@@ -2424,6 +2431,7 @@ function ReforgeLite:ADDON_LOADED (addon)
   self:SetUpHooks()
   self:RegisterEvent("FORGE_MASTER_OPENED")
   self:RegisterEvent("FORGE_MASTER_CLOSED")
+  self:RegisterEvent("PLAYER_REGEN_DISABLED")
 
   for event in pairs(queueUpdateEvents) do
     self:RegisterEvent(event)
