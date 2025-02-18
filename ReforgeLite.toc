@@ -1,4 +1,4 @@
-## Interface: 40401
+## Interface: 40402
 ## Author: d07.RiV (Iroared) (Continued by Brues)
 ## Title: ReforgeLite Classic
 ## Notes: Calculates optimal reforging for given weights/caps.
