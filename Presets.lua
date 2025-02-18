@@ -64,18 +64,29 @@ function ReforgeLite:GetExpertiseBonus ()
   return bonus
 end
 function ReforgeLite:GetMeleeHasteBonus()
-  return RoundToSignificantDigits((GetMeleeHaste()+100)/(GetCombatRatingBonus(CR_HASTE_MELEE)+100), 4)
+  local baseBonus = RoundToSignificantDigits((GetMeleeHaste()+100)/(GetCombatRatingBonus(CR_HASTE_MELEE)+100), 4)
+  if self.pdb.meleeHaste then
+    local meleeHaste = select(7, self:GetPlayerBuffs())
+    if self.pdb.spellHaste and not meleeHaste then
+      baseBonus = baseBonus * 1.1
+    end
+  end
+  return baseBonus
 end
 function ReforgeLite:GetRangedHasteBonus()
-  return RoundToSignificantDigits((GetRangedHaste()+100)/(GetCombatRatingBonus(CR_HASTE_RANGED)+100), 4)
-end
-local function PlayerHasSpellHasteBuff()
-  return select(5, ReforgeLite:GetPlayerBuffs())
+  local baseBonus = RoundToSignificantDigits((GetRangedHaste()+100)/(GetCombatRatingBonus(CR_HASTE_RANGED)+100), 4)
+  if self.pdb.meleeHaste then
+    local meleeHaste = select(7, self:GetPlayerBuffs())
+    if self.pdb.spellHaste and not meleeHaste then
+      baseBonus = baseBonus * 1.1
+    end
+  end
+  return baseBonus
 end
 function ReforgeLite:GetSpellHasteBonus()
   local baseBonus = (UnitSpellHaste('PLAYER')+100)/(GetCombatRatingBonus(CR_HASTE_SPELL)+100)
   if self.pdb.spellHaste or self.pdb.darkIntent then
-    local spellHaste, darkIntent = PlayerHasSpellHasteBuff()
+    local spellHaste, darkIntent = select(5, self:GetPlayerBuffs())
     if self.pdb.spellHaste and not spellHaste then
       baseBonus = baseBonus * 1.05
     end
@@ -219,19 +230,27 @@ local function GetSpellHasteRequired(percentNeeded)
   end
 end
 
+local function GetRangedHasteRequired(percentNeeded)
+  return function()
+    local hasteMod = ReforgeLite:GetRangedHasteBonus()
+    return ceil((percentNeeded - (hasteMod - 1) * 100) * ReforgeLite:RatingPerPoint(ReforgeLite.STATS.HASTE) / hasteMod)
+  end
+end
+
 do
-  local nameFormat = "%s%s%% +%s %s "..L["ticks"]
+  local nameFormat = "%s%s%% +%s %s "
+  local nameFormatWithTicks = nameFormat..L["ticks"]
   if addonTable.playerClass == "DRUID" then
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.FirstHasteBreak,
       category = StatHaste,
-      name = nameFormat:format(CreateIconMarkup(136081), 18.74, 2, C_Spell.GetSpellName(774)),
+      name = nameFormatWithTicks:format(CreateIconMarkup(136081), 18.74, 2, C_Spell.GetSpellName(774)),
       getter = GetSpellHasteRequired(12.51),
     })
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.SecondHasteBreak,
       category = StatHaste,
-      name = nameFormat:format(CreateIconMarkup(236153)..CreateIconMarkup(134222), 21.43, 1, C_Spell.GetSpellName(48438) .. " / " .. C_Spell.GetSpellName(81269)),
+      name = nameFormatWithTicks:format(CreateIconMarkup(236153)..CreateIconMarkup(134222), 21.43, 1, C_Spell.GetSpellName(48438) .. " / " .. C_Spell.GetSpellName(81269)),
       getter = GetSpellHasteRequired(21.4345),
     })
   elseif addonTable.playerClass == "PRIEST" then
@@ -240,31 +259,31 @@ do
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.FirstHasteBreak,
       category = StatHaste,
-      name = nameFormat:format(devouringPlagueMarkup, 18.74, 2, devouringPlague),
+      name = nameFormatWithTicks:format(devouringPlagueMarkup, 18.74, 2, devouringPlague),
       getter = GetSpellHasteRequired(18.74),
     })
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.SecondHasteBreak,
       category = StatHaste,
-      name = nameFormat:format(shadowWordPainMarkup, 24.97, 2, shadowWordPain),
+      name = nameFormatWithTicks:format(shadowWordPainMarkup, 24.97, 2, shadowWordPain),
       getter = GetSpellHasteRequired(24.97),
     })
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.ThirdHasteBreak,
       category = StatHaste,
-      name = nameFormat:format(CreateIconMarkup(135978), 30.01, 2, C_Spell.GetSpellName(589)),
+      name = nameFormatWithTicks:format(CreateIconMarkup(135978), 30.01, 2, C_Spell.GetSpellName(589)),
       getter = GetSpellHasteRequired(30.01),
     })
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.FourthHasteBreak,
       category = StatHaste,
-      name = nameFormat:format(devouringPlagueMarkup, 31.26, 3, devouringPlague),
+      name = nameFormatWithTicks:format(devouringPlagueMarkup, 31.26, 3, devouringPlague),
       getter = GetSpellHasteRequired(31.26),
     })
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.FifthHasteBreak,
       category = StatHaste,
-      name = nameFormat:format(shadowWordPainMarkup, 41.67, 3, shadowWordPain),
+      name = nameFormatWithTicks:format(shadowWordPainMarkup, 41.67, 3, shadowWordPain),
       getter = GetSpellHasteRequired(41.675),
     })
   elseif addonTable.playerClass == "MAGE" then
@@ -272,13 +291,13 @@ do
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.FirstHasteBreak,
       category = StatHaste,
-      name = nameFormat:format(combustionMarkup, 15, 2, combustion),
+      name = nameFormatWithTicks:format(combustionMarkup, 15, 2, combustion),
       getter = GetSpellHasteRequired(15.01),
     })
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.SecondHasteBreak,
       category = StatHaste,
-      name = nameFormat:format(combustionMarkup, 25, 3, combustion),
+      name = nameFormatWithTicks:format(combustionMarkup, 25, 3, combustion),
       getter = GetSpellHasteRequired(25.08),
     })
     tinsert(ReforgeLite.capPresets, {
@@ -300,6 +319,13 @@ do
         return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
       end,
     })
+  elseif addonTable.playerClass == "HUNTER" then
+      tinsert(ReforgeLite.capPresets, {
+        value = CAPS.FirstHasteBreak,
+        category = StatHaste,
+        name = nameFormat:format(CreateIconMarkup(461114), 20, 3, C_Spell.GetSpellName(77767)),
+        getter = GetRangedHasteRequired(19.99),
+      })
   end
 end
 ----------------------------------------- WEIGHT PRESETS ------------------------------
@@ -578,7 +604,19 @@ do
         weights = {
           0, 0, 0, 200, 110, 80, 0, 40
         },
-        caps = RangedCaps,
+        caps = {
+          HitCap,
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtMost,
+                preset = CAPS.FirstHasteBreak,
+                after = 0,
+              },
+            },
+          },
+        },
       },
     },
     ["MAGE"] = {

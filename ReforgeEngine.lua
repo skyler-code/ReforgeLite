@@ -12,7 +12,7 @@ local GetItemStats = C_Item.GetItemStats or GetItemStats
 
 ---------------------------------------------------------------------------------------
 function ReforgeLite:GetPlayerBuffs()
-  local kings, strength, flask, food, spellHaste, darkIntent
+  local kings, strength, flask, food, spellHaste, darkIntent, meleeHaste
   local slots = {C_UnitAuras.GetAuraSlots('player','helpful')}
   for i = 2, #slots do
     local aura = C_UnitAuras.GetAuraDataBySlot('player',slots[i])
@@ -40,10 +40,12 @@ function ReforgeLite:GetPlayerBuffs()
         spellHaste = true
       elseif id == 85768 or id == 85767 then
         darkIntent = true
+      elseif id == 53290 or id == 55610 or id == 8515 then
+        meleeHaste = true
       end
     end
   end
-  return kings, strength, flask, food, spellHaste, darkIntent
+  return kings, strength, flask, food, spellHaste, darkIntent, meleeHaste
 end
 function ReforgeLite:DiminishStat (rating, stat)
   return rating > 0 and 1 / (0.0152366 + 0.956 / (rating / self:RatingPerPoint (stat))) or 0

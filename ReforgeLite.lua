@@ -40,6 +40,7 @@ local DefaultDB = {
   },
   char = {
     targetLevel = 3,
+    meleeHaste = true,
     spellHaste = true,
     darkIntent = false,
     buffs = {},
@@ -1313,7 +1314,8 @@ function ReforgeLite:CreateOptionList ()
     end
     local buffsContextValues = {
       { text = CreateSimpleTextureMarkup(463285, 20, 20) .. " " .. C_Spell.GetSpellName(80398), key = "darkIntent"},
-      { text = CreateSimpleTextureMarkup(136092, 20, 20) .. " " .. L["Spell Haste"], key = "spellHaste"}
+      { text = CreateSimpleTextureMarkup(136092, 20, 20) .. " " .. L["Spell Haste"], key = "spellHaste"},
+      { text = CreateSimpleTextureMarkup(236181, 20, 20) .. " " .. L["Melee Haste"], key = "meleeHaste"}
     }
     for _, box in ipairs(buffsContextValues) do
         rootDescription:CreateCheckbox(box.text, IsSelected, SetSelected, box.key)
