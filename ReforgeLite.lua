@@ -855,6 +855,12 @@ function ReforgeLite:CreateItemTable ()
     self.itemData[i].locked = self.itemData[i]:CreateTexture (nil, "OVERLAY")
     self.itemData[i].locked:SetAllPoints (self.itemData[i])
     self.itemData[i].locked:SetTexture ("Interface\\PaperDollInfoFrame\\UI-GearManager-LeaveItem-Transparent")
+    self.itemData[i].quality = self.itemData[i]:CreateTexture (nil, "OVERLAY")
+    self.itemData[i].quality:SetTexture("Interface\\Buttons\\UI-ActionButton-Border")
+    self.itemData[i].quality:SetBlendMode("ADD")
+    self.itemData[i].quality:SetAlpha(0.75)
+    self.itemData[i].quality:SetSize(44,44)
+    self.itemData[i].quality:SetPoint ("CENTER", self.itemData[i])
 
     self.itemData[i].stats = {}
     for j, s in ipairs (self.itemStats) do
@@ -1290,8 +1296,8 @@ function ReforgeLite:CreateOptionList ()
   self:SetAnchor(self.targetLevel.text, "TOPLEFT", self.tankingModel or self.pawnButton, "BOTTOMLEFT", 0, -8)
   self.targetLevel:SetPoint("BOTTOMLEFT", self.targetLevel.text, "BOTTOMLEFT", self.targetLevel.text:GetStringWidth(), -20)
 
-  self.buffsContextMenu = CreateFrame("DropdownButton", nil, self.content, "WowStyle1FilterDropdownTemplate");
-  self.buffsContextMenu:SetText(L["Buffs"]);
+  self.buffsContextMenu = CreateFrame("DropdownButton", nil, self.content, "WowStyle1FilterDropdownTemplate")
+  self.buffsContextMenu:SetText(L["Buffs"])
   self.buffsContextMenu.resizeToTextPadding = 25
   self.statWeightsCategory:AddFrame(self.buffsContextMenu)
   self:SetAnchor(self.buffsContextMenu, "TOPLEFT", self.targetLevel, "TOPRIGHT", 0 , 5)
@@ -1856,6 +1862,9 @@ function ReforgeLite:UpdateItems()
       v.ilvl = item:GetCurrentItemLevel()
       v.itemGUID = item:GetItemGUID()
       v.texture:SetTexture(item:GetItemIcon())
+      v.qualityColor = item:GetItemQualityColor()
+      v.quality:SetVertexColor(v.qualityColor.r, v.qualityColor.g, v.qualityColor.b)
+      v.quality:Show()
       stats = GetItemStats(v.item)
       v.reforge = self:GetReforgeID(v.slotId)
       if v.reforge then
@@ -1871,7 +1880,10 @@ function ReforgeLite:UpdateItems()
       v.ilvl = nil
       v.reforge = nil
       v.itemGUID = nil
+      v.qualityColor = nil
       v.texture:SetTexture (v.slotTexture)
+      v.quality:SetVertexColor(1,1,1)
+      v.quality:Hide()
     end
     if self.pdb.itemsLocked[v.itemGUID] then
       v.locked:Show()
@@ -2074,6 +2086,13 @@ function ReforgeLite:CreateMethodWindow()
     self.methodWindow.items[i].texture:SetAllPoints (self.methodWindow.items[i])
     self.methodWindow.items[i].texture:SetTexture (self.methodWindow.items[i].slotTexture)
 
+    self.methodWindow.items[i].quality = self.methodWindow.items[i]:CreateTexture(nil, "OVERLAY")
+    self.methodWindow.items[i].quality:SetTexture("Interface\\Buttons\\UI-ActionButton-Border")
+    self.methodWindow.items[i].quality:SetBlendMode("ADD")
+    self.methodWindow.items[i].quality:SetAlpha(0.75)
+    self.methodWindow.items[i].quality:SetSize(44,44)
+    self.methodWindow.items[i].quality:SetPoint("CENTER", self.methodWindow.items[i])
+
     self.methodWindow.items[i].reforge = self.methodWindow.itemTable:CreateFontString (nil, "OVERLAY", "GameFontNormal")
     self.methodWindow.itemTable:SetCell (i, 3, self.methodWindow.items[i].reforge, "LEFT")
     self.methodWindow.items[i].reforge:SetTextColor (1, 1, 1)
@@ -2112,9 +2131,15 @@ function ReforgeLite:RefreshMethodWindow()
     if not item:IsItemEmpty() then
       v.item = item:GetItemLink()
       v.texture:SetTexture(item:GetItemIcon())
+      v.qualityColor = item:GetItemQualityColor()
+      v.quality:SetVertexColor(v.qualityColor.r, v.qualityColor.g, v.qualityColor.b)
+      v.quality:Show()
     else
       v.item = nil
       v.texture:SetTexture (v.slotTexture)
+      v.qualityColor = nil
+      v.quality:SetVertexColor(1,1,1)
+      v.quality:Hide()
     end
     local slotInfo = self.pdb.method.items[i]
     if slotInfo.reforge then
