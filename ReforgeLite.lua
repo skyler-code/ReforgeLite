@@ -34,7 +34,7 @@ local DefaultDB = {
     speed = addonTable.MAX_LOOPS * 0.8,
     activeWindowTitle = {0.6, 0, 0},
     inactiveWindowTitle = {0.5, 0.5, 0.5},
-    highlightTooltip = false,
+    highlightTooltip = true,
     highlightSourceStatColor = {1, 0.501, 0.501,1},
     highlightDestStatColor = {0, 1, 0.74,1},
   },
