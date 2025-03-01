@@ -372,47 +372,70 @@ local CasterCaps = { HitCapSpell }
 local specInfo = {}
 
 do
+
   local specs = {
-    DEATHKNIGHTBlood = 398,
-    DEATHKNIGHTFrost = 399,
-    DEATHKNIGHTUnholy = 400,
-    DRUIDBalance = 752,
-    DRUIDFeralCombat = 750,
-    DRUIDRestoration = 748,
-    HUNTERBeastMastery = 811,
-    HUNTERMarksmanship = 807,
-    HUNTERSurvival = 809,
-    MAGEArcane = 799,
-    MAGEFire = 851,
-    MAGEFrost = 823,
-    PALADINHoly = 831,
-    PALADINProtection = 839,
-    PALADINRetribution = 855,
-    PRIESTDiscipline = 760,
-    PRIESTHoly = 813,
-    PRIESTShadow = 795,
-    ROGUEAssassination = 182,
-    ROGUECombat = 181,
-    ROGUESubtlety = 183,
-    SHAMANElemental = 261,
-    SHAMANEnhancement = 263,
-    SHAMANRestoration = 262,
-    WARLOCKAffliction = 871,
-    WARLOCKDemonology = 867,
-    WARLOCKDestruction = 865,
-    WARRIORArms = 746,
-    WARRIORFury = 815,
-    WARRIORProtection = 845,
+    deathknight = {
+      blood = 398,
+      frost = 399,
+      unholy = 400
+    },
+    druid = {
+      balance = 752,
+      feralcombat = 750,
+      restoration = 748
+    },
+    hunter = {
+      beastmastery = 811,
+      marksmanship = 807,
+      survival = 809
+    },
+    mage = {
+      arcane = 799,
+      fire = 851,
+      frost = 823,
+    },
+    paladin = {
+      holy = 831,
+      protection = 839,
+      retribution = 855
+    },
+    priest = {
+      discipline = 760,
+      holy = 813,
+      shadow = 795
+    },
+    rogue = {
+      assassination = 182,
+      combat = 181,
+      subtlety = 183
+    },
+    shaman = {
+      elemental = 261,
+      enhancement = 263,
+      restoration = 262
+    },
+    warlock = {
+      afflication = 871,
+      demonology = 867,
+      destruction = 865
+    },
+    warrior = {
+      arms = 746,
+      fury = 815,
+      protection = 845
+    }
   }
 
-  for _,v in pairs(specs) do
-    local _, tabName, _, icon = GetSpecializationInfoForSpecID(v)
-    specInfo[v] = { name = tabName, icon = icon }
+  for _,ids in pairs(specs) do
+    for _, id in pairs(ids) do
+      local _, tabName, _, icon = GetSpecializationInfoForSpecID(id)
+      specInfo[id] = { name = tabName, icon = icon }
+    end
   end
 
   local presets = {
     ["DEATHKNIGHT"] = {
-      [specs.DEATHKNIGHTBlood] = {
+      [specs.deathknight.blood] = {
         [RAID] = {
           targetLevel = 3,
           weights = {
@@ -447,7 +470,7 @@ do
           caps = MeleeCaps,
         },
       },
-      [specs.DEATHKNIGHTFrost] = {
+      [specs.deathknight.frost] = {
         [C_Spell.GetSpellName(49020)] = { -- Obliterate
           icon = 135771,
           weights = {
@@ -463,7 +486,7 @@ do
           caps = CasterCaps
         },
       },
-      [specs.DEATHKNIGHTUnholy] = function()
+      [specs.deathknight.unholy] = function()
         local gurth = C_Item.IsEquippedItem(77191) or C_Item.IsEquippedItem(78478) or C_Item.IsEquippedItem(78487)
         return {
           weights = gurth and {
@@ -476,13 +499,13 @@ do
       end,
     },
     ["DRUID"] = {
-      [specs.DRUIDBalance] = {
+      [specs.druid.balance] = {
         weights = {
           0, 0, 0, 200, 100, 150, 0, 130
         },
         caps = CasterCaps,
       },
-      [specs.DRUIDFeralCombat] = {
+      [specs.druid.feralcombat] = {
         [("%s (%s)"):format(C_Spell.GetSpellName(5487), TANK)] = { -- Bear Form (Tank)
           icon = 132276,
           weights = {
@@ -550,7 +573,7 @@ do
           caps = MeleeCaps,
         },
       },
-      [specs.DRUIDRestoration] = {
+      [specs.druid.restoration] = {
         [MANA_REGEN_ABBR] = {
           weights = {
             150, 0, 0, 0, 130, 160, 0, 140
@@ -588,19 +611,19 @@ do
       }
     },
     ["HUNTER"] = {
-      [specs.HUNTERBeastMastery] = {
+      [specs.hunter.beastmastery] = {
         weights = {
           0, 0, 0, 200, 150, 80, 0, 110
         },
         caps = RangedCaps,
       },
-      [specs.HUNTERMarksmanship] = {
+      [specs.hunter.marksmanship] = {
         weights = {
           0, 0, 0, 200, 150, 110, 0, 80
         },
         caps = RangedCaps,
       },
-      [specs.HUNTERSurvival] = {
+      [specs.hunter.survival] = {
         weights = {
           0, 0, 0, 200, 110, 80, 0, 40
         },
@@ -620,7 +643,7 @@ do
       },
     },
     ["MAGE"] = {
-      [specs.MAGEArcane] = {
+      [specs.mage.arcane] = {
         weights = {
           0, 0, 0, 5, 1, 4, 0, 3
         },
@@ -638,7 +661,7 @@ do
           },
         },
       },
-      [specs.MAGEFire] = {
+      [specs.mage.fire] = {
         [PERCENTAGE_STRING:format(15) .. " " .. STAT_HASTE] = {
           weights = {
             0, 0, 0, 5, 3, 4, 0, 1
@@ -676,7 +699,7 @@ do
           },
         },
       },
-      [specs.MAGEFrost] = {
+      [specs.mage.frost] = {
         weights = {
           0, 0, 0, 200, 180, 140, 0, 130
         },
@@ -696,12 +719,12 @@ do
       },
     },
     ["PALADIN"] = {
-      [specs.PALADINHoly] = {
+      [specs.paladin.holy] = {
         weights = {
           160, 0, 0, 0, 80, 200, 0, 120
         },
       },
-      [specs.PALADINProtection] = {
+      [specs.paladin.protection] = {
         [PET_DEFENSIVE] = {
           tanking = true,
           weights = {
@@ -739,7 +762,7 @@ do
           },
         },
       },
-      [specs.PALADINRetribution] = {
+      [specs.paladin.retribution] = {
         weights = {
           0, 0, 0, 200, 135, 110, 180, 150
         },
@@ -747,17 +770,17 @@ do
       },
     },
     ["PRIEST"] = {
-      [specs.PRIESTDiscipline] = {
+      [specs.priest.discipline] = {
         weights = {
           150, 0, 0, 0, 100, 120, 0, 80
         },
       },
-      [specs.PRIESTHoly] = {
+      [specs.priest.holy] = {
         weights = {
           150, 0, 0, 0, 80, 120, 0, 100
         },
       },
-      [specs.PRIESTShadow] = {
+      [specs.priest.shadow] = {
         weights = {
           0, 0, 0, 200, 100, 140, 0, 130
         },
@@ -765,7 +788,7 @@ do
       },
     },
     ["ROGUE"] = {
-      [specs.ROGUEAssassination] = {
+      [specs.rogue.assassination] = {
         weights = {
           0, 0, 0, 200, 110, 130, 120, 140
         },
@@ -791,7 +814,7 @@ do
           },
         },
       },
-      [specs.ROGUECombat] = {
+      [specs.rogue.combat] = {
         weights = {
           0, 0, 0, 200, 125, 170, 215, 150
         },
@@ -817,7 +840,7 @@ do
           },
         },
       },
-      [specs.ROGUESubtlety] = {
+      [specs.rogue.subtlety] = {
         weights = {
           0, 0, 0, 155, 145, 155, 130, 90
         },
@@ -848,13 +871,13 @@ do
       },
     },
     ["SHAMAN"] = {
-      [specs.SHAMANElemental] = {
+      [specs.shaman.elemental] = {
         weights = {
           0, 0, 0, 200, 80, 140, 0, 120
         },
         caps = CasterCaps,
       },
-      [specs.SHAMANEnhancement] = {
+      [specs.shaman.enhancement] = {
         weights = {
           0, 0, 0, 250, 120, 80, 190, 150
         },
@@ -880,26 +903,26 @@ do
           },
         },
       },
-      [specs.SHAMANRestoration] = {
+      [specs.shaman.restoration] = {
         weights = {
           130, 0, 0, 0, 100, 100, 0, 100
         },
       },
     },
     ["WARLOCK"] = {
-      [specs.WARLOCKAffliction] = {
+      [specs.warlock.afflication] = {
         weights = {
           0, 0, 0, 200, 140, 160, 0, 120
         },
         caps = CasterCaps,
       },
-      [specs.WARLOCKDestruction] = {
+      [specs.warlock.destruction] = {
         weights = {
           0, 0, 0, 200, 140, 160, 0, 120
         },
         caps = CasterCaps,
       },
-      [specs.WARLOCKDemonology] = {
+      [specs.warlock.demonology] = {
         weights = {
           0, 0, 0, 200, 120, 160, 0, 140
         },
@@ -907,13 +930,13 @@ do
       },
     },
     ["WARRIOR"] = {
-      [specs.WARRIORArms] = {
+      [specs.warrior.arms] = {
         weights = {
           0, 0, 0, 200, 150, 100, 200, 120
         },
         caps = MeleeCaps
       },
-      [specs.WARRIORFury] = {
+      [specs.warrior.fury] = {
         [C_Spell.GetSpellName(46917)] = { -- Titan's Grip
           icon = 236316,
           weights = {
@@ -953,7 +976,7 @@ do
           },
         },
       },
-      [specs.WARRIORProtection] = {
+      [specs.warrior.protection] = {
         tanking = true,
         weights = {
           40, 100, 100, 0, 0, 0, 0, 40
