@@ -150,7 +150,7 @@ function ReforgeLite:UpdateMethodStats (method)
     method.stats[i] = self.itemStats[i].getter ()
   end
   local oldspi = method.stats[self.STATS.SPIRIT]
-  method.stats[self.STATS.SPIRIT] = method.stats[self.STATS.SPIRIT] / addonTable.spiritBonus
+  method.stats[self.STATS.SPIRIT] = method.stats[self.STATS.SPIRIT] / self.spiritBonus
   for i = 1, #method.items do
     local item = self.itemData[i].item
     local stats = (item and GetItemStats (item) or {})
@@ -168,7 +168,7 @@ function ReforgeLite:UpdateMethodStats (method)
       method.items[i].amount = nil
     end
   end
-  method.stats[self.STATS.SPIRIT] = Round(method.stats[self.STATS.SPIRIT] * addonTable.spiritBonus)
+  method.stats[self.STATS.SPIRIT] = Round(method.stats[self.STATS.SPIRIT] * self.spiritBonus)
   if self.s2hFactor > 0 then
     method.stats[self.STATS.HIT] = method.stats[self.STATS.HIT] +
       Round((method.stats[self.STATS.SPIRIT] - oldspi) * self.s2hFactor / 100)
@@ -255,7 +255,7 @@ function ReforgeLite:MakeReforgeOption (item, data, src, dst)
   if src then
     local amount = floor (item.stats[src] * REFORGE_COEFF)
     if src == self.STATS.SPIRIT then
-      amount = floor (amount * addonTable.spiritBonus + random ())
+      amount = floor (amount * self.spiritBonus + random ())
     end
     if src == data.caps[1].stat then
       delta1 = delta1 - amount
@@ -277,7 +277,7 @@ function ReforgeLite:MakeReforgeOption (item, data, src, dst)
   if dst then
     local amount = floor (item.stats[src] * REFORGE_COEFF)
     if dst == self.STATS.SPIRIT then
-      amount = floor (amount * addonTable.spiritBonus + random ())
+      amount = floor (amount * self.spiritBonus + random ())
     end
     if dst == data.caps[1].stat then
       delta1 = delta1 + amount
@@ -350,7 +350,7 @@ function ReforgeLite:InitReforgeClassic ()
   for i = 1, #self.itemStats do
     data.initial[i] = self.itemStats[i].getter ()
     if i == self.STATS.SPIRIT then
-      data.initial[i] = data.initial[i] / addonTable.spiritBonus
+      data.initial[i] = data.initial[i] / self.spiritBonus
     end
     for j = 1, #data.method.items do
       data.initial[i] = data.initial[i] - data.method.items[j].stats[i]
@@ -372,7 +372,7 @@ function ReforgeLite:InitReforgeClassic ()
     end
   end
   if self.s2hFactor > 0 then
-    data.initial[self.STATS.HIT] = data.initial[self.STATS.HIT] - Round(reforgedSpirit * addonTable.spiritBonus * self.s2hFactor / 100)
+    data.initial[self.STATS.HIT] = data.initial[self.STATS.HIT] - Round(reforgedSpirit * self.spiritBonus * self.s2hFactor / 100)
   end
 
   for _,v in ipairs(data.caps) do
@@ -580,7 +580,7 @@ function ReforgeLite:ChooseReforgeS2H (data, reforgeOptions, scores, codes)
       hit = hit + reforgeOptions[i][b].d1
       spi = spi + reforgeOptions[i][b].d2
     end
-    spi = Round(spi * addonTable.spiritBonus)
+    spi = Round(spi * self.spiritBonus)
     hit = hit + Round(spi * self.s2hFactor / 100)
     local allow = self:CapAllows (data.cap, hit) and 1 or 2
     score = score + self:GetCapScore (data.cap, hit) + data.weights[self.STATS.SPIRIT] * spi

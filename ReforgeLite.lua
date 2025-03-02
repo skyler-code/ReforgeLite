@@ -334,7 +334,7 @@ end
 ReforgeLite.reforgeTable = reforgeTable
 
 addonTable.REFORGE_COEFF = 0.4
-addonTable.spiritBonus = playerRace == "Human" and 1.03 or 1
+ReforgeLite.spiritBonus = playerRace == "Human" and 1.03 or 1
 
 function ReforgeLite:UpdateWindowSize ()
   self.db.windowWidth = self:GetWidth ()
@@ -2196,7 +2196,7 @@ function ReforgeLite:IsReforgeMatching (slotId, reforge, override)
     deltas[dst] = deltas[dst] + amount
   end
 
-  deltas[self.STATS.SPIRIT] = Round(deltas[self.STATS.SPIRIT] * addonTable.spiritBonus)
+  deltas[self.STATS.SPIRIT] = Round(deltas[self.STATS.SPIRIT] * self.spiritBonus)
   deltas[self.STATS.HIT] = deltas[self.STATS.HIT] + Round(deltas[self.STATS.SPIRIT] * self.s2hFactor / 100)
 
   for i = 1, #self.itemStats do
