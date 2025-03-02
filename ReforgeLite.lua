@@ -1419,9 +1419,6 @@ function ReforgeLite:CreateOptionList ()
     btn:RenderText(IN_PROGRESS)
   end)
 
-  self.importWowSims = GUI:CreatePanelButton (self.content, L["Import WoWSims"], function(btn) self:ImportWoWSims() end)
-  self:SetAnchor (self.importWowSims, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
-
   self:UpdateStatWeightList ()
 
   self.quality = CreateFrame ("Slider", nil, self.content, "UISliderTemplateWithLabels")
@@ -1610,11 +1607,15 @@ end
 function ReforgeLite:UpdateMethodCategory()
   if self.methodCategory == nil then
     self.methodCategory = self:CreateCategory (L["Result"])
-    self:SetAnchor (self.methodCategory, "TOPLEFT", self.importWowSims, "BOTTOMLEFT", 0, -10)
+    self:SetAnchor (self.methodCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
+
+    self.importWowSims = GUI:CreatePanelButton (self.methodCategory, L["Import WoWSims"], function(btn) self:ImportWoWSims() end)
+    self.methodCategory:AddFrame (self.importWowSims)
+    self:SetAnchor (self.importWowSims, "TOPLEFT", self.methodCategory, "BOTTOMLEFT", 0, -5)
 
     self.methodStats = GUI:CreateTable (#self.itemStats, 2, ITEM_SIZE, 60, {0.5, 0.5, 0.5, 1})
     self.methodCategory:AddFrame (self.methodStats)
-    self:SetAnchor (self.methodStats, "TOPLEFT", self.methodCategory, "BOTTOMLEFT", 0, -5)
+    self:SetAnchor (self.methodStats, "TOPLEFT", self.importWowSims, "BOTTOMLEFT", 0, -5)
     self.methodStats:SetRowHeight (ITEM_SIZE + 2)
     self.methodStats:SetColumnWidth (60)
 
