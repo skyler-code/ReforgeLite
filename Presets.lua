@@ -320,12 +320,25 @@ do
       end,
     })
   elseif addonTable.playerClass == "HUNTER" then
-      tinsert(ReforgeLite.capPresets, {
-        value = CAPS.FirstHasteBreak,
-        category = StatHaste,
-        name = nameFormat:format(CreateIconMarkup(461114), 20, 3, C_Spell.GetSpellName(77767)),
-        getter = GetRangedHasteRequired(19.99),
-      })
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.FirstHasteBreak,
+      category = StatHaste,
+      name = nameFormat:format(CreateIconMarkup(461114), 20, 3, C_Spell.GetSpellName(77767)),
+      getter = GetRangedHasteRequired(19.99),
+    })
+  elseif addonTable.playerClass == "SHAMAN" then
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.FirstHasteBreak,
+      category = StatHaste,
+      name = nameFormatWithTicks:format(CreateIconMarkup(462328), 12.51, 1, C_Spell.GetSpellName(51730)),
+      getter = GetSpellHasteRequired(12.51),
+    })
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.SecondHasteBreak,
+      category = StatHaste,
+      name = nameFormatWithTicks:format(CreateIconMarkup(252995), 21.44, 2, C_Spell.GetSpellName(61295)),
+      getter = GetSpellHasteRequired(21.4345),
+    })
   end
 end
 ----------------------------------------- WEIGHT PRESETS ------------------------------
