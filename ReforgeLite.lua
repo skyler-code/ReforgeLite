@@ -37,6 +37,7 @@ local DefaultDB = {
     highlightTooltip = true,
     highlightSourceStatColor = {1, 0.501, 0.501,1},
     highlightDestStatColor = {0, 1, 0.74,1},
+    specProfiles = false,
   },
   char = {
     targetLevel = 3,
@@ -1495,7 +1496,7 @@ function ReforgeLite:CreateOptionList ()
 
   self.settingsCategory = self:CreateCategory (L["Window Settings"])
   self:SetAnchor (self.settingsCategory, "TOPLEFT", self.enhancedTooltips, "BOTTOMLEFT", 0, -10)
-  self.settings = GUI:CreateTable (4, 1, nil, 200)
+  self.settings = GUI:CreateTable (5, 1, nil, 200)
   self.settingsCategory:AddFrame (self.settings)
   self:SetAnchor (self.settings, "TOPLEFT", self.settingsCategory, "BOTTOMLEFT", 0, -5)
   self.settings:SetPoint ("RIGHT", self.content, -10, 0)
@@ -1537,6 +1538,18 @@ function ReforgeLite:FillEnhancedTooltips ()
 end
 
 function ReforgeLite:FillSettings()
+  self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Enable spec profiles"],
+    self.db.specProfiles, function (val)
+      self.db.specProfiles = val
+      if val then
+        self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+      else
+        self.pdb.prevSpecSettings = nil
+        self:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+      end
+    end),
+    "LEFT")
+
   self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Open window when reforging"],
     self.db.openOnReforge, function (val) self.db.openOnReforge = val end), "LEFT")
 
@@ -2411,6 +2424,29 @@ function ReforgeLite:PLAYER_REGEN_DISABLED()
   self:Hide()
 end
 
+function ReforgeLite:ACTIVE_TALENT_GROUP_CHANGED()
+  if not self.db.specProfiles then return end
+
+  local currentSettings = {
+    caps = DeepCopy(self.pdb.caps),
+    weights = DeepCopy(self.pdb.weights),
+    tankingModel = self.pdb.tankingModel
+  }
+
+  if self.pdb.prevSpecSettings then
+    if self.initialized then
+      self:SetStatWeights(self.pdb.prevSpecSettings.weights, self.pdb.prevSpecSettings.caps or {})
+      self:SetTankingModel(self.pdb.prevSpecSettings.tankingModel)
+    else
+      self.pdb.weights = DeepCopy(self.pdb.prevSpecSettings.weights)
+      self.pdb.caps = DeepCopy(self.pdb.prevSpecSettings.caps)
+      self.pdb.tankingModel = self.pdb.prevSpecSettings.tankingModel
+    end
+  end
+
+  self.pdb.prevSpecSettings = currentSettings
+end
+
 function ReforgeLite:ADDON_LOADED (addon)
   if addon ~= addonName then return end
   self:Hide()
@@ -2432,6 +2468,10 @@ function ReforgeLite:ADDON_LOADED (addon)
   self:RegisterEvent("FORGE_MASTER_OPENED")
   self:RegisterEvent("FORGE_MASTER_CLOSED")
   self:RegisterEvent("PLAYER_REGEN_DISABLED")
+
+  if self.db.specProfiles then
+    self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+  end
 
   for event in pairs(queueUpdateEvents) do
     self:RegisterEvent(event)
