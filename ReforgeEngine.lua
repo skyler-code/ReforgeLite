@@ -52,23 +52,8 @@ function ReforgeLite:DiminishStat (rating, stat)
 end
 function ReforgeLite:GetMethodScore (method)
   local score = 0
-  if method.tankingModel then
-    score = method.stats.dodge * self.pdb.weights[self.STATS.DODGE] + method.stats.parry * self.pdb.weights[self.STATS.PARRY]
-    if playerClass == "WARRIOR" then
-      score = score + method.stats.block * self.pdb.weights[self.STATS.MASTERY] + method.stats.critBlock * self.pdb.weights[self.STATS.CRITBLOCK]
-    elseif playerClass == "PALADIN" then
-      score = score + method.stats.block * self.pdb.weights[self.STATS.MASTERY]
-    else
-      for i = 1, #self.itemStats do
-        if i ~= self.STATS.DODGE and i ~= self.STATS.PARRY and i ~= self.STATS.SPIRIT then
-          score = score + method.stats[i] * self.pdb.weights[i]
-        end
-      end
-    end
-  else
-    for i = 1, #self.itemStats do
-      score = score + self:GetStatScore (i, method.stats[i])
-    end
+  for i = 1, #self.itemStats do
+    score = score + self:GetStatScore (i, method.stats[i])
   end
   return RoundToSignificantDigits(score, 2)
 end
@@ -173,33 +158,6 @@ function ReforgeLite:UpdateMethodStats (method)
     method.stats[self.STATS.HIT] = method.stats[self.STATS.HIT] +
       Round((method.stats[self.STATS.SPIRIT] - oldspi) * self.s2hFactor / 100)
   end
-  if method.tankingModel then
-    local dodge_bonus, parry_bonus, mastery_bonus = self:GetBuffBonuses ()
-    method.orig_stats = {
-      [self.STATS.DODGE] = method.stats[self.STATS.DODGE],
-      [self.STATS.PARRY] = method.stats[self.STATS.PARRY],
-      [self.STATS.MASTERY] = method.stats[self.STATS.MASTERY],
-    }
-    method.stats[self.STATS.DODGE] = method.stats[self.STATS.DODGE] + dodge_bonus
-    method.stats[self.STATS.PARRY] = method.stats[self.STATS.PARRY] + parry_bonus
-    method.stats[self.STATS.MASTERY] = method.stats[self.STATS.MASTERY] + mastery_bonus
-    method.stats.dodge = GetDodgeChance () - self:DiminishStat (GetCombatRating (CR_DODGE), self.STATS.DODGE)
-    method.stats.parry = GetParryChance () - self:DiminishStat (GetCombatRating (CR_PARRY), self.STATS.PARRY)
-    method.stats.dodge = method.stats.dodge + self:DiminishStat (method.stats[self.STATS.DODGE], self.STATS.DODGE)
-    method.stats.parry = method.stats.parry + self:DiminishStat (method.stats[self.STATS.PARRY], self.STATS.PARRY)
-    if playerClass == "WARRIOR" then
-      method.stats.critBlock = (8 + method.stats[self.STATS.MASTERY] / self:RatingPerPoint (self.STATS.MASTERY)) * 1.5
-      method.stats.block = 20 + method.stats.critBlock
-    elseif playerClass == "PALADIN" then
-      method.stats.block = 5 + (8 + method.stats[self.STATS.MASTERY] / self:RatingPerPoint (self.STATS.MASTERY)) * 2.25
-    end
-    local unhit = 100 + 0.8 * max (0, self.pdb.targetLevel)
-    method.stats.overcap = nil
-    if method.stats.block and missChance + method.stats.dodge + method.stats.parry + method.stats.block > unhit then
-      method.stats.overcap = missChance + method.stats.dodge + method.stats.parry + method.stats.block - unhit
-      method.stats.block = unhit - missChance - method.stats.dodge - method.stats.parry
-    end
-  end
 end
 
 function ReforgeLite:FinalizeReforge (data)
@@ -222,7 +180,6 @@ function ReforgeLite:ResetMethod ()
       method.items[i].src, method.items[i].dst = unpack(self.reforgeTable[self.itemData[i].reforge])
     end
   end
-  method.tankingModel = self.pdb.tankingModel
   self:UpdateMethodStats (method)
   self.pdb.method = method
   self:UpdateMethodCategory()
@@ -592,197 +549,6 @@ function ReforgeLite:ChooseReforgeS2H (data, reforgeOptions, scores, codes)
   return bestCode[1] or bestCode[2]
 end
 
------------------------------------ TANKING REFORGE ------------------------------
-
-function ReforgeLite:GetItemReforgeOptionsTank (item, data, slot)
-  if self:IsItemLocked (slot) then
-    local srcstat, dststat, delta1, delta2, dscore = nil, nil, 0, 0, 0
-    local reforge = self.itemData[slot].reforge
-    if reforge then
-      srcstat, dststat = unpack(self.reforgeTable[reforge])
-      local amount = floor (item.stats[srcstat] * REFORGE_COEFF)
-      if srcstat == self.STATS.DODGE then
-        delta1 = delta1 - amount
-      elseif srcstat == self.STATS.PARRY then
-        delta2 = delta2 - amount
-      else
-        dscore = dscore - data.weights[srcstat] * amount
-      end
-      if dststat == self.STATS.DODGE then
-        delta1 = delta1 + amount
-      elseif dststat == self.STATS.PARRY then
-        delta2 = delta2 + amount
-      else
-        dscore = dscore + data.weights[dststat] * amount
-      end
-    end
-    return {{src = srcstat, dst = dststat, d1 = delta1, d2 = delta2, score = dscore}}
-  end
-  local opt = {}
-  local best = nil
-  for i = 1, #self.itemStats do
-    if item.stats[i] == 0 and i ~= self.STATS.DODGE and i ~= self.STATS.PARRY and (best == nil or data.weights[i] > data.weights[best]) then
-      best = i
-    end
-  end
-  if best then
-    local worst = nil
-    local worstScore = 0
-    for i = 1, #self.itemStats do
-      if item.stats[i] > 0 and i ~= self.STATS.DODGE and i ~= self.STATS.PARRY then
-        local score = (data.weights[best] - data.weights[i]) * floor (item.stats[i] * REFORGE_COEFF)
-        if score > worstScore then
-          worstScore = score
-          worst = i
-        end
-      end
-    end
-    if worst then
-      tinsert (opt, {src = worst, dst = best, d1 = 0, d2 = 0, score = worstScore})
-    else
-      tinsert (opt, {d1 = 0, d2 = 0, score = 0})
-    end
-  else
-    tinsert (opt, {d1 = 0, d2 = 0, score = 0})
-  end
-  if item.stats[self.STATS.DODGE] == 0 then
-    for i = 1, #self.itemStats do
-      if item.stats[i] > 0 then
-        local amount = floor (item.stats[i] * REFORGE_COEFF)
-        tinsert (opt, {src = i, dst = self.STATS.DODGE, d1 = amount, d2 = (i == self.STATS.PARRY and -amount or 0),
-          score = -amount * (i == self.STATS.PARRY and 0 or data.weights[i])})
-      end
-    end
-  elseif best then
-    local amount = floor (item.stats[self.STATS.DODGE] * REFORGE_COEFF)
-    tinsert (opt, {src = self.STATS.DODGE, dst = best, d1 = -amount, d2 = 0, score = data.weights[best] * amount})
-  end
-  if item.stats[self.STATS.PARRY] == 0 then
-    for i = 1, #self.itemStats do
-      if item.stats[i] > 0 then
-        local amount = floor (item.stats[i] * REFORGE_COEFF)
-        tinsert (opt, {src = i, dst = self.STATS.PARRY, d1 = (i == self.STATS.DODGE and -amount or 0), d2 = amount,
-          score = -amount * (i == self.STATS.DODGE and 0 or data.weights[i])})
-      end
-    end
-  elseif best then
-    local amount = floor (item.stats[self.STATS.PARRY] * REFORGE_COEFF)
-    tinsert (opt, {src = self.STATS.PARRY, dst = best, d1 = 0, d2 = -amount, score = data.weights[best] * amount})
-  end
-  return opt
-end
-function ReforgeLite:InitReforgeTank ()
-  local method = { items = {} }
-  for i = 1, #self.itemData do
-    method.items[i] = {}
-    method.items[i].stats = {}
-    local item = self.itemData[i].item
-    local stats = (item and GetItemStats (item) or {})
-    for j = 1, #self.itemStats do
-      method.items[i].stats[j] = (stats[self.itemStats[j].name] or 0)
-    end
-  end
-  method.tankingModel = self.pdb.tankingModel
-
-  local data = {}
-  data.method = method
-  if playerClass == "WARRIOR" or playerClass == "PALADIN" then
-    data.weights = {}
-    for i = 1, #self.itemStats do
-      data.weights[i] = 0
-    end
-    data.weights[self.STATS.MASTERY] = 1
-  else
-    data.weights = DeepCopy (self.pdb.weights)
-  end
-  data.initial = {}
-  for i = 1, #self.itemStats do
-    data.initial[i] = self.itemStats[i].getter ()
-    for j = 1, #data.method.items do
-      data.initial[i] = data.initial[i] - data.method.items[j].stats[i]
-    end
-  end
-  for i = 1, #data.method.items do
-    local reforge = self.itemData[i].reforge
-    if reforge then
-      local src, dst = unpack(self.reforgeTable[reforge])
-      local amount = floor (method.items[i].stats[src] * REFORGE_COEFF)
-      data.initial[src] = data.initial[src] + amount
-      data.initial[dst] = data.initial[dst] - amount
-    end
-  end
-  data.init = {}
-  data.init.dodge = data.initial[self.STATS.DODGE]
-  data.init.parry = data.initial[self.STATS.PARRY]
-  data.init.mastery = data.initial[self.STATS.MASTERY]
-  for i = 1, #data.method.items do
-    data.init.dodge = data.init.dodge + data.method.items[i].stats[self.STATS.DODGE]
-    data.init.mastery = data.init.mastery + data.method.items[i].stats[self.STATS.MASTERY]
-    data.init.parry = data.init.parry + data.method.items[i].stats[self.STATS.PARRY]
-  end
-  local dodge_bonus, parry_bonus, mastery_bonus = self:GetBuffBonuses ()
-  data.init.dodge = data.init.dodge + dodge_bonus
-  data.init.parry = data.init.parry + parry_bonus
-  data.init.mastery = data.init.mastery + mastery_bonus
-
-  local dodgeRating = GetCombatRating (CR_DODGE)
-  data.baseDodge = GetDodgeChance () - self:DiminishStat (dodgeRating, self.STATS.DODGE)
-  local parryRating = GetCombatRating (CR_PARRY)
-  data.baseParry = GetParryChance () - self:DiminishStat (parryRating, self.STATS.PARRY)
-  data.unhit = 100 + 0.8 * max (0, self.pdb.targetLevel)
-
-  data.caps = {{stat = self.STATS.DODGE, init = data.init.dodge}, {stat = self.STATS.PARRY, init = data.init.parry}}
-
-  return data
-end
-
-function ReforgeLite:ChooseReforgeTank (data, reforgeOptions, scores, codes)
-  local bestCode = {nil, nil}
-  local bestScore = {0, 0}
-  for k, score in pairs (scores) do
-    self:RunYieldCheck()
-    local code = codes[k]
-    local dodge_rating = data.init.dodge
-    local parry_rating = data.init.parry
-    for i = 1, #code do
-      local b = code:byte (i)
-      dodge_rating = dodge_rating + reforgeOptions[i][b].d1
-      parry_rating = parry_rating + reforgeOptions[i][b].d2
-    end
-    local dodge = data.baseDodge + self:DiminishStat (dodge_rating, self.STATS.DODGE)
-    local parry = data.baseParry + self:DiminishStat (parry_rating, self.STATS.PARRY)
-    local valid = 1
-    if playerClass == "WARRIOR" then
-      local mastery = data.init.mastery + score
-      local critBlock = (8 + mastery / self:RatingPerPoint (self.STATS.MASTERY)) * 1.5
-      local block = 20 + critBlock
-      if missChance + dodge + parry + block > data.unhit then
-        block = data.unhit - missChance - dodge - parry
-      end
-      score = dodge * self.pdb.weights[self.STATS.DODGE] + parry * self.pdb.weights[self.STATS.PARRY]
-      score = score + block * self.pdb.weights[self.STATS.MASTERY] + critBlock * self.pdb.weights[self.STATS.CRITBLOCK]
-    elseif playerClass == "PALADIN" then
-      local mastery = data.init.mastery + score
-      local block = missChance + (8 + mastery / self:RatingPerPoint (self.STATS.MASTERY)) * 2.25
-      if missChance + dodge + parry + block >= data.unhit then
-        block = data.unhit - missChance - dodge - parry
-      else
-        valid = 2
-      end
-      score = dodge * self.pdb.weights[self.STATS.DODGE] + parry * self.pdb.weights[self.STATS.PARRY] + block * self.pdb.weights[self.STATS.MASTERY]
-    else
-      score = score + dodge * data.weights[self.STATS.DODGE] + parry * data.weights[self.STATS.PARRY]
-    end
-    if bestCode[valid] == nil or score > bestScore[valid] then
-      bestCode[valid] = code
-      bestScore[valid] = score
-    end
-  end
-  return bestCode[1] or bestCode[2]
-end
-
------------------------------------------------------------------------------
-
 function ReforgeLite:ComputeReforgeCore (data, reforgeOptions)
   local TABLE_SIZE = 10000
   local scores, codes = {}, {}
@@ -851,9 +617,7 @@ function ReforgeLite:ComputeReforge (initFunc, optionFunc, chooseFunc)
 end
 
 function ReforgeLite:Compute ()
-  if self.pdb.tankingModel then
-    self:ComputeReforge ("InitReforgeTank", "GetItemReforgeOptionsTank", "ChooseReforgeTank")
-  elseif self.s2hFactor > 0 and ((self.pdb.caps[1].stat == self.STATS.HIT and self.pdb.caps[2].stat == 0) or
+  if self.s2hFactor > 0 and ((self.pdb.caps[1].stat == self.STATS.HIT and self.pdb.caps[2].stat == 0) or
                                  (self.pdb.caps[2].stat == self.STATS.HIT and self.pdb.caps[1].stat == 0)) then
     self:ComputeReforge ("InitReforgeS2H", "GetItemReforgeOptionsS2H", "ChooseReforgeS2H")
   else

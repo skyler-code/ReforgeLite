@@ -739,7 +739,6 @@ do
       },
       [specs.paladin.protection] = {
         [PET_DEFENSIVE] = {
-          tanking = true,
           weights = {
             -1, 100, 100, 20, 0, 0, 50, 80
           },
@@ -990,7 +989,6 @@ do
         },
       },
       [specs.warrior.protection] = {
-        tanking = true,
         weights = {
           40, 100, 100, 0, 0, 0, 0, 40
         },
@@ -1127,7 +1125,6 @@ function ReforgeLite:InitPresets()
         self.targetLevel:SetValue(info.value.targetLevel)
       end
       self:SetStatWeights(info.value.weights, info.value.caps or {})
-      self:SetTankingModel (info.value.tanking)
     end
   }), "MENU")
 
