@@ -147,7 +147,6 @@ ReforgeLite.itemSlots = {
   "TRINKET1SLOT",
   "MAINHANDSLOT",
   "SECONDARYHANDSLOT",
-  "RANGEDSLOT"
 }
 local ignoredSlots = { [INVSLOT_TABARD] = true, [INVSLOT_BODY] = true }
 
