@@ -66,7 +66,7 @@ end
 function ReforgeLite:GetMeleeHasteBonus()
   local baseBonus = RoundToSignificantDigits((GetMeleeHaste()+100)/(GetCombatRatingBonus(CR_HASTE_MELEE)+100), 4)
   if self.pdb.meleeHaste then
-    local meleeHaste = select(7, self:GetPlayerBuffs())
+    local meleeHaste = select(6, self:GetPlayerBuffs())
     if self.pdb.spellHaste and not meleeHaste then
       baseBonus = baseBonus * 1.1
     end
@@ -76,7 +76,7 @@ end
 function ReforgeLite:GetRangedHasteBonus()
   local baseBonus = RoundToSignificantDigits((GetRangedHaste()+100)/(GetCombatRatingBonus(CR_HASTE_RANGED)+100), 4)
   if self.pdb.meleeHaste then
-    local meleeHaste = select(7, self:GetPlayerBuffs())
+    local meleeHaste = select(6, self:GetPlayerBuffs())
     if self.pdb.spellHaste and not meleeHaste then
       baseBonus = baseBonus * 1.1
     end
@@ -85,13 +85,10 @@ function ReforgeLite:GetRangedHasteBonus()
 end
 function ReforgeLite:GetSpellHasteBonus()
   local baseBonus = (UnitSpellHaste('PLAYER')+100)/(GetCombatRatingBonus(CR_HASTE_SPELL)+100)
-  if self.pdb.spellHaste or self.pdb.darkIntent then
-    local spellHaste, darkIntent = select(5, self:GetPlayerBuffs())
+  if self.pdb.spellHaste then
+    local spellHaste = select(5, self:GetPlayerBuffs())
     if self.pdb.spellHaste and not spellHaste then
       baseBonus = baseBonus * 1.05
-    end
-    if self.pdb.darkIntent and not darkIntent then
-      baseBonus = baseBonus * 1.03
     end
   end
   return RoundToSignificantDigits(baseBonus, 6)

@@ -11,8 +11,17 @@ local floor, tinsert, unpack, pairs, random = floor, tinsert, unpack, pairs, ran
 local GetItemStats = C_Item.GetItemStats or GetItemStats
 
 ---------------------------------------------------------------------------------------
+
+local MELEE_HASTE_BUFFS = {
+  [55610] = true, -- Unholy Aura
+  [128432] = true, -- Cackling Howl
+  [128433] = true, -- Serpent's Swiftness
+  [113742] = true, -- Swiftblade's Cunning
+  [30809] = true, -- Unleashed Rage
+}
+
 function ReforgeLite:GetPlayerBuffs()
-  local kings, strength, flask, food, spellHaste, darkIntent, meleeHaste
+  local kings, strength, flask, food, spellHaste, meleeHaste
   local slots = {C_UnitAuras.GetAuraSlots('player','helpful')}
   for i = 2, #slots do
     local aura = C_UnitAuras.GetAuraDataBySlot('player',slots[i])
@@ -38,14 +47,12 @@ function ReforgeLite:GetPlayerBuffs()
         flask = 2
       elseif id == 49868 or id == 24907 or id == 2895 then
         spellHaste = true
-      elseif id == 85768 or id == 85767 then
-        darkIntent = true
-      elseif id == 53290 or id == 55610 or id == 8515 then
+      elseif MELEE_HASTE_BUFFS[id] then
         meleeHaste = true
       end
     end
   end
-  return kings, strength, flask, food, spellHaste, darkIntent, meleeHaste
+  return kings, strength, flask, food, spellHaste, meleeHaste
 end
 function ReforgeLite:DiminishStat (rating, stat)
   return rating > 0 and 1 / (0.0152366 + 0.956 / (rating / self:RatingPerPoint (stat))) or 0
