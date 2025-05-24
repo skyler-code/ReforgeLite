@@ -39,7 +39,6 @@ local DefaultDB = {
     targetLevel = 3,
     meleeHaste = true,
     spellHaste = true,
-    buffs = {},
     weights = {0, 0, 0, 0, 0, 0, 0, 0},
     caps = {
       {
