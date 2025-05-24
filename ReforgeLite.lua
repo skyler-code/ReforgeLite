@@ -204,19 +204,6 @@ function ReforgeLite:CreateItemStats()
 end
 ReforgeLite:CreateItemStats()
 
---@debug@
-local itemStatsLocale = {
-  [6]  = ReforgeLite.STATS.SPIRIT, -- SPIRIT
-  [13] = ReforgeLite.STATS.DODGE, -- DODGE
-  [14] = ReforgeLite.STATS.PARRY, -- PARRY
-  [31] = ReforgeLite.STATS.HIT, -- HIT
-  [32] = ReforgeLite.STATS.CRIT, -- CRIT
-  [36] = ReforgeLite.STATS.HASTE, -- HASTE
-  [37] = ReforgeLite.STATS.EXP, -- EXPERTISE
-  [49] = ReforgeLite.STATS.MASTERY, -- MASTERY
-}
---@end-debug@
-
 ReforgeLite.REFORGE_TABLE_BASE = 112
 local reforgeTable = {}
 do
