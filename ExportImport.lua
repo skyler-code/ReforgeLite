@@ -38,14 +38,14 @@ end
 function ReforgeLite:DebugMethod()
     local website = C_AddOns.GetAddOnMetadata(addonName, "X-Website")
     if self.methodDebug then
-        self:DisplayMessage (website, addonTable.json.encode(self.methodDebug))
+        self:DisplayMessage (website, C_EncodingUtil.SerializeJSON(self.methodDebug))
     else
         self:DisplayMessage (website, "<no data>\n nty <3")
     end
 end
 
 function ReforgeLite:ExportJSON(preset, name)
-    self:DisplayMessage(name, addonTable.json.encode(preset))
+    self:DisplayMessage(name, C_EncodingUtil.SerializeJSON(preset))
 end
 
 function ReforgeLite:ImportPawn()

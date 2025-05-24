@@ -263,7 +263,7 @@ function ReforgeLite:GetStatScore (stat, value)
 end
 
 function ReforgeLite:ValidateWoWSimsString(importStr)
-  local success, wowsims = pcall(function () return addonTable.json.decode(importStr) end)
+  local success, wowsims = pcall(function () return C_EncodingUtil.DeserializeJSON(importStr) end)
   if success and (wowsims or {}).player then
     local newItems = DeepCopy(self.pdb.method.items)
     for slot,item in ipairs(newItems) do
@@ -291,7 +291,7 @@ end
 
 --@debug@
 function ReforgeLite:ParsePresetString(presetStr)
-  local success, preset = pcall(function () return addonTable.json.decode(presetStr) end)
+  local success, preset = pcall(function () return C_EncodingUtil.DeserializeJSON(presetStr) end)
   if success and type(preset.caps) == "table" then
     DevTools_Dump(preset)
   end

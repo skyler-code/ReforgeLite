@@ -12,7 +12,6 @@
 embeds.xml
 #@end-no-lib-strip@
 
-util\json.lua
 util\tables.lua
 
 locales.xml
