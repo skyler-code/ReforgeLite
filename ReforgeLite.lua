@@ -34,9 +34,6 @@ local DefaultDB = {
     speed = addonTable.MAX_LOOPS * 0.8,
     activeWindowTitle = {0.6, 0, 0},
     inactiveWindowTitle = {0.5, 0.5, 0.5},
-    highlightTooltip = true,
-    highlightSourceStatColor = {1, 0.501, 0.501,1},
-    highlightDestStatColor = {0, 1, 0.74,1},
     specProfiles = false,
   },
   char = {
@@ -1284,19 +1281,9 @@ function ReforgeLite:CreateOptionList ()
     self:ClearStoredMethod ()
   end
 
-  self.enhancedTooltipsCategory = self:CreateCategory (USE_UBERTOOLTIPS)
-  self:SetAnchor (self.enhancedTooltipsCategory, "TOPLEFT", self.storedClear, "BOTTOMLEFT", 0, -10)
-  self.enhancedTooltips = GUI:CreateTable (4, 1, nil, 200)
-  self.enhancedTooltipsCategory:AddFrame (self.enhancedTooltips)
-  self:SetAnchor (self.enhancedTooltips, "TOPLEFT", self.enhancedTooltipsCategory, "BOTTOMLEFT", 0, -5)
-  self.enhancedTooltips:SetPoint ("RIGHT", self.content, -10, 0)
-  self.enhancedTooltips:SetRowHeight (ITEM_SIZE + 2)
-
-  self:FillEnhancedTooltips()
-
-  self.settingsCategory = self:CreateCategory (L["Window Settings"])
-  self:SetAnchor (self.settingsCategory, "TOPLEFT", self.enhancedTooltips, "BOTTOMLEFT", 0, -10)
-  self.settings = GUI:CreateTable (5, 1, nil, 200)
+  self.settingsCategory = self:CreateCategory (SETTINGS)
+  self:SetAnchor (self.settingsCategory, "TOPLEFT", self.storedClear, "BOTTOMLEFT", 0, -10)
+  self.settings = GUI:CreateTable (6, 1, nil, 200)
   self.settingsCategory:AddFrame (self.settings)
   self:SetAnchor (self.settings, "TOPLEFT", self.settingsCategory, "BOTTOMLEFT", 0, -5)
   self.settings:SetPoint ("RIGHT", self.content, -10, 0)
@@ -1321,23 +1308,10 @@ function ReforgeLite:GetFrameOrder()
   return self, self.methodWindow
 end
 
-function ReforgeLite:FillEnhancedTooltips ()
-  self.enhancedTooltips:SetCell (getOrderId('enhancedTooltips'), 0, GUI:CreateCheckButton (self.enhancedTooltips, L["Summarize reforged stats"],
+function ReforgeLite:FillSettings()
+  self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Summarize reforged stats"],
     self.db.updateTooltip, function (val) self.db.updateTooltip = val end), "LEFT")
 
-  self.enhancedTooltips:SetCell (getOrderId('enhancedTooltips'), 0, GUI:CreateCheckButton (self.enhancedTooltips, L["Highlight reforged stats"],
-    self.db.highlightTooltip, function (val) self.db.highlightTooltip = val end), "LEFT")
-
-  local sourceStatOrderId = getOrderId('enhancedTooltips')
-  self.enhancedTooltips:SetCellText (sourceStatOrderId, 0, L["Source stat color"], "LEFT", nil, "GameFontNormal")
-  self.enhancedTooltips:SetCell (sourceStatOrderId, 1, GUI:CreateColorPicker (self.enhancedTooltips, 20, 20, self.db.highlightSourceStatColor), "LEFT")
-
-  local destStatOrderId = getOrderId('enhancedTooltips')
-  self.enhancedTooltips:SetCellText (destStatOrderId, 0, L["Destination stat color"], "LEFT", nil, "GameFontNormal")
-  self.enhancedTooltips:SetCell (destStatOrderId, 1, GUI:CreateColorPicker (self.enhancedTooltips, 20, 20, self.db.highlightDestStatColor), "LEFT")
-end
-
-function ReforgeLite:FillSettings()
   self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Enable spec profiles"],
     self.db.specProfiles, function (val)
       self.db.specProfiles = val
