@@ -10998,7 +10998,6 @@ function addonTable.GetItemInfoUp(link, ilvlCap)
     upgrade = tonumber(upgrade)
     local _, _, _, iLvl = C_Item.GetItemInfo(link)
     iLvl = iLvl or 0
-    local iLvlBase = iLvl
     if iLvl >= 458 and ItemUpgrade[upgrade] then
         iLvl = iLvl + ItemUpgrade[upgrade]
     end
