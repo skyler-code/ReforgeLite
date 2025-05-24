@@ -29,7 +29,7 @@ local DefaultDB = {
     methodWindowX = false,
     methodWindowY = false,
     openOnReforge = true,
-    updateTooltip = true,
+    updateTooltip = false,
     speed = addonTable.MAX_LOOPS * 0.8,
     activeWindowTitle = {0.6, 0, 0},
     inactiveWindowTitle = {0.5, 0.5, 0.5},
@@ -1220,49 +1220,8 @@ function ReforgeLite:CreateOptionList ()
   self.quality.helpButton:SetScale(0.45)
   GUI:SetTooltip(self.quality.helpButton, L["Slide to the left if the calculation slows your game too much."])
 
-  self.storedCategory = self:CreateCategory (L["Best Result"])
-  self:SetAnchor (self.storedCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
-  self.storedScore = self.content:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.storedCategory:AddFrame (self.storedScore)
-  self:SetAnchor (self.storedScore, "TOPLEFT", self.storedCategory, "BOTTOMLEFT", 0, -8)
-  self.storedScore:SetTextColor (1, 1, 1)
-  self.storedScore:SetText (PROVING_GROUNDS_SCORE)
-  self.storedScore.score = self.content:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.storedCategory:AddFrame (self.storedScore.score)
-  self:SetAnchor (self.storedScore.score, "BOTTOMLEFT", self.storedScore, "BOTTOMRIGHT", 4, 0)
-  self.storedScore.score:SetTextColor (1, 1, 1)
-  self.storedScore.score:SetText ("0 (")
-  self.storedScore.delta = self.content:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.storedCategory:AddFrame (self.storedScore.delta)
-  self:SetAnchor (self.storedScore.delta, "BOTTOMLEFT", self.storedScore.score, "BOTTOMRIGHT", 0, 0)
-  self.storedScore.delta:SetTextColor (0.7, 0.7, 0.7)
-  self.storedScore.delta:SetText ("+0")
-  self.storedScore.suffix = self.content:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.storedCategory:AddFrame (self.storedScore.suffix)
-  self:SetAnchor (self.storedScore.suffix, "BOTTOMLEFT", self.storedScore.delta, "BOTTOMRIGHT", 0, 0)
-  self.storedScore.suffix:SetTextColor (1, 1, 1)
-  self.storedScore.suffix:SetText (")")
-
-  self.storedClear = GUI:CreatePanelButton (self.content, KEY_NUMLOCK_MAC, function(btn) self:ClearStoredMethod () end)
-  self.storedCategory:AddFrame (self.storedClear)
-  self:SetAnchor (self.storedClear, "TOPLEFT", self.storedScore, "BOTTOMLEFT", 0, -8)
-
-  self.storedRestore = GUI:CreatePanelButton (self.content, REFORGE_RESTORE, function(btn) self:RestoreStoredMethod () end)
-  self.storedCategory:AddFrame (self.storedRestore)
-  self:SetAnchor (self.storedRestore, "BOTTOMLEFT", self.storedClear, "BOTTOMRIGHT", 8, 0)
-
-  if self.pdb.storedMethod then
-    local score = self:GetMethodScore (self.pdb.storedMethod)
-    self.storedScore.score:SetText (score .. " (")
-    SetTextDelta (self.storedScore.delta, score, self:GetCurrentScore ())
-    self.storedClear:Enable ()
-    self.storedRestore:Enable ()
-  else
-    self:ClearStoredMethod ()
-  end
-
   self.settingsCategory = self:CreateCategory (SETTINGS)
-  self:SetAnchor (self.settingsCategory, "TOPLEFT", self.storedClear, "BOTTOMLEFT", 0, -10)
+  self:SetAnchor (self.settingsCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
   self.settings = GUI:CreateTable (6, 1, nil, 200)
   self.settingsCategory:AddFrame (self.settings)
   self:SetAnchor (self.settings, "TOPLEFT", self.settingsCategory, "BOTTOMLEFT", 0, -5)
@@ -1289,6 +1248,9 @@ function ReforgeLite:GetFrameOrder()
 end
 
 function ReforgeLite:FillSettings()
+  self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Open window when reforging"],
+    self.db.openOnReforge, function (val) self.db.openOnReforge = val end), "LEFT")
+
   self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Summarize reforged stats"],
     self.db.updateTooltip, function (val) self.db.updateTooltip = val end), "LEFT")
 
@@ -1303,9 +1265,6 @@ function ReforgeLite:FillSettings()
       end
     end),
     "LEFT")
-
-  self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Open window when reforging"],
-    self.db.openOnReforge, function (val) self.db.openOnReforge = val end), "LEFT")
 
   local activeWindowTitleOrderId = getOrderId('settings')
   self.settings:SetCellText (activeWindowTitleOrderId, 0, L["Active window color"], "LEFT", nil, "GameFontNormal")
@@ -1395,23 +1354,19 @@ function ReforgeLite:UpdateMethodCategory()
     self.methodCategory:AddFrame (self.methodReset)
     self:SetAnchor (self.methodReset, "BOTTOMLEFT", self.methodShow, "BOTTOMRIGHT", 8, 0)
 
-    self:SetAnchor (self.storedCategory, "TOPLEFT", self.methodShow, "BOTTOMLEFT", 0, -10)
+    self:SetAnchor (self.settingsCategory, "TOPLEFT", self.methodShow, "BOTTOMLEFT", 0, -10)
   end
 
-  self:RefreshMethodStats (true)
+  self:RefreshMethodStats()
 
   self:RefreshMethodWindow()
   self:UpdateContentSize ()
 end
-function ReforgeLite:RefreshMethodStats (relax)
-  local score, storedScore = 0, 0
+function ReforgeLite:RefreshMethodStats()
+  local score = 0
   if self.pdb.method then
     self:UpdateMethodStats (self.pdb.method)
     score = self:GetMethodScore (self.pdb.method)
-  end
-  if self.pdb.storedMethod then
-    self:UpdateMethodStats (self.pdb.storedMethod)
-    storedScore = self:GetMethodScore (self.pdb.storedMethod)
   end
   if self.pdb.method then
     if self.methodStats then
@@ -1433,34 +1388,9 @@ function ReforgeLite:RefreshMethodStats (relax)
         SetTextDelta (self.methodStats[i].delta, mvalue, value, override)
       end
     end
-    if relax and (self.pdb.storedMethod == nil or score > storedScore) then
-      self.pdb.storedMethod = DeepCopy (self.pdb.method)
-      self:UpdateMethodStats (self.pdb.storedMethod)
-      storedScore = score
-      self.storedClear:Enable ()
-      self.storedRestore:Enable ()
-    end
-  end
-  if self.pdb.storedMethod then
-    self.storedScore.score:SetText (format ("%s (", storedScore))
-    SetTextDelta (self.storedScore.delta, storedScore, self:GetCurrentScore ())
   end
 end
-function ReforgeLite:ClearStoredMethod ()
-  self.pdb.storedMethod = nil
-  self.storedScore.score:SetTextColor (0.7, 0.7, 0.7)
-  self.storedScore.score:SetText ("- (")
-  self.storedScore.delta:SetTextColor (0.7, 0.7, 0.7)
-  self.storedScore.delta:SetText ("+0")
-  self.storedClear:Disable ()
-  self.storedRestore:Disable ()
-end
-function ReforgeLite:RestoreStoredMethod ()
-  if self.pdb.storedMethod then
-    self.pdb.method = self.pdb.storedMethod
-    self:UpdateMethodCategory ()
-  end
-end
+
 function ReforgeLite:UpdateContentSize ()
   self.content:SetHeight (-self:GetFrameY (self.lastElement))
   RunNextFrame(function() self:FixScroll() end)
