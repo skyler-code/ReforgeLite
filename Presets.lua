@@ -7,48 +7,11 @@ local tsort, tinsert = table.sort, tinsert
 ----------------------------------------- CAP PRESETS ---------------------------------
 
 function ReforgeLite:RatingPerPoint (stat, level)
-  level = level or UnitLevel ("player")
-  local factor
-  if level <= 34 and (stat == self.STATS.DODGE or stat == self.STATS.PARRY) then
-    factor = 0.5
-  elseif level <= 10 then
-    factor = 1 / 26
-  elseif level <= 60 then
-    factor = (level - 8) / 52
-  elseif level <= 70 then
-    factor = 82 / (262 - 3 * level)
-  elseif level <= 80 then
-    factor = (82 / 52) * ((131 / 63) ^ ((level - 70) / 10))
-  else
-    factor = (82 / 52) * (131 / 63)
-    if level == 81 then
-      factor = factor * 1.31309
-    elseif level == 82 then
-      factor = factor * 1.72430
-    elseif level == 83 then
-      factor = factor * 2.26519
-    elseif level == 84 then
-      factor = factor * 2.97430
-    elseif level == 85 then
-      factor = factor * 3.90537
-    end
+  level = level or UnitLevel("player")
+  if stat == self.STATS.SPELLHIT then
+    stat = self.STATS.HIT
   end
-  if stat == self.STATS.DODGE or stat == self.STATS.PARRY then
-    return factor * 13.8
-  elseif stat == self.STATS.HIT then
-    return factor * 9.37931
-  elseif stat == self.STATS.SPELLHIT then
-    return factor * 8
-  elseif stat == self.STATS.HASTE then
-    return factor * 10
-  elseif stat == self.STATS.CRIT then
-    return factor * 14
-  elseif stat == self.STATS.EXP then
-    return factor * 2.34483
-  elseif stat == self.STATS.MASTERY then
-    return factor * 14
-  end
-  return 0
+  return ReforgeLiteScalingTable[stat][level] or 0
 end
 function ReforgeLite:GetMeleeHitBonus ()
   return GetHitModifier () or 0
@@ -56,12 +19,12 @@ end
 function ReforgeLite:GetSpellHitBonus ()
   return GetSpellHitModifier () or 0
 end
-function ReforgeLite:GetExpertiseBonus ()
-  local bonus = GetExpertise() - floor(GetCombatRatingBonus (CR_EXPERTISE))
-  if addonTable.playerClass == "PALADIN" and IsPlayerSpell(56416) and not (C_UnitAuras.GetPlayerAuraBySpellID(31801) or C_UnitAuras.GetPlayerAuraBySpellID(20154)) then
-    bonus = bonus + 10
+function ReforgeLite:GetExpertiseBonus()
+  if addonTable.playerClass == "HUNTER" then
+    return select(3, GetExpertise()) - GetCombatRatingBonus(CR_EXPERTISE)
+  else
+    return GetExpertise() - GetCombatRatingBonus(CR_EXPERTISE)
   end
-  return bonus
 end
 function ReforgeLite:GetMeleeHasteBonus()
   local baseBonus = RoundToSignificantDigits((GetMeleeHaste()+100)/(GetCombatRatingBonus(CR_HASTE_MELEE)+100), 4)
@@ -103,33 +66,25 @@ function ReforgeLite:CalcHasteWithBonuses(haste)
   local meleeBonus, rangedBonus, spellBonus = self:GetHasteBonuses()
   return self:CalcHasteWithBonus(haste, meleeBonus), self:CalcHasteWithBonus(haste, rangedBonus), self:CalcHasteWithBonus(haste, spellBonus)
 end
+
 function ReforgeLite:GetNeededMeleeHit ()
-  local diff = self.pdb.targetLevel
-  if diff <= 2 then
-    return max (0, 5 + 0.5 * diff)
-  else
-    return 2 + 2 * diff
-  end
+  return math.max(0, 3 + 1.5 * self.pdb.targetLevel)
 end
 function ReforgeLite:GetNeededSpellHit ()
   local diff = self.pdb.targetLevel
-  if diff <= 2 then
-    return max (0, 4 + diff)
+  if diff <= 3 then
+    return math.max(0, 6 + 3 * diff)
   else
-    return 11 * diff - 16
+    return 11 * diff - 18
   end
 end
-function ReforgeLite:GetNeededExpertiseSoft ()
-  local diff = self.pdb.targetLevel
-  return ceil (max (0, 5 + 0.5 * diff) / 0.25)
+
+function ReforgeLite:GetNeededExpertiseSoft()
+  return math.max(0, 3 + 1.5 * self.pdb.targetLevel)
 end
-function ReforgeLite:GetNeededExpertiseHard ()
-  local diff = self.pdb.targetLevel
-  if diff <= 2 then
-    return ceil (max (0, 5 + 0.5 * diff) / 0.25)
-  else
-    return ceil (14 / 0.25)
-  end
+
+function ReforgeLite:GetNeededExpertiseHard()
+  return math.max(0, 6 + 3 * self.pdb.targetLevel)
 end
 
 local function CreateIconMarkup(icon)

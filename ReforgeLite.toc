@@ -16,6 +16,7 @@ util\tables.lua
 
 locales.xml
 
+Scaling.lua
 GUI.lua
 ReforgeLite.lua
 ReforgeEngine.lua
