@@ -159,11 +159,11 @@ local function HasFireBuff()
 end
 
 function ReforgeLite:CreateItemStats()
-  local function RatingStat (i, name_, tip_, id_, short)
+  local function RatingStat (i, name_, tip_, long_, id_)
     return {
       name = name_,
       tip = tip_,
-      long = tip_,
+      long = long_,
       getter = function ()
         local rating = GetCombatRating (id_)
         if id_ == CR_HIT_SPELL and self.s2hFactor > 0 and HasFireBuff() then
@@ -173,8 +173,7 @@ function ReforgeLite:CreateItemStats()
       end,
       mgetter = function (method, orig)
         return (orig and method.orig_stats and method.orig_stats[i]) or method.stats[i]
-      end,
-      parser = short and L["^+(%d+) %s$"]:gsub("%%s", _G[name_]) or (L["EquipPredicate"] .. _G[name_]:gsub("%%s", "(.+)"))
+      end
     }
   end
   local CR_HIT, CR_CRIT, CR_HASTE = CR_HIT_SPELL, CR_CRIT_SPELL, CR_HASTE_SPELL
@@ -184,7 +183,7 @@ function ReforgeLite:CreateItemStats()
   self.itemStats = {
     {
       name = "ITEM_MOD_SPIRIT_SHORT",
-      tip = ITEM_MOD_SPIRIT_SHORT,
+      tip = SPELL_STAT5_NAME,
       long = ITEM_MOD_SPIRIT_SHORT,
       getter = function ()
         local _, spirit = UnitStat("player", LE_UNIT_STAT_SPIRIT)
@@ -195,20 +194,15 @@ function ReforgeLite:CreateItemStats()
       end,
       mgetter = function (method, orig)
         return (orig and method.orig_stats and method.orig_stats[1]) or method.stats[1]
-      end,
-      parser = function(line)
-        if CreateColor(line:GetTextColor()):IsEqualTo(WHITE_FONT_COLOR) then
-          return strmatch(line:GetText(), L["^+(%d+) %s$"]:gsub("%%s", ITEM_MOD_SPIRIT_SHORT))
-        end
       end
     },
-    RatingStat (self.STATS.DODGE,   "ITEM_MOD_DODGE_RATING",         STAT_DODGE,     CR_DODGE),
-    RatingStat (self.STATS.PARRY,   "ITEM_MOD_PARRY_RATING",         STAT_PARRY,     CR_PARRY),
-    RatingStat (self.STATS.HIT,     "ITEM_MOD_HIT_RATING",           HIT,            CR_HIT),
-    RatingStat (self.STATS.CRIT,    "ITEM_MOD_CRIT_RATING",          CRIT_ABBR,      CR_CRIT),
-    RatingStat (self.STATS.HASTE,   "ITEM_MOD_HASTE_RATING",         STAT_HASTE,     CR_HASTE),
-    RatingStat (self.STATS.EXP,     "ITEM_MOD_EXPERTISE_RATING",     STAT_EXPERTISE, CR_EXPERTISE),
-    RatingStat (self.STATS.MASTERY, "ITEM_MOD_MASTERY_RATING_SHORT", STAT_MASTERY,   CR_MASTERY, true)
+    RatingStat (self.STATS.DODGE,   "ITEM_MOD_DODGE_RATING",         STAT_DODGE,     STAT_DODGE,           CR_DODGE),
+    RatingStat (self.STATS.PARRY,   "ITEM_MOD_PARRY_RATING",         STAT_PARRY,     STAT_PARRY,           CR_PARRY),
+    RatingStat (self.STATS.HIT,     "ITEM_MOD_HIT_RATING",           HIT,            HIT,                  CR_HIT),
+    RatingStat (self.STATS.CRIT,    "ITEM_MOD_CRIT_RATING",          CRIT_ABBR,      STAT_CRITICAL_STRIKE, CR_CRIT),
+    RatingStat (self.STATS.HASTE,   "ITEM_MOD_HASTE_RATING",         STAT_HASTE,     STAT_HASTE,           CR_HASTE),
+    RatingStat (self.STATS.EXP,     "ITEM_MOD_EXPERTISE_RATING",     EXPERTISE_ABBR, STAT_EXPERTISE,       CR_EXPERTISE),
+    RatingStat (self.STATS.MASTERY, "ITEM_MOD_MASTERY_RATING_SHORT", STAT_MASTERY,   STAT_MASTERY,         CR_MASTERY)
   }
 end
 ReforgeLite:CreateItemStats()
@@ -1527,30 +1521,19 @@ function ReforgeLite:GetReforgeTableIndex(src, dst)
   return UNFORGE_INDEX
 end
 
+local REFORGE_TOOLTIP_LINE_MSG = REFORGE_TOOLTIP_LINE:gsub("%(", "%%("):gsub("%)", "%%)"):gsub("%%c%%s", "%([%%+%%-=!*&@#%%^$<>~?]+%)%(%%d+%)"):gsub("%%s", "(.+)")
+
 function ReforgeLite:SearchTooltipForReforgeID(tip)
-  local _, item = tip:GetItem()
-  local existingStats = GetItemStats(item)
   local srcStat, destStat
   for _, region in pairs({tip:GetRegions()}) do
-    if region:GetObjectType() == "FontString" and region:GetText() then
-      for statId, statInfo in ipairs(ReforgeLite.itemStats) do
-        local statValue
-        if type(statInfo.parser) == "function" then
-          statValue = statInfo.parser(region)
-        else
-          statValue = strmatch(region:GetText(), statInfo.parser)
-        end
-        if statValue then
-          if not existingStats[statInfo.name] then
-            destStat = statId
-            if self.db.highlightTooltip then
-              region:SetTextColor(unpack(self.db.highlightDestStatColor))
-            end
-          elseif existingStats[statInfo.name] - tonumber(statValue) > 0 then
+    if region.GetText and region:GetText() then
+      local _, _, destStatName, srcStatName = region:GetText():match(REFORGE_TOOLTIP_LINE_MSG)
+      if destStatName then
+        for statId, statInfo in pairs(self.itemStats) do
+          if statInfo.long == srcStatName then
             srcStat = statId
-            if self.db.highlightTooltip then
-              region:SetTextColor(unpack(self.db.highlightSourceStatColor))
-            end
+          elseif statInfo.long == destStatName then
+            destStat = statId
           end
         end
       end
