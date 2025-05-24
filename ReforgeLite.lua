@@ -1,6 +1,6 @@
 local addonName, addonTable = ...
 local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "title")
-local GetItemStats = C_Item.GetItemStats or GetItemStats
+local GetItemStats = addonTable.GetItemStatsUp
 
 local ReforgeLite = CreateFrame("Frame", addonName, UIParent, "BackdropTemplate")
 addonTable.ReforgeLite = ReforgeLite
@@ -146,7 +146,7 @@ ReforgeLite.itemSlots = {
 local ignoredSlots = { [INVSLOT_TABARD] = true, [INVSLOT_BODY] = true }
 
 ReforgeLite.STATS = {
-  SPIRIT = 1, DODGE = 2, PARRY = 3, HIT = 4, CRIT = 5, HASTE = 6, EXP = 7, MASTERY = 8, SPELLHIT = 9, CRITBLOCK = 1
+  SPIRIT = 1, DODGE = 2, PARRY = 3, HIT = 4, CRIT = 5, HASTE = 6, EXP = 7, MASTERY = 8, SPELLHIT = 9
 }
 
 local FIRE_SPIRIT = 4
@@ -163,7 +163,7 @@ function ReforgeLite:CreateItemStats()
       getter = function ()
         local rating = GetCombatRating (id_)
         if id_ == CR_HIT_SPELL and self.s2hFactor > 0 and HasFireBuff() then
-          rating = rating - floor(FIRE_SPIRIT*(self.s2hFactor/100))
+          rating = rating - floor(FIRE_SPIRIT)
         end
         return rating
       end,
@@ -1058,12 +1058,6 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory:AddFrame (self.pawnButton)
   self:SetAnchor (self.pawnButton, "TOPLEFT", self.presetsButton, "BOTTOMLEFT", 0, -5)
 
-  self.convertSpirit = CreateFrame ("Frame", nil, self.content)
-  self.statWeightsCategory:AddFrame (self.convertSpirit)
-  self.convertSpirit.text = self.convertSpirit:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.convertSpirit.text:SetPoint ("LEFT", self.pawnButton, "RIGHT", 8, 0)
-  self.convertSpirit.text:SetText (L["Spirit to hit"] .. ": "..PERCENTAGE_STRING:format(0))
-
   local levelList = {
     {value=0,name=("%s (+%d)"):format(PVP, 0)},
     {value=2,name=("%s (+%d)"):format(LFG_TYPE_HEROIC_DUNGEON, 2)},
@@ -1614,15 +1608,10 @@ function ReforgeLite:UpdateItems()
     DRUID = 33596
   }
 
-  self.s2hFactor = 0
   if spiritToHitSpells[playerClass] and IsPlayerSpell(spiritToHitSpells[playerClass]) then
     self.s2hFactor = 100
-  end
-  if self.s2hFactor > 0 then
-    self.convertSpirit.text:SetText (L["Spirit to hit"] .. ": " .. PERCENTAGE_STRING:format(self.s2hFactor))
-    self.convertSpirit.text:Show ()
   else
-    self.convertSpirit.text:Hide ()
+    self.s2hFactor = 0
   end
 
   self:RefreshMethodStats ()
@@ -1877,8 +1866,16 @@ function ReforgeLite:IsReforgeMatching (slotId, reforge, override)
     deltas[dst] = deltas[dst] + amount
   end
 
-  deltas[self.STATS.SPIRIT] = Round(deltas[self.STATS.SPIRIT] * self.spiritBonus)
-  deltas[self.STATS.HIT] = deltas[self.STATS.HIT] + Round(deltas[self.STATS.SPIRIT] * self.s2hFactor / 100)
+  local conv = self:GetConversion()
+  local mult = self:GetStatMultipliers()
+  for i = 1, #self.itemStats do
+    deltas[i] = math.floor(deltas[i] * (mult[i] or 1) + 0.5)
+  end
+  for src, c in pairs(conv) do
+    for dst, factor in pairs(c) do
+      deltas[dst] = deltas[dst] + math.floor(deltas[src] * factor + 0.5)
+    end
+  end
 
   for i = 1, #self.itemStats do
     if self:GetStatScore (i, self.pdb.method.stats[i]) ~= self:GetStatScore (i, self.pdb.method.stats[i] - deltas[i]) then
@@ -2000,13 +1997,13 @@ end
 --------------------------------------------------------------------------
 
 function ReforgeLite:OnTooltipSetItem (tip)
-  if not self.db.updateTooltip and not self.db.highlightTooltip then return end
+  if not self.db.updateTooltip then return end
   local _, item = tip:GetItem()
   if not item then return end
   for _, region in pairs({tip:GetRegions()}) do
     if region:GetObjectType() == "FontString" and region:GetText() == REFORGED then
       local reforgeId = self:SearchTooltipForReforgeID(tip)
-      if not reforgeId or reforgeId == UNFORGE_INDEX or not self.db.updateTooltip then return end
+      if not reforgeId or reforgeId == UNFORGE_INDEX then return end
       local srcId, destId = unpack(reforgeTable[reforgeId])
       region:SetText(("%s (%s > %s)"):format(REFORGED, self.itemStats[srcId].long, self.itemStats[destId].long))
       return
@@ -2016,14 +2013,15 @@ end
 
 function ReforgeLite:SetUpHooks ()
   local tooltips = {
-    GameTooltip,
-    ShoppingTooltip1,
-    ShoppingTooltip2,
-    ItemRefTooltip,
-    ItemRefShoppingTooltip1,
-    ItemRefShoppingTooltip2,
+    "GameTooltip",
+    "ShoppingTooltip1",
+    "ShoppingTooltip2",
+    "ItemRefTooltip",
+    "ItemRefShoppingTooltip1",
+    "ItemRefShoppingTooltip2",
   }
-  for _, tooltip in ipairs(tooltips) do
+  for _, tooltipName in ipairs(tooltips) do
+    local tooltip = _G[tooltipName]
     if tooltip then
       tooltip:HookScript("OnTooltipSetItem", function(tip) self:OnTooltipSetItem(tip) end)
     end

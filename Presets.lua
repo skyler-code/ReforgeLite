@@ -4,6 +4,38 @@ local ReforgeLite = addonTable.ReforgeLite
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 local tsort, tinsert = table.sort, tinsert
 
+local SPELL_HASTE_BUFFS = {
+  [24907] = true, -- Moonkin Aura
+  [49868] = true, -- Mind Quickening
+  [51470] = true, -- Elemental Oath
+  [135678] = true, -- Energizing Spores
+}
+
+local MELEE_HASTE_BUFFS = {
+  [55610] = true, -- Unholy Aura
+  [128432] = true, -- Cackling Howl
+  [128433] = true, -- Serpent's Swiftness
+  [113742] = true, -- Swiftblade's Cunning
+  [30809] = true, -- Unleashed Rage
+}
+
+function ReforgeLite:GetPlayerBuffs()
+  local spellHaste, meleeHaste
+  local slots = {C_UnitAuras.GetAuraSlots('player','helpful')}
+  for i = 2, #slots do
+    local aura = C_UnitAuras.GetAuraDataBySlot('player',slots[i])
+    if aura then
+      local id = aura.spellId
+      if SPELL_HASTE_BUFFS[id] then
+        spellHaste = true
+      elseif MELEE_HASTE_BUFFS[id] then
+        meleeHaste = true
+      end
+    end
+  end
+  return spellHaste, meleeHaste
+end
+
 ----------------------------------------- CAP PRESETS ---------------------------------
 
 function ReforgeLite:RatingPerPoint (stat, level)
@@ -11,7 +43,7 @@ function ReforgeLite:RatingPerPoint (stat, level)
   if stat == self.STATS.SPELLHIT then
     stat = self.STATS.HIT
   end
-  return ReforgeLiteScalingTable[stat][level] or 0
+  return addonTable.ScalingTable[stat][level] or 0
 end
 function ReforgeLite:GetMeleeHitBonus ()
   return GetHitModifier () or 0
@@ -29,7 +61,7 @@ end
 function ReforgeLite:GetMeleeHasteBonus()
   local baseBonus = RoundToSignificantDigits((GetMeleeHaste()+100)/(GetCombatRatingBonus(CR_HASTE_MELEE)+100), 4)
   if self.pdb.meleeHaste then
-    local meleeHaste = select(6, self:GetPlayerBuffs())
+    local _, meleeHaste = self:GetPlayerBuffs()
     if self.pdb.spellHaste and not meleeHaste then
       baseBonus = baseBonus * 1.1
     end
@@ -39,7 +71,7 @@ end
 function ReforgeLite:GetRangedHasteBonus()
   local baseBonus = RoundToSignificantDigits((GetRangedHaste()+100)/(GetCombatRatingBonus(CR_HASTE_RANGED)+100), 4)
   if self.pdb.meleeHaste then
-    local meleeHaste = select(6, self:GetPlayerBuffs())
+    local _, meleeHaste = self:GetPlayerBuffs()
     if self.pdb.spellHaste and not meleeHaste then
       baseBonus = baseBonus * 1.1
     end
@@ -49,7 +81,7 @@ end
 function ReforgeLite:GetSpellHasteBonus()
   local baseBonus = (UnitSpellHaste('PLAYER')+100)/(GetCombatRatingBonus(CR_HASTE_SPELL)+100)
   if self.pdb.spellHaste then
-    local spellHaste = select(5, self:GetPlayerBuffs())
+    local spellHaste = self:GetPlayerBuffs()
     if self.pdb.spellHaste and not spellHaste then
       baseBonus = baseBonus * 1.05
     end
@@ -131,7 +163,12 @@ ReforgeLite.capPresets = {
     value = CAPS.SpellHitCap,
     name = L["Spell hit cap"],
     getter = function ()
-      return ReforgeLite:RatingPerPoint (ReforgeLite.STATS.SPELLHIT) * (ReforgeLite:GetNeededSpellHit () - ReforgeLite:GetSpellHitBonus ())
+      local conv = ReforgeLite:GetConversion()
+      local result = ReforgeLite:RatingPerPoint (ReforgeLite.STATS.SPELLHIT) * (ReforgeLite:GetNeededSpellHit () - ReforgeLite:GetSpellHitBonus ())
+      if conv[ReforgeLite.STATS.EXP] and conv[ReforgeLite.STATS.EXP][ReforgeLite.STATS.HIT] then
+        result = result + math.floor(GetCombatRating(CR_EXPERTISE) * conv[ReforgeLite.STATS.EXP][ReforgeLite.STATS.HIT])
+      end
+      return result
     end,
     category = StatHit
   },
@@ -161,138 +198,138 @@ ReforgeLite.capPresets = {
   },
 }
 
-local function GetActiveItemSet()
-  local itemSets = {}
-  for _,v in ipairs({INVSLOT_HEAD,INVSLOT_SHOULDER,INVSLOT_CHEST,INVSLOT_LEGS,INVSLOT_HAND}) do
-    local item = Item:CreateFromEquipmentSlot(v)
-    if not item:IsItemEmpty() then
-      local itemSetId = select(16, C_Item.GetItemInfo(item:GetItemID()))
-      if itemSetId then
-        itemSets[itemSetId] = (itemSets[itemSetId] or 0) + 1
-      end
-    end
-  end
-  return itemSets
-end
+-- local function GetActiveItemSet()
+--   local itemSets = {}
+--   for _,v in ipairs({INVSLOT_HEAD,INVSLOT_SHOULDER,INVSLOT_CHEST,INVSLOT_LEGS,INVSLOT_HAND}) do
+--     local item = Item:CreateFromEquipmentSlot(v)
+--     if not item:IsItemEmpty() then
+--       local itemSetId = select(16, C_Item.GetItemInfo(item:GetItemID()))
+--       if itemSetId then
+--         itemSets[itemSetId] = (itemSets[itemSetId] or 0) + 1
+--       end
+--     end
+--   end
+--   return itemSets
+-- end
 
-local function GetSpellHasteRequired(percentNeeded)
-  return function()
-    local hasteMod = ReforgeLite:GetSpellHasteBonus()
-    return ceil((percentNeeded - (hasteMod - 1) * 100) * ReforgeLite:RatingPerPoint(ReforgeLite.STATS.HASTE) / hasteMod)
-  end
-end
+-- local function GetSpellHasteRequired(percentNeeded)
+--   return function()
+--     local hasteMod = ReforgeLite:GetSpellHasteBonus()
+--     return ceil((percentNeeded - (hasteMod - 1) * 100) * ReforgeLite:RatingPerPoint(ReforgeLite.STATS.HASTE) / hasteMod)
+--   end
+-- end
 
-local function GetRangedHasteRequired(percentNeeded)
-  return function()
-    local hasteMod = ReforgeLite:GetRangedHasteBonus()
-    return ceil((percentNeeded - (hasteMod - 1) * 100) * ReforgeLite:RatingPerPoint(ReforgeLite.STATS.HASTE) / hasteMod)
-  end
-end
+-- local function GetRangedHasteRequired(percentNeeded)
+--   return function()
+--     local hasteMod = ReforgeLite:GetRangedHasteBonus()
+--     return ceil((percentNeeded - (hasteMod - 1) * 100) * ReforgeLite:RatingPerPoint(ReforgeLite.STATS.HASTE) / hasteMod)
+--   end
+-- end
 
-do
-  local nameFormat = "%s%s%% +%s %s "
-  local nameFormatWithTicks = nameFormat..L["ticks"]
-  if addonTable.playerClass == "DRUID" then
-    tinsert(ReforgeLite.capPresets, {
-      value = CAPS.FirstHasteBreak,
-      category = StatHaste,
-      name = nameFormatWithTicks:format(CreateIconMarkup(136081), 18.74, 2, C_Spell.GetSpellName(774)),
-      getter = GetSpellHasteRequired(12.51),
-    })
-    tinsert(ReforgeLite.capPresets, {
-      value = CAPS.SecondHasteBreak,
-      category = StatHaste,
-      name = nameFormatWithTicks:format(CreateIconMarkup(236153)..CreateIconMarkup(134222), 21.43, 1, C_Spell.GetSpellName(48438) .. " / " .. C_Spell.GetSpellName(81269)),
-      getter = GetSpellHasteRequired(21.4345),
-    })
-  elseif addonTable.playerClass == "PRIEST" then
-    local devouringPlague, devouringPlagueMarkup = C_Spell.GetSpellName(2944), CreateIconMarkup(252997)
-    local shadowWordPain, shadowWordPainMarkup = C_Spell.GetSpellName(589), CreateIconMarkup(136207)
-    tinsert(ReforgeLite.capPresets, {
-      value = CAPS.FirstHasteBreak,
-      category = StatHaste,
-      name = nameFormatWithTicks:format(devouringPlagueMarkup, 18.74, 2, devouringPlague),
-      getter = GetSpellHasteRequired(18.74),
-    })
-    tinsert(ReforgeLite.capPresets, {
-      value = CAPS.SecondHasteBreak,
-      category = StatHaste,
-      name = nameFormatWithTicks:format(shadowWordPainMarkup, 24.97, 2, shadowWordPain),
-      getter = GetSpellHasteRequired(24.97),
-    })
-    tinsert(ReforgeLite.capPresets, {
-      value = CAPS.ThirdHasteBreak,
-      category = StatHaste,
-      name = nameFormatWithTicks:format(CreateIconMarkup(135978), 30.01, 2, C_Spell.GetSpellName(589)),
-      getter = GetSpellHasteRequired(30.01),
-    })
-    tinsert(ReforgeLite.capPresets, {
-      value = CAPS.FourthHasteBreak,
-      category = StatHaste,
-      name = nameFormatWithTicks:format(devouringPlagueMarkup, 31.26, 3, devouringPlague),
-      getter = GetSpellHasteRequired(31.26),
-    })
-    tinsert(ReforgeLite.capPresets, {
-      value = CAPS.FifthHasteBreak,
-      category = StatHaste,
-      name = nameFormatWithTicks:format(shadowWordPainMarkup, 41.67, 3, shadowWordPain),
-      getter = GetSpellHasteRequired(41.675),
-    })
-  elseif addonTable.playerClass == "MAGE" then
-    local combustion, combustionMarkup = C_Spell.GetSpellName(11129), CreateIconMarkup(135824)
-    tinsert(ReforgeLite.capPresets, {
-      value = CAPS.FirstHasteBreak,
-      category = StatHaste,
-      name = nameFormatWithTicks:format(combustionMarkup, 15, 2, combustion),
-      getter = GetSpellHasteRequired(15.01),
-    })
-    tinsert(ReforgeLite.capPresets, {
-      value = CAPS.SecondHasteBreak,
-      category = StatHaste,
-      name = nameFormatWithTicks:format(combustionMarkup, 25, 3, combustion),
-      getter = GetSpellHasteRequired(25.08),
-    })
-    tinsert(ReforgeLite.capPresets, {
-      value = CAPS.ThirdHasteBreak,
-      category = StatHaste,
-      name = ("%s %s %s"):format(CreateIconMarkup(135735), D_SECONDS:format(1), C_Spell.GetSpellName(30451)),
-      getter = function()
-        local percentNeeded = 13.86
-        local firelordCount = GetActiveItemSet()[931] or 0
-        if addonTable.playerRace == "Goblin" then
-          if firelordCount >= 4 then
-            percentNeeded = 2.43
-          else
-            percentNeeded = 12.68
-          end
-        elseif firelordCount >= 4 then
-          percentNeeded = 3.459
-        end
-        return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
-      end,
-    })
-  elseif addonTable.playerClass == "HUNTER" then
-    tinsert(ReforgeLite.capPresets, {
-      value = CAPS.FirstHasteBreak,
-      category = StatHaste,
-      name = nameFormat:format(CreateIconMarkup(461114), 20, 3, C_Spell.GetSpellName(77767)),
-      getter = GetRangedHasteRequired(19.99),
-    })
-  elseif addonTable.playerClass == "SHAMAN" then
-    tinsert(ReforgeLite.capPresets, {
-      value = CAPS.FirstHasteBreak,
-      category = StatHaste,
-      name = nameFormatWithTicks:format(CreateIconMarkup(462328), 12.51, 1, C_Spell.GetSpellName(51730)),
-      getter = GetSpellHasteRequired(12.51),
-    })
-    tinsert(ReforgeLite.capPresets, {
-      value = CAPS.SecondHasteBreak,
-      category = StatHaste,
-      name = nameFormatWithTicks:format(CreateIconMarkup(252995), 21.44, 2, C_Spell.GetSpellName(61295)),
-      getter = GetSpellHasteRequired(21.4345),
-    })
-  end
-end
+-- do
+--   local nameFormat = "%s%s%% +%s %s "
+--   local nameFormatWithTicks = nameFormat..L["ticks"]
+--   if addonTable.playerClass == "DRUID" then
+--     tinsert(ReforgeLite.capPresets, {
+--       value = CAPS.FirstHasteBreak,
+--       category = StatHaste,
+--       name = nameFormatWithTicks:format(CreateIconMarkup(136081), 18.74, 2, C_Spell.GetSpellName(774)),
+--       getter = GetSpellHasteRequired(12.51),
+--     })
+--     tinsert(ReforgeLite.capPresets, {
+--       value = CAPS.SecondHasteBreak,
+--       category = StatHaste,
+--       name = nameFormatWithTicks:format(CreateIconMarkup(236153)..CreateIconMarkup(134222), 21.43, 1, C_Spell.GetSpellName(48438) .. " / " .. C_Spell.GetSpellName(81269)),
+--       getter = GetSpellHasteRequired(21.4345),
+--     })
+--   elseif addonTable.playerClass == "PRIEST" then
+--     local devouringPlague, devouringPlagueMarkup = C_Spell.GetSpellName(2944), CreateIconMarkup(252997)
+--     local shadowWordPain, shadowWordPainMarkup = C_Spell.GetSpellName(589), CreateIconMarkup(136207)
+--     tinsert(ReforgeLite.capPresets, {
+--       value = CAPS.FirstHasteBreak,
+--       category = StatHaste,
+--       name = nameFormatWithTicks:format(devouringPlagueMarkup, 18.74, 2, devouringPlague),
+--       getter = GetSpellHasteRequired(18.74),
+--     })
+--     tinsert(ReforgeLite.capPresets, {
+--       value = CAPS.SecondHasteBreak,
+--       category = StatHaste,
+--       name = nameFormatWithTicks:format(shadowWordPainMarkup, 24.97, 2, shadowWordPain),
+--       getter = GetSpellHasteRequired(24.97),
+--     })
+--     tinsert(ReforgeLite.capPresets, {
+--       value = CAPS.ThirdHasteBreak,
+--       category = StatHaste,
+--       name = nameFormatWithTicks:format(CreateIconMarkup(135978), 30.01, 2, C_Spell.GetSpellName(589)),
+--       getter = GetSpellHasteRequired(30.01),
+--     })
+--     tinsert(ReforgeLite.capPresets, {
+--       value = CAPS.FourthHasteBreak,
+--       category = StatHaste,
+--       name = nameFormatWithTicks:format(devouringPlagueMarkup, 31.26, 3, devouringPlague),
+--       getter = GetSpellHasteRequired(31.26),
+--     })
+--     tinsert(ReforgeLite.capPresets, {
+--       value = CAPS.FifthHasteBreak,
+--       category = StatHaste,
+--       name = nameFormatWithTicks:format(shadowWordPainMarkup, 41.67, 3, shadowWordPain),
+--       getter = GetSpellHasteRequired(41.675),
+--     })
+--   elseif addonTable.playerClass == "MAGE" then
+--     local combustion, combustionMarkup = C_Spell.GetSpellName(11129), CreateIconMarkup(135824)
+--     tinsert(ReforgeLite.capPresets, {
+--       value = CAPS.FirstHasteBreak,
+--       category = StatHaste,
+--       name = nameFormatWithTicks:format(combustionMarkup, 15, 2, combustion),
+--       getter = GetSpellHasteRequired(15.01),
+--     })
+--     tinsert(ReforgeLite.capPresets, {
+--       value = CAPS.SecondHasteBreak,
+--       category = StatHaste,
+--       name = nameFormatWithTicks:format(combustionMarkup, 25, 3, combustion),
+--       getter = GetSpellHasteRequired(25.08),
+--     })
+--     tinsert(ReforgeLite.capPresets, {
+--       value = CAPS.ThirdHasteBreak,
+--       category = StatHaste,
+--       name = ("%s %s %s"):format(CreateIconMarkup(135735), D_SECONDS:format(1), C_Spell.GetSpellName(30451)),
+--       getter = function()
+--         local percentNeeded = 13.86
+--         local firelordCount = GetActiveItemSet()[931] or 0
+--         if addonTable.playerRace == "Goblin" then
+--           if firelordCount >= 4 then
+--             percentNeeded = 2.43
+--           else
+--             percentNeeded = 12.68
+--           end
+--         elseif firelordCount >= 4 then
+--           percentNeeded = 3.459
+--         end
+--         return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
+--       end,
+--     })
+--   elseif addonTable.playerClass == "HUNTER" then
+--     tinsert(ReforgeLite.capPresets, {
+--       value = CAPS.FirstHasteBreak,
+--       category = StatHaste,
+--       name = nameFormat:format(CreateIconMarkup(461114), 20, 3, C_Spell.GetSpellName(77767)),
+--       getter = GetRangedHasteRequired(19.99),
+--     })
+--   elseif addonTable.playerClass == "SHAMAN" then
+--     tinsert(ReforgeLite.capPresets, {
+--       value = CAPS.FirstHasteBreak,
+--       category = StatHaste,
+--       name = nameFormatWithTicks:format(CreateIconMarkup(462328), 12.51, 1, C_Spell.GetSpellName(51730)),
+--       getter = GetSpellHasteRequired(12.51),
+--     })
+--     tinsert(ReforgeLite.capPresets, {
+--       value = CAPS.SecondHasteBreak,
+--       category = StatHaste,
+--       name = nameFormatWithTicks:format(CreateIconMarkup(252995), 21.44, 2, C_Spell.GetSpellName(61295)),
+--       getter = GetSpellHasteRequired(21.4345),
+--     })
+--   end
+-- end
 ----------------------------------------- WEIGHT PRESETS ------------------------------
 
 local HitCap = {
@@ -340,60 +377,66 @@ do
 
   local specs = {
     deathknight = {
-      blood = 398,
-      frost = 399,
-      unholy = 400
+      blood = 250,
+      frost = 251,
+      unholy = 252
     },
     druid = {
-      balance = 752,
-      feralcombat = 750,
-      restoration = 748
+      balance = 102,
+      feralcombat = 103,
+      guardian = 104,
+      restoration = 105
     },
     hunter = {
-      beastmastery = 811,
-      marksmanship = 807,
-      survival = 809
+      beastmastery = 253,
+      marksmanship = 254,
+      survival = 255
     },
     mage = {
-      arcane = 799,
-      fire = 851,
-      frost = 823,
+      arcane = 62,
+      fire = 63,
+      frost = 64,
+    },
+    monk = {
+      brewmaster = 268,
+      mistweaver = 270,
+      windwalker = 269,
     },
     paladin = {
-      holy = 831,
-      protection = 839,
-      retribution = 855
+      holy = 65,
+      protection = 66,
+      retribution = 70,
     },
     priest = {
-      discipline = 760,
-      holy = 813,
-      shadow = 795
+      discipline = 256,
+      holy = 257,
+      shadow = 258
     },
     rogue = {
-      assassination = 182,
-      combat = 181,
-      subtlety = 183
+      assassination = 259,
+      combat = 260,
+      subtlety = 261
     },
     shaman = {
-      elemental = 261,
+      elemental = 262,
       enhancement = 263,
-      restoration = 262
+      restoration = 264
     },
     warlock = {
-      afflication = 871,
-      demonology = 867,
-      destruction = 865
+      afflication = 265,
+      demonology = 266,
+      destruction = 267,
     },
     warrior = {
-      arms = 746,
-      fury = 815,
-      protection = 845
+      arms = 71,
+      fury = 72,
+      protection = 73,
     }
   }
 
   for _,ids in pairs(specs) do
     for _, id in pairs(ids) do
-      local _, tabName, _, icon = GetSpecializationInfoForSpecID(id)
+      local _, tabName, _, icon = GetSpecializationInfoByID(id)
       specInfo[id] = { name = tabName, icon = icon }
     end
   end
@@ -471,39 +514,6 @@ do
         caps = CasterCaps,
       },
       [specs.druid.feralcombat] = {
-        [("%s (%s)"):format(C_Spell.GetSpellName(5487), TANK)] = { -- Bear Form (Tank)
-          icon = 132276,
-          weights = {
-            0, 54, 0, 25, 53, 7, 48, 37
-          },
-          caps = {
-            {
-              stat = StatHit,
-              points = {
-                {
-                  method = AtMost,
-                  preset = CAPS.MeleeHitCap,
-                },
-              },
-            },
-            {
-              stat = StatExp,
-              points = {
-                {
-                  method = AtMost,
-                  preset = CAPS.ExpSoftCap,
-                },
-              },
-            },
-          },
-        },
-        [("%s (%s)"):format(C_Spell.GetSpellName(5487), STAT_DPS_SHORT)] = { -- Bear Form (DPS)
-          icon = 132276,
-          weights = {
-            0, -6, 0, 100, 50, 25, 100, -1
-          },
-          caps = MeleeCaps,
-        },
         [("%s (%s)"):format(C_Spell.GetSpellName(768), L["Monocat"])] = { -- Cat Form (Monocat)
           icon = 132115,
           weights = {
@@ -534,6 +544,41 @@ do
           icon = 132115,
           weights = {
             0, 0, 0, 33, 31, 26, 32, 30
+          },
+          caps = MeleeCaps,
+        },
+      },
+      [specs.druid.guardian] = {
+        [("%s (%s)"):format(C_Spell.GetSpellName(5487), TANK)] = { -- Bear Form (Tank)
+          icon = 132276,
+          weights = {
+            0, 54, 0, 25, 53, 7, 48, 37
+          },
+          caps = {
+            {
+              stat = StatHit,
+              points = {
+                {
+                  method = AtMost,
+                  preset = CAPS.MeleeHitCap,
+                },
+              },
+            },
+            {
+              stat = StatExp,
+              points = {
+                {
+                  method = AtMost,
+                  preset = CAPS.ExpSoftCap,
+                },
+              },
+            },
+          },
+        },
+        [("%s (%s)"):format(C_Spell.GetSpellName(5487), STAT_DPS_SHORT)] = { -- Bear Form (DPS)
+          icon = 132276,
+          weights = {
+            0, -6, 0, 100, 50, 25, 100, -1
           },
           caps = MeleeCaps,
         },
@@ -680,6 +725,23 @@ do
               }
             }
           }
+        },
+      },
+    },
+    ["MONK"] = {
+      [specs.monk.brewmaster] = {
+        weights = {
+          0, 0, 0, 0, 0, 0, 0, 0
+        },
+      },
+      [specs.monk.mistweaver] = {
+        weights = {
+          0, 0, 0, 0, 0, 0, 0, 0
+        },
+      },
+      [specs.monk.windwalker] = {
+        weights = {
+          0, 0, 0, 0, 0, 0, 0, 0
         },
       },
     },

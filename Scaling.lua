@@ -11045,7 +11045,7 @@ function addonTable.GetItemStatsUp(link, ilvlCap)
     return result
 end
 
-ReforgeLiteScalingTable = {
+addonTable.ScalingTable = {
 -- gtCombatRatings.dbc
     -- Spirit dummy
     {},
@@ -11196,4 +11196,27 @@ ReforgeLiteScalingTable = {
         60.278423309326172,   79.155647277832031,  103.985641479492188,  136.538131713867188,  179.280044555664062,
         228.000000000000000,  290.000000000000000,  370.000000000000000,  470.000000000000000,  600.000000000000000,
     },
+}
+
+addonTable.AmplificationItems = {
+  [104976] = 528, -- Prismatic Prison of Pride, Raid Finder
+  [104727] = 540, -- Prismatic Prison of Pride, Flexible
+  [102299] = 553, -- Prismatic Prison of Pride
+  [105225] = 559, -- Prismatic Prison of Pride, Warforged
+  [104478] = 566, -- Prismatic Prison of Pride, Heroic
+  [105474] = 572, -- Prismatic Prison of Pride, Heroic Warforged
+
+  [104924] = 528, -- Purified Bindings of Immerseus, Raid Finder
+  [104675] = 540, -- Purified Bindings of Immerseus, Flexible
+  [102293] = 553, -- Purified Bindings of Immerseus
+  [105173] = 559, -- Purified Bindings of Immerseus, Warforged
+  [104426] = 566, -- Purified Bindings of Immerseus, Heroic
+  [105422] = 572, -- Purified Bindings of Immerseus, Heroic Warforged
+
+  [105111] = 528, -- Thok's Tail Tip, Raid Finder
+  [104862] = 540, -- Thok's Tail Tip, Flexible
+  [102305] = 553, -- Thok's Tail Tip
+  [105360] = 559, -- Thok's Tail Tip, Warforged
+  [104613] = 566, -- Thok's Tail Tip, Heroic
+  [105609] = 572, -- Thok's Tail Tip, Heroic Warforged
 }
