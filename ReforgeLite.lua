@@ -66,7 +66,7 @@ local DefaultDB = {
       }
     },
     itemsLocked = {},
-    categoryStates = { [SETTINGS] = true },
+    categoryStates = { [SETTINGS] = false },
   },
   class = {
     customPresets = {}
