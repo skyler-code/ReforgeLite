@@ -1,6 +1,5 @@
 local addonName, addonTable = ...
 local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "title")
-local CreateColor, WHITE_FONT_COLOR, ITEM_MOD_SPIRIT_SHORT = CreateColor, WHITE_FONT_COLOR, ITEM_MOD_SPIRIT_SHORT
 local GetItemStats = C_Item.GetItemStats or GetItemStats
 
 local ReforgeLite = CreateFrame("Frame", addonName, UIParent, "BackdropTemplate")
@@ -1609,19 +1608,15 @@ function ReforgeLite:UpdateItems()
 
   self.itemLevel:SetText (STAT_AVERAGE_ITEM_LEVEL .. ": " .. floor(select(2,GetAverageItemLevel())))
 
+  local spiritToHitSpells = {
+    PRIEST = 47573,
+    SHAMAN = 30674,
+    DRUID = 33596
+  }
+
   self.s2hFactor = 0
-  if playerClass == "PRIEST" then
-    local pts = select(5, GetTalentInfo (3, 20))
-    self.s2hFactor = pts * 50
-  elseif playerClass == "DRUID" and GetPrimaryTalentTree () ~= 2 then
-    local pts = select(5, GetTalentInfo (1, 7))
-    self.s2hFactor = pts * 50
-  elseif playerClass == "SHAMAN" and GetPrimaryTalentTree () ~= 2 then
-    local pts = select(5, GetTalentInfo (1, 9))
-    self.s2hFactor = (pts == 3 and 100 or pts * 33)
-  elseif playerClass == "PALADIN" then
-    local pts = select(5, GetTalentInfo (1, 4))
-    self.s2hFactor = pts * 50
+  if spiritToHitSpells[playerClass] and IsPlayerSpell(spiritToHitSpells[playerClass]) then
+    self.s2hFactor = 100
   end
   if self.s2hFactor > 0 then
     self.convertSpirit.text:SetText (L["Spirit to hit"] .. ": " .. PERCENTAGE_STRING:format(self.s2hFactor))
