@@ -37,6 +37,7 @@ local DefaultDB = {
   },
   char = {
     targetLevel = 3,
+    ilvlCap = 0,
     meleeHaste = true,
     spellHaste = true,
     weights = {0, 0, 0, 0, 0, 0, 0, 0},
@@ -1474,7 +1475,7 @@ function ReforgeLite:UpdateItems()
       v.qualityColor = item:GetItemQualityColor()
       v.quality:SetVertexColor(v.qualityColor.r, v.qualityColor.g, v.qualityColor.b)
       v.quality:Show()
-      stats = GetItemStats(v.item)
+      stats = GetItemStats(v.item, self.pdb.ilvlCap)
       v.reforge = self:GetReforgeID(v.slotId)
       if v.reforge then
         local srcId, dstId = unpack(reforgeTable[v.reforge])

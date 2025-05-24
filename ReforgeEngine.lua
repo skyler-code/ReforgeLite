@@ -78,6 +78,7 @@ function ReforgeLite:GetConversion()
   return result
 end
 
+
 function ReforgeLite:UpdateMethodStats (method)
   local conv = self:GetConversion()
   local mult = self:GetStatMultipliers()
@@ -87,12 +88,24 @@ function ReforgeLite:UpdateMethodStats (method)
     oldstats[i] = self.itemStats[i].getter ()
     method.stats[i] = oldstats[i] / (mult[i] or 1)
   end
-  for i = 1, #method.items do
+  method.items = method.items or {}
+  for i = 1, #self.itemData do
     local item = self.itemData[i].item
-    local stats = (item and GetItemStats (item) or {})
-    if self.itemData[i].reforge then
-      local src, dst = unpack(self.reforgeTable[self.itemData[i].reforge])
-      local amount = floor ((stats[self.itemStats[src].name] or 0) * REFORGE_COEFF)
+    local orgstats = (item and GetItemStats(item) or {})
+    local stats = (item and GetItemStats(item, self.pdb.ilvlCap) or {})
+    local reforge = self.itemData[i].reforge
+
+    method.items[i] = method.items[i] or {}
+
+    method.items[i].stats = nil
+    method.items[i].amount = nil
+
+    for s, v in ipairs(self.itemStats) do
+      method.stats[s] = method.stats[s] - (orgstats[v.name] or 0) + (stats[v.name] or 0)
+    end
+    if reforge then
+      local src, dst = unpack(self.reforgeTable[reforge])
+      local amount = floor ((orgstats[self.itemStats[src].name] or 0) * REFORGE_COEFF)
       method.stats[src] = method.stats[src] + amount
       method.stats[dst] = method.stats[dst] - amount
     end
@@ -100,17 +113,16 @@ function ReforgeLite:UpdateMethodStats (method)
       method.items[i].amount = floor ((stats[self.itemStats[method.items[i].src].name] or 0) * REFORGE_COEFF)
       method.stats[method.items[i].src] = method.stats[method.items[i].src] - method.items[i].amount
       method.stats[method.items[i].dst] = method.stats[method.items[i].dst] + method.items[i].amount
-    else
-      method.items[i].amount = nil
     end
   end
+
   for s, f in pairs(mult) do
-    method.stats[s] = math.floor(method.stats[s] * f + 0.5)
+    method.stats[s] = floor(method.stats[s] * f + 0.5)
   end
 
   for src, c in pairs(conv) do
     for dst, f in pairs(c) do
-      method.stats[dst] = method.stats[dst] + math.floor((method.stats[src] - oldstats[src]) * f + 0.5)
+      method.stats[dst] = method.stats[dst] + floor((method.stats[src] - oldstats[src]) * f + 0.5)
     end
   end
 end
