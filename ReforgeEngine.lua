@@ -6,7 +6,6 @@ local L = addonTable.L
 local DeepCopy = addonTable.DeepCopy
 local playerClass, playerRace = addonTable.playerClass, addonTable.playerRace
 
-local floor, tinsert, unpack, pairs, random = floor, tinsert, unpack, pairs, random
 local GetItemStats = addonTable.GetItemStatsUp
 
 ---------------------------------------------------------------------------------------
@@ -20,7 +19,7 @@ function ReforgeLite:GetStatMultipliers()
     if v.itemId then
       local id, iLvl = addonTable.GetItemInfoUp(v.itemId)
       if id and addonTable.AmplificationItems[id] then
-        local factor = 1 + 0.01 * math.floor(addonTable.GetRandPropPoints(iLvl, 2) / 420 + 0.5)
+        local factor = 1 + 0.01 * Round(addonTable.GetRandPropPoints(iLvl, 2) / 420)
         result[self.STATS.HASTE] = (result[self.STATS.HASTE] or 1) * factor
         result[self.STATS.MASTERY] = (result[self.STATS.MASTERY] or 1) * factor
         result[self.STATS.SPIRIT] = (result[self.STATS.SPIRIT] or 1) * factor
@@ -109,12 +108,12 @@ function ReforgeLite:UpdateMethodStats (method)
   end
 
   for s, f in pairs(mult) do
-    method.stats[s] = floor(method.stats[s] * f + 0.5)
+    method.stats[s] = Round(method.stats[s] * f)
   end
 
   for src, c in pairs(conv) do
     for dst, f in pairs(c) do
-      method.stats[dst] = method.stats[dst] + floor((method.stats[src] - oldstats[src]) * f + 0.5)
+      method.stats[dst] = method.stats[dst] + Round((method.stats[src] - oldstats[src]) * f)
     end
   end
 end
@@ -279,7 +278,7 @@ function ReforgeLite:InitReforgeClassic()
         preset = 1
       end
       if self.capPresets[preset].getter then
-        data.caps[i].points[point].value = math.ceil(self.capPresets[preset].getter())
+        data.caps[i].points[point].value = ceil(self.capPresets[preset].getter())
       end
     end
   end
@@ -307,7 +306,7 @@ function ReforgeLite:InitReforgeClassic()
   end
   for src, c in pairs(data.conv) do
     for dst, f in pairs(c) do
-      data.initial[dst] = data.initial[dst] - math.floor(reforged[src] * (data.mult[src] or 1) * f + 0.5)
+      data.initial[dst] = data.initial[dst] - Round(reforged[src] * (data.mult[src] or 1) * f)
     end
   end
   if data.caps[1].stat > 0 then
@@ -377,6 +376,7 @@ function ReforgeLite:ChooseReforgeClassic (data, reforgeOptions, scores, codes)
 end
 
 function ReforgeLite:ComputeReforgeCore (data, reforgeOptions)
+  local char = string.char
   local TABLE_SIZE = 10000
   local scores, codes = {}, {}
   local linit = data.caps[1].init + data.caps[2].init * TABLE_SIZE
@@ -384,16 +384,16 @@ function ReforgeLite:ComputeReforgeCore (data, reforgeOptions)
   codes[linit] = ""
   for _, opt in ipairs(reforgeOptions) do
     local newscores, newcodes = {}, {}
-    for k, score in pairs (scores) do
+    for k, score in pairs(scores) do
       self:RunYieldCheck()
       local s1 = k % TABLE_SIZE
-      local s2 = floor (k / TABLE_SIZE)
+      local s2 = floor(k / TABLE_SIZE)
       for j, o in ipairs(opt) do
         local nscore = score + o.score
         local nk = s1 + o.d1 + (s2 + o.d2) * TABLE_SIZE
         if newscores[nk] == nil or nscore > newscores[nk] then
           newscores[nk] = nscore
-          newcodes[nk] = codes[k] .. string.char(j)
+          newcodes[nk] = codes[k] .. char(j)
         end
       end
     end
