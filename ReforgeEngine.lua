@@ -169,8 +169,8 @@ end
 function ReforgeLite:MakeReforgeOption(item, data, src, dst)
   local delta1, delta2, dscore = 0, 0, 0
   if src and dst then
-    local amountRaw = math.floor(item.stats[src] * REFORGE_COEFF)
-    local amount = math.floor(amountRaw * (data.mult[src] or 1) + math.random())
+    local amountRaw = floor(item.stats[src] * REFORGE_COEFF)
+    local amount = Round(amountRaw * (data.mult[src] or 1))
     if src == data.caps[1].stat then
       delta1 = delta1 - amount
     elseif src == data.caps[2].stat then
@@ -180,7 +180,7 @@ function ReforgeLite:MakeReforgeOption(item, data, src, dst)
     end
     if data.conv[src] then
       for to, factor in pairs(data.conv[src]) do
-        local conv = math.floor(amount * factor + math.random())
+        local conv = Round(amount * factor)
         if data.caps[1].stat == to then
           delta1 = delta1 - conv
         elseif data.caps[2].stat == to then
@@ -190,7 +190,7 @@ function ReforgeLite:MakeReforgeOption(item, data, src, dst)
         end
       end
     end
-    amount = math.floor(amountRaw * (data.mult[dst] or 1) + math.random())
+    amount = Round(amountRaw * (data.mult[dst] or 1))
     if dst == data.caps[1].stat then
       delta1 = delta1 + amount
     elseif dst == data.caps[2].stat then
@@ -200,7 +200,7 @@ function ReforgeLite:MakeReforgeOption(item, data, src, dst)
     end
     if data.conv[dst] then
       for to, factor in pairs(data.conv[dst]) do
-        local conv = math.floor(amount * factor + math.random())
+        local conv = Round(amount * factor)
         if data.caps[1].stat == to then
           delta1 = delta1 + conv
         elseif data.caps[2].stat == to then
@@ -379,22 +379,21 @@ end
 function ReforgeLite:ComputeReforgeCore (data, reforgeOptions)
   local TABLE_SIZE = 10000
   local scores, codes = {}, {}
-  local linit = floor (data.caps[1].init + random ()) + floor (data.caps[2].init + random ()) * TABLE_SIZE
+  local linit = data.caps[1].init + data.caps[2].init * TABLE_SIZE
   scores[linit] = 0
   codes[linit] = ""
   for _, opt in ipairs(reforgeOptions) do
     local newscores, newcodes = {}, {}
     for k, score in pairs (scores) do
       self:RunYieldCheck()
-      local code = codes[k]
       local s1 = k % TABLE_SIZE
       local s2 = floor (k / TABLE_SIZE)
       for j, o in ipairs(opt) do
         local nscore = score + o.score
-        local nk = s1 + floor(o.d1 + random()) + (s2 + floor(o.d2 + random())) * TABLE_SIZE
+        local nk = s1 + o.d1 + (s2 + o.d2) * TABLE_SIZE
         if newscores[nk] == nil or nscore > newscores[nk] then
           newscores[nk] = nscore
-          newcodes[nk] = code .. string.char(j)
+          newcodes[nk] = codes[k] .. string.char(j)
         end
       end
     end
