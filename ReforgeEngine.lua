@@ -470,7 +470,7 @@ end
 
 function ReforgeLite:StartCompute()
   routine = coroutine.create(function() self:Compute() end)
-  self:ResumeCompute()
+  self:ResumeComputeNextFrame()
 end
 
 function ReforgeLite:EndCompute()
