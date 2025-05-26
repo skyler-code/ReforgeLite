@@ -11,14 +11,6 @@ local GetItemStats = addonTable.GetItemStatsUp
 
 ---------------------------------------------------------------------------------------
 
-function ReforgeLite:GetMethodScore (method)
-  local score = 0
-  for i = 1, #self.itemStats do
-    score = score + self:GetStatScore (i, method.stats[i])
-  end
-  return RoundToSignificantDigits(score, 2)
-end
-
 function ReforgeLite:GetStatMultipliers()
   local result = {}
   if playerRace == "HUMAN" then

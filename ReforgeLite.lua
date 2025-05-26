@@ -1295,14 +1295,6 @@ function ReforgeLite:FillSettings()
 --@end-debug@
 end
 
-function ReforgeLite:GetCurrentScore ()
-  local score = 0
-  for i = 1, #self.itemStats do
-    score = score + self:GetStatScore (i, self.itemStats[i].getter ())
-  end
-  return RoundToSignificantDigits(score, 2)
-end
-
 function ReforgeLite:UpdateMethodCategory()
   if self.methodCategory == nil then
     self.methodCategory = self:CreateCategory (L["Result"])
@@ -1312,34 +1304,24 @@ function ReforgeLite:UpdateMethodCategory()
     self.methodCategory:AddFrame (self.importWowSims)
     self:SetAnchor (self.importWowSims, "TOPLEFT", self.methodCategory, "BOTTOMLEFT", 0, -5)
 
-    self.methodStats = GUI:CreateTable (#self.itemStats, 2, ITEM_SIZE, 60, {0.5, 0.5, 0.5, 1})
+    self.methodStats = GUI:CreateTable (#self.itemStats - 1, 2, ITEM_SIZE, 60, {0.5, 0.5, 0.5, 1})
     self.methodCategory:AddFrame (self.methodStats)
     self:SetAnchor (self.methodStats, "TOPLEFT", self.importWowSims, "BOTTOMLEFT", 0, -5)
     self.methodStats:SetRowHeight (ITEM_SIZE + 2)
     self.methodStats:SetColumnWidth (60)
 
-    self.methodStats:SetCellText (0, 0, L["Score"], "LEFT", {1, 0.8, 0})
-    self.methodStats.score = self.methodStats:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
-    self.methodStats:SetCell (0, 1, self.methodStats.score)
-    self.methodStats.score:SetTextColor (1, 0.8, 0)
-    self.methodStats.score:SetText ("0")
-    self.methodStats.scoreDelta = self.methodStats:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
-    self.methodStats:SetCell (0, 2, self.methodStats.scoreDelta)
-    self.methodStats.scoreDelta:SetTextColor (0.7, 0.7, 0.7)
-    self.methodStats.scoreDelta:SetText ("+0")
-
     for i, v in ipairs (self.itemStats) do
-      self.methodStats:SetCellText (i, 0, v.tip, "LEFT")
+      self.methodStats:SetCellText (i - 1, 0, v.tip, "LEFT")
 
       self.methodStats[i] = {}
 
       self.methodStats[i].value = self.methodStats:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
-      self.methodStats:SetCell (i, 1, self.methodStats[i].value)
+      self.methodStats:SetCell (i - 1, 1, self.methodStats[i].value)
       self.methodStats[i].value:SetTextColor (1, 1, 1)
       self.methodStats[i].value:SetText ("0")
 
       self.methodStats[i].delta = self.methodStats:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
-      self.methodStats:SetCell (i, 2, self.methodStats[i].delta)
+      self.methodStats:SetCell (i - 1, 2, self.methodStats[i].delta)
       self.methodStats[i].delta:SetTextColor (0.7, 0.7, 0.7)
       self.methodStats[i].delta:SetText ("+0")
     end
@@ -1363,15 +1345,11 @@ function ReforgeLite:UpdateMethodCategory()
   self:UpdateContentSize ()
 end
 function ReforgeLite:RefreshMethodStats()
-  local score = 0
   if self.pdb.method then
     self:UpdateMethodStats (self.pdb.method)
-    score = self:GetMethodScore (self.pdb.method)
   end
   if self.pdb.method then
     if self.methodStats then
-      self.methodStats.score:SetText (score)
-      SetTextDelta (self.methodStats.scoreDelta, score, self:GetCurrentScore ())
       for i, v in ipairs (self.itemStats) do
         local mvalue = v.mgetter (self.pdb.method)
         if v.percent then
