@@ -8,7 +8,7 @@ addonTable.ReforgeLite = ReforgeLite
 local L = addonTable.L
 local GUI = addonTable.GUI
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
-addonTable.MAX_LOOPS = 125000
+addonTable.MAX_LOOPS = 200000
 
 local DeepCopy = addonTable.DeepCopy
 
@@ -1190,7 +1190,7 @@ function ReforgeLite:CreateOptionList ()
   self.statCaps.onUpdate ()
   RunNextFrame(function() self:CapUpdater() end)
 
-  self.computeButton = GUI:CreatePanelButton (self.content, L["Compute"], function(btn) self:StartCompute(btn) end)
+  self.computeButton = GUI:CreatePanelButton (self.content, L["Compute"], function() self:StartCompute() end)
   self.computeButton:SetScript ("PreClick", function (btn)
     GUI:Lock()
     GUI:ClearFocus()
