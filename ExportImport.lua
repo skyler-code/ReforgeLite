@@ -3,36 +3,38 @@ local ReforgeLite = addonTable.ReforgeLite
 
 local L = addonTable.L
 
-local function CreateDataFrame()
-    local AceGUI = LibStub("AceGUI-3.0")
+local displayFrame = nil
+local function GetDataFrame()
+    if not displayFrame then
+        local AceGUI = LibStub("AceGUI-3.0")
 
-    local frame = AceGUI:Create("Frame")
-    frame:SetLayout("Flow")
-    frame:SetCallback("OnClose", function(widget) AceGUI:Release(widget) end)
-    frame:SetWidth(525)
-    frame:SetHeight(275)
+        displayFrame = AceGUI:Create("Frame")
+        displayFrame:SetLayout("Flow")
+        displayFrame:SetCallback("OnClose", function(widget) AceGUI:Release(widget); displayFrame = nil end)
+        displayFrame:SetWidth(525)
+        displayFrame:SetHeight(275)
 
-    local editbox = AceGUI:Create("MultiLineEditBox")
-    editbox.editBox:SetFontObject(GameFontHighlightSmall)
-    editbox:SetFullWidth(true)
-    editbox:SetFullHeight(true)
-    frame:AddChild(editbox)
-
-    return frame,editbox
+        displayFrame.editbox = AceGUI:Create("MultiLineEditBox")
+        displayFrame.editbox.editBox:SetFontObject(GameFontHighlightSmall)
+        displayFrame.editbox:SetFullWidth(true)
+        displayFrame.editbox:SetFullHeight(true)
+        displayFrame:AddChild(displayFrame.editbox)
+    end
+    return displayFrame
 end
 
 function ReforgeLite:DisplayMessage(name, message)
-    local frame, editbox = CreateDataFrame()
+    local frame = GetDataFrame()
     frame:SetTitle(L["Export"])
     frame:SetStatusText(name or "")
-    editbox:DisableButton(true)
-    editbox:SetLabel()
-    editbox:SetText(message)
-    editbox.editBox:SetFocus()
-    editbox.editBox:HighlightText()
-    editbox:SetCallback("OnLeave", function(widget) widget.editBox:HighlightText() widget:SetFocus() end)
-    editbox:SetCallback("OnEnter", function(widget) widget.editBox:HighlightText() widget:SetFocus() end)
-    editbox:SetCallback("OnTextChanged", function(widget) widget.editBox:SetText(message) widget.editBox:HighlightText() end)
+    frame.editbox:DisableButton(true)
+    frame.editbox:SetLabel()
+    frame.editbox:SetText(message)
+    frame.editbox.editBox:SetFocus()
+    frame.editbox.editBox:HighlightText()
+    frame.editbox:SetCallback("OnLeave", function(widget) widget.editBox:HighlightText() widget:SetFocus() end)
+    frame.editbox:SetCallback("OnEnter", function(widget) widget.editBox:HighlightText() widget:SetFocus() end)
+    frame.editbox:SetCallback("OnTextChanged", function(widget) widget.editBox:SetText(message) widget.editBox:HighlightText() end)
 end
 
 function ReforgeLite:DebugMethod()
@@ -49,13 +51,13 @@ function ReforgeLite:ExportJSON(preset, name)
 end
 
 function ReforgeLite:ImportPawn()
-    local frame, editbox = CreateDataFrame()
+    local frame = GetDataFrame()
     frame:SetTitle(L["Import Pawn"])
-    editbox:DisableButton(false)
-    editbox:SetLabel(L["Enter pawn string"])
-    editbox.editBox:SetFocus()
-    editbox.button:SetScript("OnClick", function()
-        local values = self:ValidatePawnString(editbox.editBox:GetText())
+    frame.editbox:DisableButton(false)
+    frame.editbox:SetLabel(L["Enter pawn string"])
+    frame.editbox.editBox:SetFocus()
+    frame.editbox.button:SetScript("OnClick", function()
+        local values = self:ValidatePawnString(frame.editbox.editBox:GetText())
         if values then
             frame:Hide()
             self:ParsePawnString(values)
@@ -67,13 +69,13 @@ function ReforgeLite:ImportPawn()
 end
 
 function ReforgeLite:ImportWoWSims()
-    local frame, editbox = CreateDataFrame()
+    local frame = GetDataFrame()
     frame:SetTitle(L["Import WoWSims"])
-    editbox:DisableButton(false)
-    editbox:SetLabel(L["Enter WoWSims JSON"])
-    editbox.editBox:SetFocus()
-    editbox.button:SetScript("OnClick", function()
-        local values = self:ValidateWoWSimsString(editbox.editBox:GetText())
+    frame.editbox:DisableButton(false)
+    frame.editbox:SetLabel(L["Enter WoWSims JSON"])
+    frame.editbox.editBox:SetFocus()
+    frame.editbox.button:SetScript("OnClick", function()
+        local values = self:ValidateWoWSimsString(frame.editbox.editBox:GetText())
         if values then
             local valueType = type(values)
             if valueType == "table" then
