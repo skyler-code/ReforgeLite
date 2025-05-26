@@ -244,7 +244,7 @@ function ReforgeLite:GetItemReforgeOptions (item, data, slot)
   return opt
 end
 
-function ReforgeLite:InitReforgeClassic ()
+function ReforgeLite:InitReforgeClassic()
   local method = {}
   method.items = {}
   local orgitems = {}
@@ -348,7 +348,7 @@ end
 function ReforgeLite:ChooseReforgeClassic (data, reforgeOptions, scores, codes)
   local bestCode = {nil, nil, nil, nil}
   local bestScore = {0, 0, 0, 0}
-  for k, score in pairs (scores) do
+  for k, score in pairs(scores) do
     self:RunYieldCheck()
     local s1 = data.caps[1].init
     local s2 = data.caps[2].init
@@ -382,16 +382,14 @@ function ReforgeLite:ComputeReforgeCore (data, reforgeOptions)
   local linit = floor (data.caps[1].init + random ()) + floor (data.caps[2].init + random ()) * TABLE_SIZE
   scores[linit] = 0
   codes[linit] = ""
-  for i = 1, #self.itemData do
+  for _, opt in ipairs(reforgeOptions) do
     local newscores, newcodes = {}, {}
-    local opt = reforgeOptions[i]
     for k, score in pairs (scores) do
       self:RunYieldCheck()
       local code = codes[k]
       local s1 = k % TABLE_SIZE
       local s2 = floor (k / TABLE_SIZE)
-      for j = 1, #opt do
-        local o = opt[j]
+      for j, o in ipairs(opt) do
         local nscore = score + o.score
         local nk = s1 + floor(o.d1 + random()) + (s2 + floor(o.d2 + random())) * TABLE_SIZE
         if newscores[nk] == nil or nscore > newscores[nk] then
