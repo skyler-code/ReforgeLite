@@ -373,13 +373,10 @@ function ReforgeLite:ChooseReforgeClassic (data, reforgeOptions, scores, codes)
   return bestCode[1] or bestCode[2] or bestCode[3] or bestCode[4]
 end
 
-function ReforgeLite:ComputeReforgeCore (data, reforgeOptions)
+function ReforgeLite:ComputeReforgeCore(reforgeOptions)
   local char = string.char
   local TABLE_SIZE = 10000
-  local scores, codes = {}, {}
-  local linit = data.caps[1].init + data.caps[2].init * TABLE_SIZE
-  scores[linit] = 0
-  codes[linit] = ""
+  local scores, codes = {0}, {""}
   for _, opt in ipairs(reforgeOptions) do
     local newscores, newcodes = {}, {}
     for k, score in pairs(scores) do
@@ -412,7 +409,7 @@ function ReforgeLite:ComputeReforge()
   self.__chooseLoops = nil
   maxLoops = self.db.speed
 
-  local scores, codes = self:ComputeReforgeCore(data, reforgeOptions)
+  local scores, codes = self:ComputeReforgeCore(reforgeOptions)
 
   local code = self:ChooseReforgeClassic(data, reforgeOptions, scores, codes)
   scores, codes = nil, nil
