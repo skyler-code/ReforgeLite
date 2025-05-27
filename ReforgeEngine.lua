@@ -34,7 +34,7 @@ function ReforgeLite:GetConversion()
   local result = {}
   if playerClass == "PRIEST" then
     result[self.STATS.EXP] = {[self.STATS.HIT] = 1}
-    if spec == 3 and UnitLevel("player") >= 20 then
+    if IsPlayerSpell(47573) then
       result[self.STATS.SPIRIT] = {[self.STATS.HIT] = 1}
     end
   elseif playerClass == "MAGE" then
@@ -42,19 +42,17 @@ function ReforgeLite:GetConversion()
   elseif playerClass == "WARLOCK" then
     result[self.STATS.EXP] = {[self.STATS.HIT] = 1}
   elseif playerClass == "DRUID" then
-    if spec == 1 then
-      if UnitLevel("player") >= 64 then
+      if IsPlayerSpell(33596) then
         result[self.STATS.SPIRIT] = {[self.STATS.HIT] = 1}
       end
-      result[self.STATS.EXP] = {[self.STATS.HIT] = 1}
-    elseif spec == 4 then
+    if spec == 1 or spec == 4 then
       result[self.STATS.EXP] = {[self.STATS.HIT] = 1}
     end
   elseif playerClass == "SHAMAN" then
-    if spec == 1 then
-      result[self.STATS.SPIRIT] = {[self.STATS.HIT] = 1}
-      result[self.STATS.EXP] = {[self.STATS.HIT] = 1}
-    elseif spec == 3 then
+      if IsPlayerSpell(30674) then
+        result[self.STATS.SPIRIT] = {[self.STATS.HIT] = 1}
+      end
+    if spec == 1 or spec == 3 then
       result[self.STATS.EXP] = {[self.STATS.HIT] = 1}
     end
   elseif playerClass == "MONK" then
