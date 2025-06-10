@@ -374,19 +374,18 @@ function ReforgeLite:ChooseReforgeClassic (data, reforgeOptions, scores, codes)
 end
 
 function ReforgeLite:ComputeReforgeCore(reforgeOptions)
-  local char = string.char
+  local char, floor = string.char, floor
   local TABLE_SIZE = 10000
   local scores, codes = {0}, {""}
   for _, opt in ipairs(reforgeOptions) do
     local newscores, newcodes = {}, {}
     for k, score in pairs(scores) do
       self:RunYieldCheck()
-      local s1 = k % TABLE_SIZE
-      local s2 = floor(k / TABLE_SIZE)
-      for j, o in ipairs(opt) do
-        local nscore = score + o.score
-        local nk = s1 + o.d1 + (s2 + o.d2) * TABLE_SIZE
-        if newscores[nk] == nil or nscore > newscores[nk] then
+      local s1, s2 = k % TABLE_SIZE, floor(k / TABLE_SIZE)
+      for j = 1, #opt do
+        local nscore = score + opt[j].score
+        local nk = s1 + opt[j].d1 + (s2 + opt[j].d2) * TABLE_SIZE
+        if not newscores[nk] or nscore > newscores[nk] then
           newscores[nk] = nscore
           newcodes[nk] = codes[k] .. char(j)
         end
