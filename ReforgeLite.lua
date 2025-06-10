@@ -1831,12 +1831,13 @@ end
 
 --------------------------------------------------------------------------
 
-local reforgeCo = nil
 local function ClearReforgeWindow()
   ClearCursor()
   C_Reforge.SetReforgeFromCursorItem ()
   ClearCursor()
 end
+
+local reforgeCo
 
 function ReforgeLite:DoReforge()
   if self.pdb.method and self.methodWindow and ReforgeFrameIsVisible() then
