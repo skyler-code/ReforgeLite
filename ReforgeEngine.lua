@@ -397,8 +397,6 @@ function ReforgeLite:ComputeReforgeCore(reforgeOptions)
   return scores, codes
 end
 
-local maxLoops
-
 function ReforgeLite:ComputeReforge()
   local data = self:InitReforgeClassic()
   local reforgeOptions = {}
@@ -407,7 +405,6 @@ function ReforgeLite:ComputeReforge()
   end
 
   self.__chooseLoops = nil
-  maxLoops = self.db.speed
 
   local scores, codes = self:ComputeReforgeCore(reforgeOptions)
 
@@ -453,7 +450,7 @@ function ReforgeLite:ResumeComputeNextFrame()
 end
 
 function ReforgeLite:RunYieldCheck()
-  if (self.__chooseLoops or 0) >= maxLoops then
+  if (self.__chooseLoops or 0) >= self.db.speed then
     self.__chooseLoops = nil
     self:ResumeComputeNextFrame()
     coroutine.yield()
