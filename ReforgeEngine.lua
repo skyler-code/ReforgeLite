@@ -342,6 +342,30 @@ function ReforgeLite:InitReforgeClassic()
   return data
 end
 
+function ReforgeLite:ComputeReforgeCore(reforgeOptions)
+  local char, floor = string.char, floor
+  local TABLE_SIZE = 10000
+  local scores, codes = {0}, {""}
+  local numReforgeOptions = #reforgeOptions
+  for i, opt in ipairs(reforgeOptions) do
+    local newscores, newcodes = {}, {}
+    for k, score in pairs(scores) do
+      self:RunYieldCheck()
+      local s1, s2 = k % TABLE_SIZE, floor(k / TABLE_SIZE)
+      for j = 1, #opt do
+        local nscore = score + opt[j].score
+        local nk = s1 + opt[j].d1 + (s2 + opt[j].d2) * TABLE_SIZE
+        if not newscores[nk] or nscore > newscores[nk] then
+          newscores[nk] = nscore
+          newcodes[nk] = codes[k] .. char(j)
+        end
+      end
+    end
+    scores, codes = newscores, newcodes
+  end
+  return scores, codes
+end
+
 function ReforgeLite:ChooseReforgeClassic (data, reforgeOptions, scores, codes)
   local bestCode = {nil, nil, nil, nil}
   local bestScore = {0, 0, 0, 0}
@@ -365,35 +389,12 @@ function ReforgeLite:ChooseReforgeClassic (data, reforgeOptions, scores, codes)
       score = score + self:GetCapScore (data.caps[2], s2)
     end
     local allow = a1 and (a2 and 1 or 2) or (a2 and 3 or 4)
-    if bestCode[allow] == nil or score > bestScore[allow] then
+    if not bestCode[allow] or score > bestScore[allow] then
       bestCode[allow] = code
       bestScore[allow] = score
     end
   end
   return bestCode[1] or bestCode[2] or bestCode[3] or bestCode[4]
-end
-
-function ReforgeLite:ComputeReforgeCore(reforgeOptions)
-  local char, floor = string.char, floor
-  local TABLE_SIZE = 10000
-  local scores, codes = {0}, {""}
-  for _, opt in ipairs(reforgeOptions) do
-    local newscores, newcodes = {}, {}
-    for k, score in pairs(scores) do
-      self:RunYieldCheck()
-      local s1, s2 = k % TABLE_SIZE, floor(k / TABLE_SIZE)
-      for j = 1, #opt do
-        local nscore = score + opt[j].score
-        local nk = s1 + opt[j].d1 + (s2 + opt[j].d2) * TABLE_SIZE
-        if not newscores[nk] or nscore > newscores[nk] then
-          newscores[nk] = nscore
-          newcodes[nk] = codes[k] .. char(j)
-        end
-      end
-    end
-    scores, codes = newscores, newcodes
-  end
-  return scores, codes
 end
 
 function ReforgeLite:ComputeReforge()
