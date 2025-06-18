@@ -346,7 +346,6 @@ function ReforgeLite:ComputeReforgeCore(reforgeOptions)
   local char, floor = string.char, floor
   local TABLE_SIZE = 10000
   local scores, codes = {0}, {""}
-  local numReforgeOptions = #reforgeOptions
   for i, opt in ipairs(reforgeOptions) do
     local newscores, newcodes = {}, {}
     for k, score in pairs(scores) do
