@@ -1541,7 +1541,7 @@ function ReforgeLite:CreateMethodWindow()
   self.methodWindow = CreateFrame ("Frame", "ReforgeLiteMethodWindow", UIParent, "BackdropTemplate")
   self.methodWindow:SetFrameStrata ("DIALOG")
   self.methodWindow:ClearAllPoints ()
-  self.methodWindow:SetSize(250, 506)
+  self.methodWindow:SetSize(250, 480)
   if self.db.methodWindowX and self.db.methodWindowY then
     self.methodWindow:SetPoint ("TOPLEFT", UIParent, "BOTTOMLEFT", self.db.methodWindowX, self.db.methodWindowY)
   else
