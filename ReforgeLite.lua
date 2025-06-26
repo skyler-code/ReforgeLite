@@ -708,11 +708,7 @@ function ReforgeLite:CreateItemTable ()
       if frame.item then
         GameTooltip:SetInventoryItem("player", frame.slotId)
       else
-        local text = _G[strupper(frame.slot)]
-        if frame.checkRelic then
-          text = RELICSLOT
-        end
-        GameTooltip:SetText(text)
+        GameTooltip:SetText(_G[strupper(frame.slot)])
       end
       GameTooltip:Show ()
     end)
@@ -726,11 +722,7 @@ function ReforgeLite:CreateItemTable ()
         frame.locked:Hide ()
       end
     end)
-    self.itemData[i].slotId, self.itemData[i].slotTexture, self.itemData[i].checkRelic = GetInventorySlotInfo (v)
-    self.itemData[i].checkRelic = self.itemData[i].checkRelic and UnitHasRelicSlot ("player")
-    if self.itemData[i].checkRelic then
-      self.itemData[i].slotTexture = "Interface\\Paperdoll\\UI-PaperDoll-Slot-Relic.blp"
-    end
+    self.itemData[i].slotId, self.itemData[i].slotTexture = GetInventorySlotInfo (v)
     self.itemData[i].texture = self.itemData[i]:CreateTexture (nil, "ARTWORK")
     self.itemData[i].texture:SetAllPoints (self.itemData[i])
     self.itemData[i].texture:SetTexture (self.itemData[i].slotTexture)
@@ -1641,11 +1633,7 @@ function ReforgeLite:CreateMethodWindow()
       if itemSlot.item then
         GameTooltip:SetInventoryItem("player", itemSlot.slotId)
       else
-        local text = _G[itemSlot.slot:upper()]
-        if itemSlot.checkRelic then
-          text = RELICSLOT
-        end
-        GameTooltip:SetText(text)
+        GameTooltip:SetText(_G[itemSlot.slot:upper()])
       end
       GameTooltip:Show()
     end)
@@ -1655,11 +1643,7 @@ function ReforgeLite:CreateMethodWindow()
         PickupInventoryItem(itemSlot.slotId)
       end
     end)
-    self.methodWindow.items[i].slotId, self.methodWindow.items[i].slotTexture, self.methodWindow.items[i].checkRelic = GetInventorySlotInfo(v)
-    self.methodWindow.items[i].checkRelic = self.methodWindow.items[i].checkRelic and UnitHasRelicSlot ("player")
-    if self.methodWindow.items[i].checkRelic then
-      self.methodWindow.items[i].slotTexture = "Interface\\Paperdoll\\UI-PaperDoll-Slot-Relic.blp"
-    end
+    self.methodWindow.items[i].slotId, self.methodWindow.items[i].slotTexture = GetInventorySlotInfo(v)
     self.methodWindow.items[i].texture = self.methodWindow.items[i]:CreateTexture (nil, "OVERLAY")
     self.methodWindow.items[i].texture:SetAllPoints (self.methodWindow.items[i])
     self.methodWindow.items[i].texture:SetTexture (self.methodWindow.items[i].slotTexture)
