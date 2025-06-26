@@ -80,7 +80,6 @@ end
 addonTable.localeClass, addonTable.playerClass, addonTable.playerClassID = UnitClass ("player")
 addonTable.playerRace = select(2,UnitRace ("player"))
 local playerClass, playerRace, localeClass = addonTable.playerClass, addonTable.playerRace, addonTable.localeClass
-local missChance = (playerRace == "NightElf" and 7 or 5)
 local UNFORGE_INDEX = -1
 addonTable.StatCapMethods = {
   AtLeast = 1,
