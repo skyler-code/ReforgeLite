@@ -218,7 +218,6 @@ end
 ReforgeLite.reforgeTable = reforgeTable
 
 addonTable.REFORGE_COEFF = 0.4
-ReforgeLite.spiritBonus = playerRace == "Human" and 1.03 or 1
 
 function ReforgeLite:UpdateWindowSize ()
   self.db.windowWidth = self:GetWidth ()
