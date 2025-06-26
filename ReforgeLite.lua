@@ -251,7 +251,7 @@ end
 function ReforgeLite:ValidateWoWSimsString(importStr)
   local success, wowsims = pcall(function () return C_EncodingUtil.DeserializeJSON(importStr) end)
   if success and (wowsims or {}).player then
-    local newItems = DeepCopy((self.pdb.method or {}).items or self:CreateMethodItems())
+    local newItems = DeepCopy((self.pdb.method or self:InitializeMethod()).items)
     for slot,item in ipairs(newItems) do
       local simItemInfo = wowsims.player.equipment.items[slot] or {}
       local equippedItemInfo = self.itemData[slot]
