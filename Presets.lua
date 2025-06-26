@@ -4,6 +4,11 @@ local ReforgeLite = addonTable.ReforgeLite
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 local tsort, tinsert = table.sort, tinsert
 
+local StatHit = addonTable.statIds.HIT
+local StatCrit = addonTable.statIds.CRIT
+local StatHaste = addonTable.statIds.HASTE
+local StatExp = addonTable.statIds.EXP
+
 local SPELL_HASTE_BUFFS = {
   [24907] = true, -- Moonkin Aura
   [49868] = true, -- Mind Quickening
@@ -40,8 +45,8 @@ end
 
 function ReforgeLite:RatingPerPoint (stat, level)
   level = level or UnitLevel("player")
-  if stat == self.STATS.SPELLHIT then
-    stat = self.STATS.HIT
+  if stat == addonTable.statIds.SPELLHIT then
+    stat = StatHit
   end
   return addonTable.ScalingTable[stat][level] or 0
 end
@@ -126,11 +131,6 @@ end
 local AtLeast = addonTable.StatCapMethods.AtLeast
 local AtMost = addonTable.StatCapMethods.AtMost
 
-local StatHit = ReforgeLite.STATS.HIT
-local StatCrit = ReforgeLite.STATS.CRIT
-local StatHaste = ReforgeLite.STATS.HASTE
-local StatExp = ReforgeLite.STATS.EXP
-
 local CAPS = {
   ManualCap = 1,
   MeleeHitCap = 2,
@@ -155,7 +155,7 @@ ReforgeLite.capPresets = {
     value = CAPS.MeleeHitCap,
     name = L["Melee hit cap"],
     getter = function ()
-      return ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HIT) * (ReforgeLite:GetNeededMeleeHit () - ReforgeLite:GetMeleeHitBonus ())
+      return ReforgeLite:RatingPerPoint (StatHit) * (ReforgeLite:GetNeededMeleeHit () - ReforgeLite:GetMeleeHitBonus ())
     end,
     category = StatHit
   },
@@ -164,9 +164,9 @@ ReforgeLite.capPresets = {
     name = L["Spell hit cap"],
     getter = function ()
       local conv = ReforgeLite:GetConversion()
-      local result = ReforgeLite:RatingPerPoint (ReforgeLite.STATS.SPELLHIT) * (ReforgeLite:GetNeededSpellHit () - ReforgeLite:GetSpellHitBonus ())
-      if conv[ReforgeLite.STATS.EXP] and conv[ReforgeLite.STATS.EXP][ReforgeLite.STATS.HIT] then
-        result = result + math.floor(GetCombatRating(CR_EXPERTISE) * conv[ReforgeLite.STATS.EXP][ReforgeLite.STATS.HIT])
+      local result = ReforgeLite:RatingPerPoint (addonTable.statIds.SPELLHIT) * (ReforgeLite:GetNeededSpellHit () - ReforgeLite:GetSpellHitBonus ())
+      if conv[StatExp] and conv[StatExp][StatHit] then
+        result = result + math.floor(GetCombatRating(CR_EXPERTISE) * conv[StatExp][StatHit])
       end
       return result
     end,
@@ -176,7 +176,7 @@ ReforgeLite.capPresets = {
     value = CAPS.MeleeDWHitCap,
     name = L["Melee DW hit cap"],
     getter = function ()
-      return ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HIT) * (ReforgeLite:GetNeededMeleeHit () + 19 - ReforgeLite:GetMeleeHitBonus ())
+      return ReforgeLite:RatingPerPoint (StatHit) * (ReforgeLite:GetNeededMeleeHit () + 19 - ReforgeLite:GetMeleeHitBonus ())
     end,
     category = StatHit
   },
@@ -184,7 +184,7 @@ ReforgeLite.capPresets = {
     value = CAPS.ExpSoftCap,
     name = L["Expertise soft cap"],
     getter = function ()
-      return ReforgeLite:RatingPerPoint (ReforgeLite.STATS.EXP) * (ReforgeLite:GetNeededExpertiseSoft () - ReforgeLite:GetExpertiseBonus ())
+      return ReforgeLite:RatingPerPoint (StatExp) * (ReforgeLite:GetNeededExpertiseSoft () - ReforgeLite:GetExpertiseBonus ())
     end,
     category = StatExp
   },
@@ -192,7 +192,7 @@ ReforgeLite.capPresets = {
     value = CAPS.ExpHardCap,
     name = L["Expertise hard cap"],
     getter = function ()
-      return ReforgeLite:RatingPerPoint (ReforgeLite.STATS.EXP) * (ReforgeLite:GetNeededExpertiseHard () - ReforgeLite:GetExpertiseBonus ())
+      return ReforgeLite:RatingPerPoint (StatExp) * (ReforgeLite:GetNeededExpertiseHard () - ReforgeLite:GetExpertiseBonus ())
     end,
     category = StatExp
   },
@@ -215,14 +215,14 @@ ReforgeLite.capPresets = {
 -- local function GetSpellHasteRequired(percentNeeded)
 --   return function()
 --     local hasteMod = ReforgeLite:GetSpellHasteBonus()
---     return ceil((percentNeeded - (hasteMod - 1) * 100) * ReforgeLite:RatingPerPoint(ReforgeLite.STATS.HASTE) / hasteMod)
+--     return ceil((percentNeeded - (hasteMod - 1) * 100) * ReforgeLite:RatingPerPoint(addonTable.statIds.HASTE) / hasteMod)
 --   end
 -- end
 
 -- local function GetRangedHasteRequired(percentNeeded)
 --   return function()
 --     local hasteMod = ReforgeLite:GetRangedHasteBonus()
---     return ceil((percentNeeded - (hasteMod - 1) * 100) * ReforgeLite:RatingPerPoint(ReforgeLite.STATS.HASTE) / hasteMod)
+--     return ceil((percentNeeded - (hasteMod - 1) * 100) * ReforgeLite:RatingPerPoint(addonTable.statIds.HASTE) / hasteMod)
 --   end
 -- end
 
@@ -305,7 +305,7 @@ ReforgeLite.capPresets = {
 --         elseif firelordCount >= 4 then
 --           percentNeeded = 3.459
 --         end
---         return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
+--         return ceil(ReforgeLite:RatingPerPoint (addonTable.statIds.HASTE) * percentNeeded)
 --       end,
 --     })
 --   elseif addonTable.playerClass == "HUNTER" then
@@ -1038,14 +1038,14 @@ function ReforgeLite:InitPresets()
           local preset = {name = v.LocalizedName or k}
           preset.weights = {}
           local raw = v.Values or {}
-          preset.weights[self.STATS.SPIRIT] = raw["Spirit"] or 0
-          preset.weights[self.STATS.DODGE] = raw["DodgeRating"] or 0
-          preset.weights[self.STATS.PARRY] = raw["ParryRating"] or 0
-          preset.weights[self.STATS.HIT] = raw["HitRating"] or 0
-          preset.weights[self.STATS.CRIT] = raw["CritRating"] or 0
-          preset.weights[self.STATS.HASTE] = raw["HasteRating"] or 0
-          preset.weights[self.STATS.EXP] = raw["ExpertiseRating"] or 0
-          preset.weights[self.STATS.MASTERY] = raw["MasteryRating"] or 0
+          preset.weights[addonTable.statIds.SPIRIT] = raw["Spirit"] or 0
+          preset.weights[addonTable.statIds.DODGE] = raw["DodgeRating"] or 0
+          preset.weights[addonTable.statIds.PARRY] = raw["ParryRating"] or 0
+          preset.weights[StatHit] = raw["HitRating"] or 0
+          preset.weights[StatCrit] = raw["CritRating"] or 0
+          preset.weights[StatHaste] = raw["HasteRating"] or 0
+          preset.weights[StatExp] = raw["ExpertiseRating"] or 0
+          preset.weights[addonTable.statIds.MASTERY] = raw["MasteryRating"] or 0
           local total = 0
           local average = 0
           for i = 1, #self.itemStats do

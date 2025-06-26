@@ -13,16 +13,16 @@ local GetItemStats = addonTable.GetItemStatsUp
 function ReforgeLite:GetStatMultipliers()
   local result = {}
   if playerRace == "HUMAN" then
-    result[self.STATS.SPIRIT] = (result[self.STATS.SPIRIT] or 1) * 1.03
+    result[addonTable.statIds.SPIRIT] = (result[addonTable.statIds.SPIRIT] or 1) * 1.03
   end
   for _, v in ipairs (self.itemData) do
     if v.itemId then
       local id, iLvl = addonTable.GetItemInfoUp(v.itemId)
       if id and addonTable.AmplificationItems[id] then
         local factor = 1 + 0.01 * Round(addonTable.GetRandPropPoints(iLvl, 2) / 420)
-        result[self.STATS.HASTE] = (result[self.STATS.HASTE] or 1) * factor
-        result[self.STATS.MASTERY] = (result[self.STATS.MASTERY] or 1) * factor
-        result[self.STATS.SPIRIT] = (result[self.STATS.SPIRIT] or 1) * factor
+        result[addonTable.statIds.HASTE] = (result[addonTable.statIds.HASTE] or 1) * factor
+        result[addonTable.statIds.MASTERY] = (result[addonTable.statIds.MASTERY] or 1) * factor
+        result[addonTable.statIds.SPIRIT] = (result[addonTable.statIds.SPIRIT] or 1) * factor
       end
     end
   end
@@ -33,35 +33,35 @@ function ReforgeLite:GetConversion()
   local spec = C_SpecializationInfo.GetSpecialization()
   local result = {}
   if playerClass == "PRIEST" then
-    result[self.STATS.EXP] = {[self.STATS.HIT] = 1}
+    result[addonTable.statIds.EXP] = {[addonTable.statIds.HIT] = 1}
     if IsPlayerSpell(47573) then
-      result[self.STATS.SPIRIT] = {[self.STATS.HIT] = 1}
+      result[addonTable.statIds.SPIRIT] = {[addonTable.statIds.HIT] = 1}
     end
   elseif playerClass == "MAGE" then
-    result[self.STATS.EXP] = {[self.STATS.HIT] = 1}
+    result[addonTable.statIds.EXP] = {[addonTable.statIds.HIT] = 1}
   elseif playerClass == "WARLOCK" then
-    result[self.STATS.EXP] = {[self.STATS.HIT] = 1}
+    result[addonTable.statIds.EXP] = {[addonTable.statIds.HIT] = 1}
   elseif playerClass == "DRUID" then
       if IsPlayerSpell(33596) then
-        result[self.STATS.SPIRIT] = {[self.STATS.HIT] = 1}
+        result[addonTable.statIds.SPIRIT] = {[addonTable.statIds.HIT] = 1}
       end
     if spec == 1 or spec == 4 then
-      result[self.STATS.EXP] = {[self.STATS.HIT] = 1}
+      result[addonTable.statIds.EXP] = {[addonTable.statIds.HIT] = 1}
     end
   elseif playerClass == "SHAMAN" then
       if IsPlayerSpell(30674) then
-        result[self.STATS.SPIRIT] = {[self.STATS.HIT] = 1}
+        result[addonTable.statIds.SPIRIT] = {[addonTable.statIds.HIT] = 1}
       end
     if spec == 1 or spec == 3 then
-      result[self.STATS.EXP] = {[self.STATS.HIT] = 1}
+      result[addonTable.statIds.EXP] = {[addonTable.statIds.HIT] = 1}
     end
   elseif playerClass == "MONK" then
     if spec == 2 then
-      result[self.STATS.SPIRIT] = {[self.STATS.HIT] = 0.5, [self.STATS.EXP] = 0.5}
+      result[addonTable.statIds.SPIRIT] = {[addonTable.statIds.HIT] = 0.5, [addonTable.statIds.EXP] = 0.5}
     end
   elseif playerClass == "PALADIN" then
     if spec == 1 then
-      result[self.STATS.EXP] = {[self.STATS.HIT] = 1}
+      result[addonTable.statIds.EXP] = {[addonTable.statIds.HIT] = 1}
     end
   end
   return result
@@ -333,7 +333,7 @@ function ReforgeLite:InitReforgeClassic()
   for src, conv in pairs(data.conv) do
     if data.weights[src] == 0 then
       if (data.caps[1].stat and conv[data.caps[1].stat]) or (data.caps[2].stat and conv[data.caps[2].stat]) then
-        if src == self.STATS.EXP then
+        if src == addonTable.statIds.EXP then
           data.weights[src] = -1
         else
           data.weights[src] = 1
@@ -415,9 +415,9 @@ function ReforgeLite:ComputeReforge()
   collectgarbage ("collect")
   for i = 1, #data.method.items do
     local opt = reforgeOptions[i][code:byte(i)]
-    if data.conv[self.STATS.SPIRIT] and data.conv[self.STATS.SPIRIT][self.STATS.HIT] == 1 then
-      if opt.dst == self.STATS.HIT and data.method.items[i].stats[self.STATS.SPIRIT] == 0 then
-        opt.dst = self.STATS.SPIRIT
+    if data.conv[addonTable.statIds.SPIRIT] and data.conv[addonTable.statIds.SPIRIT][addonTable.statIds.HIT] == 1 then
+      if opt.dst == addonTable.statIds.HIT and data.method.items[i].stats[addonTable.statIds.SPIRIT] == 0 then
+        opt.dst = addonTable.statIds.SPIRIT
       end
     end
     data.method.items[i].src = opt.src

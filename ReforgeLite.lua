@@ -144,9 +144,11 @@ ReforgeLite.itemSlots = {
 }
 local ignoredSlots = { [INVSLOT_TABARD] = true, [INVSLOT_BODY] = true }
 
-ReforgeLite.STATS = {
+local statIds = {
   SPIRIT = 1, DODGE = 2, PARRY = 3, HIT = 4, CRIT = 5, HASTE = 6, EXP = 7, MASTERY = 8, SPELLHIT = 9
 }
+addonTable.statIds = statIds
+ReforgeLite.STATS = statIds
 
 local FIRE_SPIRIT = 4
 local function HasFireBuff()
@@ -191,30 +193,28 @@ function ReforgeLite:CreateItemStats()
         return (orig and method.orig_stats and method.orig_stats[1]) or method.stats[1]
       end
     },
-    RatingStat (self.STATS.DODGE,   "ITEM_MOD_DODGE_RATING",         STAT_DODGE,     STAT_DODGE,           CR_DODGE),
-    RatingStat (self.STATS.PARRY,   "ITEM_MOD_PARRY_RATING",         STAT_PARRY,     STAT_PARRY,           CR_PARRY),
-    RatingStat (self.STATS.HIT,     "ITEM_MOD_HIT_RATING",           HIT,            HIT,                  CR_HIT),
-    RatingStat (self.STATS.CRIT,    "ITEM_MOD_CRIT_RATING",          CRIT_ABBR,      STAT_CRITICAL_STRIKE, CR_CRIT),
-    RatingStat (self.STATS.HASTE,   "ITEM_MOD_HASTE_RATING",         STAT_HASTE,     STAT_HASTE,           CR_HASTE),
-    RatingStat (self.STATS.EXP,     "ITEM_MOD_EXPERTISE_RATING",     EXPERTISE_ABBR, STAT_EXPERTISE,       CR_EXPERTISE),
-    RatingStat (self.STATS.MASTERY, "ITEM_MOD_MASTERY_RATING_SHORT", STAT_MASTERY,   STAT_MASTERY,         CR_MASTERY)
+    RatingStat (statIds.DODGE,   "ITEM_MOD_DODGE_RATING",         STAT_DODGE,     STAT_DODGE,           CR_DODGE),
+    RatingStat (statIds.PARRY,   "ITEM_MOD_PARRY_RATING",         STAT_PARRY,     STAT_PARRY,           CR_PARRY),
+    RatingStat (statIds.HIT,     "ITEM_MOD_HIT_RATING",           HIT,            HIT,                  CR_HIT),
+    RatingStat (statIds.CRIT,    "ITEM_MOD_CRIT_RATING",          CRIT_ABBR,      STAT_CRITICAL_STRIKE, CR_CRIT),
+    RatingStat (statIds.HASTE,   "ITEM_MOD_HASTE_RATING",         STAT_HASTE,     STAT_HASTE,           CR_HASTE),
+    RatingStat (statIds.EXP,     "ITEM_MOD_EXPERTISE_RATING",     EXPERTISE_ABBR, STAT_EXPERTISE,       CR_EXPERTISE),
+    RatingStat (statIds.MASTERY, "ITEM_MOD_MASTERY_RATING_SHORT", STAT_MASTERY,   STAT_MASTERY,         CR_MASTERY)
   }
 end
 ReforgeLite:CreateItemStats()
 
 ReforgeLite.REFORGE_TABLE_BASE = 112
-local reforgeTable = {}
-do
-  local tinsert = tinsert
-  for firstStat in ipairs(ReforgeLite.itemStats) do
-    for secondStat in ipairs(ReforgeLite.itemStats) do
-      if firstStat ~= secondStat then
-        tinsert(reforgeTable, {firstStat,secondStat})
-      end
-    end
-  end
-end
-
+local reforgeTable = {
+  {statIds.SPIRIT, statIds.DODGE}, {statIds.SPIRIT, statIds.PARRY}, {statIds.SPIRIT, statIds.HIT}, {statIds.SPIRIT, statIds.CRIT}, {statIds.SPIRIT, statIds.HASTE}, {statIds.SPIRIT, statIds.EXP}, {statIds.SPIRIT, statIds.MASTERY},
+  {statIds.DODGE, statIds.SPIRIT}, {statIds.DODGE, statIds.PARRY}, {statIds.DODGE, statIds.HIT}, {statIds.DODGE, statIds.CRIT}, {statIds.DODGE, statIds.HASTE}, {statIds.DODGE, statIds.EXP}, {statIds.DODGE, statIds.MASTERY},
+  {statIds.PARRY, statIds.SPIRIT}, {statIds.PARRY, statIds.DODGE}, {statIds.PARRY, statIds.HIT}, {statIds.PARRY, statIds.CRIT}, {statIds.PARRY, statIds.HASTE}, {statIds.PARRY, statIds.EXP}, {statIds.PARRY, statIds.MASTERY},
+  {statIds.HIT, statIds.SPIRIT}, {statIds.HIT, statIds.DODGE}, {statIds.HIT, statIds.PARRY}, {statIds.HIT, statIds.CRIT}, {statIds.HIT, statIds.HASTE}, {statIds.HIT, statIds.EXP}, {statIds.HIT, statIds.MASTERY},
+  {statIds.CRIT, statIds.SPIRIT}, {statIds.CRIT, statIds.DODGE}, {statIds.CRIT, statIds.PARRY}, {statIds.CRIT, statIds.HIT}, {statIds.CRIT, statIds.HASTE}, {statIds.CRIT, statIds.EXP}, {statIds.CRIT, statIds.MASTERY},
+  {statIds.HASTE, statIds.SPIRIT}, {statIds.HASTE, statIds.DODGE}, {statIds.HASTE, statIds.PARRY}, {statIds.HASTE, statIds.HIT}, {statIds.HASTE, statIds.CRIT}, {statIds.HASTE, statIds.EXP}, {statIds.HASTE, statIds.MASTERY},
+  {statIds.EXP, statIds.SPIRIT}, {statIds.EXP, statIds.DODGE}, {statIds.EXP, statIds.PARRY}, {statIds.EXP, statIds.HIT}, {statIds.EXP, statIds.CRIT}, {statIds.EXP, statIds.HASTE}, {statIds.EXP, statIds.MASTERY},
+  {statIds.MASTERY, statIds.SPIRIT}, {statIds.MASTERY, statIds.DODGE}, {statIds.MASTERY, statIds.PARRY}, {statIds.MASTERY, statIds.HIT}, {statIds.MASTERY, statIds.CRIT}, {statIds.MASTERY, statIds.HASTE}, {statIds.MASTERY, statIds.EXP},
+}
 ReforgeLite.reforgeTable = reforgeTable
 
 addonTable.REFORGE_COEFF = 0.4
@@ -318,14 +318,14 @@ function ReforgeLite:ParsePawnString(values)
   end
 
   local weights = {}
-  weights[self.STATS.SPIRIT] = raw["Spirit"] or 0
-  weights[self.STATS.DODGE] = raw["DodgeRating"] or 0
-  weights[self.STATS.PARRY] = raw["ParryRating"] or 0
-  weights[self.STATS.HIT] = raw["HitRating"] or 0
-  weights[self.STATS.CRIT] = raw["CritRating"] or 0
-  weights[self.STATS.HASTE] = raw["HasteRating"] or 0
-  weights[self.STATS.EXP] = raw["ExpertiseRating"] or 0
-  weights[self.STATS.MASTERY] = raw["MasteryRating"] or 0
+  weights[statIds.SPIRIT] = raw["Spirit"] or 0
+  weights[statIds.DODGE] = raw["DodgeRating"] or 0
+  weights[statIds.PARRY] = raw["ParryRating"] or 0
+  weights[statIds.HIT] = raw["HitRating"] or 0
+  weights[statIds.CRIT] = raw["CritRating"] or 0
+  weights[statIds.HASTE] = raw["HasteRating"] or 0
+  weights[statIds.EXP] = raw["ExpertiseRating"] or 0
+  weights[statIds.MASTERY] = raw["MasteryRating"] or 0
 
   self:SetStatWeights (weights)
 end
@@ -802,17 +802,17 @@ function ReforgeLite:AddCapPoint (i, loading)
   GUI:SetTooltip (rem, L["Remove cap"])
   GUI:SetTooltip (value, function()
     local cap = self.pdb.caps[i]
-    if cap.stat == self.STATS.SPIRIT then return end
+    if cap.stat == statIds.SPIRIT then return end
     local pointValue = (cap.points[point].value or 0)
     local rating = pointValue / self:RatingPerPoint(cap.stat)
-    if cap.stat == self.STATS.HIT then
+    if cap.stat == statIds.HIT then
       local meleeHitBonus = self:GetMeleeHitBonus()
       if meleeHitBonus > 0 then
         rating = ("%.2f%% + %s%% = %.2f"):format(rating, meleeHitBonus, rating + meleeHitBonus)
       else
         rating = ("%.2f"):format(rating)
       end
-      local spellHitRating = pointValue / self:RatingPerPoint(self.STATS.SPELLHIT)
+      local spellHitRating = pointValue / self:RatingPerPoint(statIds.SPELLHIT)
       local spellHitBonus = self:GetSpellHitBonus()
       if spellHitBonus > 0 then
         spellHitRating = ("%.2f%% + %s%% = %.2f"):format(spellHitRating,spellHitBonus,spellHitRating+spellHitBonus)
@@ -820,14 +820,14 @@ function ReforgeLite:AddCapPoint (i, loading)
         spellHitRating = ("%.2f"):format(spellHitRating)
       end
       rating = ("%s: %s%%\n%s: %s%%"):format(MELEE, rating, STAT_CATEGORY_SPELL, spellHitRating)
-    elseif cap.stat == self.STATS.EXP then
+    elseif cap.stat == statIds.EXP then
       local expBonus = self:GetExpertiseBonus()
       if expBonus > 0 then
         rating = ("%.2f + %s = %.2f"):format(rating, expBonus, rating + expBonus)
       else
         rating = ("%.2f"):format(rating)
       end
-    elseif cap.stat == self.STATS.HASTE then
+    elseif cap.stat == statIds.HASTE then
       local meleeHaste, rangedHaste, spellHaste = self:CalcHasteWithBonuses(rating)
       rating = ("%s: %.2f\n%s: %.2f\n%s: %.2f"):format(MELEE, meleeHaste, RANGED, rangedHaste, STAT_CATEGORY_SPELL, spellHaste)
     else
