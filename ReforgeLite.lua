@@ -251,12 +251,12 @@ end
 function ReforgeLite:ValidateWoWSimsString(importStr)
   local success, wowsims = pcall(function () return C_EncodingUtil.DeserializeJSON(importStr) end)
   if success and (wowsims or {}).player then
-    local newItems = DeepCopy(self.pdb.method.items)
+    local newItems = DeepCopy((self.pdb.method or {}).items or self:CreateMethodItems())
     for slot,item in ipairs(newItems) do
       local simItemInfo = wowsims.player.equipment.items[slot] or {}
       local equippedItemInfo = self.itemData[slot]
       if simItemInfo.id ~= equippedItemInfo.itemId then
-        local importItemLink = Item:CreateFromItemID(simItemInfo.id):GetItemLink()
+        local _, importItemLink = C_Item.GetItemInfo(simItemInfo.id)
         return L["%s does not match your currently equipped %s. ReforgeLite only supports equipped items."]:format(importItemLink or ("item:"..simItemInfo.id), equippedItemInfo.item)
       end
       if simItemInfo.reforging then
@@ -270,7 +270,11 @@ function ReforgeLite:ValidateWoWSimsString(importStr)
 end
 
 function ReforgeLite:ApplyWoWSimsImport(newItems)
-  self.pdb.method.items = newItems
+  if not self.pdb.method then
+    self.pdb.method = { items = newItems }
+  else
+    self.pdb.method.items = newItems
+  end
   self:FinalizeReforge(self.pdb)
   self:UpdateMethodCategory()
 end
@@ -1046,7 +1050,7 @@ function ReforgeLite:CreateOptionList ()
   self.exportPresetButton:SetPoint ("LEFT", self.deletePresetButton, "RIGHT", 5, 0)
   --@end-debug@
 
-  self.pawnButton = GUI:CreatePanelButton (self.content, L["Import Pawn"], function(btn) self:ImportPawn() end)
+  self.pawnButton = GUI:CreatePanelButton (self.content, L["Import"], function(btn) self:ImportData() end)
   self.statWeightsCategory:AddFrame (self.pawnButton)
   self:SetAnchor (self.pawnButton, "TOPLEFT", self.presetsButton, "BOTTOMLEFT", 0, -5)
 
@@ -1292,13 +1296,9 @@ function ReforgeLite:UpdateMethodCategory()
     self.methodCategory = self:CreateCategory (L["Result"])
     self:SetAnchor (self.methodCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
 
-    self.importWowSims = GUI:CreatePanelButton (self.methodCategory, L["Import WoWSims"], function(btn) self:ImportWoWSims() end)
-    self.methodCategory:AddFrame (self.importWowSims)
-    self:SetAnchor (self.importWowSims, "TOPLEFT", self.methodCategory, "BOTTOMLEFT", 0, -5)
-
     self.methodStats = GUI:CreateTable (#self.itemStats - 1, 2, ITEM_SIZE, 60, {0.5, 0.5, 0.5, 1})
     self.methodCategory:AddFrame (self.methodStats)
-    self:SetAnchor (self.methodStats, "TOPLEFT", self.importWowSims, "BOTTOMLEFT", 0, -5)
+    self:SetAnchor (self.methodStats, "TOPLEFT", self.methodCategory, "BOTTOMLEFT", 0, -5)
     self.methodStats:SetRowHeight (ITEM_SIZE + 2)
     self.methodStats:SetColumnWidth (60)
 

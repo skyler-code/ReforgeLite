@@ -10,7 +10,11 @@ local function GetDataFrame()
 
         displayFrame = AceGUI:Create("Frame")
         displayFrame:SetLayout("Flow")
-        displayFrame:SetCallback("OnClose", function(widget) AceGUI:Release(widget); displayFrame = nil end)
+        displayFrame:SetCallback("OnClose", function(widget)
+            AceGUI:Release(widget)
+            displayFrame = nil
+            collectgarbage()
+        end)
         displayFrame:SetWidth(525)
         displayFrame:SetHeight(275)
 
@@ -50,43 +54,36 @@ function ReforgeLite:ExportJSON(preset, name)
     self:DisplayMessage(name, C_EncodingUtil.SerializeJSON(preset))
 end
 
-function ReforgeLite:ImportPawn()
+function ReforgeLite:ImportData()
     local frame = GetDataFrame()
-    frame:SetTitle(L["Import Pawn"])
+    frame:SetTitle(L["Import"])
     frame.editbox:DisableButton(false)
-    frame.editbox:SetLabel(L["Enter pawn string"])
+    frame.editbox:SetLabel(L["Enter WoWSims or Pawn string"])
     frame.editbox.editBox:SetFocus()
     frame.editbox.button:SetScript("OnClick", function()
-        local values = self:ValidatePawnString(frame.editbox.editBox:GetText())
-        if values then
-            frame:Hide()
-            self:ParsePawnString(values)
-        else
-            frame:SetStatusText(ERROR_CAPS)
+        local function OnHide(values)
+            if values then
+                frame:Hide()
+            else
+                frame:SetStatusText(ERROR_CAPS)
+            end
         end
-        collectgarbage()
-    end)
-end
-
-function ReforgeLite:ImportWoWSims()
-    local frame = GetDataFrame()
-    frame:SetTitle(L["Import WoWSims"])
-    frame.editbox:DisableButton(false)
-    frame.editbox:SetLabel(L["Enter WoWSims JSON"])
-    frame.editbox.editBox:SetFocus()
-    frame.editbox.button:SetScript("OnClick", function()
-        local values = self:ValidateWoWSimsString(frame.editbox.editBox:GetText())
+        local userInput = frame.editbox.editBox:GetText()
+        local values = self:ValidateWoWSimsString(userInput)
         if values then
             local valueType = type(values)
             if valueType == "table" then
-                frame:Hide()
                 self:ApplyWoWSimsImport(values)
             elseif valueType == "string" then
                 frame:SetStatusText(values)
+                return
             end
         else
-            frame:SetStatusText(ERROR_CAPS)
+            values = self:ValidatePawnString(userInput)
+            if values then
+                self:ParsePawnString(values)
+            end
         end
-        collectgarbage()
+        OnHide(values)
     end)
 end

@@ -241,9 +241,8 @@ function ReforgeLite:GetItemReforgeOptions (item, data, slot)
   return opt
 end
 
-function ReforgeLite:InitReforgeClassic()
-  local method = {}
-  method.items = {}
+function ReforgeLite:CreateMethodItems()
+  local method = { items = {} }
   local orgitems = {}
   for i = 1, #self.itemData do
     method.items[i] = {}
@@ -257,7 +256,11 @@ function ReforgeLite:InitReforgeClassic()
       orgitems[i][j] = (orgstats[v.name] or 0)
     end
   end
+  return method, orgitems
+end
 
+function ReforgeLite:InitReforgeClassic()
+  local method, orgitems = self:CreateMethodItems()
   local data = {}
   data.method = method
   data.weights = DeepCopy (self.pdb.weights)
