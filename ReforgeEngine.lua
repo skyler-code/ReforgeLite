@@ -469,5 +469,4 @@ end
 function ReforgeLite:EndCompute()
   self.computeButton:RenderText(L["Compute"])
   addonTable.GUI:Unlock()
-  routine = nil
 end
