@@ -1,7 +1,6 @@
 local addonName, addonTable = ...
 local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "title")
-local CreateColor, WHITE_FONT_COLOR, ITEM_MOD_SPIRIT_SHORT = CreateColor, WHITE_FONT_COLOR, ITEM_MOD_SPIRIT_SHORT
-local GetItemStats = C_Item.GetItemStats or GetItemStats
+local GetItemStats = addonTable.GetItemStatsUp
 
 local ReforgeLite = CreateFrame("Frame", addonName, UIParent, "BackdropTemplate")
 addonTable.ReforgeLite = ReforgeLite
@@ -9,7 +8,7 @@ addonTable.ReforgeLite = ReforgeLite
 local L = addonTable.L
 local GUI = addonTable.GUI
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
-addonTable.MAX_LOOPS = 125000
+addonTable.MAX_LOOPS = 200000
 
 local DeepCopy = addonTable.DeepCopy
 
@@ -30,21 +29,17 @@ local DefaultDB = {
     methodWindowX = false,
     methodWindowY = false,
     openOnReforge = true,
-    updateTooltip = true,
+    updateTooltip = false,
     speed = addonTable.MAX_LOOPS * 0.8,
     activeWindowTitle = {0.6, 0, 0},
     inactiveWindowTitle = {0.5, 0.5, 0.5},
-    highlightTooltip = true,
-    highlightSourceStatColor = {1, 0.501, 0.501,1},
-    highlightDestStatColor = {0, 1, 0.74,1},
     specProfiles = false,
   },
   char = {
     targetLevel = 3,
+    ilvlCap = 0,
     meleeHaste = true,
     spellHaste = true,
-    darkIntent = false,
-    buffs = {},
     weights = {0, 0, 0, 0, 0, 0, 0, 0},
     caps = {
       {
@@ -71,7 +66,7 @@ local DefaultDB = {
       }
     },
     itemsLocked = {},
-    categoryStates = { [SETTINGS] = true },
+    categoryStates = { [SETTINGS] = false },
   },
   class = {
     customPresets = {}
@@ -85,7 +80,6 @@ end
 addonTable.localeClass, addonTable.playerClass, addonTable.playerClassID = UnitClass ("player")
 addonTable.playerRace = select(2,UnitRace ("player"))
 local playerClass, playerRace, localeClass = addonTable.playerClass, addonTable.playerRace, addonTable.localeClass
-local missChance = (playerRace == "NightElf" and 7 or 5)
 local UNFORGE_INDEX = -1
 addonTable.StatCapMethods = {
   AtLeast = 1,
@@ -147,13 +141,14 @@ ReforgeLite.itemSlots = {
   "TRINKET1SLOT",
   "MAINHANDSLOT",
   "SECONDARYHANDSLOT",
-  "RANGEDSLOT"
 }
 local ignoredSlots = { [INVSLOT_TABARD] = true, [INVSLOT_BODY] = true }
 
-ReforgeLite.STATS = {
-  SPIRIT = 1, DODGE = 2, PARRY = 3, HIT = 4, CRIT = 5, HASTE = 6, EXP = 7, MASTERY = 8, SPELLHIT = 9, CRITBLOCK = 1
+local statIds = {
+  SPIRIT = 1, DODGE = 2, PARRY = 3, HIT = 4, CRIT = 5, HASTE = 6, EXP = 7, MASTERY = 8, SPELLHIT = 9
 }
+addonTable.statIds = statIds
+ReforgeLite.STATS = statIds
 
 local FIRE_SPIRIT = 4
 local function HasFireBuff()
@@ -161,22 +156,21 @@ local function HasFireBuff()
 end
 
 function ReforgeLite:CreateItemStats()
-  local function RatingStat (i, name_, tip_, id_, short)
+  local function RatingStat (i, name_, tip_, long_, id_)
     return {
       name = name_,
       tip = tip_,
-      long = tip_,
+      long = long_,
       getter = function ()
         local rating = GetCombatRating (id_)
         if id_ == CR_HIT_SPELL and self.s2hFactor > 0 and HasFireBuff() then
-          rating = rating - floor(FIRE_SPIRIT*(self.s2hFactor/100))
+          rating = rating - floor(FIRE_SPIRIT)
         end
         return rating
       end,
       mgetter = function (method, orig)
         return (orig and method.orig_stats and method.orig_stats[i]) or method.stats[i]
-      end,
-      parser = short and L["^+(%d+) %s$"]:gsub("%%s", _G[name_]) or (L["EquipPredicate"] .. _G[name_]:gsub("%%s", "(.+)"))
+      end
     }
   end
   local CR_HIT, CR_CRIT, CR_HASTE = CR_HIT_SPELL, CR_CRIT_SPELL, CR_HASTE_SPELL
@@ -186,7 +180,7 @@ function ReforgeLite:CreateItemStats()
   self.itemStats = {
     {
       name = "ITEM_MOD_SPIRIT_SHORT",
-      tip = ITEM_MOD_SPIRIT_SHORT,
+      tip = SPELL_STAT5_NAME,
       long = ITEM_MOD_SPIRIT_SHORT,
       getter = function ()
         local _, spirit = UnitStat("player", LE_UNIT_STAT_SPIRIT)
@@ -197,145 +191,33 @@ function ReforgeLite:CreateItemStats()
       end,
       mgetter = function (method, orig)
         return (orig and method.orig_stats and method.orig_stats[1]) or method.stats[1]
-      end,
-      parser = function(line)
-        if CreateColor(line:GetTextColor()):IsEqualTo(WHITE_FONT_COLOR) then
-          return strmatch(line:GetText(), L["^+(%d+) %s$"]:gsub("%%s", ITEM_MOD_SPIRIT_SHORT))
-        end
       end
     },
-    RatingStat (self.STATS.DODGE,   "ITEM_MOD_DODGE_RATING",         STAT_DODGE,     CR_DODGE),
-    RatingStat (self.STATS.PARRY,   "ITEM_MOD_PARRY_RATING",         STAT_PARRY,     CR_PARRY),
-    RatingStat (self.STATS.HIT,     "ITEM_MOD_HIT_RATING",           HIT,            CR_HIT),
-    RatingStat (self.STATS.CRIT,    "ITEM_MOD_CRIT_RATING",          CRIT_ABBR,      CR_CRIT),
-    RatingStat (self.STATS.HASTE,   "ITEM_MOD_HASTE_RATING",         STAT_HASTE,     CR_HASTE),
-    RatingStat (self.STATS.EXP,     "ITEM_MOD_EXPERTISE_RATING",     STAT_EXPERTISE, CR_EXPERTISE),
-    RatingStat (self.STATS.MASTERY, "ITEM_MOD_MASTERY_RATING_SHORT", STAT_MASTERY,   CR_MASTERY, true)
+    RatingStat (statIds.DODGE,   "ITEM_MOD_DODGE_RATING",         STAT_DODGE,     STAT_DODGE,           CR_DODGE),
+    RatingStat (statIds.PARRY,   "ITEM_MOD_PARRY_RATING",         STAT_PARRY,     STAT_PARRY,           CR_PARRY),
+    RatingStat (statIds.HIT,     "ITEM_MOD_HIT_RATING",           HIT,            HIT,                  CR_HIT),
+    RatingStat (statIds.CRIT,    "ITEM_MOD_CRIT_RATING",          CRIT_ABBR,      STAT_CRITICAL_STRIKE, CR_CRIT),
+    RatingStat (statIds.HASTE,   "ITEM_MOD_HASTE_RATING",         STAT_HASTE,     STAT_HASTE,           CR_HASTE),
+    RatingStat (statIds.EXP,     "ITEM_MOD_EXPERTISE_RATING",     EXPERTISE_ABBR, STAT_EXPERTISE,       CR_EXPERTISE),
+    RatingStat (statIds.MASTERY, "ITEM_MOD_MASTERY_RATING_SHORT", STAT_MASTERY,   STAT_MASTERY,         CR_MASTERY)
   }
 end
 ReforgeLite:CreateItemStats()
 
---@debug@
-local itemStatsLocale = {
-  [6]  = ReforgeLite.STATS.SPIRIT, -- SPIRIT
-  [13] = ReforgeLite.STATS.DODGE, -- DODGE
-  [14] = ReforgeLite.STATS.PARRY, -- PARRY
-  [31] = ReforgeLite.STATS.HIT, -- HIT
-  [32] = ReforgeLite.STATS.CRIT, -- CRIT
-  [36] = ReforgeLite.STATS.HASTE, -- HASTE
-  [37] = ReforgeLite.STATS.EXP, -- EXPERTISE
-  [49] = ReforgeLite.STATS.MASTERY, -- MASTERY
-}
---@end-debug@
-
-ReforgeLite.tankingStats = {
-  ["DEATHKNIGHT"] = DeepCopy (ReforgeLite.itemStats),
-  ["WARRIOR"] = {
-    [ReforgeLite.STATS.CRITBLOCK] = {
-      tip = L["Crit block"],
-      long = L["Crit block"],
-      percent = true,
-      mgetter = function (method)
-        return method.stats.critBlock or 0
-      end,
-      getter = function ()
-        return GetMastery () * 1.5
-      end
-    },
-    [ReforgeLite.STATS.DODGE] = {
-      tip = STAT_DODGE,
-      long = DODGE_CHANCE,
-      percent = true,
-      mgetter = function (method)
-        return method.stats.dodge or 0
-      end,
-      getter = GetDodgeChance
-    },
-    [ReforgeLite.STATS.PARRY] = {
-      tip = PARRY,
-      long = PARRY_CHANCE,
-      percent = true,
-      mgetter = function (method)
-        return method.stats.parry or 0
-      end,
-      getter = GetParryChance
-    },
-    [ReforgeLite.STATS.MASTERY] = {
-      tip = BLOCK,
-      long = BLOCK_CHANCE,
-      percent = true,
-      mgetter = function (method)
-        return method.stats.block or 0
-      end,
-      getter = function ()
-        return 20 + GetMastery () * 1.5
-      end
-    }
-  },
-  ["PALADIN"] = {
-    [ReforgeLite.STATS.DODGE] = {
-      tip = DODGE,
-      long = DODGE_CHANCE,
-      percent = true,
-      mgetter = function (method)
-        return method.stats.dodge or 0
-      end,
-      getter = GetDodgeChance
-    },
-    [ReforgeLite.STATS.PARRY] = {
-      tip = PARRY,
-      long = PARRY_CHANCE,
-      percent = true,
-      mgetter = function (method)
-        return method.stats.parry or 0
-      end,
-      getter = GetParryChance
-    },
-    [ReforgeLite.STATS.MASTERY] = {
-      tip = BLOCK,
-      long = BLOCK_CHANCE,
-      percent = true,
-      mgetter = function (method)
-        return method.stats.block or 0
-      end,
-      getter = function ()
-        return 5 + GetMastery () * 2.25
-      end
-    }
-  },
-}
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.DODGE].long = DODGE_CHANCE
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.DODGE].percent = true
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.DODGE].mgetter = function (method)
-  return method.stats.dodge
-end
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.DODGE].getter = GetDodgeChance
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.PARRY].long = PARRY_CHANCE
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.PARRY].percent = true
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.PARRY].mgetter = function (method)
-  return method.stats.parry
-end
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.PARRY].getter = GetParryChance
-
-ReforgeLite.tankingStats["DRUID"] = ReforgeLite.tankingStats["DEATHKNIGHT"]
-
 ReforgeLite.REFORGE_TABLE_BASE = 112
-local reforgeTable = {}
-do
-  local tinsert = tinsert
-  for firstStat in ipairs(ReforgeLite.itemStats) do
-    for secondStat in ipairs(ReforgeLite.itemStats) do
-      if firstStat ~= secondStat then
-        tinsert(reforgeTable, {firstStat,secondStat})
-      end
-    end
-  end
-end
-
+local reforgeTable = {
+  {statIds.SPIRIT, statIds.DODGE}, {statIds.SPIRIT, statIds.PARRY}, {statIds.SPIRIT, statIds.HIT}, {statIds.SPIRIT, statIds.CRIT}, {statIds.SPIRIT, statIds.HASTE}, {statIds.SPIRIT, statIds.EXP}, {statIds.SPIRIT, statIds.MASTERY},
+  {statIds.DODGE, statIds.SPIRIT}, {statIds.DODGE, statIds.PARRY}, {statIds.DODGE, statIds.HIT}, {statIds.DODGE, statIds.CRIT}, {statIds.DODGE, statIds.HASTE}, {statIds.DODGE, statIds.EXP}, {statIds.DODGE, statIds.MASTERY},
+  {statIds.PARRY, statIds.SPIRIT}, {statIds.PARRY, statIds.DODGE}, {statIds.PARRY, statIds.HIT}, {statIds.PARRY, statIds.CRIT}, {statIds.PARRY, statIds.HASTE}, {statIds.PARRY, statIds.EXP}, {statIds.PARRY, statIds.MASTERY},
+  {statIds.HIT, statIds.SPIRIT}, {statIds.HIT, statIds.DODGE}, {statIds.HIT, statIds.PARRY}, {statIds.HIT, statIds.CRIT}, {statIds.HIT, statIds.HASTE}, {statIds.HIT, statIds.EXP}, {statIds.HIT, statIds.MASTERY},
+  {statIds.CRIT, statIds.SPIRIT}, {statIds.CRIT, statIds.DODGE}, {statIds.CRIT, statIds.PARRY}, {statIds.CRIT, statIds.HIT}, {statIds.CRIT, statIds.HASTE}, {statIds.CRIT, statIds.EXP}, {statIds.CRIT, statIds.MASTERY},
+  {statIds.HASTE, statIds.SPIRIT}, {statIds.HASTE, statIds.DODGE}, {statIds.HASTE, statIds.PARRY}, {statIds.HASTE, statIds.HIT}, {statIds.HASTE, statIds.CRIT}, {statIds.HASTE, statIds.EXP}, {statIds.HASTE, statIds.MASTERY},
+  {statIds.EXP, statIds.SPIRIT}, {statIds.EXP, statIds.DODGE}, {statIds.EXP, statIds.PARRY}, {statIds.EXP, statIds.HIT}, {statIds.EXP, statIds.CRIT}, {statIds.EXP, statIds.HASTE}, {statIds.EXP, statIds.MASTERY},
+  {statIds.MASTERY, statIds.SPIRIT}, {statIds.MASTERY, statIds.DODGE}, {statIds.MASTERY, statIds.PARRY}, {statIds.MASTERY, statIds.HIT}, {statIds.MASTERY, statIds.CRIT}, {statIds.MASTERY, statIds.HASTE}, {statIds.MASTERY, statIds.EXP},
+}
 ReforgeLite.reforgeTable = reforgeTable
 
 addonTable.REFORGE_COEFF = 0.4
-ReforgeLite.spiritBonus = playerRace == "Human" and 1.03 or 1
 
 function ReforgeLite:UpdateWindowSize ()
   self.db.windowWidth = self:GetWidth ()
@@ -355,9 +237,6 @@ function ReforgeLite:GetCapScore (cap, value)
 end
 
 function ReforgeLite:GetStatScore (stat, value)
-  if self.pdb.tankingModel then
-    return self.pdb.weights[stat] * value
-  end
   if stat == self.pdb.caps[1].stat then
     return self:GetCapScore (self.pdb.caps[1], value)
   elseif stat == self.pdb.caps[2].stat then
@@ -368,14 +247,14 @@ function ReforgeLite:GetStatScore (stat, value)
 end
 
 function ReforgeLite:ValidateWoWSimsString(importStr)
-  local success, wowsims = pcall(function () return addonTable.json.decode(importStr) end)
+  local success, wowsims = pcall(function () return C_EncodingUtil.DeserializeJSON(importStr) end)
   if success and (wowsims or {}).player then
-    local newItems = DeepCopy(self.pdb.method.items)
+    local newItems = DeepCopy((self.pdb.method or self:InitializeMethod()).items)
     for slot,item in ipairs(newItems) do
       local simItemInfo = wowsims.player.equipment.items[slot] or {}
       local equippedItemInfo = self.itemData[slot]
       if simItemInfo.id ~= equippedItemInfo.itemId then
-        local importItemLink = Item:CreateFromItemID(simItemInfo.id):GetItemLink()
+        local _, importItemLink = C_Item.GetItemInfo(simItemInfo.id)
         return L["%s does not match your currently equipped %s. ReforgeLite only supports equipped items."]:format(importItemLink or ("item:"..simItemInfo.id), equippedItemInfo.item)
       end
       if simItemInfo.reforging then
@@ -389,14 +268,18 @@ function ReforgeLite:ValidateWoWSimsString(importStr)
 end
 
 function ReforgeLite:ApplyWoWSimsImport(newItems)
-  self.pdb.method.items = newItems
+  if not self.pdb.method then
+    self.pdb.method = { items = newItems }
+  else
+    self.pdb.method.items = newItems
+  end
   self:FinalizeReforge(self.pdb)
   self:UpdateMethodCategory()
 end
 
 --@debug@
 function ReforgeLite:ParsePresetString(presetStr)
-  local success, preset = pcall(function () return addonTable.json.decode(presetStr) end)
+  local success, preset = pcall(function () return C_EncodingUtil.DeserializeJSON(presetStr) end)
   if success and type(preset.caps) == "table" then
     DevTools_Dump(preset)
   end
@@ -435,14 +318,14 @@ function ReforgeLite:ParsePawnString(values)
   end
 
   local weights = {}
-  weights[self.STATS.SPIRIT] = raw["Spirit"] or 0
-  weights[self.STATS.DODGE] = raw["DodgeRating"] or 0
-  weights[self.STATS.PARRY] = raw["ParryRating"] or 0
-  weights[self.STATS.HIT] = raw["HitRating"] or 0
-  weights[self.STATS.CRIT] = raw["CritRating"] or 0
-  weights[self.STATS.HASTE] = raw["HasteRating"] or 0
-  weights[self.STATS.EXP] = raw["ExpertiseRating"] or 0
-  weights[self.STATS.MASTERY] = raw["MasteryRating"] or 0
+  weights[statIds.SPIRIT] = raw["Spirit"] or 0
+  weights[statIds.DODGE] = raw["DodgeRating"] or 0
+  weights[statIds.PARRY] = raw["ParryRating"] or 0
+  weights[statIds.HIT] = raw["HitRating"] or 0
+  weights[statIds.CRIT] = raw["CritRating"] or 0
+  weights[statIds.HASTE] = raw["HasteRating"] or 0
+  weights[statIds.EXP] = raw["ExpertiseRating"] or 0
+  weights[statIds.MASTERY] = raw["MasteryRating"] or 0
 
   self:SetStatWeights (weights)
 end
@@ -459,7 +342,7 @@ function ReforgeLite:CreateCategory (name)
   local c = CreateFrame ("Frame", nil, self.content)
   c:ClearAllPoints ()
   c:SetSize(16,16)
-  c.expanded = not self.pdb.categoryStates[name]
+  c.expanded = self.pdb.categoryStates[name] ~= false
   c.name = c:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   c.catname = c.name
   c.name:SetPoint ("TOPLEFT", c, "TOPLEFT", 18, -1)
@@ -506,7 +389,7 @@ function ReforgeLite:CreateCategory (name)
 
   c.Toggle = function (category)
     category.expanded = not category.expanded
-    self.pdb.categoryStates[name] = not category.expanded or nil
+    self.pdb.categoryStates[name] = category.expanded
     if c.expanded then
       for k, v in pairs (category.frames) do
         if not v.chidden then
@@ -827,11 +710,7 @@ function ReforgeLite:CreateItemTable ()
       if frame.item then
         GameTooltip:SetInventoryItem("player", frame.slotId)
       else
-        local text = _G[strupper(frame.slot)]
-        if frame.checkRelic then
-          text = RELICSLOT
-        end
-        GameTooltip:SetText(text)
+        GameTooltip:SetText(_G[strupper(frame.slot)])
       end
       GameTooltip:Show ()
     end)
@@ -845,11 +724,7 @@ function ReforgeLite:CreateItemTable ()
         frame.locked:Hide ()
       end
     end)
-    self.itemData[i].slotId, self.itemData[i].slotTexture, self.itemData[i].checkRelic = GetInventorySlotInfo (v)
-    self.itemData[i].checkRelic = self.itemData[i].checkRelic and UnitHasRelicSlot ("player")
-    if self.itemData[i].checkRelic then
-      self.itemData[i].slotTexture = "Interface\\Paperdoll\\UI-PaperDoll-Slot-Relic.blp"
-    end
+    self.itemData[i].slotId, self.itemData[i].slotTexture = GetInventorySlotInfo (v)
     self.itemData[i].texture = self.itemData[i]:CreateTexture (nil, "ARTWORK")
     self.itemData[i].texture:SetAllPoints (self.itemData[i])
     self.itemData[i].texture:SetTexture (self.itemData[i].slotTexture)
@@ -927,17 +802,17 @@ function ReforgeLite:AddCapPoint (i, loading)
   GUI:SetTooltip (rem, L["Remove cap"])
   GUI:SetTooltip (value, function()
     local cap = self.pdb.caps[i]
-    if cap.stat == self.STATS.SPIRIT then return end
+    if cap.stat == statIds.SPIRIT then return end
     local pointValue = (cap.points[point].value or 0)
     local rating = pointValue / self:RatingPerPoint(cap.stat)
-    if cap.stat == self.STATS.HIT then
+    if cap.stat == statIds.HIT then
       local meleeHitBonus = self:GetMeleeHitBonus()
       if meleeHitBonus > 0 then
         rating = ("%.2f%% + %s%% = %.2f"):format(rating, meleeHitBonus, rating + meleeHitBonus)
       else
         rating = ("%.2f"):format(rating)
       end
-      local spellHitRating = pointValue / self:RatingPerPoint(self.STATS.SPELLHIT)
+      local spellHitRating = pointValue / self:RatingPerPoint(statIds.SPELLHIT)
       local spellHitBonus = self:GetSpellHitBonus()
       if spellHitBonus > 0 then
         spellHitRating = ("%.2f%% + %s%% = %.2f"):format(spellHitRating,spellHitBonus,spellHitRating+spellHitBonus)
@@ -945,14 +820,14 @@ function ReforgeLite:AddCapPoint (i, loading)
         spellHitRating = ("%.2f"):format(spellHitRating)
       end
       rating = ("%s: %s%%\n%s: %s%%"):format(MELEE, rating, STAT_CATEGORY_SPELL, spellHitRating)
-    elseif cap.stat == self.STATS.EXP then
+    elseif cap.stat == statIds.EXP then
       local expBonus = self:GetExpertiseBonus()
       if expBonus > 0 then
         rating = ("%.2f + %s = %.2f"):format(rating, expBonus, rating + expBonus)
       else
         rating = ("%.2f"):format(rating)
       end
-    elseif cap.stat == self.STATS.HASTE then
+    elseif cap.stat == statIds.HASTE then
       local meleeHaste, rangedHaste, spellHaste = self:CalcHasteWithBonuses(rating)
       rating = ("%s: %.2f\n%s: %.2f\n%s: %.2f"):format(MELEE, meleeHaste, RANGED, rangedHaste, STAT_CATEGORY_SPELL, spellHaste)
     else
@@ -1030,14 +905,6 @@ function ReforgeLite:UpdateCapPoints (i)
     self.statCaps.cells[base + point][4]:SetText (self.pdb.caps[i].points[point].after)
   end
 end
-function ReforgeLite:SetTankingModel (model)
-  if self.tankingModel then
-    self.pdb.tankingModel = model
-    self.tankingModel:SetChecked (model)
-    self:UpdateStatWeightList ()
-    self:RefreshMethodStats ()
-  end
-end
 function ReforgeLite:CollapseStatCaps()
   local caps = DeepCopy(self.pdb.caps)
   table.sort(caps, function(a,b)
@@ -1104,17 +971,11 @@ function ReforgeLite:CustomPresetsExist()
 end
 function ReforgeLite:UpdateStatWeightList ()
   local stats = self.itemStats
-  if self.pdb.tankingModel then
-    stats = self.tankingStats[playerClass] or stats
-  end
   local rows = 0
   for i, v in pairs (stats) do
     rows = rows + 1
   end
   local extraRows = 0
-  if self.pdb.tankingModel then
-    extraRows = 2
-  end
   self.statWeights:ClearCells ()
   self.statWeights.inputs = {}
   rows = ceil (rows / 2) + extraRows
@@ -1123,38 +984,6 @@ function ReforgeLite:UpdateStatWeightList ()
   end
   if self.statWeights.rows < rows then
     self.statWeights:AddRow (1, rows - self.statWeights.rows)
-  end
-  if self.pdb.tankingModel then
-    self.statWeights.buffs = {}
-    self.statWeights.buffs.kings = GUI:CreateCheckButton (self.statWeights, C_Spell.GetSpellName(20217), self.pdb.buffs.kings, function (val)
-      self.pdb.buffs.kings = val
-      self:RefreshMethodStats ()
-    end)
-    self.statWeights.buffs.strength = GUI:CreateCheckButton (self.statWeights, C_Spell.GetSpellName(57330), self.pdb.buffs.strength, function (val)
-      self.pdb.buffs.strength = val
-      self:RefreshMethodStats ()
-    end)
-    self.statWeights:SetCell (1, 1, self.statWeights.buffs.kings, "LEFT")
-    self.statWeights:SetCell (1, 3, self.statWeights.buffs.strength, "LEFT")
-    self.statWeights.buffs.flask = GUI:CreateDropdown (self.statWeights,
-      {{value = 0, name = L["Other/No flask"]}, {value = 1, name = "300" .. ITEM_MOD_STRENGTH_SHORT},
-       {value = 2, name = "225" .. ITEM_MOD_MASTERY_RATING_SHORT}}, {
-        default = self.pdb.buffs.flask or 0,
-        width = 125,
-        setter = function (_,val)
-          self.pdb.buffs.flask = (val ~= 0 and val)
-          self:RefreshMethodStats ()
-        end,
-    })
-    self.statWeights.buffs.food = GUI:CreateDropdown (self.statWeights,
-      {{value = 0, name = L["Other/No food"]}, {value = 1, name = "90" .. ITEM_MOD_MASTERY_RATING_SHORT},
-       {value = 2, name = "90" .. ITEM_MOD_DODGE_RATING_SHORT}, {value = 3, name = "90" .. ITEM_MOD_PARRY_RATING_SHORT},
-       {value = 4, name = "90" .. ITEM_MOD_STRENGTH_SHORT},{value = 5, name = "40" .. ITEM_MOD_STRENGTH_SHORT}}, {default = self.pdb.buffs.food or 0, setter =  function (_,val)
-        self.pdb.buffs.food = (val ~= 0 and val)
-        self:RefreshMethodStats ()
-      end, width = 125})
-    self.statWeights:SetCell (2, 1, self.statWeights.buffs.flask, "LEFT", -10, -10)
-    self.statWeights:SetCell (2, 3, self.statWeights.buffs.food, "LEFT", -10, -10)
   end
   local pos = 0
   for i, v in pairs (stats) do
@@ -1178,50 +1007,12 @@ function ReforgeLite:UpdateStatWeightList ()
     self.statWeights:SetCell (row, col + 1, self.statWeights.inputs[i])
   end
 
-  if self.pdb.tankingModel then
-    self.statCaps:Hide2 ()
-    self:SetAnchor (self.computeButton, "TOPLEFT", self.statWeights, "BOTTOMLEFT", 0, -10)
-  else
-    self.statCaps:Show2 ()
-    self:SetAnchor (self.computeButton, "TOPLEFT", self.statCaps, "BOTTOMLEFT", 0, -10)
-  end
+  self.statCaps:Show2 ()
+  self:SetAnchor (self.computeButton, "TOPLEFT", self.statCaps, "BOTTOMLEFT", 0, -10)
 
-  self:UpdateBuffs ()
   self:UpdateContentSize ()
 end
-function ReforgeLite:UpdateBuffs ()
-  if self.pdb.tankingModel then
-    local kings, strength, flask, food = self:GetPlayerBuffs ()
-    if kings then
-      self.statWeights.buffs.kings:SetChecked (true)
-      self.statWeights.buffs.kings:Disable ()
-    else
-      self.statWeights.buffs.kings:SetChecked (self.pdb.buffs.kings)
-      self.statWeights.buffs.kings:Enable ()
-    end
-    if strength then
-      self.statWeights.buffs.strength:SetChecked (true)
-      self.statWeights.buffs.strength:Disable ()
-    else
-      self.statWeights.buffs.strength:SetChecked (self.pdb.buffs.strength)
-      self.statWeights.buffs.strength:Enable ()
-    end
-    if flask then
-      self.statWeights.buffs.flask:SetValue (flask)
-      self.statWeights.buffs.flask:DisableDropdown()
-    else
-      self.statWeights.buffs.flask:SetValue (self.pdb.buffs.flask or 0)
-      self.statWeights.buffs.flask:EnableDropdown()
-    end
-    if food then
-      self.statWeights.buffs.food:SetValue (food)
-      self.statWeights.buffs.food:DisableDropdown()
-    else
-      self.statWeights.buffs.food:SetValue (self.pdb.buffs.food or 0)
-      self.statWeights.buffs.food:EnableDropdown()
-    end
-  end
-end
+
 function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory = self:CreateCategory (L["Stat Weights"])
   self:SetAnchor (self.statWeightsCategory, "TOPLEFT", self.content, "TOPLEFT", 2, -2)
@@ -1257,28 +1048,9 @@ function ReforgeLite:CreateOptionList ()
   self.exportPresetButton:SetPoint ("LEFT", self.deletePresetButton, "RIGHT", 5, 0)
   --@end-debug@
 
-  self.pawnButton = GUI:CreatePanelButton (self.content, L["Import Pawn"], function(btn) self:ImportPawn() end)
+  self.pawnButton = GUI:CreatePanelButton (self.content, L["Import"], function(btn) self:ImportData() end)
   self.statWeightsCategory:AddFrame (self.pawnButton)
   self:SetAnchor (self.pawnButton, "TOPLEFT", self.presetsButton, "BOTTOMLEFT", 0, -5)
-
-  self.convertSpirit = CreateFrame ("Frame", nil, self.content)
-  self.statWeightsCategory:AddFrame (self.convertSpirit)
-  self.convertSpirit.text = self.convertSpirit:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.convertSpirit.text:SetPoint ("LEFT", self.pawnButton, "RIGHT", 8, 0)
-  self.convertSpirit.text:SetText (L["Spirit to hit"] .. ": "..PERCENTAGE_STRING:format(0))
-
-  if playerClass == "PALADIN" or playerClass == "WARRIOR" or playerClass == "DEATHKNIGHT" then
-    self.tankingModel = GUI:CreateCheckButton (self.content, STAT_AVOIDANCE .. " " ..PARENS_TEMPLATE:format(localeClass),
-        self.pdb.tankingModel, function (val)
-      self.pdb.tankingModel = val
-      self:UpdateStatWeightList ()
-      self:RefreshMethodStats ()
-    end)
-    self.statWeightsCategory:AddFrame (self.tankingModel)
-    self:SetAnchor (self.tankingModel, "TOPLEFT", self.pawnButton, "BOTTOMLEFT", 0, -5)
-  else
-    self.pdb.tankingModel = nil
-  end
 
   local levelList = {
     {value=0,name=("%s (+%d)"):format(PVP, 0)},
@@ -1294,7 +1066,7 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory:AddFrame(self.targetLevel)
   self.targetLevel.text = self.targetLevel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
   self.targetLevel.text:SetText(STAT_TARGET_LEVEL)
-  self:SetAnchor(self.targetLevel.text, "TOPLEFT", self.tankingModel or self.pawnButton, "BOTTOMLEFT", 0, -8)
+  self:SetAnchor(self.targetLevel.text, "TOPLEFT", self.pawnButton, "BOTTOMLEFT", 0, -8)
   self.targetLevel:SetPoint("BOTTOMLEFT", self.targetLevel.text, "BOTTOMLEFT", self.targetLevel.text:GetStringWidth(), -20)
 
   self.buffsContextMenu = CreateFrame("DropdownButton", nil, self.content, "WowStyle1FilterDropdownTemplate")
@@ -1320,9 +1092,8 @@ function ReforgeLite:CreateOptionList ()
         end
     end
     local buffsContextValues = {
-      { text = CreateSimpleTextureMarkup(463285, 20, 20) .. " " .. C_Spell.GetSpellName(80398), key = "darkIntent"},
       { text = CreateSimpleTextureMarkup(136092, 20, 20) .. " " .. L["Spell Haste"], key = "spellHaste"},
-      { text = CreateSimpleTextureMarkup(236181, 20, 20) .. " " .. L["Melee Haste"], key = "meleeHaste"}
+      { text = CreateSimpleTextureMarkup(133076, 20, 20) .. " " .. L["Melee Haste"], key = "meleeHaste"}
     }
     for _, box in ipairs(buffsContextValues) do
         rootDescription:CreateCheckbox(box.text, IsSelected, SetSelected, box.key)
@@ -1413,7 +1184,7 @@ function ReforgeLite:CreateOptionList ()
   self.statCaps.onUpdate ()
   RunNextFrame(function() self:CapUpdater() end)
 
-  self.computeButton = GUI:CreatePanelButton (self.content, L["Compute"], function(btn) self:StartCompute(btn) end)
+  self.computeButton = GUI:CreatePanelButton (self.content, L["Compute"], function() self:StartCompute() end)
   self.computeButton:SetScript ("PreClick", function (btn)
     GUI:Lock()
     GUI:ClearFocus()
@@ -1443,60 +1214,9 @@ function ReforgeLite:CreateOptionList ()
   self.quality.helpButton:SetScale(0.45)
   GUI:SetTooltip(self.quality.helpButton, L["Slide to the left if the calculation slows your game too much."])
 
-  self.storedCategory = self:CreateCategory (L["Best Result"])
-  self:SetAnchor (self.storedCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
-  self.storedScore = self.content:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.storedCategory:AddFrame (self.storedScore)
-  self:SetAnchor (self.storedScore, "TOPLEFT", self.storedCategory, "BOTTOMLEFT", 0, -8)
-  self.storedScore:SetTextColor (1, 1, 1)
-  self.storedScore:SetText (PROVING_GROUNDS_SCORE)
-  self.storedScore.score = self.content:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.storedCategory:AddFrame (self.storedScore.score)
-  self:SetAnchor (self.storedScore.score, "BOTTOMLEFT", self.storedScore, "BOTTOMRIGHT", 4, 0)
-  self.storedScore.score:SetTextColor (1, 1, 1)
-  self.storedScore.score:SetText ("0 (")
-  self.storedScore.delta = self.content:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.storedCategory:AddFrame (self.storedScore.delta)
-  self:SetAnchor (self.storedScore.delta, "BOTTOMLEFT", self.storedScore.score, "BOTTOMRIGHT", 0, 0)
-  self.storedScore.delta:SetTextColor (0.7, 0.7, 0.7)
-  self.storedScore.delta:SetText ("+0")
-  self.storedScore.suffix = self.content:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.storedCategory:AddFrame (self.storedScore.suffix)
-  self:SetAnchor (self.storedScore.suffix, "BOTTOMLEFT", self.storedScore.delta, "BOTTOMRIGHT", 0, 0)
-  self.storedScore.suffix:SetTextColor (1, 1, 1)
-  self.storedScore.suffix:SetText (")")
-
-  self.storedClear = GUI:CreatePanelButton (self.content, KEY_NUMLOCK_MAC, function(btn) self:ClearStoredMethod () end)
-  self.storedCategory:AddFrame (self.storedClear)
-  self:SetAnchor (self.storedClear, "TOPLEFT", self.storedScore, "BOTTOMLEFT", 0, -8)
-
-  self.storedRestore = GUI:CreatePanelButton (self.content, REFORGE_RESTORE, function(btn) self:RestoreStoredMethod () end)
-  self.storedCategory:AddFrame (self.storedRestore)
-  self:SetAnchor (self.storedRestore, "BOTTOMLEFT", self.storedClear, "BOTTOMRIGHT", 8, 0)
-
-  if self.pdb.storedMethod then
-    local score = self:GetMethodScore (self.pdb.storedMethod)
-    self.storedScore.score:SetText (score .. " (")
-    SetTextDelta (self.storedScore.delta, score, self:GetCurrentScore ())
-    self.storedClear:Enable ()
-    self.storedRestore:Enable ()
-  else
-    self:ClearStoredMethod ()
-  end
-
-  self.enhancedTooltipsCategory = self:CreateCategory (USE_UBERTOOLTIPS)
-  self:SetAnchor (self.enhancedTooltipsCategory, "TOPLEFT", self.storedClear, "BOTTOMLEFT", 0, -10)
-  self.enhancedTooltips = GUI:CreateTable (4, 1, nil, 200)
-  self.enhancedTooltipsCategory:AddFrame (self.enhancedTooltips)
-  self:SetAnchor (self.enhancedTooltips, "TOPLEFT", self.enhancedTooltipsCategory, "BOTTOMLEFT", 0, -5)
-  self.enhancedTooltips:SetPoint ("RIGHT", self.content, -10, 0)
-  self.enhancedTooltips:SetRowHeight (ITEM_SIZE + 2)
-
-  self:FillEnhancedTooltips()
-
-  self.settingsCategory = self:CreateCategory (L["Window Settings"])
-  self:SetAnchor (self.settingsCategory, "TOPLEFT", self.enhancedTooltips, "BOTTOMLEFT", 0, -10)
-  self.settings = GUI:CreateTable (5, 1, nil, 200)
+  self.settingsCategory = self:CreateCategory (SETTINGS)
+  self:SetAnchor (self.settingsCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
+  self.settings = GUI:CreateTable (6, 1, nil, 200)
   self.settingsCategory:AddFrame (self.settings)
   self:SetAnchor (self.settings, "TOPLEFT", self.settingsCategory, "BOTTOMLEFT", 0, -5)
   self.settings:SetPoint ("RIGHT", self.content, -10, 0)
@@ -1521,23 +1241,13 @@ function ReforgeLite:GetFrameOrder()
   return self, self.methodWindow
 end
 
-function ReforgeLite:FillEnhancedTooltips ()
-  self.enhancedTooltips:SetCell (getOrderId('enhancedTooltips'), 0, GUI:CreateCheckButton (self.enhancedTooltips, L["Summarize reforged stats"],
+function ReforgeLite:FillSettings()
+  self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Open window when reforging"],
+    self.db.openOnReforge, function (val) self.db.openOnReforge = val end), "LEFT")
+
+  self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Summarize reforged stats"],
     self.db.updateTooltip, function (val) self.db.updateTooltip = val end), "LEFT")
 
-  self.enhancedTooltips:SetCell (getOrderId('enhancedTooltips'), 0, GUI:CreateCheckButton (self.enhancedTooltips, L["Highlight reforged stats"],
-    self.db.highlightTooltip, function (val) self.db.highlightTooltip = val end), "LEFT")
-
-  local sourceStatOrderId = getOrderId('enhancedTooltips')
-  self.enhancedTooltips:SetCellText (sourceStatOrderId, 0, L["Source stat color"], "LEFT", nil, "GameFontNormal")
-  self.enhancedTooltips:SetCell (sourceStatOrderId, 1, GUI:CreateColorPicker (self.enhancedTooltips, 20, 20, self.db.highlightSourceStatColor), "LEFT")
-
-  local destStatOrderId = getOrderId('enhancedTooltips')
-  self.enhancedTooltips:SetCellText (destStatOrderId, 0, L["Destination stat color"], "LEFT", nil, "GameFontNormal")
-  self.enhancedTooltips:SetCell (destStatOrderId, 1, GUI:CreateColorPicker (self.enhancedTooltips, 20, 20, self.db.highlightDestStatColor), "LEFT")
-end
-
-function ReforgeLite:FillSettings()
   self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Enable spec profiles"],
     self.db.specProfiles, function (val)
       self.db.specProfiles = val
@@ -1549,9 +1259,6 @@ function ReforgeLite:FillSettings()
       end
     end),
     "LEFT")
-
-  self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Open window when reforging"],
-    self.db.openOnReforge, function (val) self.db.openOnReforge = val end), "LEFT")
 
   local activeWindowTitleOrderId = getOrderId('settings')
   self.settings:SetCellText (activeWindowTitleOrderId, 0, L["Active window color"], "LEFT", nil, "GameFontNormal")
@@ -1582,78 +1289,29 @@ function ReforgeLite:FillSettings()
 --@end-debug@
 end
 
-function ReforgeLite:GetCurrentScore ()
-  local score = 0
-  local unhit = 100 + 0.8 * max (0, self.pdb.targetLevel)
-  if self.pdb.tankingModel then
-    local dodge = GetDodgeChance ()
-    local parry = GetParryChance ()
-    score = dodge * self.pdb.weights[self.STATS.DODGE] + parry * self.pdb.weights[self.STATS.PARRY]
-    if playerClass == "WARRIOR" then
-      local mastery = GetMastery ()
-      local block = 20 + mastery * 1.5
-      if missChance + dodge + parry + block > unhit then
-        block = unhit - missChance - dodge - parry - block
-      end
-      score = score + block * self.pdb.weights[self.STATS.MASTERY] + (mastery * 1.5) * self.pdb.weights[self.STATS.CRITBLOCK]
-    elseif playerClass == "PALADIN" then
-      local mastery = GetMastery ()
-      local block = 5 + mastery * 2.25
-      if missChance + dodge + parry + block > unhit then
-        block = unhit - missChance - dodge - parry - block
-      end
-      score = score + block * self.pdb.weights[self.STATS.MASTERY]
-    else
-      for i = 1, #self.itemStats do
-        if i ~= self.STATS.DODGE and i ~= self.STATS.PARRY then
-          score = score + self:GetStatScore (i, self.itemStats[i].getter ())
-        end
-      end
-    end
-  else
-    for i = 1, #self.itemStats do
-      score = score + self:GetStatScore (i, self.itemStats[i].getter ())
-    end
-  end
-  return RoundToSignificantDigits(score, 2)
-end
 function ReforgeLite:UpdateMethodCategory()
   if self.methodCategory == nil then
     self.methodCategory = self:CreateCategory (L["Result"])
     self:SetAnchor (self.methodCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
 
-    self.importWowSims = GUI:CreatePanelButton (self.methodCategory, L["Import WoWSims"], function(btn) self:ImportWoWSims() end)
-    self.methodCategory:AddFrame (self.importWowSims)
-    self:SetAnchor (self.importWowSims, "TOPLEFT", self.methodCategory, "BOTTOMLEFT", 0, -5)
-
-    self.methodStats = GUI:CreateTable (#self.itemStats, 2, ITEM_SIZE, 60, {0.5, 0.5, 0.5, 1})
+    self.methodStats = GUI:CreateTable (#self.itemStats - 1, 2, ITEM_SIZE, 60, {0.5, 0.5, 0.5, 1})
     self.methodCategory:AddFrame (self.methodStats)
-    self:SetAnchor (self.methodStats, "TOPLEFT", self.importWowSims, "BOTTOMLEFT", 0, -5)
+    self:SetAnchor (self.methodStats, "TOPLEFT", self.methodCategory, "BOTTOMLEFT", 0, -5)
     self.methodStats:SetRowHeight (ITEM_SIZE + 2)
     self.methodStats:SetColumnWidth (60)
 
-    self.methodStats:SetCellText (0, 0, L["Score"], "LEFT", {1, 0.8, 0})
-    self.methodStats.score = self.methodStats:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
-    self.methodStats:SetCell (0, 1, self.methodStats.score)
-    self.methodStats.score:SetTextColor (1, 0.8, 0)
-    self.methodStats.score:SetText ("0")
-    self.methodStats.scoreDelta = self.methodStats:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
-    self.methodStats:SetCell (0, 2, self.methodStats.scoreDelta)
-    self.methodStats.scoreDelta:SetTextColor (0.7, 0.7, 0.7)
-    self.methodStats.scoreDelta:SetText ("+0")
-
     for i, v in ipairs (self.itemStats) do
-      self.methodStats:SetCellText (i, 0, v.tip, "LEFT")
+      self.methodStats:SetCellText (i - 1, 0, v.tip, "LEFT")
 
       self.methodStats[i] = {}
 
       self.methodStats[i].value = self.methodStats:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
-      self.methodStats:SetCell (i, 1, self.methodStats[i].value)
+      self.methodStats:SetCell (i - 1, 1, self.methodStats[i].value)
       self.methodStats[i].value:SetTextColor (1, 1, 1)
       self.methodStats[i].value:SetText ("0")
 
       self.methodStats[i].delta = self.methodStats:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
-      self.methodStats:SetCell (i, 2, self.methodStats[i].delta)
+      self.methodStats:SetCell (i - 1, 2, self.methodStats[i].delta)
       self.methodStats[i].delta:SetTextColor (0.7, 0.7, 0.7)
       self.methodStats[i].delta:SetText ("+0")
     end
@@ -1668,77 +1326,20 @@ function ReforgeLite:UpdateMethodCategory()
     self.methodCategory:AddFrame (self.methodReset)
     self:SetAnchor (self.methodReset, "BOTTOMLEFT", self.methodShow, "BOTTOMRIGHT", 8, 0)
 
-    self:SetAnchor (self.storedCategory, "TOPLEFT", self.methodShow, "BOTTOMLEFT", 0, -10)
-
-    self.methodTank = CreateFrame ("Frame", nil, self.content)
-    self.methodCategory:AddFrame (self.methodTank)
-    self.methodTank:SetPoint ("TOPLEFT", self.methodStats, "TOPRIGHT", 10, 0)
-    self.methodTank:SetPoint ("BOTTOMLEFT", self.methodStats, "BOTTOMRIGHT", 10, 0)
-    self.methodTank:SetPoint ("RIGHT", self.content, "RIGHT", -2, 0)
-
-    for i = 1, 10 do
-      self.methodTank[i] = self.methodTank:CreateFontString (nil, "ARTWORK", "GameFontNormal")
-      if i == 1 then
-        self.methodTank[i]:SetPoint ("TOPLEFT", self.methodTank, "TOPLEFT", 0, 0)
-      else
-        self.methodTank[i]:SetPoint ("TOPLEFT", self.methodTank[i - 1], "BOTTOMLEFT", 0, -3)
-      end
-      self.methodTank[i]:SetPoint ("RIGHT", self.methodTank, "RIGHT", 0, 0)
-      self.methodTank[i]:SetJustifyH ("LEFT")
-      self.methodTank[i]:Hide ()
-    end
-    self.methodTank.ClearLines = function (m)
-      for i = 1, 10 do
-        m[i]:Hide ()
-      end
-      m.counter = 0
-    end
-    self.methodTank.PrintLine = function (m, text, ...)
-      m.counter = m.counter + 1
-      m[m.counter]:Show ()
-      m[m.counter]:SetText (text:format(...))
-    end
+    self:SetAnchor (self.settingsCategory, "TOPLEFT", self.methodShow, "BOTTOMLEFT", 0, -10)
   end
 
-  self:RefreshMethodStats (true)
+  self:RefreshMethodStats()
 
   self:RefreshMethodWindow()
   self:UpdateContentSize ()
 end
-function ReforgeLite:RefreshMethodStats (relax)
-  local score, storedScore = 0, 0
+function ReforgeLite:RefreshMethodStats()
   if self.pdb.method then
     self:UpdateMethodStats (self.pdb.method)
-    score = self:GetMethodScore (self.pdb.method)
-  end
-  if self.pdb.storedMethod then
-    self:UpdateMethodStats (self.pdb.storedMethod)
-    storedScore = self:GetMethodScore (self.pdb.storedMethod)
   end
   if self.pdb.method then
     if self.methodStats then
-      if self.pdb.tankingModel then
-        self.methodTank:Show2 ()
-        self.methodTank:ClearLines ()
-        local ctc = missChance
-        self.methodTank:PrintLine ("%s: %.2f%%", DODGE_CHANCE, self.pdb.method.stats.dodge or 0)
-        ctc = ctc + (self.pdb.method.stats.dodge or 0)
-        self.methodTank:PrintLine ("%s: %.2f%%", PARRY_CHANCE, self.pdb.method.stats.parry or 0)
-        ctc = ctc + (self.pdb.method.stats.parry or 0)
-        if playerClass == "WARRIOR" or playerClass == "PALADIN" then
-          self.methodTank:PrintLine ("%s: %.2f%%", BLOCK_CHANCE, (self.pdb.method.stats.block or 0) +
-                                                                      (self.pdb.method.stats.overcap or 0))
-          ctc = ctc + (self.pdb.method.stats.block or 0) + (self.pdb.method.stats.overcap or 0)
-        end
-        if playerClass == "WARRIOR" then
-          self.methodTank:PrintLine ("%s: %.2f%%", L["Crit block"], self.pdb.method.stats.critBlock or 0)
-        end
-        self.methodTank:PrintLine ("%s: %.2f%%", TOTAL, ctc)
-      else
-        self.methodTank:Hide2 ()
-      end
-      self.methodStats.score:SetText (score)
-      SetTextDelta (self.methodStats.scoreDelta, score, self:GetCurrentScore ())
       for i, v in ipairs (self.itemStats) do
         local mvalue = v.mgetter (self.pdb.method)
         if v.percent then
@@ -1755,34 +1356,9 @@ function ReforgeLite:RefreshMethodStats (relax)
         SetTextDelta (self.methodStats[i].delta, mvalue, value, override)
       end
     end
-    if relax and (self.pdb.storedMethod == nil or score > storedScore) then
-      self.pdb.storedMethod = DeepCopy (self.pdb.method)
-      self:UpdateMethodStats (self.pdb.storedMethod)
-      storedScore = score
-      self.storedClear:Enable ()
-      self.storedRestore:Enable ()
-    end
-  end
-  if self.pdb.storedMethod then
-    self.storedScore.score:SetText (format ("%s (", storedScore))
-    SetTextDelta (self.storedScore.delta, storedScore, self:GetCurrentScore ())
   end
 end
-function ReforgeLite:ClearStoredMethod ()
-  self.pdb.storedMethod = nil
-  self.storedScore.score:SetTextColor (0.7, 0.7, 0.7)
-  self.storedScore.score:SetText ("- (")
-  self.storedScore.delta:SetTextColor (0.7, 0.7, 0.7)
-  self.storedScore.delta:SetText ("+0")
-  self.storedClear:Disable ()
-  self.storedRestore:Disable ()
-end
-function ReforgeLite:RestoreStoredMethod ()
-  if self.pdb.storedMethod then
-    self.pdb.method = self.pdb.storedMethod
-    self:UpdateMethodCategory ()
-  end
-end
+
 function ReforgeLite:UpdateContentSize ()
   self.content:SetHeight (-self:GetFrameY (self.lastElement))
   RunNextFrame(function() self:FixScroll() end)
@@ -1797,30 +1373,19 @@ function ReforgeLite:GetReforgeTableIndex(src, dst)
   return UNFORGE_INDEX
 end
 
+local REFORGE_TOOLTIP_LINE_MSG = REFORGE_TOOLTIP_LINE:gsub("%(", "%%("):gsub("%)", "%%)"):gsub("%%c%%s", "%([%%+%%-=!*&@#%%^$<>~?]+%)%(%%d+%)"):gsub("%%s", "(.+)")
+
 function ReforgeLite:SearchTooltipForReforgeID(tip)
-  local _, item = tip:GetItem()
-  local existingStats = GetItemStats(item)
   local srcStat, destStat
   for _, region in pairs({tip:GetRegions()}) do
-    if region:GetObjectType() == "FontString" and region:GetText() then
-      for statId, statInfo in ipairs(ReforgeLite.itemStats) do
-        local statValue
-        if type(statInfo.parser) == "function" then
-          statValue = statInfo.parser(region)
-        else
-          statValue = strmatch(region:GetText(), statInfo.parser)
-        end
-        if statValue then
-          if not existingStats[statInfo.name] then
-            destStat = statId
-            if self.db.highlightTooltip then
-              region:SetTextColor(unpack(self.db.highlightDestStatColor))
-            end
-          elseif existingStats[statInfo.name] - tonumber(statValue) > 0 then
+    if region.GetText and region:GetText() then
+      local _, _, destStatName, srcStatName = region:GetText():match(REFORGE_TOOLTIP_LINE_MSG)
+      if destStatName then
+        for statId, statInfo in pairs(self.itemStats) do
+          if statInfo.long == srcStatName then
             srcStat = statId
-            if self.db.highlightTooltip then
-              region:SetTextColor(unpack(self.db.highlightSourceStatColor))
-            end
+          elseif statInfo.long == destStatName then
+            destStat = statId
           end
         end
       end
@@ -1878,7 +1443,7 @@ function ReforgeLite:UpdateItems()
       v.qualityColor = item:GetItemQualityColor()
       v.quality:SetVertexColor(v.qualityColor.r, v.qualityColor.g, v.qualityColor.b)
       v.quality:Show()
-      stats = GetItemStats(v.item)
+      stats = GetItemStats(v.item, self.pdb.ilvlCap)
       v.reforge = self:GetReforgeID(v.slotId)
       if v.reforge then
         local srcId, dstId = unpack(reforgeTable[v.reforge])
@@ -1935,28 +1500,18 @@ function ReforgeLite:UpdateItems()
 
   self.itemLevel:SetText (STAT_AVERAGE_ITEM_LEVEL .. ": " .. floor(select(2,GetAverageItemLevel())))
 
-  self.s2hFactor = 0
-  if playerClass == "PRIEST" then
-    local pts = select(5, GetTalentInfo (3, 20))
-    self.s2hFactor = pts * 50
-  elseif playerClass == "DRUID" and GetPrimaryTalentTree () ~= 2 then
-    local pts = select(5, GetTalentInfo (1, 7))
-    self.s2hFactor = pts * 50
-  elseif playerClass == "SHAMAN" and GetPrimaryTalentTree () ~= 2 then
-    local pts = select(5, GetTalentInfo (1, 9))
-    self.s2hFactor = (pts == 3 and 100 or pts * 33)
-  elseif playerClass == "PALADIN" then
-    local pts = select(5, GetTalentInfo (1, 4))
-    self.s2hFactor = pts * 50
-  end
-  if self.s2hFactor > 0 then
-    self.convertSpirit.text:SetText (L["Spirit to hit"] .. ": " .. PERCENTAGE_STRING:format(self.s2hFactor))
-    self.convertSpirit.text:Show ()
+  local spiritToHitSpells = {
+    PRIEST = 47573,
+    SHAMAN = 30674,
+    DRUID = 33596
+  }
+
+  if spiritToHitSpells[playerClass] and IsPlayerSpell(spiritToHitSpells[playerClass]) then
+    self.s2hFactor = 100
   else
-    self.convertSpirit.text:Hide ()
+    self.s2hFactor = 0
   end
 
-  self:UpdateBuffs ()
   self:RefreshMethodStats ()
 end
 
@@ -1984,7 +1539,7 @@ function ReforgeLite:CreateMethodWindow()
   self.methodWindow = CreateFrame ("Frame", "ReforgeLiteMethodWindow", UIParent, "BackdropTemplate")
   self.methodWindow:SetFrameStrata ("DIALOG")
   self.methodWindow:ClearAllPoints ()
-  self.methodWindow:SetSize(250, 506)
+  self.methodWindow:SetSize(250, 480)
   if self.db.methodWindowX and self.db.methodWindowY then
     self.methodWindow:SetPoint ("TOPLEFT", UIParent, "BOTTOMLEFT", self.db.methodWindowX, self.db.methodWindowY)
   else
@@ -2076,11 +1631,7 @@ function ReforgeLite:CreateMethodWindow()
       if itemSlot.item then
         GameTooltip:SetInventoryItem("player", itemSlot.slotId)
       else
-        local text = _G[itemSlot.slot:upper()]
-        if itemSlot.checkRelic then
-          text = RELICSLOT
-        end
-        GameTooltip:SetText(text)
+        GameTooltip:SetText(_G[itemSlot.slot:upper()])
       end
       GameTooltip:Show()
     end)
@@ -2090,11 +1641,7 @@ function ReforgeLite:CreateMethodWindow()
         PickupInventoryItem(itemSlot.slotId)
       end
     end)
-    self.methodWindow.items[i].slotId, self.methodWindow.items[i].slotTexture, self.methodWindow.items[i].checkRelic = GetInventorySlotInfo(v)
-    self.methodWindow.items[i].checkRelic = self.methodWindow.items[i].checkRelic and UnitHasRelicSlot ("player")
-    if self.methodWindow.items[i].checkRelic then
-      self.methodWindow.items[i].slotTexture = "Interface\\Paperdoll\\UI-PaperDoll-Slot-Relic.blp"
-    end
+    self.methodWindow.items[i].slotId, self.methodWindow.items[i].slotTexture = GetInventorySlotInfo(v)
     self.methodWindow.items[i].texture = self.methodWindow.items[i]:CreateTexture (nil, "OVERLAY")
     self.methodWindow.items[i].texture:SetAllPoints (self.methodWindow.items[i])
     self.methodWindow.items[i].texture:SetTexture (self.methodWindow.items[i].slotTexture)
@@ -2209,8 +1756,16 @@ function ReforgeLite:IsReforgeMatching (slotId, reforge, override)
     deltas[dst] = deltas[dst] + amount
   end
 
-  deltas[self.STATS.SPIRIT] = Round(deltas[self.STATS.SPIRIT] * self.spiritBonus)
-  deltas[self.STATS.HIT] = deltas[self.STATS.HIT] + Round(deltas[self.STATS.SPIRIT] * self.s2hFactor / 100)
+  local conv = self:GetConversion()
+  local mult = self:GetStatMultipliers()
+  for i = 1, #self.itemStats do
+    deltas[i] = math.floor(deltas[i] * (mult[i] or 1) + 0.5)
+  end
+  for src, c in pairs(conv) do
+    for dst, factor in pairs(c) do
+      deltas[dst] = deltas[dst] + math.floor(deltas[src] * factor + 0.5)
+    end
+  end
 
   for i = 1, #self.itemStats do
     if self:GetStatScore (i, self.pdb.method.stats[i]) ~= self:GetStatScore (i, self.pdb.method.stats[i] - deltas[i]) then
@@ -2258,12 +1813,13 @@ end
 
 --------------------------------------------------------------------------
 
-local reforgeCo = nil
 local function ClearReforgeWindow()
   ClearCursor()
   C_Reforge.SetReforgeFromCursorItem ()
   ClearCursor()
 end
+
+local reforgeCo
 
 function ReforgeLite:DoReforge()
   if self.pdb.method and self.methodWindow and ReforgeFrameIsVisible() then
@@ -2332,13 +1888,13 @@ end
 --------------------------------------------------------------------------
 
 function ReforgeLite:OnTooltipSetItem (tip)
-  if not self.db.updateTooltip and not self.db.highlightTooltip then return end
+  if not self.db.updateTooltip then return end
   local _, item = tip:GetItem()
   if not item then return end
   for _, region in pairs({tip:GetRegions()}) do
     if region:GetObjectType() == "FontString" and region:GetText() == REFORGED then
       local reforgeId = self:SearchTooltipForReforgeID(tip)
-      if not reforgeId or reforgeId == UNFORGE_INDEX or not self.db.updateTooltip then return end
+      if not reforgeId or reforgeId == UNFORGE_INDEX then return end
       local srcId, destId = unpack(reforgeTable[reforgeId])
       region:SetText(("%s (%s > %s)"):format(REFORGED, self.itemStats[srcId].long, self.itemStats[destId].long))
       return
@@ -2348,14 +1904,15 @@ end
 
 function ReforgeLite:SetUpHooks ()
   local tooltips = {
-    GameTooltip,
-    ShoppingTooltip1,
-    ShoppingTooltip2,
-    ItemRefTooltip,
-    ItemRefShoppingTooltip1,
-    ItemRefShoppingTooltip2,
+    "GameTooltip",
+    "ShoppingTooltip1",
+    "ShoppingTooltip2",
+    "ItemRefTooltip",
+    "ItemRefShoppingTooltip1",
+    "ItemRefShoppingTooltip2",
   }
-  for _, tooltip in ipairs(tooltips) do
+  for _, tooltipName in ipairs(tooltips) do
+    local tooltip = _G[tooltipName]
     if tooltip then
       tooltip:HookScript("OnTooltipSetItem", function(tip) self:OnTooltipSetItem(tip) end)
     end
@@ -2430,17 +1987,14 @@ function ReforgeLite:ACTIVE_TALENT_GROUP_CHANGED()
   local currentSettings = {
     caps = DeepCopy(self.pdb.caps),
     weights = DeepCopy(self.pdb.weights),
-    tankingModel = self.pdb.tankingModel
   }
 
   if self.pdb.prevSpecSettings then
     if self.initialized then
       self:SetStatWeights(self.pdb.prevSpecSettings.weights, self.pdb.prevSpecSettings.caps or {})
-      self:SetTankingModel(self.pdb.prevSpecSettings.tankingModel)
     else
       self.pdb.weights = DeepCopy(self.pdb.prevSpecSettings.weights)
       self.pdb.caps = DeepCopy(self.pdb.prevSpecSettings.caps)
-      self.pdb.tankingModel = self.pdb.prevSpecSettings.tankingModel
     end
   end
 

@@ -1,4 +1,4 @@
-## Interface: 40402
+## Interface: 50500
 ## Author: d07.RiV (Iroared) (Continued by Brues)
 ## Title: ReforgeLite Classic
 ## Notes: Calculates optimal reforging for given weights/caps.
@@ -12,11 +12,11 @@
 embeds.xml
 #@end-no-lib-strip@
 
-util\json.lua
 util\tables.lua
 
 locales.xml
 
+Scaling.lua
 GUI.lua
 ReforgeLite.lua
 ReforgeEngine.lua
