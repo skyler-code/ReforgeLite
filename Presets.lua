@@ -63,8 +63,6 @@ function ReforgeLite:GetExpertiseBonus()
     return GetExpertise() - GetCombatRatingBonus(CR_EXPERTISE)
   end
 end
-function ReforgeLite:GetMeleeHasteBonus()
-  local baseBonus = RoundToSignificantDigits((GetMeleeHaste()+100)/(GetCombatRatingBonus(CR_HASTE_MELEE)+100), 4)
   if self.pdb.meleeHaste then
     local _, meleeHaste = self:GetPlayerBuffs()
     if self.pdb.spellHaste and not meleeHaste then
