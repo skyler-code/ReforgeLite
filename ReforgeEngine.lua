@@ -34,7 +34,7 @@ function ReforgeLite:GetConversion()
   local result = {}
   if playerClass == "PRIEST" then
     result[addonTable.statIds.EXP] = {[addonTable.statIds.HIT] = 1}
-    if IsPlayerSpell(47573) then
+    if spec == 3 then
       result[addonTable.statIds.SPIRIT] = {[addonTable.statIds.HIT] = 1}
     end
   elseif playerClass == "MAGE" then
@@ -42,16 +42,16 @@ function ReforgeLite:GetConversion()
   elseif playerClass == "WARLOCK" then
     result[addonTable.statIds.EXP] = {[addonTable.statIds.HIT] = 1}
   elseif playerClass == "DRUID" then
-      if IsPlayerSpell(33596) then
-        result[addonTable.statIds.SPIRIT] = {[addonTable.statIds.HIT] = 1}
-      end
+    if spec == 1 then
+      result[addonTable.statIds.SPIRIT] = {[addonTable.statIds.HIT] = 1}
+    end
     if spec == 1 or spec == 4 then
       result[addonTable.statIds.EXP] = {[addonTable.statIds.HIT] = 1}
     end
   elseif playerClass == "SHAMAN" then
-      if IsPlayerSpell(30674) then
-        result[addonTable.statIds.SPIRIT] = {[addonTable.statIds.HIT] = 1}
-      end
+    if IsPlayerSpell(30674) then
+      result[addonTable.statIds.SPIRIT] = {[addonTable.statIds.HIT] = 1}
+    end
     if spec == 1 or spec == 3 then
       result[addonTable.statIds.EXP] = {[addonTable.statIds.HIT] = 1}
     end
