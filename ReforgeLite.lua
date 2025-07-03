@@ -1401,7 +1401,7 @@ function ReforgeLite:GetReforgeID(slotId)
 end
 
 function ReforgeLite:UpdateItems()
-  for i, v in ipairs (self.itemData) do
+  for _, v in ipairs (self.itemData) do
     local item = Item:CreateFromEquipmentSlot(v.slotId)
     local stats = {}
     local reforgeSrc, reforgeDst
