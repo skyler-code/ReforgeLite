@@ -470,7 +470,7 @@ do
         [L["Masterfrost"]] = {
           icon = 135833,
           weights = {
-            0, 0, 0, 80, 38, 35, 80, 48
+            0, 0, 0, 84, 36, 37, 83, 53
           },
           caps = MeleeCaps,
         }
