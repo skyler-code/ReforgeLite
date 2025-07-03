@@ -49,7 +49,7 @@ function ReforgeLite:GetConversion()
       result[addonTable.statIds.EXP] = {[addonTable.statIds.HIT] = 1}
     end
   elseif playerClass == "SHAMAN" then
-    if IsPlayerSpell(30674) then
+    if spec == 1 then
       result[addonTable.statIds.SPIRIT] = {[addonTable.statIds.HIT] = 1}
     end
     if spec == 1 or spec == 3 then
