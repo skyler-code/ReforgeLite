@@ -1374,61 +1374,31 @@ function ReforgeLite:GetReforgeTableIndex(src, dst)
   return UNFORGE_INDEX
 end
 
-local REFORGE_TOOLTIP_LINE_MSG = REFORGE_TOOLTIP_LINE:gsub("%(", "%%("):gsub("%)", "%%)"):gsub("%%c%%s", "%([%%+%%-=!*&@#%%^$<>~?]+%)%(%%d+%)"):gsub("%%s", "(.+)")
-
-function ReforgeLite:SearchTooltipForReforgeID(tip)
-  local srcStat, destStat
-  for _, region in pairs({tip:GetRegions()}) do
-    if region.GetText and region:GetText() then
-      local _, _, destStatName, srcStatName = region:GetText():match(REFORGE_TOOLTIP_LINE_MSG)
-      if destStatName then
-        for statId, statInfo in pairs(self.itemStats) do
-          if statInfo.long == srcStatName then
-            srcStat = statId
-          elseif statInfo.long == destStatName then
-            destStat = statId
-          end
-        end
-      end
-      if srcStat and destStat then break end
+ local reforgeIdStringCache = setmetatable({}, {
+  __index = function(self, key)
+    local _, itemOptions = GetItemInfoFromHyperlink(key)
+    if not itemOptions then return false end
+    local reforgeId = select(10, LinkUtil.SplitLinkOptions(itemOptions))
+    if reforgeId == "" then
+      reforgeId = UNFORGE_INDEX
     end
+    rawset(self, key, reforgeId)
+    return reforgeId
   end
-  return self:GetReforgeTableIndex(srcStat, destStat)
+})
+
+function ReforgeLite:GetReforgeIDFromString(item)
+  local id = reforgeIdStringCache[item]
+  return ((id and id ~= UNFORGE_INDEX) and (id - self.REFORGE_TABLE_BASE) or nil)
 end
 
-local reforgeIdTooltip
-function ReforgeLite:GetReforgeIdForInventorySlot(slotId)
-    if ignoredSlots[slotId] then return end
-    if not reforgeIdTooltip then
-        reforgeIdTooltip = CreateFrame("GameTooltip", addonName.."Tooltip", nil, "GameTooltipTemplate")
-        reforgeIdTooltip:SetOwner(UIParent, "ANCHOR_NONE")
-    end
-    reforgeIdTooltip:SetInventoryItem("player", slotId)
-    return self:SearchTooltipForReforgeID(reforgeIdTooltip)
-end
-
-function ReforgeLite:GetReforgeID (slotId)
-  local reforgeId = self:GetReforgeIdForInventorySlot(slotId)
+function ReforgeLite:GetReforgeID(slotId)
+  if ignoredSlots[slotId] then return end
+  local reforgeId = self:GetReforgeIDFromString(GetInventoryItemLink('player', slotId))
   if reforgeId and reforgeId > UNFORGE_INDEX then
     return reforgeId
   end
 end
-
---@do-not-package@
--- In case blizzard ever brings back reforge ids
--- local reforgeIdStringCache = setmetatable({}, {
---   __index = function(self, key)
---     local id = tonumber(key:match ("item:%d+:%d+:%d+:%d+:%d+:%d+:%-?%d+:%-?%d+:%d+:(%d+)")) or false
---     rawset(self, key, id)
---     return id
---   end
--- })
-
--- function ReforgeLite:GetReforgeIDFromString(item)
---   local id = reforgeIdStringCache[item]
---   return ((id and id ~= UNFORGE_INDEX) and (id - self.REFORGE_TABLE_BASE) or nil)
--- end
---@end-do-not-package@
 
 function ReforgeLite:UpdateItems()
   for i, v in ipairs (self.itemData) do
@@ -1901,7 +1871,7 @@ function ReforgeLite:OnTooltipSetItem (tip)
   if not item then return end
   for _, region in pairs({tip:GetRegions()}) do
     if region:GetObjectType() == "FontString" and region:GetText() == REFORGED then
-      local reforgeId = self:SearchTooltipForReforgeID(tip)
+      local reforgeId = self:GetReforgeIDFromString(item)
       if not reforgeId or reforgeId == UNFORGE_INDEX then return end
       local srcId, destId = unpack(reforgeTable[reforgeId])
       region:SetText(("%s (%s > %s)"):format(REFORGED, self.itemStats[srcId].long, self.itemStats[destId].long))
