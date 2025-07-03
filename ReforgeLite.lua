@@ -151,8 +151,12 @@ addonTable.statIds = statIds
 ReforgeLite.STATS = statIds
 
 local FIRE_SPIRIT = 4
-local function HasFireBuff()
-  return C_UnitAuras.GetPlayerAuraBySpellID(7353) ~= nil
+local function GetFireSpirit()
+  local s2h = (ReforgeLite.conversion[statIds.SPIRIT] or {})[statIds.HIT]
+  if s2h and C_UnitAuras.GetPlayerAuraBySpellID(7353) then
+    return floor(FIRE_SPIRIT * s2h)
+  end
+  return 0
 end
 
 function ReforgeLite:CreateItemStats()
@@ -162,9 +166,9 @@ function ReforgeLite:CreateItemStats()
       tip = tip_,
       long = long_,
       getter = function ()
-        local rating = GetCombatRating (id_)
-        if id_ == CR_HIT_SPELL and self.s2hFactor > 0 and HasFireBuff() then
-          rating = rating - floor(FIRE_SPIRIT)
+        local rating = GetCombatRating(id_)
+        if id_ == CR_HIT_SPELL then
+          rating = rating - GetFireSpirit()
         end
         return rating
       end,
@@ -184,7 +188,7 @@ function ReforgeLite:CreateItemStats()
       long = ITEM_MOD_SPIRIT_SHORT,
       getter = function ()
         local _, spirit = UnitStat("player", LE_UNIT_STAT_SPIRIT)
-        if HasFireBuff() then
+        if GetFireSpirit() ~= 0 then
           spirit = spirit - FIRE_SPIRIT
         end
         return spirit
@@ -1251,11 +1255,8 @@ function ReforgeLite:FillSettings()
   self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Enable spec profiles"],
     self.db.specProfiles, function (val)
       self.db.specProfiles = val
-      if val then
-        self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-      else
+      if not val then
         self.pdb.prevSpecSettings = nil
-        self:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
       end
     end),
     "LEFT")
@@ -1499,18 +1500,6 @@ function ReforgeLite:UpdateItems()
   end
 
   self.itemLevel:SetText (STAT_AVERAGE_ITEM_LEVEL .. ": " .. floor(select(2,GetAverageItemLevel())))
-
-  local spiritToHitSpells = {
-    PRIEST = 47573,
-    SHAMAN = 30674,
-    DRUID = 33596
-  }
-
-  if spiritToHitSpells[playerClass] and IsPlayerSpell(spiritToHitSpells[playerClass]) then
-    self.s2hFactor = 100
-  else
-    self.s2hFactor = 0
-  end
 
   self:RefreshMethodStats ()
 end
@@ -1756,12 +1745,11 @@ function ReforgeLite:IsReforgeMatching (slotId, reforge, override)
     deltas[dst] = deltas[dst] + amount
   end
 
-  local conv = self:GetConversion()
   local mult = self:GetStatMultipliers()
   for i = 1, #self.itemStats do
     deltas[i] = math.floor(deltas[i] * (mult[i] or 1) + 0.5)
   end
-  for src, c in pairs(conv) do
+  for src, c in pairs(self.conversion) do
     for dst, factor in pairs(c) do
       deltas[dst] = deltas[dst] + math.floor(deltas[src] * factor + 0.5)
     end
@@ -1809,6 +1797,26 @@ function ReforgeLite:UpdateMethodChecks ()
     end
     MoneyFrame_Update (self.methodWindow.cost, cost)
   end
+end
+
+function ReforgeLite:SwapSpecProfiles()
+  if not self.db.specProfiles then return end
+
+  local currentSettings = {
+    caps = DeepCopy(self.pdb.caps),
+    weights = DeepCopy(self.pdb.weights),
+  }
+
+  if self.pdb.prevSpecSettings then
+    if self.initialized then
+      self:SetStatWeights(self.pdb.prevSpecSettings.weights, self.pdb.prevSpecSettings.caps or {})
+    else
+      self.pdb.weights = DeepCopy(self.pdb.prevSpecSettings.weights)
+      self.pdb.caps = DeepCopy(self.pdb.prevSpecSettings.caps)
+    end
+  end
+
+  self.pdb.prevSpecSettings = currentSettings
 end
 
 --------------------------------------------------------------------------
@@ -1982,24 +1990,14 @@ function ReforgeLite:PLAYER_REGEN_DISABLED()
 end
 
 function ReforgeLite:ACTIVE_TALENT_GROUP_CHANGED()
-  if not self.db.specProfiles then return end
-
-  local currentSettings = {
-    caps = DeepCopy(self.pdb.caps),
-    weights = DeepCopy(self.pdb.weights),
-  }
-
-  if self.pdb.prevSpecSettings then
-    if self.initialized then
-      self:SetStatWeights(self.pdb.prevSpecSettings.weights, self.pdb.prevSpecSettings.caps or {})
-    else
-      self.pdb.weights = DeepCopy(self.pdb.prevSpecSettings.weights)
-      self.pdb.caps = DeepCopy(self.pdb.prevSpecSettings.caps)
-    end
-  end
-
-  self.pdb.prevSpecSettings = currentSettings
+  self:GetConversion()
+  self:SwapSpecProfiles()
 end
+
+function ReforgeLite:PLAYER_ENTERING_WORLD()
+  self:GetConversion()
+end
+
 
 function ReforgeLite:ADDON_LOADED (addon)
   if addon ~= addonName then return end
@@ -2016,16 +2014,12 @@ function ReforgeLite:ADDON_LOADED (addon)
     tremove(self.pdb.caps)
   end
 
-  self.s2hFactor = 0
-
   self:SetUpHooks()
   self:RegisterEvent("FORGE_MASTER_OPENED")
   self:RegisterEvent("FORGE_MASTER_CLOSED")
   self:RegisterEvent("PLAYER_REGEN_DISABLED")
-
-  if self.db.specProfiles then
-    self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-  end
+  self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+  self:RegisterEvent("PLAYER_ENTERING_WORLD")
 
   for event in pairs(queueUpdateEvents) do
     self:RegisterEvent(event)

@@ -64,12 +64,11 @@ function ReforgeLite:GetConversion()
       result[addonTable.statIds.EXP] = {[addonTable.statIds.HIT] = 1}
     end
   end
-  return result
+  self.conversion = result
 end
 
 
 function ReforgeLite:UpdateMethodStats (method)
-  local conv = self:GetConversion()
   local mult = self:GetStatMultipliers()
   local oldstats = {}
   method.stats = {}
@@ -109,7 +108,7 @@ function ReforgeLite:UpdateMethodStats (method)
     method.stats[s] = Round(method.stats[s] * f)
   end
 
-  for src, c in pairs(conv) do
+  for src, c in pairs(self.conversion) do
     for dst, f in pairs(c) do
       method.stats[dst] = method.stats[dst] + Round((method.stats[src] - oldstats[src]) * f)
     end
@@ -270,7 +269,7 @@ function ReforgeLite:InitReforgeClassic()
   data.initial = {}
 
   data.mult = self:GetStatMultipliers()
-  data.conv = self:GetConversion()
+  data.conv = DeepCopy(self.conversion)
 
   for i = 1, 2 do
     for point = 1, #data.caps[i].points do

@@ -159,10 +159,9 @@ ReforgeLite.capPresets = {
     value = CAPS.SpellHitCap,
     name = L["Spell hit cap"],
     getter = function ()
-      local conv = ReforgeLite:GetConversion()
       local result = ReforgeLite:RatingPerPoint (addonTable.statIds.SPELLHIT) * (ReforgeLite:GetNeededSpellHit () - ReforgeLite:GetSpellHitBonus ())
-      if conv[StatExp] and conv[StatExp][StatHit] then
-        result = result + math.floor(GetCombatRating(CR_EXPERTISE) * conv[StatExp][StatHit])
+      if ReforgeLite.conversion[StatExp] and ReforgeLite.conversion[StatExp][StatHit] then
+        result = result + math.floor(GetCombatRating(CR_EXPERTISE) * ReforgeLite.conversion[StatExp][StatHit])
       end
       return result
     end,
