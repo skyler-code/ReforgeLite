@@ -1379,7 +1379,8 @@ end
     local _, itemOptions = GetItemInfoFromHyperlink(key)
     if not itemOptions then return false end
     local reforgeId = select(10, LinkUtil.SplitLinkOptions(itemOptions))
-    if reforgeId == "" then
+    reforgeId = tonumber(reforgeId)
+    if not reforgeId then
       reforgeId = UNFORGE_INDEX
     end
     rawset(self, key, reforgeId)
