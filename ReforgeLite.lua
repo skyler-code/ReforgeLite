@@ -206,7 +206,7 @@ ReforgeLite.itemStats = {
     RatingStat (statIds.MASTERY, "ITEM_MOD_MASTERY_RATING_SHORT", STAT_MASTERY,   STAT_MASTERY,         CR_MASTERY),
 }
 
-ReforgeLite.REFORGE_TABLE_BASE = 112
+local REFORGE_TABLE_BASE = 112
 local reforgeTable = {
   {statIds.SPIRIT, statIds.DODGE}, {statIds.SPIRIT, statIds.PARRY}, {statIds.SPIRIT, statIds.HIT}, {statIds.SPIRIT, statIds.CRIT}, {statIds.SPIRIT, statIds.HASTE}, {statIds.SPIRIT, statIds.EXP}, {statIds.SPIRIT, statIds.MASTERY},
   {statIds.DODGE, statIds.SPIRIT}, {statIds.DODGE, statIds.PARRY}, {statIds.DODGE, statIds.HIT}, {statIds.DODGE, statIds.CRIT}, {statIds.DODGE, statIds.HASTE}, {statIds.DODGE, statIds.EXP}, {statIds.DODGE, statIds.MASTERY},
@@ -260,7 +260,7 @@ function ReforgeLite:ValidateWoWSimsString(importStr)
         return L["%s does not match your currently equipped %s. ReforgeLite only supports equipped items."]:format(importItemLink or ("item:"..simItemInfo.id), equippedItemInfo.item)
       end
       if simItemInfo.reforging then
-        item.src, item.dst = unpack(self.reforgeTable[simItemInfo.reforging - self.REFORGE_TABLE_BASE])
+        item.src, item.dst = unpack(self.reforgeTable[simItemInfo.reforging - REFORGE_TABLE_BASE])
       else
         item.src, item.dst = nil, nil
       end
@@ -1393,14 +1393,14 @@ local reforgeIdStringCache = setmetatable({}, {
   end
 })
 
-function ReforgeLite:GetReforgeIDFromString(item)
+local function GetReforgeIDFromString(item)
   local id = reforgeIdStringCache[item]
-  return ((id and id ~= UNFORGE_INDEX) and (id - self.REFORGE_TABLE_BASE) or nil)
+  return ((id and id ~= UNFORGE_INDEX) and (id - REFORGE_TABLE_BASE) or nil)
 end
 
-function ReforgeLite:GetReforgeID(slotId)
+local function GetReforgeID(slotId)
   if ignoredSlots[slotId] then return end
-  local reforgeId = self:GetReforgeIDFromString(GetInventoryItemLink('player', slotId))
+  local reforgeId = GetReforgeIDFromString(GetInventoryItemLink('player', slotId))
   if reforgeId and reforgeId > UNFORGE_INDEX then
     return reforgeId
   end
@@ -1421,7 +1421,7 @@ function ReforgeLite:UpdateItems()
       v.quality:SetVertexColor(v.qualityColor.r, v.qualityColor.g, v.qualityColor.b)
       v.quality:Show()
       stats = GetItemStats(v.item, self.pdb.ilvlCap)
-      v.reforge = self:GetReforgeID(v.slotId)
+      v.reforge = GetReforgeID(v.slotId)
       if v.reforge then
         local srcId, dstId = unpack(reforgeTable[v.reforge])
         reforgeSrc, reforgeDst = self.itemStats[srcId].name, self.itemStats[dstId].name
@@ -1694,13 +1694,13 @@ function ReforgeLite:IsReforgeMatching (slotId, reforge, override)
     return true
   end
 
-  local oreforge = self:GetReforgeID (slotId)
+  local oreforge = GetReforgeID (slotId)
 
   if override == -1 then
     return reforge == oreforge
   end
 
-  local stats = GetItemStats(GetInventoryItemLink("player", slotId))
+  local stats = GetItemStats(GetInventoryItemLink("player", slotId), self.pdb.ilvlCap)
 
   local deltas = {}
   for i = 1, #self.itemStats do
@@ -1848,7 +1848,7 @@ function ReforgeLite:DoReforgeUpdate()
         C_Reforge.SetReforgeFromCursorItem()
         if newReforge then
           local id = UNFORGE_INDEX
-          local stats = GetItemStats (slotInfo.item)
+          local stats = GetItemStats (slotInfo.item, self.pdb.ilvlCap)
           for s, reforgeInfo in ipairs(reforgeTable) do
             local srcstat, dststat = unpack(reforgeInfo)
             if (stats[self.itemStats[srcstat].name] or 0) ~= 0 and (stats[self.itemStats[dststat].name] or 0) == 0 then
@@ -1859,7 +1859,7 @@ function ReforgeLite:DoReforgeUpdate()
               coroutine.yield()
             end
           end
-        elseif self:GetReforgeID(slotInfo.slotId) then
+        elseif GetReforgeID(slotInfo.slotId) then
           C_Reforge.ReforgeItem (UNFORGE_INDEX)
           coroutine.yield()
         end
@@ -1875,7 +1875,7 @@ local function HandleTooltipUpdate(tip)
   if not ReforgeLite.db.updateTooltip then return end
   local _, item = tip:GetItem()
   if not item then return end
-  local reforgeId = ReforgeLite:GetReforgeIDFromString(item)
+  local reforgeId = GetReforgeIDFromString(item)
   if not reforgeId or reforgeId == UNFORGE_INDEX then return end
   for _, region in pairs({tip:GetRegions()}) do
     if region:GetObjectType() == "FontString" and region:GetText() == REFORGED then
