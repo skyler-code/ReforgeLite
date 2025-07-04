@@ -1,6 +1,5 @@
 local addonName, addonTable = ...
 local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "title")
-local GetItemStats = addonTable.GetItemStatsUp
 
 local ReforgeLite = CreateFrame("Frame", addonName, UIParent, "BackdropTemplate")
 addonTable.ReforgeLite = ReforgeLite
@@ -11,6 +10,7 @@ local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 addonTable.MAX_LOOPS = 200000
 
 local DeepCopy = addonTable.DeepCopy
+local GetItemStats = addonTable.GetItemStatsUp
 
 local gprint = print
 local function print(...)
@@ -77,9 +77,8 @@ local function ReforgeFrameIsVisible()
   return ReforgingFrame and ReforgingFrame:IsShown()
 end
 
-addonTable.localeClass, addonTable.playerClass, addonTable.playerClassID = UnitClass ("player")
-addonTable.playerRace = select(2,UnitRace ("player"))
-local playerClass, playerRace, localeClass = addonTable.playerClass, addonTable.playerRace, addonTable.localeClass
+addonTable.localeClass, addonTable.playerClass, addonTable.playerClassID = UnitClass("player")
+addonTable.playerRace = select(2, UnitRace("player"))
 local UNFORGE_INDEX = -1
 addonTable.StatCapMethods = {
   AtLeast = 1,
@@ -159,29 +158,30 @@ local function GetFireSpirit()
   return 0
 end
 
-function ReforgeLite:CreateItemStats()
-  local function RatingStat (i, name_, tip_, long_, id_)
-    return {
-      name = name_,
-      tip = tip_,
-      long = long_,
-      getter = function ()
-        local rating = GetCombatRating(id_)
-        if id_ == CR_HIT_SPELL then
-          rating = rating - GetFireSpirit()
-        end
-        return rating
-      end,
-      mgetter = function (method, orig)
-        return (orig and method.orig_stats and method.orig_stats[i]) or method.stats[i]
+local CR_HIT, CR_CRIT, CR_HASTE = CR_HIT_SPELL, CR_CRIT_SPELL, CR_HASTE_SPELL
+if addonTable.playerClass == "HUNTER" then
+  CR_HIT, CR_CRIT, CR_HASTE = CR_HIT_RANGED, CR_CRIT_RANGED, CR_HASTE_RANGED
+end
+
+local function RatingStat (i, name_, tip_, long_, id_)
+  return {
+    name = name_,
+    tip = tip_,
+    long = long_,
+    getter = function ()
+      local rating = GetCombatRating(id_)
+      if id_ == CR_HIT then
+        rating = rating - GetFireSpirit()
       end
-    }
-  end
-  local CR_HIT, CR_CRIT, CR_HASTE = CR_HIT_SPELL, CR_CRIT_SPELL, CR_HASTE_SPELL
-  if playerClass == "HUNTER" then
-    CR_HIT, CR_CRIT, CR_HASTE = CR_HIT_RANGED, CR_CRIT_RANGED, CR_HASTE_RANGED
-  end
-  self.itemStats = {
+      return rating
+    end,
+    mgetter = function (method, orig)
+      return (orig and method.orig_stats and method.orig_stats[i]) or method.stats[i]
+    end
+  }
+end
+
+ReforgeLite.itemStats = {
     {
       name = "ITEM_MOD_SPIRIT_SHORT",
       tip = SPELL_STAT5_NAME,
@@ -203,10 +203,8 @@ function ReforgeLite:CreateItemStats()
     RatingStat (statIds.CRIT,    "ITEM_MOD_CRIT_RATING",          CRIT_ABBR,      STAT_CRITICAL_STRIKE, CR_CRIT),
     RatingStat (statIds.HASTE,   "ITEM_MOD_HASTE_RATING",         STAT_HASTE,     STAT_HASTE,           CR_HASTE),
     RatingStat (statIds.EXP,     "ITEM_MOD_EXPERTISE_RATING",     EXPERTISE_ABBR, STAT_EXPERTISE,       CR_EXPERTISE),
-    RatingStat (statIds.MASTERY, "ITEM_MOD_MASTERY_RATING_SHORT", STAT_MASTERY,   STAT_MASTERY,         CR_MASTERY)
-  }
-end
-ReforgeLite:CreateItemStats()
+    RatingStat (statIds.MASTERY, "ITEM_MOD_MASTERY_RATING_SHORT", STAT_MASTERY,   STAT_MASTERY,         CR_MASTERY),
+}
 
 ReforgeLite.REFORGE_TABLE_BASE = 112
 local reforgeTable = {
