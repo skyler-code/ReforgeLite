@@ -1374,7 +1374,7 @@ function ReforgeLite:GetReforgeTableIndex(src, dst)
   return UNFORGE_INDEX
 end
 
- local reforgeIdStringCache = setmetatable({}, {
+local reforgeIdStringCache = setmetatable({}, {
   __index = function(self, key)
     local _, itemOptions = GetItemInfoFromHyperlink(key)
     if not itemOptions then return false end
