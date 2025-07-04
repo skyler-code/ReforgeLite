@@ -1248,7 +1248,14 @@ function ReforgeLite:FillSettings()
     self.db.openOnReforge, function (val) self.db.openOnReforge = val end), "LEFT")
 
   self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Summarize reforged stats"],
-    self.db.updateTooltip, function (val) self.db.updateTooltip = val end), "LEFT")
+    self.db.updateTooltip,
+    function (val)
+      self.db.updateTooltip = val
+      if val then
+        self:HookTooltipScripts()
+      end
+    end),
+    "LEFT")
 
   self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Enable spec profiles"],
     self.db.specProfiles, function (val)
@@ -1864,22 +1871,23 @@ end
 
 --------------------------------------------------------------------------
 
-function ReforgeLite:OnTooltipSetItem (tip)
-  if not self.db.updateTooltip then return end
+local function HandleTooltipUpdate(tip)
+  if not ReforgeLite.db.updateTooltip then return end
   local _, item = tip:GetItem()
   if not item then return end
-  local reforgeId = self:GetReforgeIDFromString(item)
+  local reforgeId = ReforgeLite:GetReforgeIDFromString(item)
   if not reforgeId or reforgeId == UNFORGE_INDEX then return end
   for _, region in pairs({tip:GetRegions()}) do
     if region:GetObjectType() == "FontString" and region:GetText() == REFORGED then
       local srcId, destId = unpack(reforgeTable[reforgeId])
-      region:SetText(("%s (%s > %s)"):format(REFORGED, self.itemStats[srcId].long, self.itemStats[destId].long))
+      region:SetText(("%s (%s > %s)"):format(REFORGED, ReforgeLite.itemStats[srcId].long, ReforgeLite.itemStats[destId].long))
       return
     end
   end
 end
 
-function ReforgeLite:SetUpHooks ()
+function ReforgeLite:HookTooltipScripts()
+  if self.tooltipsHooked then return end
   local tooltips = {
     "GameTooltip",
     "ShoppingTooltip1",
@@ -1891,9 +1899,10 @@ function ReforgeLite:SetUpHooks ()
   for _, tooltipName in ipairs(tooltips) do
     local tooltip = _G[tooltipName]
     if tooltip then
-      tooltip:HookScript("OnTooltipSetItem", function(tip) self:OnTooltipSetItem(tip) end)
+      tooltip:HookScript("OnTooltipSetItem", HandleTooltipUpdate)
     end
   end
+  self.tooltipsHooked = true
 end
 
 --------------------------------------------------------------------------
@@ -1985,7 +1994,9 @@ function ReforgeLite:ADDON_LOADED (addon)
 
   self.conversion = {}
 
-  self:SetUpHooks()
+  if self.db.updateTooltip then
+    self:HookTooltipScripts()
+  end
   self:RegisterEvent("FORGE_MASTER_OPENED")
   self:RegisterEvent("FORGE_MASTER_CLOSED")
   self:RegisterEvent("PLAYER_REGEN_DISABLED")
