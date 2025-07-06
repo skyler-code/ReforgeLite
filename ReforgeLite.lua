@@ -8,6 +8,7 @@ local L = addonTable.L
 local GUI = addonTable.GUI
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 addonTable.MAX_LOOPS = 200000
+local MIN_LOOPS = 1000
 
 local DeepCopy = addonTable.DeepCopy
 local GetItemStats = addonTable.GetItemStatsUp
@@ -1198,8 +1199,8 @@ function ReforgeLite:CreateOptionList ()
   self.quality = CreateFrame ("Slider", nil, self.content, "UISliderTemplateWithLabels")
   self:SetAnchor (self.quality, "LEFT", self.computeButton, "RIGHT", 10, 0)
   self.quality:SetSize(150, 15)
-  self.quality:SetMinMaxValues (1000, addonTable.MAX_LOOPS)
-  self.quality:SetValueStep (1000)
+  self.quality:SetMinMaxValues (MIN_LOOPS, addonTable.MAX_LOOPS)
+  self.quality:SetValueStep ((addonTable.MAX_LOOPS - MIN_LOOPS) / 20)
   self.quality:SetObeyStepOnDrag(true)
   self.quality:SetValue (self.db.speed)
   self.quality:EnableMouseWheel (false)
