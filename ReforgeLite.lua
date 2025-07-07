@@ -1391,6 +1391,8 @@ local reforgeIdStringCache = setmetatable({}, {
     reforgeId = tonumber(reforgeId)
     if not reforgeId then
       reforgeId = UNFORGE_INDEX
+    else
+      reforgeId = reforgeId - REFORGE_TABLE_BASE
     end
     rawset(self, key, reforgeId)
     return reforgeId
@@ -1399,15 +1401,14 @@ local reforgeIdStringCache = setmetatable({}, {
 
 local function GetReforgeIDFromString(item)
   local id = reforgeIdStringCache[item]
-  return ((id and id ~= UNFORGE_INDEX) and (id - REFORGE_TABLE_BASE) or nil)
+  if id and id ~= UNFORGE_INDEX then
+    return id
+  end
 end
 
 local function GetReforgeID(slotId)
   if ignoredSlots[slotId] then return end
-  local reforgeId = GetReforgeIDFromString(GetInventoryItemLink('player', slotId))
-  if reforgeId and reforgeId > UNFORGE_INDEX then
-    return reforgeId
-  end
+  return GetReforgeIDFromString(GetInventoryItemLink('player', slotId))
 end
 
 function ReforgeLite:UpdateItems()
@@ -1880,7 +1881,7 @@ local function HandleTooltipUpdate(tip)
   local _, item = tip:GetItem()
   if not item then return end
   local reforgeId = GetReforgeIDFromString(item)
-  if not reforgeId or reforgeId == UNFORGE_INDEX then return end
+  if not reforgeId then return end
   for _, region in pairs({tip:GetRegions()}) do
     if region:GetObjectType() == "FontString" and region:GetText() == REFORGED then
       local srcId, destId = unpack(reforgeTable[reforgeId])
