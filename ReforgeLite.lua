@@ -683,19 +683,31 @@ function ReforgeLite:CreateFrame()
 end
 
 function ReforgeLite:CreateItemTable ()
-  local lockTip = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  lockTip:SetTextColor (1, 1, 1)
-  lockTip:SetText (L["Click an item to lock it"])
-  lockTip:SetPoint ("TOPLEFT", 12, -28)
+  self.playerSpecTexture = self:CreateTexture (nil, "ARTWORK")
+  self.playerSpecTexture:SetPoint ("TOPLEFT", 10, -28)
+  self.playerSpecTexture:SetSize(16, 16)
+  self.playerSpecTexture:SetTexCoord(0.0825, 0.0825, 0.0825, 0.9175, 0.9175, 0.0825, 0.9175, 0.9175)
+
+  self.playerSpec = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
+  self.playerSpec:SetPoint ("TOPLEFT", self.playerSpecTexture, "TOPRIGHT", 4, -2)
+  self.playerSpec:SetTextColor (1, 1, 0.8)
+
+  self:UpdatePlayerSpecInfo()
 
   self.itemTable = GUI:CreateTable (#self.itemSlots + 1, #self.itemStats, ITEM_SIZE, ITEM_SIZE + 4, {0.5, 0.5, 0.5, 1}, self)
-  self.itemTable:SetPoint ("TOPLEFT", lockTip, "BOTTOMLEFT", 0, -10)
+  self.itemTable:SetPoint ("TOPLEFT", self.playerSpecTexture, "BOTTOMLEFT", 0, -8)
   self.itemTable:SetPoint ("BOTTOM", 0, 10)
   self.itemTable:SetWidth (400)
 
   self.itemLevel = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.itemLevel:SetPoint ("BOTTOMRIGHT", self.itemTable, "TOPRIGHT", 0, 10)
+  self.itemLevel:SetPoint ("BOTTOMRIGHT", self.itemTable, "TOPRIGHT", 0, 9)
   self.itemLevel:SetTextColor (1, 1, 0.8)
+
+  self.itemLockHelpButton = CreateFrame("Button",nil, self ,"MainHelpPlateButton")
+  self.itemLockHelpButton:SetScale(0.5)
+  GUI:SetTooltip(self.itemLockHelpButton, L["The current state of your equipment.\nClicking an item icon will lock it. ReforgeLite will ignore the item(s) in future calculations."])
+
+  self.itemTable:SetCell(0, 0, self.itemLockHelpButton, "TOPLEFT", -5, 10)
 
   for i, v in ipairs (self.itemStats) do
     self.itemTable:SetCellText (0, i, v.tip)
@@ -1479,10 +1491,23 @@ function ReforgeLite:UpdateItems()
       end
     end
   end
-
-  self.itemLevel:SetText (STAT_AVERAGE_ITEM_LEVEL .. ": " .. floor(select(2,GetAverageItemLevel())))
-
+  self.itemLevel:SetText(CHARACTER_LINK_ITEM_LEVEL_TOOLTIP:format(floor(select(2,GetAverageItemLevel()))))
   self:RefreshMethodStats ()
+end
+
+function ReforgeLite:UpdatePlayerSpecInfo()
+  if not self.playerSpec then return end
+  local _, specName, _, icon = C_SpecializationInfo.GetSpecializationInfo(C_SpecializationInfo.GetSpecialization())
+  if specName == "" then
+    specName, icon = NONE, 132222
+  end
+  self.playerSpecTexture:SetTexture(icon)
+  local activeSpecGroup = GetNumSpecGroups(false) > 1 and (C_SpecializationInfo.GetActiveSpecGroup() == 1 and PRIMARY or SECONDARY) or ""
+  if activeSpecGroup == "" then
+    self.playerSpec:SetText(specName)
+  else
+    self.playerSpec:SetText(specName .. " - " .. activeSpecGroup)
+  end
 end
 
 local queueUpdateEvents = {
@@ -1983,6 +2008,7 @@ end
 function ReforgeLite:PLAYER_SPECIALIZATION_CHANGED(unitId)
   if unitId == 'player' then
     self:GetConversion()
+    self:UpdatePlayerSpecInfo()
   end
 end
 
