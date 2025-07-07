@@ -601,30 +601,29 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
     local cell = self.cells[i][j]
     local x = cell.offsX or 0
     local y = cell.offsY or 0
-    local alignment = cell.align
-    if alignment == "FILL" then
+    if cell.align == "FILL" then
       cell:SetPoint ("TOPLEFT", self, "TOPLEFT", self:GetCellX (j - 1) + x, self:GetCellY (i - 1) + y)
       cell:SetPoint ("BOTTOMRIGHT", self, "BOTTOMRIGHT", self:GetCellX (j) + x, self:GetCellY (i) + y)
 
-    elseif alignment == "TOPLEFT" then
+    elseif cell.align == "TOPLEFT" then
       cell:SetPoint ("TOPLEFT", self, "TOPLEFT", self:GetCellX (j - 1) + 2 + x, self:GetCellY (i - 1) - 2 + y)
-    elseif alignment == "LEFT" then
+    elseif cell.align == "LEFT" then
       cell:SetPoint ("LEFT", self, "TOPLEFT", self:GetCellX (j - 1) + 2 + x, self:GetCellY (i - 0.5) + y)
-    elseif alignment == "BOTTOMLEFT" then
+    elseif cell.align == "BOTTOMLEFT" then
       cell:SetPoint ("BOTTOMLEFT", self, "TOPLEFT", self:GetCellX (j - 1) + 2 + x, self:GetCellY (i) + 2 + y)
 
-    elseif alignment == "TOP" then
+    elseif cell.align == "TOP" then
       cell:SetPoint ("TOP", self, "TOPLEFT", self:GetCellX (j - 0.5) + x, self:GetCellY (j - 1) - 2 + y)
-    elseif alignment == "CENTER" then
+    elseif cell.align == "CENTER" then
       cell:SetPoint ("CENTER", self, "TOPLEFT", self:GetCellX (j - 0.5) + x, self:GetCellY (i - 0.5) + y)
-    elseif alignment == "BOTTOM" then
+    elseif cell.align == "BOTTOM" then
       cell:SetPoint ("BOTTOM", self, "TOPLEFT", self:GetCellX (j - 0.5) + x, self:GetCellY (j) + 2 + y)
 
-    elseif alignment == "TOPRIGHT" then
+    elseif cell.align == "TOPRIGHT" then
       cell:SetPoint ("TOPRIGHT", self, "TOPLEFT", self:GetCellX (j) - 2 + x, self:GetCellY (i - 1) - 2 + y)
-    elseif alignment == "RIGHT" then
+    elseif cell.align == "RIGHT" then
       cell:SetPoint ("RIGHT", self, "TOPLEFT", self:GetCellX (j) - 2 + x, self:GetCellY (i - 0.5) + y)
-    elseif alignment == "BOTTOMRIGHT" then
+    elseif cell.align == "BOTTOMRIGHT" then
       cell:SetPoint ("BOTTOMRIGHT", self, "TOPLEFT", self:GetCellX (j) - 2 + x, self:GetCellY (i) + 2 + y)
     end
   end
