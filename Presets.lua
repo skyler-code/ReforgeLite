@@ -343,8 +343,6 @@ local TankCaps = {
   HardExpCap
 }
 
-local RangedCaps = { HitCap }
-
 local CasterCaps = { HitCapSpell }
 
 local specInfo = {}
@@ -640,7 +638,7 @@ do
     ["PRIEST"] = {
       [specs.priest.discipline] = {
         weights = {
-          120, 0, 0, 0, 80, 120, 0, 40
+          120, 0, 0, 0, 120, 40, 0, 80
         },
       },
       [specs.priest.holy] = {
