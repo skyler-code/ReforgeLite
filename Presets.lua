@@ -701,7 +701,7 @@ do
       },
       [specs.warlock.destruction] = {
         weights = {
-          0, 0, 0, 150, 50, 120, 0, 100
+          0, 0, 0, 83, 59, 57, 0, 61
         },
         caps = CasterCaps,
       },
