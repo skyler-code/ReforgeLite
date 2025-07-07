@@ -643,18 +643,7 @@ do
       },
       [specs.priest.holy] = {
         weights = {
-          150, 0, 0, 0, 80, 120, 0, 40
-        },
-        caps = {
-          {
-            stat = StatHaste,
-            points = {
-              {
-                method = AtLeast,
-                preset = CAPS.FirstHasteBreak,
-              }
-            }
-          }
+          150, 0, 0, 0, 120, 40, 0, 80
         },
       },
       [specs.priest.shadow] = {
