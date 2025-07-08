@@ -685,22 +685,26 @@ end
 function ReforgeLite:CreateItemTable ()
   self.playerSpecTexture = self:CreateTexture (nil, "ARTWORK")
   self.playerSpecTexture:SetPoint ("TOPLEFT", 10, -28)
-  self.playerSpecTexture:SetSize(16, 16)
+  self.playerSpecTexture:SetSize(18, 18)
   self.playerSpecTexture:SetTexCoord(0.0825, 0.0825, 0.0825, 0.9175, 0.9175, 0.0825, 0.9175, 0.9175)
 
-  self.playerSpec = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.playerSpec:SetPoint ("TOPLEFT", self.playerSpecTexture, "TOPRIGHT", 4, -2)
-  self.playerSpec:SetTextColor (1, 1, 0.8)
+  self.playerTalents = {}
+  for tier = 1, MAX_NUM_TALENT_TIERS do
+    self.playerTalents[tier] = self:CreateTexture(nil, "ARTWORK")
+    self.playerTalents[tier]:SetPoint("TOPLEFT", self.playerTalents[tier-1] or self.playerSpecTexture, "TOPRIGHT", 4, 0)
+    self.playerTalents[tier]:SetSize(18, 18)
+    self.playerTalents[tier]:SetTexCoord(0.0825, 0.0825, 0.0825, 0.9175, 0.9175, 0.0825, 0.9175, 0.9175)
+  end
 
   self:UpdatePlayerSpecInfo()
 
   self.itemTable = GUI:CreateTable (#self.itemSlots + 1, #self.itemStats, ITEM_SIZE, ITEM_SIZE + 4, {0.5, 0.5, 0.5, 1}, self)
-  self.itemTable:SetPoint ("TOPLEFT", self.playerSpecTexture, "BOTTOMLEFT", 0, -8)
+  self.itemTable:SetPoint ("TOPLEFT", self.playerSpecTexture, "BOTTOMLEFT", 0, -6)
   self.itemTable:SetPoint ("BOTTOM", 0, 10)
   self.itemTable:SetWidth (400)
 
   self.itemLevel = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.itemLevel:SetPoint ("BOTTOMRIGHT", self.itemTable, "TOPRIGHT", 0, 9)
+  ReforgeLite.itemLevel:SetPoint ("BOTTOMRIGHT", ReforgeLite.itemTable, "TOPRIGHT", 0, 8)
   self.itemLevel:SetTextColor (1, 1, 0.8)
 
   self.itemLockHelpButton = CreateFrame("Button",nil, self ,"MainHelpPlateButton")
@@ -1491,22 +1495,59 @@ function ReforgeLite:UpdateItems()
       end
     end
   end
-  self.itemLevel:SetText(CHARACTER_LINK_ITEM_LEVEL_TOOLTIP:format(select(2,GetAverageItemLevel())))
+  self.itemLevel:SetFormattedText(CHARACTER_LINK_ITEM_LEVEL_TOOLTIP, select(2,GetAverageItemLevel()))
   self:RefreshMethodStats()
 end
 
+ function GetPlayerSelectedTalents(activeSpecGroup)
+  local selectedTalents = {}
+  for tier = 1, MAX_NUM_TALENT_TIERS do
+    local tierAvailable, selectedTalentColumn = GetTalentTierInfo(tier, activeSpecGroup, false, "player");
+    if selectedTalentColumn > 0 then
+      local talentInfoQuery = {
+        tier = tier,
+        column = selectedTalentColumn,
+        groupIndex = activeSpecGroup,
+        target = 'player'
+      };
+      local talentInfo = C_SpecializationInfo.GetTalentInfo(talentInfoQuery)
+      selectedTalents[tier] = talentInfo
+    else
+      selectedTalents[tier] = { tierUnavailable = not tierAvailable }
+    end
+  end
+  return selectedTalents
+end
+
 function ReforgeLite:UpdatePlayerSpecInfo()
-  if not self.playerSpec then return end
+  if not self.playerSpecTexture then return end
   local _, specName, _, icon = C_SpecializationInfo.GetSpecializationInfo(C_SpecializationInfo.GetSpecialization())
   if specName == "" then
     specName, icon = NONE, 132222
   end
   self.playerSpecTexture:SetTexture(icon)
-  local activeSpecGroup = GetNumSpecGroups(false) > 1 and (C_SpecializationInfo.GetActiveSpecGroup() == 1 and PRIMARY or SECONDARY) or ""
-  if activeSpecGroup == "" then
-    self.playerSpec:SetText(specName)
-  else
-    self.playerSpec:SetText(specName .. " - " .. activeSpecGroup)
+  local activeSpecGroup = C_SpecializationInfo.GetActiveSpecGroup()
+  for k, v in pairs(GetPlayerSelectedTalents(activeSpecGroup)) do
+    self.playerTalents[k]:Show()
+    if v.talentID then
+      self.playerTalents[k]:SetTexture(v.icon)
+      self.playerTalents[k]:SetScript("OnEnter", function(f)
+        if v.talentID then
+          GameTooltip:SetOwner(f, "ANCHOR_LEFT")
+          GameTooltip:SetTalent(v.talentID, false, false, activeSpecGroup)
+          GameTooltip:Show()
+        end
+      end)
+      self.playerTalents[k]:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    else
+      if v.tierUnavailable then
+        self.playerTalents[k]:Hide()
+      else
+        self.playerTalents[k]:SetTexture(132222)
+      end
+      self.playerTalents[k]:SetScript("OnEnter", nil)
+      self.playerTalents[k]:SetScript("OnLeave", nil)
+    end
   end
 end
 
