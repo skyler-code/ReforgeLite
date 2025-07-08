@@ -1491,8 +1491,8 @@ function ReforgeLite:UpdateItems()
       end
     end
   end
-  self.itemLevel:SetText(CHARACTER_LINK_ITEM_LEVEL_TOOLTIP:format(floor(select(2,GetAverageItemLevel()))))
-  self:RefreshMethodStats ()
+  self.itemLevel:SetText(CHARACTER_LINK_ITEM_LEVEL_TOOLTIP:format(select(2,GetAverageItemLevel())))
+  self:RefreshMethodStats()
 end
 
 function ReforgeLite:UpdatePlayerSpecInfo()
