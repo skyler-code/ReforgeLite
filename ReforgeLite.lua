@@ -1499,26 +1499,6 @@ function ReforgeLite:UpdateItems()
   self:RefreshMethodStats()
 end
 
- local function GetPlayerSelectedTalents(activeSpecGroup)
-  local selectedTalents = {}
-  for tier = 1, MAX_NUM_TALENT_TIERS do
-    local tierAvailable, selectedTalentColumn = GetTalentTierInfo(tier, activeSpecGroup, false, "player");
-    if selectedTalentColumn > 0 then
-      local talentInfoQuery = {
-        tier = tier,
-        column = selectedTalentColumn,
-        groupIndex = activeSpecGroup,
-        target = 'player'
-      };
-      local talentInfo = C_SpecializationInfo.GetTalentInfo(talentInfoQuery)
-      selectedTalents[tier] = talentInfo
-    else
-      selectedTalents[tier] = { tierUnavailable = not tierAvailable }
-    end
-  end
-  return selectedTalents
-end
-
 function ReforgeLite:UpdatePlayerSpecInfo()
   if not self.playerSpecTexture then return end
   local _, specName, _, icon = C_SpecializationInfo.GetSpecializationInfo(C_SpecializationInfo.GetSpecialization())
@@ -1527,26 +1507,31 @@ function ReforgeLite:UpdatePlayerSpecInfo()
   end
   self.playerSpecTexture:SetTexture(icon)
   local activeSpecGroup = C_SpecializationInfo.GetActiveSpecGroup()
-  for k, v in pairs(GetPlayerSelectedTalents(activeSpecGroup)) do
-    self.playerTalents[k]:Show()
-    if v.talentID then
-      self.playerTalents[k]:SetTexture(v.icon)
-      self.playerTalents[k]:SetScript("OnEnter", function(f)
-        if v.talentID then
+  for tier = 1, MAX_NUM_TALENT_TIERS do
+    self.playerTalents[tier]:Show()
+    local tierAvailable, selectedTalentColumn = GetTalentTierInfo(tier, activeSpecGroup, false, "player")
+    if tierAvailable then
+      if selectedTalentColumn > 0 then
+        local talentInfo = C_SpecializationInfo.GetTalentInfo({
+          tier = tier,
+          column = selectedTalentColumn,
+          groupIndex = activeSpecGroup,
+          target = 'player'
+        })
+        self.playerTalents[tier]:SetTexture(talentInfo.icon)
+        self.playerTalents[tier]:SetScript("OnEnter", function(f)
           GameTooltip:SetOwner(f, "ANCHOR_LEFT")
-          GameTooltip:SetTalent(v.talentID, false, false, activeSpecGroup)
+          GameTooltip:SetTalent(talentInfo.talentID, false, false, activeSpecGroup)
           GameTooltip:Show()
-        end
-      end)
-      self.playerTalents[k]:SetScript("OnLeave", function() GameTooltip:Hide() end)
-    else
-      if v.tierUnavailable then
-        self.playerTalents[k]:Hide()
+        end)
+        self.playerTalents[tier]:SetScript("OnLeave", function() GameTooltip:Hide() end)
       else
-        self.playerTalents[k]:SetTexture(132222)
+        self.playerTalents[tier]:SetTexture(132222)
+        self.playerTalents[tier]:SetScript("OnEnter", nil)
+        self.playerTalents[tier]:SetScript("OnLeave", nil)
       end
-      self.playerTalents[k]:SetScript("OnEnter", nil)
-      self.playerTalents[k]:SetScript("OnLeave", nil)
+    else
+      self.playerTalents[tier]:Hide()
     end
   end
 end
