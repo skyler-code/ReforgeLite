@@ -1499,7 +1499,7 @@ function ReforgeLite:UpdateItems()
   self:RefreshMethodStats()
 end
 
- function GetPlayerSelectedTalents(activeSpecGroup)
+ local function GetPlayerSelectedTalents(activeSpecGroup)
   local selectedTalents = {}
   for tier = 1, MAX_NUM_TALENT_TIERS do
     local tierAvailable, selectedTalentColumn = GetTalentTierInfo(tier, activeSpecGroup, false, "player");
