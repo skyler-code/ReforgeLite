@@ -350,62 +350,17 @@ local specInfo = {}
 do
 
   local specs = {
-    deathknight = {
-      blood = 250,
-      frost = 251,
-      unholy = 252
-    },
-    druid = {
-      balance = 102,
-      feralcombat = 103,
-      guardian = 104,
-      restoration = 105
-    },
-    hunter = {
-      beastmastery = 253,
-      marksmanship = 254,
-      survival = 255
-    },
-    mage = {
-      arcane = 62,
-      fire = 63,
-      frost = 64,
-    },
-    monk = {
-      brewmaster = 268,
-      mistweaver = 270,
-      windwalker = 269,
-    },
-    paladin = {
-      holy = 65,
-      protection = 66,
-      retribution = 70,
-    },
-    priest = {
-      discipline = 256,
-      holy = 257,
-      shadow = 258
-    },
-    rogue = {
-      assassination = 259,
-      combat = 260,
-      subtlety = 261
-    },
-    shaman = {
-      elemental = 262,
-      enhancement = 263,
-      restoration = 264
-    },
-    warlock = {
-      afflication = 265,
-      demonology = 266,
-      destruction = 267,
-    },
-    warrior = {
-      arms = 71,
-      fury = 72,
-      protection = 73,
-    }
+    deathknight = { blood = 250, frost = 251, unholy = 252 },
+    druid = { balance = 102, feralcombat = 103, guardian = 104, restoration = 105 },
+    hunter = { beastmastery = 253, marksmanship = 254, survival = 255 },
+    mage = { arcane = 62, fire = 63, frost = 64 },
+    monk = { brewmaster = 268, mistweaver = 270, windwalker = 269 },
+    paladin = { holy = 65, protection = 66, retribution = 70 },
+    priest = { discipline = 256, holy = 257, shadow = 258 },
+    rogue = { assassination = 259, combat = 260, subtlety = 261 },
+    shaman = { elemental = 262, enhancement = 263, restoration = 264 },
+    warlock = { afflication = 265, demonology = 266, destruction = 267 },
+    warrior = { arms = 71, fury = 72, protection = 73 }
   }
 
   for _,ids in pairs(specs) do
