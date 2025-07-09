@@ -151,7 +151,7 @@ ReforgeLite.capPresets = {
     value = CAPS.MeleeHitCap,
     name = L["Melee hit cap"],
     getter = function ()
-      return floor(ReforgeLite:RatingPerPoint (StatHit) * (ReforgeLite:GetNeededMeleeHit () - ReforgeLite:GetMeleeHitBonus ()))
+      return ReforgeLite:RatingPerPoint(StatHit) * (ReforgeLite:GetNeededMeleeHit() - ReforgeLite:GetMeleeHitBonus())
     end,
     category = StatHit
   },
@@ -161,9 +161,9 @@ ReforgeLite.capPresets = {
     getter = function ()
       local result = ReforgeLite:RatingPerPoint (addonTable.statIds.SPELLHIT) * (ReforgeLite:GetNeededSpellHit () - ReforgeLite:GetSpellHitBonus ())
       if ReforgeLite.conversion[StatExp] and ReforgeLite.conversion[StatExp][StatHit] then
-        result = result + math.floor(GetCombatRating(CR_EXPERTISE) * ReforgeLite.conversion[StatExp][StatHit])
+        result = result + floor(GetCombatRating(CR_EXPERTISE) * ReforgeLite.conversion[StatExp][StatHit])
       end
-      return floor(result)
+      return result
     end,
     category = StatHit
   },
@@ -171,7 +171,7 @@ ReforgeLite.capPresets = {
     value = CAPS.MeleeDWHitCap,
     name = L["Melee DW hit cap"],
     getter = function ()
-      return ReforgeLite:RatingPerPoint (StatHit) * (ReforgeLite:GetNeededMeleeHit () + 19 - ReforgeLite:GetMeleeHitBonus ())
+      return ReforgeLite:RatingPerPoint(StatHit) * (ReforgeLite:GetNeededMeleeHit() + 19 - ReforgeLite:GetMeleeHitBonus())
     end,
     category = StatHit
   },
@@ -179,7 +179,7 @@ ReforgeLite.capPresets = {
     value = CAPS.ExpSoftCap,
     name = L["Expertise soft cap"],
     getter = function ()
-      return ReforgeLite:RatingPerPoint (StatExp) * (ReforgeLite:GetNeededExpertiseSoft () - ReforgeLite:GetExpertiseBonus ())
+      return ReforgeLite:RatingPerPoint (StatExp) * (ReforgeLite:GetNeededExpertiseSoft() - ReforgeLite:GetExpertiseBonus())
     end,
     category = StatExp
   },
@@ -187,7 +187,7 @@ ReforgeLite.capPresets = {
     value = CAPS.ExpHardCap,
     name = L["Expertise hard cap"],
     getter = function ()
-      return ReforgeLite:RatingPerPoint (StatExp) * (ReforgeLite:GetNeededExpertiseHard () - ReforgeLite:GetExpertiseBonus ())
+      return ReforgeLite:RatingPerPoint (StatExp) * (ReforgeLite:GetNeededExpertiseHard() - ReforgeLite:GetExpertiseBonus())
     end,
     category = StatExp
   },

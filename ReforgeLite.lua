@@ -826,12 +826,13 @@ function ReforgeLite:AddCapPoint (i, loading)
     local rating = pointValue / self:RatingPerPoint(cap.stat)
     if cap.stat == statIds.HIT then
       local meleeHitBonus = self:GetMeleeHitBonus()
+      rating = RoundToSignificantDigits(rating, 1)
       if meleeHitBonus > 0 then
         rating = ("%.2f%% + %s%% = %.2f"):format(rating, meleeHitBonus, rating + meleeHitBonus)
       else
         rating = ("%.2f"):format(rating)
       end
-      local spellHitRating = pointValue / self:RatingPerPoint(statIds.SPELLHIT)
+      local spellHitRating = RoundToSignificantDigits(pointValue / self:RatingPerPoint(statIds.SPELLHIT), 1)
       local spellHitBonus = self:GetSpellHitBonus()
       if spellHitBonus > 0 then
         spellHitRating = ("%.2f%% + %s%% = %.2f"):format(spellHitRating,spellHitBonus,spellHitRating+spellHitBonus)
@@ -840,11 +841,12 @@ function ReforgeLite:AddCapPoint (i, loading)
       end
       rating = ("%s: %s%%\n%s: %s%%"):format(MELEE, rating, STAT_CATEGORY_SPELL, spellHitRating)
     elseif cap.stat == statIds.EXP then
+      rating = RoundToSignificantDigits(rating, 1)
       local expBonus = self:GetExpertiseBonus()
       if expBonus > 0 then
-        rating = ("%.2f + %s = %.2f"):format(rating, expBonus, rating + expBonus)
+        rating = ("%.2f%% + %s = %.2f"):format(rating, expBonus, rating + expBonus)
       else
-        rating = ("%.2f"):format(rating)
+        rating = ("%.2f%%"):format(rating)
       end
     elseif cap.stat == statIds.HASTE then
       local meleeHaste, rangedHaste, spellHaste = self:CalcHasteWithBonuses(rating)
@@ -908,12 +910,12 @@ function ReforgeLite:UpdateCapPreset (i, point)
     self.statCaps.cells[row][3]:SetTextColor (0.5, 0.5, 0.5)
     self.statCaps.cells[row][3]:SetMouseClickEnabled (false)
     self.statCaps.cells[row][3]:ClearFocus ()
-    self.pdb.caps[i].points[point].value = max(0, ceil (self.capPresets[preset].getter ()))
+    self.pdb.caps[i].points[point].value = max(0, floor(self.capPresets[preset].getter()))
   else
     self.statCaps.cells[row][3]:SetTextColor (1, 1, 1)
     self.statCaps.cells[row][3]:SetMouseClickEnabled (true)
   end
-  self.statCaps.cells[row][3]:SetText (self.pdb.caps[i].points[point].value)
+  self.statCaps.cells[row][3]:SetText(self.pdb.caps[i].points[point].value)
 end
 function ReforgeLite:UpdateCapPoints (i)
   local base = (i == 1 and 1 or #self.pdb.caps[1].points + 2)

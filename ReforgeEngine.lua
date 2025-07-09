@@ -294,7 +294,7 @@ function ReforgeLite:InitReforgeClassic()
         preset = 1
       end
       if self.capPresets[preset].getter then
-        data.caps[i].points[point].value = ceil(self.capPresets[preset].getter())
+        data.caps[i].points[point].value = floor(self.capPresets[preset].getter())
       end
     end
   end
