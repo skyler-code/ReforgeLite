@@ -163,7 +163,7 @@ ReforgeLite.capPresets = {
       if ReforgeLite.conversion[StatExp] and ReforgeLite.conversion[StatExp][StatHit] then
         result = result + math.floor(GetCombatRating(CR_EXPERTISE) * ReforgeLite.conversion[StatExp][StatHit])
       end
-      return result
+      return floor(result)
     end,
     category = StatHit
   },
