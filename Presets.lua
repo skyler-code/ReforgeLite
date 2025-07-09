@@ -540,9 +540,8 @@ do
       },
       [specs.monk.mistweaver] = {
         weights = {
-          0, 0, 0, 141, 46, 57, 99, 39
+          80, 0, 0, 0, 200, 40, 0, 30
         },
-        caps = MeleeCaps,
       },
       [specs.monk.windwalker] = {
         weights = {
