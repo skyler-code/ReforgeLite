@@ -465,7 +465,7 @@ local function SetTextDelta (text, value, cur, override)
   else
     text:SetTextColor (1, 0.4, 0.4)
   end
-  text:SetText (format (value - cur >= 0 and "+%s" or "%s", value - cur))
+  text:SetFormattedText(value - cur >= 0 and "+%s" or "%s", value - cur)
 end
 
 ------------------------------------------------------------------------
@@ -1369,7 +1369,7 @@ function ReforgeLite:RefreshMethodStats()
       for i, v in ipairs (self.itemStats) do
         local mvalue = v.mgetter (self.pdb.method)
         if v.percent then
-          self.methodStats[i].value:SetText (format ("%.2f%%", mvalue))
+          self.methodStats[i].value:SetFormattedText("%.2f%%", mvalue)
         else
           self.methodStats[i].value:SetText (mvalue)
         end
@@ -1724,7 +1724,7 @@ function ReforgeLite:RefreshMethodWindow()
     end
     local slotInfo = self.pdb.method.items[i]
     if slotInfo.reforge then
-      v.reforge:SetText (format ("%d %s > %s", slotInfo.amount, self.itemStats[slotInfo.src].long, self.itemStats[slotInfo.dst].long))
+      v.reforge:SetFormattedText("%d %s > %s", slotInfo.amount, self.itemStats[slotInfo.src].long, self.itemStats[slotInfo.dst].long)
       v.reforge:SetTextColor (1, 1, 1)
     else
       v.reforge:SetText (L["No reforge"])
@@ -1936,7 +1936,7 @@ local function HandleTooltipUpdate(tip)
   for _, region in pairs({tip:GetRegions()}) do
     if region:GetObjectType() == "FontString" and region:GetText() == REFORGED then
       local srcId, destId = unpack(reforgeTable[reforgeId])
-      region:SetText(("%s (%s > %s)"):format(REFORGED, ReforgeLite.itemStats[srcId].long, ReforgeLite.itemStats[destId].long))
+      region:SetFormattedText("%s (%s > %s)", REFORGED, ReforgeLite.itemStats[srcId].long, ReforgeLite.itemStats[destId].long)
       return
     end
   end
