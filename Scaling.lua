@@ -11034,9 +11034,9 @@ function addonTable.GetItemStatsUp(link, ilvlCap)
         for sid, sv in ipairs(ReforgeLite.itemStats) do
             if result[sv.name] then
                 if budget and ref and ref[sid] then
-                    result[sv.name] = math.floor(ref[sid][1] * budget * 0.0001 - ref[sid][2] * 160 + 0.5)
+                    result[sv.name] = floor(ref[sid][1] * budget * 0.0001 - ref[sid][2] * 160 + 0.5)
                 else
-                    result[sv.name] = math.floor(tonumber(result[sv.name]) * math.pow(1.15, (iLvl - iLvlBase) / 15))
+                    result[sv.name] = floor(tonumber(result[sv.name]) * math.pow(1.15, (iLvl - iLvlBase) / 15))
                 end
             end
         end
