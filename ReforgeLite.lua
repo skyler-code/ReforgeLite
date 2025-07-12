@@ -694,6 +694,7 @@ function ReforgeLite:CreateItemTable ()
     self.playerTalents[tier]:SetPoint("TOPLEFT", self.playerTalents[tier-1] or self.playerSpecTexture, "TOPRIGHT", 4, 0)
     self.playerTalents[tier]:SetSize(18, 18)
     self.playerTalents[tier]:SetTexCoord(0.0825, 0.0825, 0.0825, 0.9175, 0.9175, 0.0825, 0.9175, 0.9175)
+    self.playerTalents[tier]:SetScript("OnLeave", function() GameTooltip:Hide() end)
   end
 
   self:UpdatePlayerSpecInfo()
@@ -1527,11 +1528,9 @@ function ReforgeLite:UpdatePlayerSpecInfo()
           GameTooltip:SetTalent(talentInfo.talentID, false, false, activeSpecGroup)
           GameTooltip:Show()
         end)
-        self.playerTalents[tier]:SetScript("OnLeave", function() GameTooltip:Hide() end)
       else
         self.playerTalents[tier]:SetTexture(132222)
         self.playerTalents[tier]:SetScript("OnEnter", nil)
-        self.playerTalents[tier]:SetScript("OnLeave", nil)
       end
     else
       self.playerTalents[tier]:Hide()
