@@ -707,7 +707,8 @@ function ReforgeLite:CreateItemTable ()
   ReforgeLite.itemLevel:SetPoint ("BOTTOMRIGHT", ReforgeLite.itemTable, "TOPRIGHT", 0, 8)
   self.itemLevel:SetTextColor (1, 1, 0.8)
 
-  self.itemLockHelpButton = CreateFrame("Button",nil, self ,"MainHelpPlateButton")
+  self.itemLockHelpButton = CreateFrame("Button",nil, self,"MainHelpPlateButton")
+  self.itemLockHelpButton:SetFrameLevel(self.itemLockHelpButton:GetParent():GetFrameLevel() + 1)
   self.itemLockHelpButton:SetScale(0.5)
   GUI:SetTooltip(self.itemLockHelpButton, L["The current state of your equipment.\nClicking an item icon will lock it. ReforgeLite will ignore the item(s) in future calculations."])
 
