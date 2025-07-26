@@ -195,7 +195,7 @@ ReforgeLite.itemStats = {
         return spirit
       end,
       mgetter = function (method, orig)
-        return (orig and method.orig_stats and method.orig_stats[1]) or method.stats[1]
+        return (orig and method.orig_stats and method.orig_stats[statIds.SPIRIT]) or method.stats[statIds.SPIRIT]
       end
     },
     RatingStat (statIds.DODGE,   "ITEM_MOD_DODGE_RATING",         STAT_DODGE,     STAT_DODGE,           CR_DODGE),
