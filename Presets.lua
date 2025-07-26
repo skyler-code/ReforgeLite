@@ -457,7 +457,7 @@ do
       },
       [specs.druid.guardian] = {
           weights = {
-            0, 0, 0, 127, 80, 60, 127, 40
+            0, 53, 0, 116, 105, 37, 116, 73
           },
           caps = TankCaps,
       },
