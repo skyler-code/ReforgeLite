@@ -320,17 +320,16 @@ function ReforgeLite:ParsePawnString(values)
     raw[k] = Round(v * factor)
   end
 
-  local weights = {}
-  weights[statIds.SPIRIT] = raw["Spirit"] or 0
-  weights[statIds.DODGE] = raw["DodgeRating"] or 0
-  weights[statIds.PARRY] = raw["ParryRating"] or 0
-  weights[statIds.HIT] = raw["HitRating"] or 0
-  weights[statIds.CRIT] = raw["CritRating"] or 0
-  weights[statIds.HASTE] = raw["HasteRating"] or 0
-  weights[statIds.EXP] = raw["ExpertiseRating"] or 0
-  weights[statIds.MASTERY] = raw["MasteryRating"] or 0
-
-  self:SetStatWeights (weights)
+  self:SetStatWeights ({
+    raw["Spirit"] or 0,
+    raw["DodgeRating"] or 0,
+    raw["ParryRating"] or 0,
+    raw["HitRating"] or 0,
+    raw["CritRating"] or 0,
+    raw["HasteRating"] or 0,
+    raw["ExpertiseRating"] or 0,
+    raw["MasteryRating"] or 0
+  })
 end
 
 local orderIds = {}
