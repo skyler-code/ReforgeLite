@@ -1761,54 +1761,8 @@ function ReforgeLite:ShowMethodWindow()
   self.methodWindow:Show()
 end
 
-function ReforgeLite:IsReforgeMatching (slotId, reforge, override)
-  if override == 1 then
-    return true
-  end
-
-  local oreforge = GetReforgeID (slotId)
-
-  if override == -1 then
-    return reforge == oreforge
-  end
-
-  local stats = GetItemStats(GetInventoryItemLink("player", slotId), self.pdb.ilvlCap)
-
-  local deltas = {}
-  for i = 1, #self.itemStats do
-    deltas[i] = 0
-  end
-
-  if oreforge then
-    local osrc, odst = unpack(reforgeTable[oreforge])
-    local oamount = floor ((stats[self.itemStats[osrc].name] or 0) * addonTable.REFORGE_COEFF)
-    deltas[osrc] = deltas[osrc] + oamount
-    deltas[odst] = deltas[odst] - oamount
-  end
-
-  if reforge then
-    local src, dst = unpack(reforgeTable[reforge])
-    local amount = floor ((stats[self.itemStats[src].name] or 0) * addonTable.REFORGE_COEFF)
-    deltas[src] = deltas[src] - amount
-    deltas[dst] = deltas[dst] + amount
-  end
-
-  local mult = self:GetStatMultipliers()
-  for i = 1, #self.itemStats do
-    deltas[i] = math.floor(deltas[i] * (mult[i] or 1) + 0.5)
-  end
-  for src, c in pairs(self.conversion) do
-    for dst, factor in pairs(c) do
-      deltas[dst] = deltas[dst] + math.floor(deltas[src] * factor + 0.5)
-    end
-  end
-
-  for i = 1, #self.itemStats do
-    if self:GetStatScore (i, self.pdb.method.stats[i]) ~= self:GetStatScore (i, self.pdb.method.stats[i] - deltas[i]) then
-      return false
-    end
-  end
-  return true
+local function IsReforgeMatching (slotId, reforge, override)
+  return override == 1 or reforge == GetReforgeID(slotId)
 end
 
 function ReforgeLite:UpdateMethodChecks ()
@@ -1819,7 +1773,7 @@ function ReforgeLite:UpdateMethodChecks ()
       local item = Item:CreateFromEquipmentSlot(v.slotId)
       v.item = item:GetItemLink()
       v.texture:SetTexture (item:GetItemIcon() or v.slotTexture)
-      if item:IsItemEmpty() or self:IsReforgeMatching (v.slotId, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
+      if item:IsItemEmpty() or IsReforgeMatching(v.slotId, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
         v.check:SetChecked (true)
       else
         anyDiffer = true
@@ -1915,7 +1869,7 @@ function ReforgeLite:DoReforgeUpdate()
   if self.methodWindow then
     for slotId, slotInfo in ipairs(self.methodWindow.items) do
       local newReforge = self.pdb.method.items[slotId].reforge
-      if slotInfo.item and not self:IsReforgeMatching(slotInfo.slotId, newReforge, self.methodOverride[slotId]) then
+      if slotInfo.item and not IsReforgeMatching(slotInfo.slotId, newReforge, self.methodOverride[slotId]) then
         PickupInventoryItem(slotInfo.slotId)
         C_Reforge.SetReforgeFromCursorItem()
         if newReforge then
