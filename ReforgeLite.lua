@@ -708,7 +708,7 @@ function ReforgeLite:CreateItemTable ()
     self.playerTalents[tier]:SetPoint("TOPLEFT", self.playerTalents[tier-1] or self.playerSpecTexture, "TOPRIGHT", 4, 0)
     self.playerTalents[tier]:SetSize(18, 18)
     self.playerTalents[tier]:SetTexCoord(0.0825, 0.0825, 0.0825, 0.9175, 0.9175, 0.0825, 0.9175, 0.9175)
-    self.playerTalents[tier]:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    self.playerTalents[tier]:SetScript("OnLeave", GameTooltip_Hide)
   end
 
   self:UpdatePlayerSpecInfo()
@@ -749,7 +749,7 @@ function ReforgeLite:CreateItemTable ()
       end
       GameTooltip:Show ()
     end)
-    self.itemData[i]:SetScript ("OnLeave", function () GameTooltip:Hide() end)
+    self.itemData[i]:SetScript ("OnLeave", GameTooltip_Hide)
     self.itemData[i]:SetScript ("OnMouseDown", function (frame)
       if not frame.itemGUID then return end
       self.pdb.itemsLocked[frame.itemGUID] = not self.pdb.itemsLocked[frame.itemGUID] and 1 or nil
@@ -1672,7 +1672,7 @@ function ReforgeLite:CreateMethodWindow()
       end
       GameTooltip:Show()
     end)
-    self.methodWindow.items[i]:SetScript ("OnLeave", function () GameTooltip:Hide() end)
+    self.methodWindow.items[i]:SetScript ("OnLeave", GameTooltip_Hide)
     self.methodWindow.items[i]:SetScript ("OnDragStart", function (itemSlot)
       if itemSlot.item and ReforgeFrameIsVisible() then
         PickupInventoryItem(itemSlot.slotId)
