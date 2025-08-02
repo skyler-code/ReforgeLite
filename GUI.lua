@@ -100,11 +100,7 @@ function GUI:SetTooltip (widget, tip)
         GameTooltip:Show()
       end
     end)
-    widget:SetScript ("OnLeave", function (tipFrame)
-      if GameTooltip:GetOwner() == tipFrame then
-        GameTooltip:Hide()
-      end
-    end)
+    widget:SetScript ("OnLeave", GameTooltip_Hide)
   else
     widget:SetScript ("OnEnter", nil)
     widget:SetScript ("OnLeave", nil)
