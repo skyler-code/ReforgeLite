@@ -860,7 +860,7 @@ function ReforgeLite:AddCapPoint (i, loading)
       rating = RoundToSignificantDigits(rating, 1)
       local expBonus = self:GetExpertiseBonus()
       if expBonus > 0 then
-        rating = ("%.2f%% + %s = %.2f"):format(rating, expBonus, rating + expBonus)
+        rating = ("%.2f%% + %s%% = %.2f%%"):format(rating, expBonus, rating + expBonus)
       else
         rating = ("%.2f%%"):format(rating)
       end
