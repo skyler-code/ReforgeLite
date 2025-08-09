@@ -1091,6 +1091,9 @@ function ReforgeLite:CreateOptionList ()
 
   local levelList = {
     {value=0,name=("%s (+%d)"):format(PVP, 0)},
+  --@debug@
+    {value=1,name=("%s (+%d)"):format("Normal", 1)},
+  --@end-debug@
     {value=2,name=("%s (+%d)"):format(LFG_TYPE_HEROIC_DUNGEON, 2)},
     {value=3,name=("%s (+%d)"):format(LFG_TYPE_RAID, 3)}
   }
