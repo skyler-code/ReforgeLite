@@ -1086,7 +1086,7 @@ function ReforgeLite:CreateOptionList ()
   self.exportPresetButton:SetPoint ("LEFT", self.deletePresetButton, "RIGHT", 5, 0)
   --@end-debug@
 
-  self.pawnButton = GUI:CreatePanelButton (self.content, L["Import"], function(btn) self:ImportData() end)
+  self.pawnButton = GUI:CreatePanelButton (self.content, L["Import WoWSims/Pawn"], function(btn) self:ImportData() end)
   self.statWeightsCategory:AddFrame (self.pawnButton)
   self:SetAnchor (self.pawnButton, "TOPLEFT", self.presetsButton, "BOTTOMLEFT", 0, -5)
 
