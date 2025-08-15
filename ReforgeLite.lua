@@ -25,10 +25,8 @@ local DefaultDB = {
   global = {
     windowWidth = 800,
     windowHeight = 564,
-    windowY = false,
-    windowX = false,
-    methodWindowX = false,
-    methodWindowY = false,
+    windowLocation = false,
+    methodWindowLocation = false,
     openOnReforge = true,
     updateTooltip = false,
     speed = addonTable.MAX_LOOPS * 0.8,
@@ -547,8 +545,8 @@ function ReforgeLite:CreateFrame()
   self:ClearAllPoints ()
   self:SetSize(self.db.windowWidth, self.db.windowHeight)
   self:SetResizeBounds(780, 500, 1000, 800)
-  if self.db.windowX and self.db.windowY then
-    self:SetPoint ("TOPLEFT", UIParent, "BOTTOMLEFT", self.db.windowX, self.db.windowY)
+  if self.db.windowLocation then
+    self:SetPoint (SafeUnpack(self.db.windowLocation))
   else
     self:SetPoint ("CENTER")
   end
@@ -589,8 +587,7 @@ function ReforgeLite:CreateFrame()
     if self.moving then
       self:StopMovingOrSizing ()
       self.moving = false
-      self.db.windowX = self:GetLeft()
-      self.db.windowY = self:GetTop()
+      self.db.windowLocation = SafePack(self:GetPoint())
     end
   end)
   tinsert(UISpecialFrames, self:GetName()) -- allow closing with escape
@@ -1582,8 +1579,8 @@ function ReforgeLite:CreateMethodWindow()
   self.methodWindow:SetFrameStrata ("DIALOG")
   self.methodWindow:ClearAllPoints ()
   self.methodWindow:SetSize(250, 480)
-  if self.db.methodWindowX and self.db.methodWindowY then
-    self.methodWindow:SetPoint ("TOPLEFT", UIParent, "BOTTOMLEFT", self.db.methodWindowX, self.db.methodWindowY)
+  if self.db.methodWindowLocation then
+    self.methodWindow:SetPoint (SafeUnpack(self.db.methodWindowLocation))
   else
     self.methodWindow:SetPoint ("CENTER", self, "CENTER")
   end
@@ -1619,8 +1616,7 @@ function ReforgeLite:CreateMethodWindow()
     if window.moving then
       window:StopMovingOrSizing ()
       window.moving = false
-      self.db.methodWindowX = window:GetLeft ()
-      self.db.methodWindowY = window:GetTop ()
+      self.db.methodWindowLocation = SafePack(window:GetPoint())
     end
   end)
   tinsert(UISpecialFrames, self.methodWindow:GetName()) -- allow closing with escape
