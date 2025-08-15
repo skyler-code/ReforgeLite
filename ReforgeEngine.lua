@@ -153,6 +153,7 @@ function ReforgeLite:ResetMethod ()
   end
   self:UpdateMethodStats (method)
   self.pdb.method = method
+  self.pdb.methodOrigin = addonName
   self:UpdateMethodCategory()
 end
 
@@ -443,6 +444,7 @@ function ReforgeLite:ComputeReforge()
   self.methodDebug.method = DeepCopy(data.method)
   if data.method then
     self.pdb.method = data.method
+    self.pdb.methodOrigin = addonName
     self:UpdateMethodCategory ()
   end
 end

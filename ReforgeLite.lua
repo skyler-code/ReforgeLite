@@ -64,6 +64,7 @@ local DefaultDB = {
         }
       }
     },
+    methodOrigin = addonName,
     itemsLocked = {},
     categoryStates = { [SETTINGS] = false },
   },
@@ -289,6 +290,7 @@ function ReforgeLite:ApplyWoWSimsImport(newItems)
   else
     self.pdb.method.items = newItems
   end
+  self.pdb.methodOrigin = "WoWSims"
   self:FinalizeReforge(self.pdb)
   self:UpdateMethodCategory()
 end
@@ -1622,8 +1624,11 @@ function ReforgeLite:CreateMethodWindow()
   tinsert(UISpecialFrames, self.methodWindow:GetName()) -- allow closing with escape
 
   self.methodWindow.title = self.methodWindow:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.methodWindow.title:SetText (addonTitle.." Output")
   self.methodWindow.title:SetTextColor (1, 1, 1)
+  self.methodWindow.title.RefreshText = function(frame)
+    frame:SetFormattedText(L["Apply %s Output"], self.pdb.methodOrigin)
+  end
+  self.methodWindow.title:RefreshText()
   self.methodWindow.title:SetPoint ("TOPLEFT", 12, self.methodWindow.title:GetHeight()-self.methodWindow.titlebar:GetHeight())
 
   self.methodWindow.close = CreateFrame ("Button", nil, self.methodWindow, "UIPanelCloseButtonNoScripts")
@@ -1748,6 +1753,7 @@ function ReforgeLite:RefreshMethodWindow()
       v.reforge:SetTextColor (0.7, 0.7, 0.7)
     end
   end
+  self.methodWindow.title:RefreshText()
   self:UpdateMethodChecks ()
 end
 
