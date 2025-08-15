@@ -1585,7 +1585,7 @@ function ReforgeLite:CreateMethodWindow()
   if self.db.methodWindowX and self.db.methodWindowY then
     self.methodWindow:SetPoint ("TOPLEFT", UIParent, "BOTTOMLEFT", self.db.methodWindowX, self.db.methodWindowY)
   else
-    self.methodWindow:SetPoint ("CENTER")
+    self.methodWindow:SetPoint ("CENTER", self, "CENTER")
   end
   self.methodWindow.backdropInfo = self.backdropInfo
   self.methodWindow:ApplyBackdrop()
