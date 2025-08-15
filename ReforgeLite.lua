@@ -722,6 +722,7 @@ function ReforgeLite:CreateItemTable ()
   self.itemLevel = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   ReforgeLite.itemLevel:SetPoint ("BOTTOMRIGHT", ReforgeLite.itemTable, "TOPRIGHT", 0, 8)
   self.itemLevel:SetTextColor (1, 1, 0.8)
+  self:RegisterEvent("PLAYER_AVG_ITEM_LEVEL_UPDATE")
   self:PLAYER_AVG_ITEM_LEVEL_UPDATE()
 
   self.itemLockHelpButton = CreateFrame("Button",nil, self,"MainHelpPlateButton")
@@ -2045,7 +2046,6 @@ function ReforgeLite:ADDON_LOADED (addon)
   self:RegisterEvent("PLAYER_REGEN_DISABLED")
   self:RegisterEvent("PLAYER_ENTERING_WORLD")
   self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-  self:RegisterEvent("PLAYER_AVG_ITEM_LEVEL_UPDATE")
   if self.db.specProfiles then
     self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
   end
