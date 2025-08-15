@@ -42,12 +42,7 @@ function ReforgeLite:DisplayMessage(name, message)
 end
 
 function ReforgeLite:DebugMethod()
-    local website = C_AddOns.GetAddOnMetadata(addonName, "X-Website")
-    if self.methodDebug then
-        self:DisplayMessage (website, C_EncodingUtil.SerializeJSON(self.methodDebug))
-    else
-        self:DisplayMessage (website, "<no data>\n nty <3")
-    end
+    self:DisplayMessage(C_AddOns.GetAddOnMetadata(addonName, "X-Website"), C_EncodingUtil.SerializeJSON(self.methodDebug or {nty="<3"}))
 end
 
 function ReforgeLite:ExportJSON(preset, name)
