@@ -177,12 +177,12 @@ function GUI:CreateDropdown (parent, values, options)
     self.dropdowns[sel:GetName()] = sel
     LibDD:UIDropDownMenu_SetInitializeFunction(sel, function (dropdown)
       self:ClearEditFocus()
-      for _, value in ipairs(dropdown.values) do
+      for _, item in ipairs(dropdown:GetValues()) do
         local info = LibDD:UIDropDownMenu_CreateInfo()
-        info.text = value.name
-        info.value = value.value
-        info.checked = (dropdown.value == value.value)
-        info.category = value.category
+        info.text = item.name
+        info.value = item.value
+        info.checked = (dropdown.value == item.value)
+        info.category = item.category
         info.func = function (inf)
           LibDD:UIDropDownMenu_SetSelectedValue (dropdown, inf.value)
           if dropdown.setter then dropdown.setter (dropdown,inf.value) end
@@ -196,16 +196,17 @@ function GUI:CreateDropdown (parent, values, options)
         end
       end
     end)
+    sel.GetValues = function(frame) return GetValueOrCallFunction(frame, 'values') end
     sel.SetValue = function (dropdown, value)
       dropdown.value = value
       dropdown.selectedValue = value
-      for i = 1, #dropdown.values do
-        if dropdown.values[i].value == value then
-          LibDD:UIDropDownMenu_SetText (dropdown, dropdown.values[i].name)
+      for _, v in ipairs(dropdown:GetValues()) do
+        if v.value == value then
+          LibDD:UIDropDownMenu_SetText(dropdown, v.name)
           return
         end
       end
-      LibDD:UIDropDownMenu_SetText (dropdown, "")
+      LibDD:UIDropDownMenu_SetText(dropdown, "")
     end
     sel.EnableDropdown = function(dropdown)
       LibDD:UIDropDownMenu_EnableDropDown (dropdown)
