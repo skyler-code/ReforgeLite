@@ -721,6 +721,7 @@ function ReforgeLite:CreateItemTable ()
   self.itemLevel = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   ReforgeLite.itemLevel:SetPoint ("BOTTOMRIGHT", ReforgeLite.itemTable, "TOPRIGHT", 0, 8)
   self.itemLevel:SetTextColor (1, 1, 0.8)
+  self:PLAYER_AVG_ITEM_LEVEL_UPDATE()
 
   self.itemLockHelpButton = CreateFrame("Button",nil, self,"MainHelpPlateButton")
   self.itemLockHelpButton:SetFrameLevel(self.itemLockHelpButton:GetParent():GetFrameLevel() + 1)
@@ -1516,7 +1517,6 @@ function ReforgeLite:UpdateItems()
       end
     end
   end
-  self.itemLevel:SetFormattedText(CHARACTER_LINK_ITEM_LEVEL_TOOLTIP, select(2,GetAverageItemLevel()))
   self:RefreshMethodStats()
 end
 
@@ -1936,32 +1936,6 @@ end
 
 --------------------------------------------------------------------------
 
-function ReforgeLite:FORGE_MASTER_ITEM_CHANGED()
-  self:ContinueReforge()
-end
-
-function ReforgeLite:FORGE_MASTER_OPENED()
-  if self.db.openOnReforge and not self:IsShown() and (not self.methodWindow or not self.methodWindow:IsShown()) then
-    self.autoOpened = true
-    self:Show()
-  end
-  if self.methodWindow then
-    self:RefreshMethodWindow()
-  end
-  self:StopReforging()
-end
-
-function ReforgeLite:FORGE_MASTER_CLOSED()
-  if self.autoOpened then
-    self:Hide()
-    if self.methodWindow then
-      self.methodWindow:Hide()
-    end
-    self.autoOpened = nil
-  end
-  self:StopReforging()
-end
-
 function ReforgeLite:OnEvent(event, ...)
   if self[event] then
     self[event](self, ...)
@@ -1987,6 +1961,32 @@ end
 function ReforgeLite:OnCommand (cmd)
   if InCombatLockdown() then print(ERROR_CAPS, ERR_AFFECTING_COMBAT) return end
   self:Show ()
+end
+
+function ReforgeLite:FORGE_MASTER_ITEM_CHANGED()
+  self:ContinueReforge()
+end
+
+function ReforgeLite:FORGE_MASTER_OPENED()
+  if self.db.openOnReforge and not self:IsShown() and (not self.methodWindow or not self.methodWindow:IsShown()) then
+    self.autoOpened = true
+    self:Show()
+  end
+  if self.methodWindow then
+    self:RefreshMethodWindow()
+  end
+  self:StopReforging()
+end
+
+function ReforgeLite:FORGE_MASTER_CLOSED()
+  if self.autoOpened then
+    self:Hide()
+    if self.methodWindow then
+      self.methodWindow:Hide()
+    end
+    self.autoOpened = nil
+  end
+  self:StopReforging()
 end
 
 function ReforgeLite:PLAYER_REGEN_DISABLED()
@@ -2015,6 +2015,9 @@ function ReforgeLite:PLAYER_ENTERING_WORLD()
   self:GetConversion()
 end
 
+function ReforgeLite:PLAYER_AVG_ITEM_LEVEL_UPDATE()
+  self.itemLevel:SetFormattedText(CHARACTER_LINK_ITEM_LEVEL_TOOLTIP, select(2,GetAverageItemLevel()))
+end
 
 function ReforgeLite:ADDON_LOADED (addon)
   if addon ~= addonName then return end
@@ -2041,6 +2044,7 @@ function ReforgeLite:ADDON_LOADED (addon)
   self:RegisterEvent("PLAYER_REGEN_DISABLED")
   self:RegisterEvent("PLAYER_ENTERING_WORLD")
   self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+  self:RegisterEvent("PLAYER_AVG_ITEM_LEVEL_UPDATE")
   if self.db.specProfiles then
     self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
   end
