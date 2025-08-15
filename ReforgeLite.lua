@@ -1091,14 +1091,14 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory:AddFrame (self.pawnButton)
   self:SetAnchor (self.pawnButton, "TOPLEFT", self.presetsButton, "BOTTOMLEFT", 0, -5)
 
-  local levelList = {
-    {value=0,name=("%s (+%d)"):format(PVP, 0)},
-  --@debug@
-    {value=1,name=("%s (+%d)"):format("Normal", 1)},
-  --@end-debug@
-    {value=2,name=("%s (+%d)"):format(LFG_TYPE_HEROIC_DUNGEON, 2)},
-    {value=3,name=("%s (+%d)"):format(LFG_TYPE_RAID, 3)}
-  }
+  local levelList = function()
+    return {
+        {value=0,name=("%s (+%d)"):format(PVP, 0)},
+        {value=1,name=("%d (+%d)"):format(UnitLevel('player') + 1, 1)},
+        {value=2,name=("%s (+%d)"):format(LFG_TYPE_HEROIC_DUNGEON, 2)},
+        {value=3,name=("%s %s (+%d)"):format(CreateSimpleTextureMarkup([[Interface\TargetingFrame\UI-TargetingFrame-Skull]], 16, 16), LFG_TYPE_RAID, 3)},
+    }
+  end
 
   self.targetLevel = GUI:CreateDropdown(self.content, levelList, {
     default =  self.pdb.targetLevel,
