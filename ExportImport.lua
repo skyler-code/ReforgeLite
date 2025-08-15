@@ -69,6 +69,7 @@ function ReforgeLite:ImportData()
             local valueType = type(values)
             if valueType == "table" then
                 self:ApplyWoWSimsImport(values)
+                self:ShowMethodWindow()
             elseif valueType == "string" then
                 frame:SetStatusText(values)
                 return

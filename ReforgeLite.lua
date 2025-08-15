@@ -500,6 +500,7 @@ function ReforgeLite:SetScroll (value)
   self.scrollOffset = offset
   self.scrollValue = value
 end
+
 function ReforgeLite:FixScroll ()
   local offset = self.scrollOffset
   local viewheight = self.scrollFrame:GetHeight ()
@@ -527,15 +528,15 @@ function ReforgeLite:FixScroll ()
   end
 end
 
-function ReforgeLite:SwapFrameLevels(window)
-  if not self.methodWindow then return end
+function ReforgeLite:SetNewTopWindow(newTopWindow)
   local topWindow, bottomWindow = self:GetFrameOrder()
-  if (window or self) == topWindow then
-    topWindow:SetFrameActive(true)
-    return
+  if not bottomWindow then return end
+  if (newTopWindow or self) == topWindow then
+    topWindow = bottomWindow
+    bottomWindow = newTopWindow or self
   end
-  bottomWindow:SetFrameLevel(topWindow:GetFrameLevel())
-  topWindow:SetFrameLevel(max(bottomWindow:GetFrameLevel() - 10, 1))
+  bottomWindow:SetFrameLevel(10)
+  topWindow:SetFrameLevel(1)
   bottomWindow:SetFrameActive(true)
   topWindow:SetFrameActive(false)
 end
@@ -578,7 +579,7 @@ function ReforgeLite:CreateFrame()
   self:SetMovable (true)
   self:SetResizable (true)
   self:SetScript ("OnMouseDown", function (self, arg)
-    self:SwapFrameLevels()
+    self:SetNewTopWindow()
     if arg == "LeftButton" then
       self:StartMoving ()
       self.moving = true
@@ -1607,7 +1608,7 @@ function ReforgeLite:CreateMethodWindow()
   self.methodWindow:EnableMouse (true)
   self.methodWindow:SetMovable (true)
   self.methodWindow:SetScript ("OnMouseDown", function (window, arg)
-    self:SwapFrameLevels(window)
+    self:SetNewTopWindow(window)
     if arg == "LeftButton" then
       window:StartMoving ()
       window.moving = true
@@ -1758,7 +1759,7 @@ function ReforgeLite:ShowMethodWindow()
     self:CreateMethodWindow()
   end
 
-  self.methodWindow:SetFrameLevel(self:GetFrameLevel() + 10)
+  self:SetNewTopWindow(self.methodWindow)
 
   GUI:ClearFocus()
   self.methodWindow:Show()
@@ -1950,12 +1951,12 @@ function ReforgeLite:OnShow()
     self:CreateFrame()
     self.initialized = true
   end
-  self:SwapFrameLevels()
+  self:SetNewTopWindow()
   self:UpdateItems()
 end
 
 function ReforgeLite:OnHide()
-  self:SwapFrameLevels(self.methodWindow)
+  self:SetNewTopWindow(self.methodWindow)
 end
 
 function ReforgeLite:OnCommand (cmd)
