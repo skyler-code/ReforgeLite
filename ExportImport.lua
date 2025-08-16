@@ -50,6 +50,8 @@ function ReforgeLite:ExportJSON(preset, name)
 end
 
 function ReforgeLite:ImportData(anchor)
+    self:Initialize()
+    self:UpdateItems()
     local frame = GetDataFrame()
     frame:SetTitle(L["Import"])
     if anchor then
@@ -87,4 +89,7 @@ function ReforgeLite:ImportData(anchor)
         end
         OnHide(values)
     end)
+    if self.pdb.methodOrigin == addonTable.WoWSimsOriginTag then
+        self:ShowMethodWindow()
+    end
 end

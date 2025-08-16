@@ -264,9 +264,9 @@ function ReforgeLite:GetStatScore (stat, value)
   end
 end
 
+addonTable.WoWSimsOriginTag = "WoWSims"
+
 function ReforgeLite:ValidateWoWSimsString(importStr)
-  self:Initialize()
-  self:UpdateItems()
   local success, wowsims = pcall(function () return C_EncodingUtil.DeserializeJSON(importStr) end)
   if success and (wowsims or {}).player then
     local newItems = DeepCopy((self.pdb.method or self:InitializeMethod()).items)
@@ -293,7 +293,7 @@ function ReforgeLite:ApplyWoWSimsImport(newItems)
   else
     self.pdb.method.items = newItems
   end
-  self.pdb.methodOrigin = "WoWSims"
+  self.pdb.methodOrigin = addonTable.WoWSimsOriginTag
   self:FinalizeReforge(self.pdb)
   self:UpdateMethodCategory()
 end
