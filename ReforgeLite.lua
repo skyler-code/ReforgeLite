@@ -1357,9 +1357,10 @@ function ReforgeLite:CreateImportButton()
   if self.importButton then
     self.importButton:Show()
   else
-    self.importButton = CreateFrame("Button", "ReforgeLiteImportButton", ReforgingFrame.TitleContainer, "UIPanelButtonTemplate")
+    self.importButton = CreateFrame("Button", nil, ReforgingFrame.TitleContainer, "UIPanelButtonTemplate")
     self.importButton:SetPoint("TOPRIGHT")
     self.importButton:SetText(L["Import"])
+    self.importButton.fitTextWidthPadding = 20
     self.importButton:FitToText()
     self.importButton:SetScript("OnClick", function(btn) self:ImportData(btn) end)
   end
