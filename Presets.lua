@@ -285,6 +285,21 @@ do
       name = nameFormatWithTicks:format(renewMarkup, 87.44, 4, renew),
       getter = GetSpellHasteRequired(87.44),
     })
+  elseif addonTable.playerClass == "WARLOCK" then
+    local doom, doomMarkup = C_Spell.GetSpellName(603), CreateIconMarkup(136122)
+    local shadowflame, shadowflameMarkup = C_Spell.GetSpellName(47960), CreateIconMarkup(425954)
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.FirstHasteBreak,
+      category = StatHaste,
+      name = nameFormatWithTicks:format(doomMarkup, 12.51, 1, doom),
+      getter = GetSpellHasteRequired(12.51),
+    })
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.SecondHasteBreak,
+      category = StatHaste,
+      name = nameFormatWithTicks:format(shadowflameMarkup, 25, 2, shadowflame),
+      getter = GetSpellHasteRequired(25),
+    })
   end
 end
 ----------------------------------------- WEIGHT PRESETS ------------------------------
@@ -593,7 +608,7 @@ do
     ["WARLOCK"] = {
       [specs.warlock.afflication] = {
         weights = {
-          0, 0, 0, 150, 50, 120, 0, 100
+          0, 0, 0, 93, 38, 58, 0, 80
         },
         caps = CasterCaps,
       },
@@ -605,7 +620,7 @@ do
       },
       [specs.warlock.demonology] = {
         weights = {
-          0, 0, 0, 150, 50, 100, 0, 120
+          0, 0, 0, 400, 51, 275, 0, 57
         },
         caps = CasterCaps,
       },
