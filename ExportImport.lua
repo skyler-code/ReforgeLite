@@ -92,8 +92,10 @@ function ReforgeLite:ImportData(anchor)
         end
         OnHide(values)
     end)
-    if self.pdb.methodOrigin == addonTable.WoWSimsOriginTag and anchor then
+    if self.pdb.methodOrigin == addonTable.WoWSimsOriginTag then
         self:ShowMethodWindow()
-        self.methodWindow:AttachToReforgingFrame()
+        if anchor then
+            self.methodWindow:AttachToReforgingFrame()
+        end
     end
 end
