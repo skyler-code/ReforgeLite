@@ -561,7 +561,7 @@ do
       },
       [specs.priest.shadow] = {
         weights = {
-          0, 0, 0, 200, 80, 120, 0, 40
+          90, 0, 0, 85, 42, 76, 0, 48
         },
         caps = CasterCaps
       },
