@@ -33,6 +33,7 @@ local DefaultDB = {
     activeWindowTitle = {0.6, 0, 0},
     inactiveWindowTitle = {0.5, 0.5, 0.5},
     specProfiles = false,
+    importButton = true,
   },
   char = {
     targetLevel = 3,
@@ -264,6 +265,8 @@ function ReforgeLite:GetStatScore (stat, value)
 end
 
 function ReforgeLite:ValidateWoWSimsString(importStr)
+  self:Initialize()
+  self:UpdateItems()
   local success, wowsims = pcall(function () return C_EncodingUtil.DeserializeJSON(importStr) end)
   if success and (wowsims or {}).player then
     local newItems = DeepCopy((self.pdb.method or self:InitializeMethod()).items)
@@ -1258,7 +1261,7 @@ function ReforgeLite:CreateOptionList ()
 
   self.settingsCategory = self:CreateCategory (SETTINGS)
   self:SetAnchor (self.settingsCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
-  self.settings = GUI:CreateTable (6, 1, nil, 200)
+  self.settings = GUI:CreateTable (7, 1, nil, 200)
   self.settingsCategory:AddFrame (self.settings)
   self:SetAnchor (self.settings, "TOPLEFT", self.settingsCategory, "BOTTOMLEFT", 0, -5)
   self.settings:SetPoint ("RIGHT", self.content, -10, 0)
@@ -1309,6 +1312,17 @@ function ReforgeLite:FillSettings()
     end),
     "LEFT")
 
+  self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Show import button on Reforging window"],
+    self.db.importButton, function (val)
+      self.db.importButton = val
+      if val then
+        self:CreateImportButton()
+      elseif self.importButton then
+        self.importButton:Hide()
+      end
+    end),
+    "LEFT")
+
   local activeWindowTitleOrderId = getOrderId('settings')
   self.settings:SetCellText (activeWindowTitleOrderId, 0, L["Active window color"], "LEFT", nil, "GameFontNormal")
   self.settings:SetCell (activeWindowTitleOrderId, 1, GUI:CreateColorPicker (self.settings, 20, 20, self.db.activeWindowTitle, function ()
@@ -1336,6 +1350,19 @@ function ReforgeLite:FillSettings()
     function (val) self.db.debug = val or nil end
   ), "LEFT")
 --@end-debug@
+end
+
+function ReforgeLite:CreateImportButton()
+  if not self.db.importButton then return end
+  if self.importButton then
+    self.importButton:Show()
+  else
+    self.importButton = CreateFrame("Button", "ReforgeLiteImportButton", ReforgingFrame.TitleContainer, "UIPanelButtonTemplate")
+    self.importButton:SetPoint("TOPRIGHT")
+    self.importButton:SetText(L["Import"])
+    self.importButton:FitToText()
+    self.importButton:SetScript("OnClick", function(btn) self:ImportData(btn) end)
+  end
 end
 
 function ReforgeLite:UpdateMethodCategory()
@@ -1949,11 +1976,15 @@ function ReforgeLite:OnEvent(event, ...)
   end
 end
 
-function ReforgeLite:OnShow()
+function ReforgeLite:Initialize()
   if not self.initialized then
     self:CreateFrame()
     self.initialized = true
   end
+end
+
+function ReforgeLite:OnShow()
+  self:Initialize()
   self:SetNewTopWindow()
   self:UpdateItems()
 end
@@ -1979,6 +2010,7 @@ function ReforgeLite:FORGE_MASTER_OPENED()
   if self.methodWindow then
     self:RefreshMethodWindow()
   end
+  self:CreateImportButton()
   self:StopReforging()
 end
 

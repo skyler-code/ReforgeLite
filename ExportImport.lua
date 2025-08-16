@@ -49,9 +49,14 @@ function ReforgeLite:ExportJSON(preset, name)
     self:DisplayMessage(name, C_EncodingUtil.SerializeJSON(preset))
 end
 
-function ReforgeLite:ImportData()
+function ReforgeLite:ImportData(anchor)
     local frame = GetDataFrame()
     frame:SetTitle(L["Import"])
+    if anchor then
+        frame:SetPoint("TOP", anchor, "TOP")
+    else
+        frame:SetPoint("CENTER", self, "CENTER")
+    end
     frame.editbox:DisableButton(false)
     frame.editbox:SetLabel(L["Enter WoWSims JSON or Pawn string"])
     frame.editbox.editBox:SetFocus()
