@@ -3,7 +3,6 @@ local REFORGE_COEFF = addonTable.REFORGE_COEFF
 
 local ReforgeLite = addonTable.ReforgeLite
 local L = addonTable.L
-local DeepCopy = addonTable.DeepCopy
 local playerClass, playerRace = addonTable.playerClass, addonTable.playerRace
 local statIds = addonTable.statIds
 
@@ -72,12 +71,12 @@ function ReforgeLite:GetConversion()
   local result = {}
 
   if classConversionInfo.base then
-    addonTable.MergeTables(result, classConversionInfo.base)
+    MergeTable(result, classConversionInfo.base)
   end
 
   local spec = C_SpecializationInfo.GetSpecialization()
   if spec and classConversionInfo.specs and classConversionInfo.specs[spec] then
-    addonTable.MergeTables(result, classConversionInfo.specs[spec])
+    MergeTable(result, classConversionInfo.specs[spec])
   end
 
   self.conversion = result
@@ -279,14 +278,14 @@ function ReforgeLite:InitReforgeClassic()
   local method, orgitems = self:InitializeMethod()
   local data = {}
   data.method = method
-  data.weights = DeepCopy (self.pdb.weights)
-  data.caps = DeepCopy (self.pdb.caps)
+  data.weights = CopyTable (self.pdb.weights)
+  data.caps = CopyTable (self.pdb.caps)
   data.caps[1].init = 0
   data.caps[2].init = 0
   data.initial = {}
 
   data.mult = self:GetStatMultipliers()
-  data.conv = DeepCopy(self.conversion)
+  data.conv = CopyTable(self.conversion)
 
   for i = 1, 2 do
     for point = 1, #data.caps[i].points do
@@ -439,9 +438,9 @@ function ReforgeLite:ComputeReforge()
     data.method.items[i].src = opt.src
     data.method.items[i].dst = opt.dst
   end
-  self.methodDebug = { data = DeepCopy(data) }
+  self.methodDebug = { data = CopyTable(data) }
   self:FinalizeReforge (data)
-  self.methodDebug.method = DeepCopy(data.method)
+  self.methodDebug.method = CopyTable(data.method)
   if data.method then
     self.pdb.method = data.method
     self.pdb.methodOrigin = addonName

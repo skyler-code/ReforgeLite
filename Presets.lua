@@ -652,7 +652,7 @@ end
 function ReforgeLite:InitCustomPresets()
   local customPresets = {}
   for k, v in pairs(self.cdb.customPresets) do
-    local preset = addonTable.DeepCopy(v)
+    local preset = CopyTable(v)
     preset.name = k
     tinsert(customPresets, preset)
   end
@@ -784,14 +784,14 @@ function ReforgeLite:InitPresets()
       return result
     end
   }
-  addonTable.MergeTables(exportList, self.presets)
+  MergeTable(exportList, self.presets)
 
   --@debug@
   self.exportPresetMenu = LibDD:Create_UIDropDownMenu("ReforgeLiteExportPresetMenu", self)
   self.exportPresetMenu.list = exportList
   LibDD:UIDropDownMenu_Initialize(self.exportPresetMenu, menuListInit({
     onClick = function(info)
-      local output = addonTable.DeepCopy(info.value)
+      local output = CopyTable(info.value)
       output.prioritySort = nil
       self:ExportJSON(output, info.sortKey)
     end

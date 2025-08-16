@@ -12,8 +12,6 @@
 embeds.xml
 #@end-no-lib-strip@
 
-util\tables.lua
-
 locales.xml
 
 Scaling.lua

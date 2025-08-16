@@ -10,7 +10,6 @@ local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 addonTable.MAX_LOOPS = 200000
 local MIN_LOOPS = 1000
 
-local DeepCopy = addonTable.DeepCopy
 local GetItemStats = addonTable.GetItemStatsUp
 
 local gprint = print
@@ -92,11 +91,11 @@ function ReforgeLite:UpgradeDB()
   local db = ReforgeLiteDB
   if not db then return end
   if db.classProfiles then
-    db.class = DeepCopy(db.classProfiles)
+    db.class = CopyTable(db.classProfiles)
     db.classProfiles = nil
   end
   if db.profiles then
-    db.char = DeepCopy(db.profiles)
+    db.char = CopyTable(db.profiles)
     db.profiles = nil
   end
   if not db.global then
@@ -105,7 +104,7 @@ function ReforgeLite:UpgradeDB()
       local default = DefaultDB.global[k]
       if default ~= nil then
         if default ~= v then
-          db.global[k] = DeepCopy(v)
+          db.global[k] = CopyTable(v)
         end
         db[k] = nil
       end
@@ -117,8 +116,8 @@ end
 
 GUI.CreateStaticPopup("REFORGE_LITE_SAVE_PRESET", L["Enter the preset name"], { func = function(text)
   ReforgeLite.cdb.customPresets[text] = {
-    caps = DeepCopy(ReforgeLite.pdb.caps),
-    weights = DeepCopy(ReforgeLite.pdb.weights)
+    caps = CopyTable(ReforgeLite.pdb.caps),
+    weights = CopyTable(ReforgeLite.pdb.weights)
   }
   ReforgeLite:InitCustomPresets()
   ReforgeLite.deletePresetButton:Enable()
@@ -269,7 +268,7 @@ addonTable.WoWSimsOriginTag = "WoWSims"
 function ReforgeLite:ValidateWoWSimsString(importStr)
   local success, wowsims = pcall(function () return C_EncodingUtil.DeserializeJSON(importStr) end)
   if success and (wowsims or {}).player then
-    local newItems = DeepCopy((self.pdb.method or self:InitializeMethod()).items)
+    local newItems = CopyTable((self.pdb.method or self:InitializeMethod()).items)
     for slot,item in ipairs(newItems) do
       local simItemInfo = wowsims.player.equipment.items[slot] or {}
       local equippedItemInfo = self.itemData[slot]
@@ -948,7 +947,7 @@ function ReforgeLite:UpdateCapPoints (i)
   end
 end
 function ReforgeLite:CollapseStatCaps()
-  local caps = DeepCopy(self.pdb.caps)
+  local caps = CopyTable(self.pdb.caps)
   table.sort(caps, function(a,b)
     local aIsNone = a.stat == 0 and 1 or 0
     local bIsNone = b.stat == 0 and 1 or 0
@@ -958,7 +957,7 @@ function ReforgeLite:CollapseStatCaps()
 end
 function ReforgeLite:SetStatWeights (weights, caps)
   if weights then
-    self.pdb.weights = DeepCopy (weights)
+    self.pdb.weights = CopyTable (weights)
     for i = 1, #self.itemStats do
       if self.statWeights.inputs[i] then
         self.statWeights.inputs[i]:SetText (self.pdb.weights[i])
@@ -980,7 +979,7 @@ function ReforgeLite:SetStatWeights (weights, caps)
         self:RemoveCapPoint (i, 1)
       end
       if caps[i] then
-        self.pdb.caps[i] = DeepCopy (caps[i])
+        self.pdb.caps[i] = CopyTable (caps[i])
         for p = 1, #self.pdb.caps[i].points do
           self.pdb.caps[i].points[p].method = self.pdb.caps[i].points[p].method or 3
           self.pdb.caps[i].points[p].after = self.pdb.caps[i].points[p].after or 0
@@ -1846,16 +1845,16 @@ function ReforgeLite:SwapSpecProfiles()
   if not self.db.specProfiles then return end
 
   local currentSettings = {
-    caps = DeepCopy(self.pdb.caps),
-    weights = DeepCopy(self.pdb.weights),
+    caps = CopyTable(self.pdb.caps),
+    weights = CopyTable(self.pdb.weights),
   }
 
   if self.pdb.prevSpecSettings then
     if self.initialized then
       self:SetStatWeights(self.pdb.prevSpecSettings.weights, self.pdb.prevSpecSettings.caps or {})
     else
-      self.pdb.weights = DeepCopy(self.pdb.prevSpecSettings.weights)
-      self.pdb.caps = DeepCopy(self.pdb.prevSpecSettings.caps)
+      self.pdb.weights = CopyTable(self.pdb.prevSpecSettings.weights)
+      self.pdb.caps = CopyTable(self.pdb.prevSpecSettings.caps)
     end
   end
 
