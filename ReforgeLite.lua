@@ -1749,7 +1749,7 @@ function ReforgeLite:CreateMethodWindow()
 
   self.methodWindow.AttachToReforgingFrame = function(frame)
     frame:ClearAllPoints()
-    frame:SetPoint("TOPLEFT", ReforgingFrameCloseButton, "TOPRIGHT")
+    frame:SetPoint("LEFT", ReforgingFrame, "RIGHT")
   end
 
   self:RefreshMethodWindow()
