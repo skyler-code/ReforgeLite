@@ -503,10 +503,20 @@ do
         },
       },
       [specs.monk.windwalker] = {
-        weights = {
-          0, 0, 0, 141, 46, 57, 99, 39
+        [C_Spell.GetSpellName(114355)] = { -- Dual Wield
+          icon = 132147,
+          weights = {
+            0, 0, 0, 141, 46, 57, 99, 39
+          },
+          caps = MeleeCaps,
         },
-        caps = MeleeCaps,
+        [AUCTION_SUBCATEGORY_TWO_HANDED] = { -- Two-Handed
+          icon = 135145,
+          weights = {
+            0, 0, 0, 138, 46, 54, 122, 38
+          },
+          caps = MeleeCaps,
+        },
       },
     },
     ["PALADIN"] = {
