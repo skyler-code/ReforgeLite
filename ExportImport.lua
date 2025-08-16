@@ -77,6 +77,7 @@ function ReforgeLite:ImportData(anchor)
             if valueType == "table" then
                 self:ApplyWoWSimsImport(values)
                 self:ShowMethodWindow()
+                self.methodWindow:AttachToReforgingFrame()
             elseif valueType == "string" then
                 frame:SetStatusText(values)
                 return
@@ -91,5 +92,6 @@ function ReforgeLite:ImportData(anchor)
     end)
     if self.pdb.methodOrigin == addonTable.WoWSimsOriginTag and anchor then
         self:ShowMethodWindow()
+        self.methodWindow:AttachToReforgingFrame()
     end
 end

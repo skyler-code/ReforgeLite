@@ -1746,6 +1746,12 @@ function ReforgeLite:CreateMethodWindow()
   self.methodWindow.cost = CreateFrame ("Frame", "ReforgeLiteReforgeCost", self.methodWindow, "SmallMoneyFrameTemplate")
   MoneyFrame_SetType (self.methodWindow.cost, "REFORGE")
   self.methodWindow.cost:SetPoint ("LEFT", self.methodWindow.reforge, "RIGHT", 5, 0)
+
+  self.methodWindow.AttachToReforgingFrame = function(frame)
+    frame:ClearAllPoints()
+    frame:SetPoint("TOPLEFT", ReforgingFrameCloseButton, "TOPRIGHT")
+  end
+
   self:RefreshMethodWindow()
 end
 
