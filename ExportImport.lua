@@ -63,13 +63,6 @@ function ReforgeLite:ImportData(anchor)
     frame.editbox:SetLabel(L["Enter WoWSims JSON or Pawn string"])
     frame.editbox.editBox:SetFocus()
     frame.editbox.button:SetScript("OnClick", function()
-        local function OnHide(values)
-            if values then
-                frame:Hide()
-            else
-                frame:SetStatusText(ERROR_CAPS)
-            end
-        end
         local userInput = frame.editbox.editBox:GetText()
         local values = self:ValidateWoWSimsString(userInput)
         if values then
@@ -90,7 +83,11 @@ function ReforgeLite:ImportData(anchor)
                 self:ParsePawnString(values)
             end
         end
-        OnHide(values)
+        if values then
+            frame:Hide()
+        else
+            frame:SetStatusText(ERROR_CAPS)
+        end
     end)
     if self.pdb.methodOrigin == addonTable.WoWSimsOriginTag then
         self:ShowMethodWindow()
