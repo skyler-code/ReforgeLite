@@ -1605,6 +1605,7 @@ local queueUpdateEvents = {
   MASTERY_UPDATE = true,
   PLAYER_EQUIPMENT_CHANGED = true,
   FORGE_MASTER_ITEM_CHANGED = true,
+  UNIT_AURA = "player",
 }
 
 local queueEventsRegistered = false
