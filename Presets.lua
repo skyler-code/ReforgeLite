@@ -10,35 +10,34 @@ local StatHaste = addonTable.statIds.HASTE
 local StatExp = addonTable.statIds.EXP
 
 local SPELL_HASTE_BUFFS = {
-  [24907] = true, -- Moonkin Aura
-  [49868] = true, -- Mind Quickening
-  [51470] = true, -- Elemental Oath
-  [135678] = true, -- Energizing Spores
+  24907, -- Moonkin Aura
+  49868, -- Mind Quickening
+  51470, -- Elemental Oath
+  135678, -- Energizing Spores
 }
 
 local MELEE_HASTE_BUFFS = {
-  [55610] = true, -- Unholy Aura
-  [128432] = true, -- Cackling Howl
-  [128433] = true, -- Serpent's Swiftness
-  [113742] = true, -- Swiftblade's Cunning
-  [30809] = true, -- Unleashed Rage
+  55610, -- Unholy Aura
+  128432, -- Cackling Howl
+  128433, -- Serpent's Swiftness
+  113742, -- Swiftblade's Cunning
+  30809, -- Unleashed Rage
 }
 
-function ReforgeLite:GetPlayerBuffs()
-  local spellHaste, meleeHaste
-  local slots = {C_UnitAuras.GetAuraSlots('player','helpful')}
-  for i = 2, #slots do
-    local aura = C_UnitAuras.GetAuraDataBySlot('player',slots[i])
-    if aura then
-      local id = aura.spellId
-      if SPELL_HASTE_BUFFS[id] then
-        spellHaste = true
-      elseif MELEE_HASTE_BUFFS[id] then
-        meleeHaste = true
-      end
+function ReforgeLite:PlayerHasSpellHasteBuff()
+  for _,v in ipairs(SPELL_HASTE_BUFFS) do
+    if C_UnitAuras.GetPlayerAuraBySpellID(v) then
+      return true
     end
   end
-  return spellHaste, meleeHaste
+end
+
+function ReforgeLite:PlayerHasMeleeHasteBuff()
+  for _,v in ipairs(MELEE_HASTE_BUFFS) do
+    if C_UnitAuras.GetPlayerAuraBySpellID(v) then
+      return true
+    end
+  end
 end
 
 ----------------------------------------- CAP PRESETS ---------------------------------
@@ -66,8 +65,7 @@ end
 function ReforgeLite:GetNonSpellHasteBonus(hasteFunc, ratingBonusId)
   local baseBonus = RoundToSignificantDigits((hasteFunc()+100)/(GetCombatRatingBonus(ratingBonusId)+100), 4)
   if self.pdb.meleeHaste then
-    local _, meleeHaste = self:GetPlayerBuffs()
-    if not meleeHaste then
+    if not self:PlayerHasMeleeHasteBuff() then
       baseBonus = baseBonus * 1.1
     end
   end
@@ -82,8 +80,7 @@ end
 function ReforgeLite:GetSpellHasteBonus()
   local baseBonus = (UnitSpellHaste('PLAYER')+100)/(GetCombatRatingBonus(CR_HASTE_SPELL)+100)
   if self.pdb.spellHaste then
-    local spellHaste = self:GetPlayerBuffs()
-    if not spellHaste then
+    if not self:PlayerHasSpellHasteBuff() then
       baseBonus = baseBonus * 1.05
     end
   end
