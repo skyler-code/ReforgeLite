@@ -73,6 +73,8 @@ local DefaultDB = {
   },
 }
 
+local RFL_FRAMES = { ReforgeLite }
+
 local function ReforgeFrameIsVisible()
   return ReforgingFrame and ReforgingFrame:IsShown()
 end
@@ -531,16 +533,16 @@ function ReforgeLite:FixScroll ()
 end
 
 function ReforgeLite:SetNewTopWindow(newTopWindow)
-  local topWindow, bottomWindow = self:GetFrameOrder()
-  if not bottomWindow then return end
-  if (newTopWindow or self) == topWindow then
-    topWindow = bottomWindow
-    bottomWindow = newTopWindow or self
+  newTopWindow = newTopWindow or self
+  for _, frame in ipairs(RFL_FRAMES) do
+    if frame == newTopWindow then
+      frame:SetFrameLevel(10)
+      frame:SetFrameActive(true)
+    else
+      frame:SetFrameLevel(1)
+      frame:SetFrameActive(false)
+    end
   end
-  bottomWindow:SetFrameLevel(10)
-  topWindow:SetFrameLevel(1)
-  bottomWindow:SetFrameActive(true)
-  topWindow:SetFrameActive(false)
 end
 
 function ReforgeLite:CreateFrame()
@@ -1278,11 +1280,32 @@ function ReforgeLite:CreateOptionList ()
     ReforgeLite:UpdateMethodCategory ()
   end
 end
-function ReforgeLite:GetFrameOrder()
-  if self.methodWindow and self.methodWindow:IsShown() and self.methodWindow:GetFrameLevel () > self:GetFrameLevel() then
-    return self.methodWindow, self
+
+function ReforgeLite:GetActiveWindow()
+  if(not RFL_FRAMES[2] and RFL_FRAMES[1]:IsShown()) then
+    return RFL_FRAMES[1]
   end
-  return self, self.methodWindow
+  local topWindow
+  for _, frame in ipairs(RFL_FRAMES) do
+    if frame:IsShown() and (not topWindow or frame:GetFrameLevel() > topWindow:GetFrameLevel()) then
+      topWindow = frame
+    end
+  end
+  return topWindow
+end
+
+function ReforgeLite:GetInactiveWindows()
+  if(not RFL_FRAMES[2]) then
+    return {}
+  end
+  local activeWindow = self:GetActiveWindow()
+  local bottomWindows = {}
+  for _, frame in ipairs(RFL_FRAMES) do
+    if frame:IsShown() and frame:GetFrameLevel() < activeWindow:GetFrameLevel() then
+      tinsert(bottomWindows, frame)
+    end
+  end
+  return bottomWindows
 end
 
 function ReforgeLite:FillSettings()
@@ -1325,15 +1348,14 @@ function ReforgeLite:FillSettings()
   local activeWindowTitleOrderId = getOrderId('settings')
   self.settings:SetCellText (activeWindowTitleOrderId, 0, L["Active window color"], "LEFT", nil, "GameFontNormal")
   self.settings:SetCell (activeWindowTitleOrderId, 1, GUI:CreateColorPicker (self.settings, 20, 20, self.db.activeWindowTitle, function ()
-    self:GetFrameOrder():SetFrameActive(true)
+    self:GetActiveWindow():SetFrameActive(true)
   end), "LEFT")
 
   local inactiveWindowTitleOrderId = getOrderId('settings')
   self.settings:SetCellText (inactiveWindowTitleOrderId, 0, L["Inactive window color"], "LEFT", nil, "GameFontNormal")
   self.settings:SetCell (inactiveWindowTitleOrderId, 1, GUI:CreateColorPicker (self.settings, 20, 20, self.db.inactiveWindowTitle, function ()
-    local _, inactiveWindow = self:GetFrameOrder()
-    if inactiveWindow then
-      inactiveWindow:SetFrameActive(false)
+    for _, frame in ipairs(self:GetInactiveWindows()) do
+      frame:SetFrameActive(false)
     end
   end), "LEFT")
 
@@ -1591,7 +1613,6 @@ local queueUpdateEvents = {
 }
 
 function ReforgeLite:QueueUpdate()
-  if not self:GetFrameOrder():IsShown() then return end
   local time = GetTime()
   if self.lastRan == time then return end
   self.lastRan = time
@@ -1648,7 +1669,9 @@ function ReforgeLite:CreateMethodWindow()
       self.db.methodWindowLocation = SafePack(window:GetPoint())
     end
   end)
+
   tinsert(UISpecialFrames, self.methodWindow:GetName()) -- allow closing with escape
+  tinsert(RFL_FRAMES, self.methodWindow)
 
   self.methodWindow.title = self.methodWindow:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   self.methodWindow.title:SetTextColor (1, 1, 1)
@@ -1665,7 +1688,10 @@ function ReforgeLite:CreateMethodWindow()
     btn:GetParent():Hide()
   end)
   self.methodWindow:SetScript ("OnHide", function (frame)
-    self:SetFrameActive(true)
+    local activeWindow = self:GetActiveWindow()
+    if activeWindow then
+      self:SetFrameActive(true)
+    end
   end)
   self.methodWindow:SetScript ("OnShow", function (frame)
     self:SetFrameActive(false)
@@ -1996,8 +2022,9 @@ function ReforgeLite:OnShow()
 end
 
 function ReforgeLite:OnHide()
-  if self.methodWindow and self.methodWindow:IsShown() then
-    self:SetNewTopWindow(self.methodWindow)
+  local activeWindow = self:GetActiveWindow()
+  if activeWindow then
+    self:SetNewTopWindow(activeWindow)
   end
 end
 
