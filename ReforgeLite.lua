@@ -1996,7 +1996,9 @@ function ReforgeLite:OnShow()
 end
 
 function ReforgeLite:OnHide()
-  self:SetNewTopWindow(self.methodWindow)
+  if self.methodWindow and self.methodWindow:IsShown() then
+    self:SetNewTopWindow(self.methodWindow)
+  end
 end
 
 function ReforgeLite:OnCommand (cmd)
