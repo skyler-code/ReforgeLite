@@ -536,10 +536,10 @@ function ReforgeLite:SetNewTopWindow(newTopWindow)
   newTopWindow = newTopWindow or self
   for _, frame in ipairs(RFL_FRAMES) do
     if frame == newTopWindow then
-      frame:SetFrameLevel(10)
+      frame:Raise()
       frame:SetFrameActive(true)
     else
-      frame:SetFrameLevel(1)
+      frame:Lower()
       frame:SetFrameActive(false)
     end
   end
@@ -549,6 +549,7 @@ function ReforgeLite:CreateFrame()
   self:InitPresets()
   self:SetFrameStrata ("DIALOG")
   self:ClearAllPoints ()
+  self:SetToplevel(true)
   self:SetSize(self.db.windowWidth, self.db.windowHeight)
   self:SetResizeBounds(780, 500, 1000, 800)
   if self.db.windowLocation then
@@ -1290,7 +1291,7 @@ function ReforgeLite:GetActiveWindow()
   end
   local topWindow
   for _, frame in ipairs(RFL_FRAMES) do
-    if frame:IsShown() and (not topWindow or frame:GetFrameLevel() > topWindow:GetFrameLevel()) then
+    if frame:IsShown() and (not topWindow or frame:GetRaisedFrameLevel() > topWindow:GetRaisedFrameLevel()) then
       topWindow = frame
     end
   end
@@ -1304,7 +1305,7 @@ function ReforgeLite:GetInactiveWindows()
   local activeWindow = self:GetActiveWindow()
   local bottomWindows = {}
   for _, frame in ipairs(RFL_FRAMES) do
-    if frame:IsShown() and frame:GetFrameLevel() < activeWindow:GetFrameLevel() then
+    if frame:IsShown() and frame:GetRaisedFrameLevel() < activeWindow:GetRaisedFrameLevel() then
       tinsert(bottomWindows, frame)
     end
   end
@@ -1640,6 +1641,7 @@ end
 function ReforgeLite:CreateMethodWindow()
   self.methodWindow = CreateFrame ("Frame", "ReforgeLiteMethodWindow", UIParent, "BackdropTemplate")
   self.methodWindow:SetFrameStrata ("DIALOG")
+  self.methodWindow:SetToplevel(true)
   self.methodWindow:ClearAllPoints ()
   self.methodWindow:SetSize(250, 480)
   if self.db.methodWindowLocation then
