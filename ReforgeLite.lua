@@ -1601,11 +1601,28 @@ function ReforgeLite:UpdatePlayerSpecInfo()
 end
 
 local queueUpdateEvents = {
-  ["COMBAT_RATING_UPDATE"] = true,
-  ["MASTERY_UPDATE"] = true,
-  ["PLAYER_EQUIPMENT_CHANGED"] = true,
-  ["FORGE_MASTER_ITEM_CHANGED"] = true,
+  COMBAT_RATING_UPDATE = true,
+  MASTERY_UPDATE = true,
+  PLAYER_EQUIPMENT_CHANGED = true,
+  FORGE_MASTER_ITEM_CHANGED = true,
 }
+
+local queueEventsRegistered = false
+function ReforgeLite:RegisterQueueUpdateEvents()
+  if queueEventsRegistered then return end
+  for event in pairs(queueUpdateEvents) do
+    self:RegisterEvent(event)
+  end
+  queueEventsRegistered = true
+end
+
+function ReforgeLite:UnregisterQueueUpdateEvents()
+  if not queueEventsRegistered then return end
+  for event in pairs(queueUpdateEvents) do
+    self:UnregisterEvent(event)
+  end
+  queueEventsRegistered = false
+end
 
 function ReforgeLite:QueueUpdate()
   local time = GetTime()
@@ -1686,12 +1703,15 @@ function ReforgeLite:CreateMethodWindow()
     local activeWindow = self:GetActiveWindow()
     if activeWindow then
       self:SetFrameActive(true)
+    else
+      self:UnregisterQueueUpdateEvents()
     end
   end)
   self.methodWindow:SetScript ("OnShow", function (frame)
     self:SetFrameActive(false)
     frame:SetFrameActive(true)
     self:RefreshMethodWindow()
+    self:RegisterQueueUpdateEvents()
   end)
   self:SetFrameActive(false)
 
@@ -1998,7 +2018,8 @@ function ReforgeLite:OnEvent(event, ...)
   if self[event] then
     self[event](self, ...)
   end
-  if queueUpdateEvents[event] then
+  local arg1 = ...
+  if queueUpdateEvents[event] == true or queueUpdateEvents[event] == arg1 then
     self:QueueUpdate()
   end
 end
@@ -2014,12 +2035,15 @@ function ReforgeLite:OnShow()
   self:Initialize()
   self:SetNewTopWindow()
   self:UpdateItems()
+  self:RegisterQueueUpdateEvents()
 end
 
 function ReforgeLite:OnHide()
   local activeWindow = self:GetActiveWindow()
   if activeWindow then
     self:SetNewTopWindow(activeWindow)
+  else
+    self:UnregisterQueueUpdateEvents()
   end
 end
 
@@ -2114,9 +2138,6 @@ function ReforgeLite:ADDON_LOADED (addon)
     self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
   end
 
-  for event in pairs(queueUpdateEvents) do
-    self:RegisterEvent(event)
-  end
   self:UnregisterEvent("ADDON_LOADED")
 
   self:SetScript("OnShow", self.OnShow)
