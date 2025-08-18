@@ -948,6 +948,17 @@ function ReforgeLite:UpdateCapPoints (i)
     self.statCaps.cells[base + point][4]:SetText (self.pdb.caps[i].points[point].after)
   end
 end
+function ReforgeLite:RefreshCaps()
+  for capIndex, cap in ipairs(self.pdb.caps) do
+    for pointIndex, point in ipairs(cap.points) do
+      local oldValue = point.value
+      self:UpdateCapPreset(capIndex, pointIndex)
+      if oldValue ~= point.value then
+        self:ReorderCapPoint (capIndex, pointIndex)
+      end
+    end
+  end
+end
 function ReforgeLite:CollapseStatCaps()
   local caps = CopyTable(self.pdb.caps)
   table.sort(caps, function(a,b)
@@ -1127,15 +1138,7 @@ function ReforgeLite:CreateOptionList ()
     end
     local function SetSelected(value)
         self.pdb[value] = not self.pdb[value]
-        for capIndex, cap in ipairs(self.pdb.caps) do
-          for pointIndex, point in ipairs(cap.points) do
-            local oldValue = point.value
-            self:UpdateCapPreset(capIndex, pointIndex)
-            if oldValue ~= point.value then
-              self:ReorderCapPoint (capIndex, pointIndex)
-            end
-          end
-        end
+        self:RefreshCaps()
     end
     local buffsContextValues = {
       { text = CreateSimpleTextureMarkup(136092, 20, 20) .. " " .. L["Spell Haste"], key = "spellHaste"},
@@ -1558,15 +1561,7 @@ function ReforgeLite:UpdateItems()
     self.statTotals[i]:SetText(v.getter())
   end
 
-  for capIndex, cap in ipairs(self.pdb.caps) do
-    for pointIndex, point in ipairs(cap.points) do
-      local oldValue = point.value
-      self:UpdateCapPreset (capIndex, pointIndex)
-      if oldValue ~= point.value then
-        self:ReorderCapPoint (capIndex, pointIndex)
-      end
-    end
-  end
+  self:RefreshCaps()
   self:RefreshMethodStats()
 end
 
