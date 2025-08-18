@@ -533,6 +533,7 @@ function ReforgeLite:FixScroll ()
 end
 
 function ReforgeLite:SetNewTopWindow(newTopWindow)
+  if not RFL_FRAMES[2] then return end
   newTopWindow = newTopWindow or self
   for _, frame in ipairs(RFL_FRAMES) do
     if frame == newTopWindow then
@@ -1656,13 +1657,7 @@ function ReforgeLite:CreateMethodWindow()
   self.methodWindow.titlebar:SetPoint("TOPLEFT",self.methodWindow,"TOPLEFT",3,-3)
   self.methodWindow.titlebar:SetPoint("TOPRIGHT",self.methodWindow,"TOPRIGHT",-3,-3)
   self.methodWindow.titlebar:SetHeight(20)
-  self.methodWindow.SetFrameActive = function(frame, active)
-    if active then
-      frame.titlebar:SetColorTexture(unpack (self.db.activeWindowTitle))
-    else
-      frame.titlebar:SetColorTexture(unpack (self.db.inactiveWindowTitle))
-    end
-  end
+  self.methodWindow.SetFrameActive = self.SetFrameActive
   self.methodWindow:SetFrameActive(true)
 
   self.methodWindow:SetBackdropColor (0.1, 0.1, 0.1)
@@ -1711,12 +1706,10 @@ function ReforgeLite:CreateMethodWindow()
     end
   end)
   self.methodWindow:SetScript ("OnShow", function (frame)
-    self:SetFrameActive(false)
-    frame:SetFrameActive(true)
+    self:SetNewTopWindow(frame)
     self:RefreshMethodWindow()
     self:RegisterQueueUpdateEvents()
   end)
-  self:SetFrameActive(false)
 
   self.methodWindow.itemTable = GUI:CreateTable (#self.itemSlots + 1, 3, 0, 0, nil, self.methodWindow)
   self.methodWindow:ClearAllPoints ()
@@ -1796,6 +1789,7 @@ function ReforgeLite:CreateMethodWindow()
   end
 
   self:RefreshMethodWindow()
+  self:SetNewTopWindow(self.methodWindow)
 end
 
 function ReforgeLite:RefreshMethodWindow()
@@ -1838,8 +1832,6 @@ function ReforgeLite:ShowMethodWindow()
   if not self.methodWindow then
     self:CreateMethodWindow()
   end
-
-  self:SetNewTopWindow(self.methodWindow)
 
   GUI:ClearFocus()
   self.methodWindow:Show()
@@ -2052,7 +2044,7 @@ end
 
 function ReforgeLite:OnCommand (cmd)
   if InCombatLockdown() then print(ERROR_CAPS, ERR_AFFECTING_COMBAT) return end
-  self:Show ()
+  self:Show()
 end
 
 function ReforgeLite:FORGE_MASTER_ITEM_CHANGED()
