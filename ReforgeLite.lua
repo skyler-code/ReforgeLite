@@ -2013,9 +2013,11 @@ function ReforgeLite:OnEvent(event, ...)
   if self[event] then
     self[event](self, ...)
   end
-  local arg1 = ...
-  if queueUpdateEvents[event] == true or queueUpdateEvents[event] == arg1 then
-    self:QueueUpdate()
+  if queueUpdateEvents[event] then
+    local arg1 = ...
+    if queueUpdateEvents[event] == true or queueUpdateEvents[event] == arg1 then
+      self:QueueUpdate()
+    end
   end
 end
 
