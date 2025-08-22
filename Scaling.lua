@@ -11219,3 +11219,5 @@ addonTable.AmplificationItems = {
   [104613] = 566, -- Thok's Tail Tip, Heroic
   [105609] = 572, -- Thok's Tail Tip, Heroic Warforged
 }
+
+addonTable.MASTERY_BY_LEVEL = { [80]=230, [81]=540, [82]=646, [83]=763, [84]=830, [85]=893, [86]=1437, [87]=1732, [88]=2086, [89]=2514, [90]=3000 }

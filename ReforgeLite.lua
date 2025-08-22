@@ -39,6 +39,7 @@ local DefaultDB = {
     ilvlCap = 0,
     meleeHaste = true,
     spellHaste = true,
+    mastery = false,
     weights = {0, 0, 0, 0, 0, 0, 0, 0},
     caps = {
       {
@@ -165,6 +166,16 @@ if addonTable.playerClass == "HUNTER" then
   CR_HIT, CR_CRIT, CR_HASTE = CR_HIT_RANGED, CR_CRIT_RANGED, CR_HASTE_RANGED
 end
 
+local StatAdditives = {
+  [CR_HIT] = function(rating) return rating - GetFireSpirit() end,
+  [CR_MASTERY] = function(rating)
+    if ReforgeLite.pdb.mastery and not ReforgeLite:PlayerHasMasteryBuff() then
+      rating = rating + (addonTable.MASTERY_BY_LEVEL[UnitLevel('player')] or 0)
+    end
+    return rating
+  end
+}
+
 local function RatingStat (i, name_, tip_, long_, id_)
   return {
     name = name_,
@@ -172,8 +183,8 @@ local function RatingStat (i, name_, tip_, long_, id_)
     long = long_,
     getter = function ()
       local rating = GetCombatRating(id_)
-      if id_ == CR_HIT then
-        rating = rating - GetFireSpirit()
+      if StatAdditives[id_] then
+        rating = StatAdditives[id_](rating)
       end
       return rating
     end,
@@ -1135,8 +1146,9 @@ function ReforgeLite:CreateOptionList ()
   self:SetAnchor(self.buffsContextMenu, "TOPLEFT", self.targetLevel, "TOPRIGHT", 0 , 5)
 
   local buffsContextValues = {
-    spellHaste = { text = addonTable.CreateIconMarkup(136092) .. L["Spell Haste"], selected = self.PlayerHasSpellHasteBuff},
-    meleeHaste = { text = addonTable.CreateIconMarkup(133076) .. L["Melee Haste"], selected = self.PlayerHasMeleeHasteBuff},
+    spellHaste = { text = addonTable.CreateIconMarkup(136092) .. L["Spell Haste"], selected = self.PlayerHasSpellHasteBuff },
+    meleeHaste = { text = addonTable.CreateIconMarkup(133076) .. L["Melee Haste"], selected = self.PlayerHasMeleeHasteBuff },
+    mastery = { text = addonTable.CreateIconMarkup(136046) .. STAT_MASTERY, selected = self.PlayerHasMasteryBuff },
   }
 
   self.buffsContextMenu:SetupMenu(function(dropdown, rootDescription)

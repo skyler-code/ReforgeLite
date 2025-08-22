@@ -10,22 +10,29 @@ local StatHaste = addonTable.statIds.HASTE
 local StatExp = addonTable.statIds.EXP
 
 local SPELL_HASTE_BUFFS = {
-  24907, -- Moonkin Aura
-  49868, -- Mind Quickening
-  51470, -- Elemental Oath
+  24907,  -- Moonkin Aura
+  49868,  -- Mind Quickening
+  51470,  -- Elemental Oath
   135678, -- Energizing Spores
 }
 
 local MELEE_HASTE_BUFFS = {
-  55610, -- Unholy Aura
+  55610,  -- Unholy Aura
   128432, -- Cackling Howl
   128433, -- Serpent's Swiftness
   113742, -- Swiftblade's Cunning
-  30809, -- Unleashed Rage
+  30809,  -- Unleashed Rage
+}
+
+local MASTERY_BUFFS = {
+  93435,  -- Roar of Courage
+  128997, -- Spirit Beast Blessing
+  19740,  -- Blessing of Might
+  116956, -- Grace of Air
 }
 
 function ReforgeLite:PlayerHasSpellHasteBuff()
-  for _,v in ipairs(SPELL_HASTE_BUFFS) do
+  for _, v in ipairs(SPELL_HASTE_BUFFS) do
     if C_UnitAuras.GetPlayerAuraBySpellID(v) then
       return true
     end
@@ -33,7 +40,15 @@ function ReforgeLite:PlayerHasSpellHasteBuff()
 end
 
 function ReforgeLite:PlayerHasMeleeHasteBuff()
-  for _,v in ipairs(MELEE_HASTE_BUFFS) do
+  for _, v in ipairs(MELEE_HASTE_BUFFS) do
+    if C_UnitAuras.GetPlayerAuraBySpellID(v) then
+      return true
+    end
+  end
+end
+
+function ReforgeLite:PlayerHasMasteryBuff()
+  for _, v in ipairs(MASTERY_BUFFS) do
     if C_UnitAuras.GetPlayerAuraBySpellID(v) then
       return true
     end
