@@ -1135,8 +1135,8 @@ function ReforgeLite:CreateOptionList ()
   self:SetAnchor(self.buffsContextMenu, "TOPLEFT", self.targetLevel, "TOPRIGHT", 0 , 5)
 
   local buffsContextValues = {
-    spellHaste = { text = CreateSimpleTextureMarkup(136092, 20, 20) .. " " .. L["Spell Haste"], selected = self.PlayerHasSpellHasteBuff},
-    meleeHaste = { text = CreateSimpleTextureMarkup(133076, 20, 20) .. " " .. L["Melee Haste"], selected = self.PlayerHasMeleeHasteBuff},
+    spellHaste = { text = addonTable.CreateIconMarkup(136092) .. L["Spell Haste"], selected = self.PlayerHasSpellHasteBuff},
+    meleeHaste = { text = addonTable.CreateIconMarkup(133076) .. L["Melee Haste"], selected = self.PlayerHasMeleeHasteBuff},
   }
 
   self.buffsContextMenu:SetupMenu(function(dropdown, rootDescription)

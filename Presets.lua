@@ -116,6 +116,7 @@ end
 local function CreateIconMarkup(icon)
   return CreateSimpleTextureMarkup(icon, 16, 16) .. " "
 end
+addonTable.CreateIconMarkup = CreateIconMarkup
 
 local AtLeast = addonTable.StatCapMethods.AtLeast
 local AtMost = addonTable.StatCapMethods.AtMost
