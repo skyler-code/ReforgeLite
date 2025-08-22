@@ -1616,8 +1616,12 @@ local queueUpdateEvents = {
 local queueEventsRegistered = false
 function ReforgeLite:RegisterQueueUpdateEvents()
   if queueEventsRegistered then return end
-  for event in pairs(queueUpdateEvents) do
-    self:RegisterEvent(event)
+  for event, unitID in pairs(queueUpdateEvents) do
+    if unitID == true then
+      self:RegisterEvent(event)
+    else
+      self:RegisterUnitEvent(event, unitID)
+    end
   end
   queueEventsRegistered = true
 end
@@ -2017,10 +2021,7 @@ function ReforgeLite:OnEvent(event, ...)
     self[event](self, ...)
   end
   if queueUpdateEvents[event] then
-    local arg1 = ...
-    if queueUpdateEvents[event] == true or queueUpdateEvents[event] == arg1 then
       self:QueueUpdate()
-    end
   end
 end
 
