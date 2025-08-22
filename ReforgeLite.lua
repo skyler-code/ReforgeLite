@@ -1134,20 +1134,22 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory:AddFrame(self.buffsContextMenu)
   self:SetAnchor(self.buffsContextMenu, "TOPLEFT", self.targetLevel, "TOPRIGHT", 0 , 5)
 
+  local buffsContextValues = {
+    spellHaste = { text = CreateSimpleTextureMarkup(136092, 20, 20) .. " " .. L["Spell Haste"], selected = self.PlayerHasSpellHasteBuff},
+    meleeHaste = { text = CreateSimpleTextureMarkup(133076, 20, 20) .. " " .. L["Melee Haste"], selected = self.PlayerHasMeleeHasteBuff},
+  }
+
   self.buffsContextMenu:SetupMenu(function(dropdown, rootDescription)
     local function IsSelected(value)
-        return self.pdb[value]
+        return self.pdb[value] or buffsContextValues[value].selected(self)
     end
     local function SetSelected(value)
         self.pdb[value] = not self.pdb[value]
         self:RefreshCaps()
     end
-    local buffsContextValues = {
-      { text = CreateSimpleTextureMarkup(136092, 20, 20) .. " " .. L["Spell Haste"], key = "spellHaste"},
-      { text = CreateSimpleTextureMarkup(133076, 20, 20) .. " " .. L["Melee Haste"], key = "meleeHaste"}
-    }
-    for _, box in ipairs(buffsContextValues) do
-        rootDescription:CreateCheckbox(box.text, IsSelected, SetSelected, box.key)
+    for key, box in pairs(buffsContextValues) do
+        local checkbox = rootDescription:CreateCheckbox(box.text, IsSelected, SetSelected, key)
+        checkbox.IsEnabled = function(chkbox) return not buffsContextValues[chkbox.data].selected(self) end
     end
   end)
 
