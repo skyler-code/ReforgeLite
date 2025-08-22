@@ -94,23 +94,23 @@ function ReforgeLite:CalcHasteWithBonuses(haste)
 end
 
 function ReforgeLite:GetNeededMeleeHit ()
-  return math.max(0, 3 + 1.5 * self.pdb.targetLevel)
+  return max(0, 3 + 1.5 * self.pdb.targetLevel)
 end
 function ReforgeLite:GetNeededSpellHit ()
   local diff = self.pdb.targetLevel
   if diff <= 3 then
-    return math.max(0, 6 + 3 * diff)
+    return max(0, 6 + 3 * diff)
   else
     return 11 * diff - 18
   end
 end
 
 function ReforgeLite:GetNeededExpertiseSoft()
-  return math.max(0, 3 + 1.5 * self.pdb.targetLevel)
+  return max(0, 3 + 1.5 * self.pdb.targetLevel)
 end
 
 function ReforgeLite:GetNeededExpertiseHard()
-  return math.max(0, 6 + 3 * self.pdb.targetLevel)
+  return max(0, 6 + 3 * self.pdb.targetLevel)
 end
 
 local function CreateIconMarkup(icon)
