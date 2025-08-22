@@ -1145,7 +1145,7 @@ function ReforgeLite:CreateOptionList ()
     end
     local function SetSelected(value)
         self.pdb[value] = not self.pdb[value]
-        self:RefreshCaps()
+        self:QueueUpdate()
     end
     for key, box in pairs(buffsContextValues) do
         local checkbox = rootDescription:CreateCheckbox(box.text, IsSelected, SetSelected, key)
