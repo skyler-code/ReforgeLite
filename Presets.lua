@@ -64,10 +64,8 @@ function ReforgeLite:GetExpertiseBonus()
 end
 function ReforgeLite:GetNonSpellHasteBonus(hasteFunc, ratingBonusId)
   local baseBonus = RoundToSignificantDigits((hasteFunc()+100)/(GetCombatRatingBonus(ratingBonusId)+100), 4)
-  if self.pdb.meleeHaste then
-    if not self:PlayerHasMeleeHasteBuff() then
-      baseBonus = baseBonus * 1.1
-    end
+  if self.pdb.meleeHaste and not self:PlayerHasMeleeHasteBuff() then
+    baseBonus = baseBonus * 1.1
   end
   return baseBonus
 end
@@ -79,10 +77,8 @@ function ReforgeLite:GetRangedHasteBonus()
 end
 function ReforgeLite:GetSpellHasteBonus()
   local baseBonus = (UnitSpellHaste('PLAYER')+100)/(GetCombatRatingBonus(CR_HASTE_SPELL)+100)
-  if self.pdb.spellHaste then
-    if not self:PlayerHasSpellHasteBuff() then
-      baseBonus = baseBonus * 1.05
-    end
+  if self.pdb.spellHaste and not self:PlayerHasSpellHasteBuff() then
+    baseBonus = baseBonus * 1.05
   end
   return RoundToSignificantDigits(baseBonus, 6)
 end
