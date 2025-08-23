@@ -17,7 +17,7 @@ end
 addonTable.print = print
 
 local ITEM_SIZE = 24
-local MAX_SPEED = 14
+local MAX_SPEED = 20
 
 local DefaultDB = {
   global = {
@@ -27,7 +27,7 @@ local DefaultDB = {
     methodWindowLocation = false,
     openOnReforge = true,
     updateTooltip = false,
-    speed = MAX_SPEED,
+    speed = 1,
     activeWindowTitle = {0.6, 0, 0},
     inactiveWindowTitle = {0.5, 0.5, 0.5},
     specProfiles = false,
@@ -1276,10 +1276,7 @@ function ReforgeLite:CreateOptionList ()
   self.quality.Low:SetText (SLOW)
   self.quality.High:SetText (FAST)
 
-  self.quality.helpButton = CreateFrame("Button",nil,self.quality,"MainHelpPlateButton")
-  self.quality.helpButton:SetPoint("BOTTOMLEFT",self.quality.Text, "BOTTOMRIGHT",0,-20)
-  self.quality.helpButton:SetScale(0.45)
-  GUI:SetTooltip(self.quality.helpButton, L["Slide to the left if the calculation slows your game too much."])
+  GUI:SetTooltip(self.quality, L["Setting to Fast will result in lower accuracy! Set this back to Slow if you're not getting the results you expect."])
 
   self.settingsCategory = self:CreateCategory (SETTINGS)
   self:SetAnchor (self.settingsCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
