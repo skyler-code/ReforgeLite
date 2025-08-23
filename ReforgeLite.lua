@@ -17,7 +17,7 @@ end
 addonTable.print = print
 
 local ITEM_SIZE = 24
-local MAX_SPEED = 20
+addonTable.MAX_SPEED = 20
 
 local DefaultDB = {
   global = {
@@ -112,7 +112,7 @@ function ReforgeLite:UpgradeDB()
       end
     end
   end
-  if db.global.speed and db.global.speed > MAX_SPEED then
+  if db.global.speed and db.global.speed > addonTable.MAX_SPEED then
     db.global.speed = nil
   end
 end
@@ -1263,7 +1263,7 @@ function ReforgeLite:CreateOptionList ()
   self.quality = CreateFrame ("Slider", nil, self.content, "UISliderTemplateWithLabels")
   self:SetAnchor (self.quality, "LEFT", self.computeButton, "RIGHT", 10, 0)
   self.quality:SetSize(150, 15)
-  self.quality:SetMinMaxValues (1, MAX_SPEED)
+  self.quality:SetMinMaxValues (1, addonTable.MAX_SPEED)
   self.quality:SetValueStep (1)
   self.quality:SetObeyStepOnDrag(true)
   self.quality:SetValue (self.db.speed)
