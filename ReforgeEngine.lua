@@ -362,7 +362,7 @@ end
 
 function ReforgeLite:ComputeReforgeCore(reforgeOptions)
   local char, floor = string.char, floor
-  local TABLE_SIZE = 750
+  local TABLE_SIZE = floor(10000 / self.db.speed)
   local scores, codes = {0}, {""}
   for i, opt in ipairs(reforgeOptions) do
     local newscores, newcodes = {}, {}
@@ -414,6 +414,8 @@ function ReforgeLite:ChooseReforgeClassic (data, reforgeOptions, scores, codes)
   return bestCode[1] or bestCode[2] or bestCode[3] or bestCode[4]
 end
 
+local chooseLoops = 0
+
 function ReforgeLite:ComputeReforge()
   local data = self:InitReforgeClassic()
   local reforgeOptions = {}
@@ -421,7 +423,7 @@ function ReforgeLite:ComputeReforge()
     reforgeOptions[i] = self:GetItemReforgeOptions(data.method.items[i], data, i)
   end
 
-  self.__chooseLoops = nil
+  chooseLoops = 0
 
   local scores, codes = self:ComputeReforgeCore(reforgeOptions)
 
@@ -468,12 +470,12 @@ function ReforgeLite:ResumeComputeNextFrame()
 end
 
 function ReforgeLite:RunYieldCheck()
-  if (self.__chooseLoops or 0) >= self.db.speed then
-    self.__chooseLoops = nil
+  if chooseLoops >= 200000 then
+    chooseLoops = 0
     self:ResumeComputeNextFrame()
     coroutine.yield()
   else
-    self.__chooseLoops = (self.__chooseLoops or 0) + 1
+    chooseLoops = chooseLoops + 1
   end
 end
 

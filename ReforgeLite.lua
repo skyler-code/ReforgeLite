@@ -7,8 +7,6 @@ addonTable.ReforgeLite = ReforgeLite
 local L = addonTable.L
 local GUI = addonTable.GUI
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
-addonTable.MAX_LOOPS = 200000
-local MIN_LOOPS = 1000
 
 local GetItemStats = addonTable.GetItemStatsUp
 
@@ -19,6 +17,7 @@ end
 addonTable.print = print
 
 local ITEM_SIZE = 24
+local MAX_SPEED = 14
 
 local DefaultDB = {
   global = {
@@ -28,7 +27,7 @@ local DefaultDB = {
     methodWindowLocation = false,
     openOnReforge = true,
     updateTooltip = false,
-    speed = addonTable.MAX_LOOPS * 0.8,
+    speed = MAX_SPEED,
     activeWindowTitle = {0.6, 0, 0},
     inactiveWindowTitle = {0.5, 0.5, 0.5},
     specProfiles = false,
@@ -112,6 +111,9 @@ function ReforgeLite:UpgradeDB()
         db[k] = nil
       end
     end
+  end
+  if db.global.speed and db.global.speed > MAX_SPEED then
+    db.global.speed = nil
   end
 end
 
@@ -1261,8 +1263,8 @@ function ReforgeLite:CreateOptionList ()
   self.quality = CreateFrame ("Slider", nil, self.content, "UISliderTemplateWithLabels")
   self:SetAnchor (self.quality, "LEFT", self.computeButton, "RIGHT", 10, 0)
   self.quality:SetSize(150, 15)
-  self.quality:SetMinMaxValues (MIN_LOOPS, addonTable.MAX_LOOPS)
-  self.quality:SetValueStep ((addonTable.MAX_LOOPS - MIN_LOOPS) / 20)
+  self.quality:SetMinMaxValues (1, MAX_SPEED)
+  self.quality:SetValueStep (1)
   self.quality:SetObeyStepOnDrag(true)
   self.quality:SetValue (self.db.speed)
   self.quality:EnableMouseWheel (false)
