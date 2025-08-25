@@ -383,6 +383,79 @@ function ReforgeLite:ComputeReforgeCore(reforgeOptions)
   return scores, codes
 end
 
+
+function ReforgeLite:ComputeReforgeHillClimb(reforgeOptions, data, maxIterations, minScore)
+  -- Start with greedy solution
+  local current = {}
+  for i, opts in ipairs(reforgeOptions) do
+    local bestj, bestscore = 1, nil
+    for j, opt in ipairs(opts) do
+      local score = opt.score
+      if not bestscore or score > bestscore then
+        bestscore = score
+        bestj = j
+      end
+    end
+    current[i] = bestj
+  end
+
+  local function getTotalScore(selection)
+    -- Apply selection to data.method.items
+    for i, j in ipairs(selection) do
+      local opt = reforgeOptions[i][j]
+      data.method.items[i].src = opt.src
+      data.method.items[i].dst = opt.dst
+    end
+    self:UpdateMethodStats(data.method)
+    local score = 0
+    -- Add stat weights
+    for stat, weight in pairs(data.weights) do
+      score = score + (data.method.stats[stat] or 0) * weight
+    end
+    -- Add cap bonuses/penalties
+    if data.caps[1].stat > 0 then
+      score = score + self:GetCapScore(data.caps[1], data.method.stats[data.caps[1].stat] or 0)
+    end
+    if data.caps[2].stat > 0 then
+      score = score + self:GetCapScore(data.caps[2], data.method.stats[data.caps[2].stat] or 0)
+    end
+    return score
+  end
+
+  local bestScore = getTotalScore(current)
+  local improved = true
+  local iterations = 0
+
+  while improved and (not maxIterations or iterations < maxIterations) and (not minScore or bestScore < minScore) do
+    improved = false
+    for i, opts in ipairs(reforgeOptions) do
+      local original = current[i]
+      for j, opt in ipairs(opts) do
+        if j ~= original then
+          current[i] = j
+          local score = getTotalScore(current)
+          if score > bestScore then
+            bestScore = score
+            improved = true
+            break -- Accept first improvement (steepest ascent: remove break)
+          end
+        end
+      end
+      if improved then break end
+      current[i] = original
+    end
+    iterations = iterations + 1
+  end
+
+  -- Apply best found
+  for i, j in ipairs(current) do
+    local opt = reforgeOptions[i][j]
+    data.method.items[i].src = opt.src
+    data.method.items[i].dst = opt.dst
+  end
+  self:FinalizeReforge(data)
+end
+
 function ReforgeLite:ChooseReforgeClassic (data, reforgeOptions, scores, codes)
   local bestCode = {nil, nil, nil, nil}
   local bestScore = {0, 0, 0, 0}
@@ -423,11 +496,8 @@ function ReforgeLite:ComputeReforge()
     reforgeOptions[i] = self:GetItemReforgeOptions(data.method.items[i], data, i)
   end
 
-  chooseLoops = 0
+  self:ComputeReforgeHillClimb(reforgeOptions, data, 2000, nil) -- 2000 iterations max, or set minScore
 
-  local scores, codes = self:ComputeReforgeCore(reforgeOptions)
-
-  local code = self:ChooseReforgeClassic(data, reforgeOptions, scores, codes)
   scores, codes = nil, nil
   collectgarbage ("collect")
   for i = 1, #data.method.items do
