@@ -1253,33 +1253,31 @@ function ReforgeLite:CreateOptionList ()
     GUI:Lock()
     GUI:ClearFocus()
     btn:RenderText(IN_PROGRESS)
+    self.pauseRoutine = nil
+    self.pauseButton:Enable()
+    self.pauseButton:RenderText(KEY_PAUSE)
   end)
+
+  self.pauseButton = GUI:CreatePanelButton (self.content, KEY_PAUSE, function(btn)
+    if self.pauseRoutine then
+      self:EndCompute()
+    else
+      self.pauseRoutine = true
+      btn:RenderText(CANCEL)
+      self.computeButton:RenderText(CONTINUE)
+      addonTable.GUI:UnlockFrame(self.computeButton)
+    end
+  end, {preventLock = true})
+  self:SetAnchor (self.pauseButton, "LEFT", self.computeButton, "RIGHT", 4, 0)
+  self.pauseButton:Disable()
 
   self:UpdateStatWeightList ()
 
-  self.quality = CreateFrame ("Slider", nil, self.content, "UISliderTemplateWithLabels")
-  self:SetAnchor (self.quality, "LEFT", self.computeButton, "RIGHT", 10, 0)
-  self.quality:SetSize(150, 15)
-  self.quality:SetMinMaxValues (1, addonTable.MAX_SPEED)
-  self.quality:SetValueStep (1)
-  self.quality:SetObeyStepOnDrag(true)
-  self.quality:SetValue (self.db.accuracy)
-  self.quality:EnableMouseWheel (false)
-  self.quality:SetScript ("OnValueChanged", function (slider)
-    self.db.accuracy = slider:GetValue ()
-  end)
-
-  self.quality.Text:SetText (L["Accuracy"])
-  self.quality.Low:SetText (LOW)
-  self.quality.High:SetText (HIGH)
-
-  GUI:SetTooltip(self.quality, L["Setting to Fast will result in lower accuracy! Set this back to Slow if you're not getting the results you expect."])
-
   self.settingsCategory = self:CreateCategory (SETTINGS)
   self:SetAnchor (self.settingsCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
-  self.settings = GUI:CreateTable (7, 1, nil, 200)
+  self.settings = GUI:CreateTable (8, 1, nil, 200)
   self.settingsCategory:AddFrame (self.settings)
-  self:SetAnchor (self.settings, "TOPLEFT", self.settingsCategory, "BOTTOMLEFT", 0, -5)
+  self:SetAnchor (self.settings, "TOPLEFT", self.settingsCategory, "BOTTOMLEFT", 0, -10)
   self.settings:SetPoint ("RIGHT", self.content, -10, 0)
   self.settings:SetRowHeight (ITEM_SIZE + 2)
 
@@ -1324,6 +1322,26 @@ function ReforgeLite:GetInactiveWindows()
 end
 
 function ReforgeLite:FillSettings()
+  local accuracySlider = CreateFrame ("Slider", nil, self.settings, "UISliderTemplateWithLabels")
+  accuracySlider:SetSize(150, 15)
+  accuracySlider:SetMinMaxValues (1, addonTable.MAX_SPEED)
+  accuracySlider:SetValueStep (1)
+  accuracySlider:SetObeyStepOnDrag(true)
+  accuracySlider:SetValue (self.db.accuracy)
+  accuracySlider:EnableMouseWheel (false)
+  accuracySlider:SetScript ("OnValueChanged", function (slider)
+    self.db.accuracy = slider:GetValue ()
+  end)
+
+  accuracySlider.Text:SetText (L["Accuracy"])
+  accuracySlider.Low:SetText (LOW)
+  accuracySlider.High:SetText (HIGH)
+  self.accuracySlider = accuracySlider
+
+  GUI:SetTooltip(accuracySlider, L["Setting to Low will result in lower accuracy but faster results! Set this back to High if you're not getting the results you expect."])
+
+  self.settings:SetCell (getOrderId('settings'), 0, accuracySlider, "LEFT", 8)
+
   self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Open window when reforging"],
     self.db.openOnReforge, function (val) self.db.openOnReforge = val end), "LEFT")
 

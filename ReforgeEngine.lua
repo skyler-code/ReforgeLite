@@ -470,6 +470,10 @@ function ReforgeLite:ResumeComputeNextFrame()
 end
 
 function ReforgeLite:RunYieldCheck()
+  if self.pauseRoutine then
+    coroutine.yield()
+    return
+  end
   if chooseLoops >= 200000 then
     chooseLoops = 0
     self:ResumeComputeNextFrame()
@@ -480,11 +484,18 @@ function ReforgeLite:RunYieldCheck()
 end
 
 function ReforgeLite:StartCompute()
-  routine = coroutine.create(function() self:Compute() end)
+  if routine then
+    coroutine.resume(routine)
+  else
+    routine = coroutine.create(function() self:Compute() end)
+  end
   self:ResumeComputeNextFrame()
 end
 
 function ReforgeLite:EndCompute()
+  routine = nil
   self.computeButton:RenderText(L["Compute"])
   addonTable.GUI:Unlock()
+  self.pauseButton:RenderText(KEY_PAUSE)
+  self.pauseButton:Disable()
 end
