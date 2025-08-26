@@ -316,7 +316,7 @@ end
 
 GUI.panelButtons = {}
 GUI.unusedPanelButtons = {}
-function GUI:CreatePanelButton(parent, text, handler)
+function GUI:CreatePanelButton(parent, text, handler, opts)
   local btn
   if #self.unusedPanelButtons > 0 then
     btn = tremove(self.unusedPanelButtons)
@@ -341,6 +341,10 @@ function GUI:CreatePanelButton(parent, text, handler)
       f:SetText(...)
       f:FitToText()
     end
+    btn.originalFitTextWidthPadding = btn.fitTextWidthPadding
+  end
+  if opts then
+    btn.fitTextWidthPadding = opts.fitTextWidthPadding or btn.originalFitTextWidthPadding
   end
   btn:RenderText(text)
   btn:SetScript("OnClick", handler)
