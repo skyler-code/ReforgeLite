@@ -27,7 +27,7 @@ local DefaultDB = {
     methodWindowLocation = false,
     openOnReforge = true,
     updateTooltip = false,
-    accuracy = 1,
+    accuracy = addonTable.MAX_SPEED,
     activeWindowTitle = {0.6, 0, 0},
     inactiveWindowTitle = {0.5, 0.5, 0.5},
     specProfiles = false,
@@ -1269,9 +1269,9 @@ function ReforgeLite:CreateOptionList ()
     self.db.accuracy = slider:GetValue ()
   end)
 
-  self.quality.Text:SetText (SPEED)
-  self.quality.Low:SetText (SLOW)
-  self.quality.High:SetText (FAST)
+  self.quality.Text:SetText (L["Accuracy"])
+  self.quality.Low:SetText (LOW)
+  self.quality.High:SetText (HIGH)
 
   GUI:SetTooltip(self.quality, L["Setting to Fast will result in lower accuracy! Set this back to Slow if you're not getting the results you expect."])
 
