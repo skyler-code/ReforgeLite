@@ -362,7 +362,7 @@ end
 
 function ReforgeLite:ComputeReforgeCore(reforgeOptions)
   local char, floor = string.char, floor
-  local TABLE_SIZE = floor(10000 * (( addonTable.MAX_SPEED - self.db.speed + 1 ) / addonTable.MAX_SPEED))
+  local TABLE_SIZE = floor(10000 * (( addonTable.MAX_SPEED - self.db.accuracy + 1 ) / addonTable.MAX_SPEED))
   local scores, codes = {0}, {""}
   for i, opt in ipairs(reforgeOptions) do
     local newscores, newcodes = {}, {}

@@ -27,7 +27,7 @@ local DefaultDB = {
     methodWindowLocation = false,
     openOnReforge = true,
     updateTooltip = false,
-    speed = 1,
+    accuracy = 1,
     activeWindowTitle = {0.6, 0, 0},
     inactiveWindowTitle = {0.5, 0.5, 0.5},
     specProfiles = false,
@@ -111,9 +111,6 @@ function ReforgeLite:UpgradeDB()
         db[k] = nil
       end
     end
-  end
-  if db.global.speed and db.global.speed > addonTable.MAX_SPEED then
-    db.global.speed = nil
   end
 end
 
@@ -1266,10 +1263,10 @@ function ReforgeLite:CreateOptionList ()
   self.quality:SetMinMaxValues (1, addonTable.MAX_SPEED)
   self.quality:SetValueStep (1)
   self.quality:SetObeyStepOnDrag(true)
-  self.quality:SetValue (self.db.speed)
+  self.quality:SetValue (self.db.accuracy)
   self.quality:EnableMouseWheel (false)
   self.quality:SetScript ("OnValueChanged", function (slider)
-    self.db.speed = slider:GetValue ()
+    self.db.accuracy = slider:GetValue ()
   end)
 
   self.quality.Text:SetText (SPEED)
