@@ -25,7 +25,7 @@ end
 function GUI:Lock()
   for _, frames in ipairs({self.panelButtons, self.imgButtons, self.editBoxes, self.checkButtons}) do
     for _, frame in pairs(frames) do
-      if frame:IsEnabled() then
+      if frame:IsEnabled() and not frame.preventLock then
         frame.locked = true
         frame:Disable()
         if frame:IsMouseEnabled() then
@@ -326,6 +326,7 @@ function GUI:CreatePanelButton(parent, text, handler, opts)
     btn = tremove(self.unusedPanelButtons)
     btn:SetParent(parent)
     btn:Show()
+    btn:Enable()
     self.panelButtons[btn:GetName()] = btn
   else
     local name = self:GenerateWidgetName ()
@@ -347,9 +348,8 @@ function GUI:CreatePanelButton(parent, text, handler, opts)
     end
     btn.originalFitTextWidthPadding = btn.fitTextWidthPadding
   end
-  if opts then
-    btn.fitTextWidthPadding = opts.fitTextWidthPadding or btn.originalFitTextWidthPadding
-  end
+  btn.fitTextWidthPadding = (opts or {}).fitTextWidthPadding or btn.originalFitTextWidthPadding
+  btn.preventLock = (opts or {}).preventLock
   btn:RenderText(text)
   btn:SetScript("OnClick", handler)
   return btn
