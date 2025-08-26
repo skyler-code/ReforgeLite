@@ -471,20 +471,21 @@ end
 
 function ReforgeLite:RunYieldCheck()
   if self.pauseRoutine then
-    coroutine.yield()
-    return
-  end
-  if chooseLoops >= 200000 then
     chooseLoops = 0
-    self:ResumeComputeNextFrame()
     coroutine.yield()
   else
-    chooseLoops = chooseLoops + 1
+    if chooseLoops >= 200000 then
+      chooseLoops = 0
+      self:ResumeComputeNextFrame()
+      coroutine.yield()
+    else
+      chooseLoops = chooseLoops + 1
+    end
   end
 end
 
 function ReforgeLite:StartCompute()
-  if routine then
+  if routine and NORMAL_STATUS_CODES[coroutine.status(routine)] and self.pauseRoutine ~= 'kill' then
     coroutine.resume(routine)
   else
     routine = coroutine.create(function() self:Compute() end)
@@ -493,7 +494,6 @@ function ReforgeLite:StartCompute()
 end
 
 function ReforgeLite:EndCompute()
-  routine = nil
   self.computeButton:RenderText(L["Compute"])
   addonTable.GUI:Unlock()
   self.pauseButton:RenderText(KEY_PAUSE)
