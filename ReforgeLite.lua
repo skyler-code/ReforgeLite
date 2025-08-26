@@ -1253,17 +1253,17 @@ function ReforgeLite:CreateOptionList ()
     GUI:Lock()
     GUI:ClearFocus()
     btn:RenderText(IN_PROGRESS)
-    self.pauseRoutine = nil
+    addonTable.pauseRoutine = nil
     self.pauseButton:Enable()
     self.pauseButton:RenderText(KEY_PAUSE)
   end)
 
   self.pauseButton = GUI:CreatePanelButton (self.content, KEY_PAUSE, function(btn)
-    if self.pauseRoutine then
-      self.pauseRoutine = 'kill'
-      self:EndCompute()
+    if addonTable.pauseRoutine then
+      addonTable.pauseRoutine = 'kill'
+      self:EndCompute(addonTable.pauseRoutine)
     else
-      self.pauseRoutine = 'pause'
+      addonTable.pauseRoutine = 'pause'
       btn:RenderText(CANCEL)
       self.computeButton:RenderText(CONTINUE)
       addonTable.GUI:UnlockFrame(self.computeButton)
