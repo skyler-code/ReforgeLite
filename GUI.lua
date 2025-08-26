@@ -50,24 +50,28 @@ function GUI:Lock()
   end
 end
 
+function GUI:UnlockFrame(frame)
+  if frame.locked then
+    frame:Enable()
+    frame.locked = nil
+    if frame.mouseDisabled then
+      frame:EnableMouse(true)
+      frame.mouseDisabled = nil
+    elseif frame.mouseMotionDisabled then
+      frame:SetMouseMotionEnabled(true)
+      frame.mouseMotionDisabled = nil
+    end
+    if frame.prevColor then
+      frame:SetTextColor (unpack(frame.prevColor))
+      frame.prevColor = nil
+    end
+  end
+end
+
 function GUI:Unlock()
   for _, frames in ipairs({self.panelButtons, self.imgButtons, self.editBoxes, self.checkButtons}) do
     for _, frame in pairs(frames) do
-      if frame.locked then
-        frame:Enable()
-        frame.locked = nil
-        if frame.mouseDisabled then
-          frame:EnableMouse(true)
-          frame.mouseDisabled = nil
-        elseif frame.mouseMotionDisabled then
-          frame:SetMouseMotionEnabled(true)
-          frame.mouseMotionDisabled = nil
-        end
-        if frame.prevColor then
-          frame:SetTextColor (unpack(frame.prevColor))
-          frame.prevColor = nil
-        end
-      end
+      self:UnlockFrame(frame)
     end
   end
   for _, dropdown in pairs(self.dropdowns) do
