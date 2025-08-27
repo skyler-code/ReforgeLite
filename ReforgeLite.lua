@@ -32,6 +32,7 @@ local DefaultDB = {
     inactiveWindowTitle = {0.5, 0.5, 0.5},
     specProfiles = false,
     importButton = true,
+    useBranchBound = true,  -- Default to new algorithm
   },
   char = {
     targetLevel = 3,
@@ -67,6 +68,8 @@ local DefaultDB = {
     methodOrigin = addonName,
     itemsLocked = {},
     categoryStates = { [SETTINGS] = false },
+    algorithmComparison = false,  -- Debug feature, default off
+    debug = false,  -- Debug mode off by default
   },
   class = {
     customPresets = {}
@@ -1276,7 +1279,7 @@ function ReforgeLite:CreateOptionList ()
 
   self.settingsCategory = self:CreateCategory (SETTINGS)
   self:SetAnchor (self.settingsCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
-  self.settings = GUI:CreateTable (8, 1, nil, 200)
+  self.settings = GUI:CreateTable (10, 1, nil, 200)  -- Increased from 8 to 10 for new checkboxes
   self.settingsCategory:AddFrame (self.settings)
   self:SetAnchor (self.settings, "TOPLEFT", self.settingsCategory, "BOTTOMLEFT", 0, -10)
   self.settings:SetPoint ("RIGHT", self.content, -10, 0)
@@ -1379,6 +1382,10 @@ function ReforgeLite:FillSettings()
     end),
     "LEFT")
 
+  -- Add Branch and Bound checkbox
+  self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Use Branch and Bound (experimental)"],
+    self.db.useBranchBound, function (val) self.db.useBranchBound = val end), "LEFT")
+
   local activeWindowTitleOrderId = getOrderId('settings')
   self.settings:SetCellText (activeWindowTitleOrderId, 0, L["Active window color"], "LEFT", nil, "GameFontNormal")
   self.settings:SetCell (activeWindowTitleOrderId, 1, GUI:CreateColorPicker (self.settings, 20, 20, self.db.activeWindowTitle, function ()
@@ -1395,6 +1402,10 @@ function ReforgeLite:FillSettings()
 
   self.debugButton = GUI:CreatePanelButton (self.settings, L["Debug"], function(btn) self:DebugMethod () end)
   self.settings:SetCell (getOrderId('settings'), 0, self.debugButton, "LEFT")
+
+  -- Add Algorithm Comparison checkbox for debugging
+  self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Algorithm Comparison"],
+    self.pdb.algorithmComparison, function (val) self.pdb.algorithmComparison = val end), "LEFT")
 
 --@debug@
   self.settings:AddRow()
