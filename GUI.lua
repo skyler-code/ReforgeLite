@@ -781,46 +781,53 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
   return t
 end
 
+local function GetStaticPopupEditBox(popup)
+  if popup.GetEditBox then
+    return popup:GetEditBox()
+  end
+  return popup.editBox or popup.EditBox
+end
+
+local function GetStaticPopupButton1(popup)
+  if popup.GetButton1 then
+    return popup:GetButton1()
+  end
+  return popup.button1
+end
+
 function GUI.CreateStaticPopup(name, text, options)
   StaticPopupDialogs[name] = {
     text = text,
     button1 = ACCEPT,
     button2 = CANCEL,
     hasEditBox = true,
-    editBoxWidth = 350,
     OnAccept = function (self)
-      options.func(self.editBox:GetText ())
+      options.func(GetStaticPopupEditBox(self):GetText())
     end,
     EditBoxOnEnterPressed = function (self)
-      local importStr = self:GetParent ().editBox:GetText ()
+      local importStr = self:GetText()
       if importStr ~= "" then
         options.func(importStr)
-        self:GetParent ():Hide ()
+        self:GetParent():Hide()
       end
     end,
-    EditBoxOnTextChanged = function (self, data)
-      if data ~= "" then
-        self:GetParent ().button1:Enable ()
-      else
-        self:GetParent ().button1:Disable ()
-      end
+    EditBoxOnTextChanged = function (self)
+      GetStaticPopupButton1(self:GetParent()):SetEnabled(self:GetText() ~= "")
     end,
-    EditBoxOnEscapePressed = function(self)
-      self:GetParent():Hide();
-    end,
+    EditBoxOnEscapePressed = function(self) self:GetParent():Hide() end,
     OnShow = function (self)
       LibDD:CloseDropDownMenus()
-      self.editBox:SetText ("")
-      self.button1:Disable ()
-      self.editBox:SetFocus ()
+      local editBox = GetStaticPopupEditBox(self)
+      editBox:SetText("")
+      editBox:SetFocus()
+      RunNextFrame(function() GetStaticPopupButton1(self):Disable() end)
     end,
     OnHide = function (self)
       ChatEdit_FocusActiveWindow()
-      self.editBox:SetText ("")
+      GetStaticPopupEditBox(self):SetText("")
     end,
     timeout = 0,
     whileDead = true,
-    hideOnEscape = true
   }
 end
 
