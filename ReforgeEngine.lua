@@ -241,7 +241,7 @@ function ReforgeLite:GetItemReforgeOptions (item, data, slot)
       for dst = 1, #self.itemStats do
         if item.stats[dst] == 0 then
           local o = self:MakeReforgeOption (item, data, src, dst)
-          local pos = o.d1 + o.d2 * 10000
+          local pos = o.d1 + o.d2 * self.TABLE_SIZE
           if not aopt[pos] or aopt[pos].score < o.score then
             aopt[pos] = o
           end
@@ -362,16 +362,15 @@ end
 
 function ReforgeLite:ComputeReforgeCore(reforgeOptions)
   local char, floor = string.char, floor
-  local TABLE_SIZE = floor(10000 * (self.db.accuracy / addonTable.MAX_SPEED))
   local scores, codes = {0}, {""}
   for i, opt in ipairs(reforgeOptions) do
     local newscores, newcodes = {}, {}
     for k, score in pairs(scores) do
       self:RunYieldCheck(200000)
-      local s1, s2 = k % TABLE_SIZE, floor(k / TABLE_SIZE)
+      local s1, s2 = k % self.TABLE_SIZE, floor(k / self.TABLE_SIZE)
       for j = 1, #opt do
         local nscore = score + opt[j].score
-        local nk = s1 + opt[j].d1 + (s2 + opt[j].d2) * TABLE_SIZE
+        local nk = s1 + opt[j].d1 + (s2 + opt[j].d2) * self.TABLE_SIZE
         if not newscores[nk] or nscore > newscores[nk] then
           newscores[nk] = nscore
           newcodes[nk] = codes[k] .. char(j)
@@ -417,6 +416,7 @@ end
 local chooseLoops = 0
 
 function ReforgeLite:ComputeReforge()
+  self.TABLE_SIZE = floor(10000 * (self.db.accuracy / addonTable.MAX_SPEED))
   local data = self:InitReforgeClassic()
   local reforgeOptions = {}
   for i = 1, #self.itemData do
