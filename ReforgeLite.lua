@@ -129,7 +129,7 @@ GUI.CreateStaticPopup("REFORGE_LITE_SAVE_PRESET", L["Enter the preset name"], { 
     weights = CopyTable(ReforgeLite.pdb.weights)
   }
   ReforgeLite:InitCustomPresets()
-  ReforgeLite.deletePresetButton:Enable()
+  ReforgeLite.deletePresetButton:ToggleStatus()
 end })
 
 ReforgeLite.itemSlots = {
@@ -428,22 +428,11 @@ function ReforgeLite:CreateCategory (name)
   c.Toggle = function (category)
     category.expanded = not category.expanded or nil
     self.pdb.categoryStates[name] = not category.expanded and 1 or nil
-    if c.expanded then
-      for k, v in pairs (category.frames) do
-        if not v.chidden then
-          v:Show ()
-        end
-      end
-      for k, v in pairs (category.anchors) do
-        v.frame:SetPoint (v.point, v.rel, v.relPoint, v.x, v.y)
-      end
-    else
-      for k, v in pairs (category.frames) do
-        v:Hide ()
-      end
-      for k, v in pairs (category.anchors) do
-        v.frame:SetPoint (v.point, category.button, v.relPoint, v.x, v.y)
-      end
+    for _, v in ipairs(category.frames) do
+      v:SetShown(category.expanded and not v.chidden)
+    end
+    for _, v in ipairs(category.anchors) do
+      v.frame:SetPoint(v.point, category.expanded and v.rel or category.button, v.relPoint, v.x, v.y)
     end
     category.button:UpdateTexture ()
     self:UpdateContentSize ()
@@ -742,7 +731,7 @@ function ReforgeLite:CreateItemTable ()
   self.itemTable:SetWidth (400)
 
   self.itemLevel = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  ReforgeLite.itemLevel:SetPoint ("BOTTOMRIGHT", ReforgeLite.itemTable, "TOPRIGHT", 0, 8)
+  self.itemLevel:SetPoint ("BOTTOMRIGHT", self.itemTable, "TOPRIGHT", 0, 8)
   self.itemLevel:SetTextColor (1, 1, 0.8)
   self:RegisterEvent("PLAYER_AVG_ITEM_LEVEL_UPDATE")
   self:PLAYER_AVG_ITEM_LEVEL_UPDATE()
@@ -778,11 +767,7 @@ function ReforgeLite:CreateItemTable ()
     self.itemData[i]:SetScript ("OnMouseDown", function (frame)
       if not frame.itemGUID then return end
       self.pdb.itemsLocked[frame.itemGUID] = not self.pdb.itemsLocked[frame.itemGUID] and 1 or nil
-      if self.pdb.itemsLocked[frame.itemGUID] then
-        frame.locked:Show ()
-      else
-        frame.locked:Hide ()
-      end
+      frame.locked:SetShown(self.pdb.itemsLocked[frame.itemGUID] ~= nil)
     end)
     self.itemData[i].slotId, self.itemData[i].slotTexture = GetInventorySlotInfo (v)
     self.itemData[i].texture = self.itemData[i]:CreateTexture (nil, "ARTWORK")
@@ -1040,26 +1025,20 @@ function ReforgeLite:CapUpdater ()
   self:UpdateCapPoints (2)
 end
 function ReforgeLite:UpdateStatWeightList ()
-  local stats = self.itemStats
-  local rows = 0
-  for i, v in pairs (stats) do
-    rows = rows + 1
-  end
+  local rows = #self.itemStats
   local extraRows = 0
   self.statWeights:ClearCells ()
   self.statWeights.inputs = {}
-  rows = ceil (rows / 2) + extraRows
+  rows = ceil(rows / 2) + extraRows
   while self.statWeights.rows > rows do
     self.statWeights:DeleteRow (1)
   end
   if self.statWeights.rows < rows then
     self.statWeights:AddRow (1, rows - self.statWeights.rows)
   end
-  local pos = 0
-  for i, v in pairs (stats) do
-    pos = pos + 1
-    local col = floor ((pos - 1) / (self.statWeights.rows - extraRows))
-    local row = pos - col * (self.statWeights.rows - extraRows) + extraRows
+  for i, v in ipairs (self.itemStats) do
+    local col = floor ((i - 1) / (self.statWeights.rows - extraRows))
+    local row = i - col * (self.statWeights.rows - extraRows) + extraRows
     col = 1 + 2 * col
 
     self.statWeights:SetCellText (row, col, v.long, "LEFT")
@@ -1106,9 +1085,10 @@ function ReforgeLite:CreateOptionList ()
   end)
   self.statWeightsCategory:AddFrame (self.deletePresetButton)
   self:SetAnchor (self.deletePresetButton, "LEFT", self.savePresetButton, "RIGHT", 5, 0)
-  if TableIsEmpty(self.cdb.customPresets) then
-    self.deletePresetButton:Disable()
+  self.deletePresetButton.ToggleStatus = function(btn)
+    btn:SetEnabled(TableHasAnyEntries(self.cdb.customPresets))
   end
+  self.deletePresetButton:ToggleStatus()
 
   --@debug@
   self.exportPresetButton = GUI:CreatePanelButton (self.content, L["Export"], function(btn)

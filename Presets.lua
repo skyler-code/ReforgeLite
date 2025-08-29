@@ -848,9 +848,7 @@ function ReforgeLite:InitPresets()
         info.func = function()
           db.customPresets[k] = nil
           self:InitCustomPresets()
-          if TableIsEmpty(self.cdb.customPresets) then
-            self.deletePresetButton:Disable()
-          end
+          self.deletePresetButton:ToggleStatus()
           LibDD:CloseDropDownMenus()
         end
         tinsert(menuList, info)
