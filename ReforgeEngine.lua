@@ -15,15 +15,12 @@ function ReforgeLite:GetStatMultipliers()
   if playerRace == "HUMAN" then
     result[addonTable.statIds.SPIRIT] = (result[addonTable.statIds.SPIRIT] or 1) * 1.03
   end
-  for _, v in ipairs (self.itemData) do
-    if v.itemId then
-      local id, iLvl = addonTable.GetItemInfoUp(v.itemId)
-      if addonTable.AmplificationItems[id] then
-        local factor = 1 + 0.01 * Round(addonTable.GetRandPropPoints(iLvl, 2) / 420)
-        result[addonTable.statIds.HASTE] = (result[addonTable.statIds.HASTE] or 1) * factor
-        result[addonTable.statIds.MASTERY] = (result[addonTable.statIds.MASTERY] or 1) * factor
-        result[addonTable.statIds.SPIRIT] = (result[addonTable.statIds.SPIRIT] or 1) * factor
-      end
+  for _, v in ipairs(self.itemData) do
+    if addonTable.AmplificationItems[v.itemId] then
+      local factor = 1 + 0.01 * Round(addonTable.GetRandPropPoints(v.ilvl, 2) / 420)
+      result[addonTable.statIds.HASTE] = (result[addonTable.statIds.HASTE] or 1) * factor
+      result[addonTable.statIds.MASTERY] = (result[addonTable.statIds.MASTERY] or 1) * factor
+      result[addonTable.statIds.SPIRIT] = (result[addonTable.statIds.SPIRIT] or 1) * factor
     end
   end
   return result

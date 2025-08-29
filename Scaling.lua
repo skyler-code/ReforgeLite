@@ -10988,39 +10988,20 @@ local ItemStatsRef = {
     [105929] = {4, 652},
 }
 
-function addonTable.GetItemInfoUp(link, ilvlCap)
-    local result = GetItemStats(link)
-    if not result then
-        return result
-    end
+local function GetItemInfoUp(link, upgrade)
     local id = C_Item.GetItemInfoInstant(link)
-    upgrade = tonumber(upgrade)
-    local _, _, _, iLvl = C_Item.GetItemInfo(link)
-    iLvl = iLvl or 0
-    if iLvl >= 458 and ItemUpgrade[upgrade] then
-        iLvl = iLvl + ItemUpgrade[upgrade]
-    end
-    if ilvlCap and ilvlCap > 0 and ilvlCap < iLvl then
-        iLvl = ilvlCap
+    local iLvl = select(4, C_Item.GetItemInfo(link)) or 0
+    if upgrade and upgrade > 0 then
+        iLvl = iLvl + upgrade * 4
     end
     return id, iLvl
 end
 
 function addonTable.GetItemStatsUp(link, upgrade)
     local result = GetItemStats(link)
-    if not result then
-        return result
-    end
-    local id = C_Item.GetItemInfoInstant(link)
-    local _, _, _, iLvl = C_Item.GetItemInfo(link)
-    iLvl = iLvl or 0
-    local iLvlBase = iLvl
-    if upgrade then
-        iLvl = iLvl + upgrade * 4
-    end
-    if iLvl ~= iLvlBase then
-        local budget = nil
-        local ref = nil
+    if result and upgrade and upgrade > 0 then
+        local id, iLvl = GetItemInfoUp(link, upgrade)
+        local budget, ref
         if RandPropPoints[iLvl] and ItemStats[id] then
             budget = RandPropPoints[iLvl][ItemStats[id][1]]
             ref = ItemStatsRef[ItemStats[id][2] + 1]
