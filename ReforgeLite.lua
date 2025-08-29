@@ -1039,9 +1039,6 @@ function ReforgeLite:CapUpdater ()
   self:UpdateCapPoints (1)
   self:UpdateCapPoints (2)
 end
-function ReforgeLite:CustomPresetsExist()
-  return next(ReforgeLite.cdb.customPresets) ~= nil
-end
 function ReforgeLite:UpdateStatWeightList ()
   local stats = self.itemStats
   local rows = 0
@@ -1109,7 +1106,7 @@ function ReforgeLite:CreateOptionList ()
   end)
   self.statWeightsCategory:AddFrame (self.deletePresetButton)
   self:SetAnchor (self.deletePresetButton, "LEFT", self.savePresetButton, "RIGHT", 5, 0)
-  if not self:CustomPresetsExist() then
+  if TableIsEmpty(self.cdb.customPresets) then
     self.deletePresetButton:Disable()
   end
 
