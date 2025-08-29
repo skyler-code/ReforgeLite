@@ -20,3 +20,4 @@ ReforgeLite.lua
 ReforgeEngine.lua
 Presets.lua
 ExportImport.lua
+ItemUpgradeScanner.lua

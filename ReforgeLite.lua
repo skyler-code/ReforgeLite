@@ -1543,11 +1543,12 @@ function ReforgeLite:UpdateItems()
       v.itemId = item:GetItemID()
       v.ilvl = item:GetCurrentItemLevel()
       v.itemGUID = item:GetItemGUID()
+      v.upgradeLevel = addonTable.GetUpgradeIdForInventorySlot(v.slotId)
       v.texture:SetTexture(item:GetItemIcon())
       v.qualityColor = item:GetItemQualityColor()
       v.quality:SetVertexColor(v.qualityColor.r, v.qualityColor.g, v.qualityColor.b)
       v.quality:Show()
-      stats = GetItemStats(v.item, self.pdb.ilvlCap)
+      stats = GetItemStats(v.item, v.upgradeLevel)
       v.reforge = GetReforgeID(v.slotId)
       if v.reforge then
         local srcId, dstId = unpack(reforgeTable[v.reforge])
@@ -1563,6 +1564,7 @@ function ReforgeLite:UpdateItems()
       v.reforge = nil
       v.itemGUID = nil
       v.qualityColor = nil
+      v.upgradeLevel = nil
       v.texture:SetTexture (v.slotTexture)
       v.quality:SetVertexColor(1,1,1)
       v.quality:Hide()
@@ -1984,7 +1986,7 @@ function ReforgeLite:DoReforgeUpdate()
         C_Reforge.SetReforgeFromCursorItem()
         if newReforge then
           local id = UNFORGE_INDEX
-          local stats = GetItemStats (slotInfo.item, self.pdb.ilvlCap)
+          local stats = GetItemStats (slotInfo.item, self.itemData[slotId].upgradeLevel)
           for s, reforgeInfo in ipairs(reforgeTable) do
             local srcstat, dststat = unpack(reforgeInfo)
             if (stats[self.itemStats[srcstat].name] or 0) ~= 0 and (stats[self.itemStats[dststat].name] or 0) == 0 then

@@ -10993,8 +10993,7 @@ function addonTable.GetItemInfoUp(link, ilvlCap)
     if not result then
         return result
     end
-    local id, upgrade = link:match("item:(%d+):%d+:%d+:%d+:%d+:%d+:%-?%d+:%-?%d+:%d+:%d+:(%d+)")
-    id = tonumber(id)
+    local id = C_Item.GetItemInfoInstant(link)
     upgrade = tonumber(upgrade)
     local _, _, _, iLvl = C_Item.GetItemInfo(link)
     iLvl = iLvl or 0
@@ -11007,22 +11006,17 @@ function addonTable.GetItemInfoUp(link, ilvlCap)
     return id, iLvl
 end
 
-function addonTable.GetItemStatsUp(link, ilvlCap)
+function addonTable.GetItemStatsUp(link, upgrade)
     local result = GetItemStats(link)
     if not result then
         return result
     end
-    local id, upgrade = link:match("item:(%d+):%d+:%d+:%d+:%d+:%d+:%-?%d+:%-?%d+:%d+:%d+:(%d+)")
-    id = tonumber(id)
-    upgrade = tonumber(upgrade)
+    local id = C_Item.GetItemInfoInstant(link)
     local _, _, _, iLvl = C_Item.GetItemInfo(link)
     iLvl = iLvl or 0
     local iLvlBase = iLvl
-    if iLvl >= 458 and ItemUpgrade[upgrade] then
-        iLvl = iLvl + ItemUpgrade[upgrade]
-    end
-    if ilvlCap and ilvlCap > 0 and ilvlCap < iLvl then
-        iLvl = ilvlCap
+    if upgrade then
+        iLvl = iLvl + upgrade * 4
     end
     if iLvl ~= iLvlBase then
         local budget = nil
