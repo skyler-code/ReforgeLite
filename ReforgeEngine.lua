@@ -94,7 +94,7 @@ function ReforgeLite:UpdateMethodStats (method)
   method.items = method.items or {}
   for i = 1, #self.itemData do
     local item = self.itemData[i].item
-    local orgstats = (item and GetItemStats(item) or {})
+    local orgstats = (item and GetItemStats(item, self.itemData[i].upgradeLevel) or {})
     local stats = (item and GetItemStats(item, self.itemData[i].upgradeLevel) or {})
     local reforge = self.itemData[i].reforge
 
@@ -265,7 +265,7 @@ function ReforgeLite:InitializeMethod()
     orgitems[i] = {}
     local item = self.itemData[i].item
     local stats = (item and GetItemStats(item, self.itemData[i].upgradeLevel) or {})
-    local orgstats = (item and GetItemStats(item) or {})
+    local orgstats = (item and GetItemStats(item, self.itemData[i].upgradeLevel) or {})
     for j, v in ipairs(self.itemStats) do
       method.items[i].stats[j] = (stats[v.name] or 0)
       orgitems[i][j] = (orgstats[v.name] or 0)
