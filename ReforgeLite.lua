@@ -1543,7 +1543,7 @@ function ReforgeLite:UpdateItems()
       v.itemId = item:GetItemID()
       v.ilvl = item:GetCurrentItemLevel()
       v.itemGUID = item:GetItemGUID()
-      v.upgradeLevel = addonTable.GetUpgradeIdForInventorySlot(v.slotId)
+      v.upgradeLevel = v.ilvl >= 458 and addonTable.GetUpgradeIdForInventorySlot(v.slotId) or 0
       v.texture:SetTexture(item:GetItemIcon())
       v.qualityColor = item:GetItemQualityColor()
       v.quality:SetVertexColor(v.qualityColor.r, v.qualityColor.g, v.qualityColor.b)
