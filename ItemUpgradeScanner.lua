@@ -5,7 +5,7 @@ local ITEM_UPGRADES_ENABLED = select(7,GetBuildInfo()) > 50500
 
 local reforgeIdTooltip
 function addonTable.GetUpgradeIdForInventorySlot(slotId)
-    if not ITEM_UPGRADES_ENABLED then return 0, 2 end
+    if not ITEM_UPGRADES_ENABLED then return 0, 0 end
     if not reforgeIdTooltip then
         reforgeIdTooltip = CreateFrame("GameTooltip", addonName.."Tooltip", nil, "GameTooltipTemplate")
         reforgeIdTooltip:SetOwner(UIParent, "ANCHOR_NONE")
@@ -19,4 +19,5 @@ function addonTable.GetUpgradeIdForInventorySlot(slotId)
             end
         end
     end
+    return 0, 0
 end
