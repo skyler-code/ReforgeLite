@@ -88,7 +88,7 @@ function GUI:SetTooltip (widget, tip)
       local tooltipFunc = "AddLine"
       local tipText
       if type(tip) == "function" then
-        tipText = tip()
+        tipText = tip(tipFrame)
       else
         tipText = tip
       end
