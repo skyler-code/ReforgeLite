@@ -1748,7 +1748,6 @@ function ReforgeLite:CreateMethodWindow()
   end)
 
   self.methodWindow.itemTable = GUI:CreateTable (#self.itemSlots + 1, 3, 0, 0, nil, self.methodWindow)
-  self.methodWindow:ClearAllPoints ()
   self.methodWindow.itemTable:SetPoint ("TOPLEFT", 12, -28)
   self.methodWindow.itemTable:SetRowHeight (26)
   self.methodWindow.itemTable:SetColumnWidth (1, ITEM_SIZE)
