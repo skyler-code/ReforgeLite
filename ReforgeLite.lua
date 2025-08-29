@@ -66,7 +66,7 @@ local DefaultDB = {
     },
     methodOrigin = addonName,
     itemsLocked = {},
-    categoryStates = { [SETTINGS] = false },
+    categoryStates = {},
   },
   class = {
     customPresets = {}
@@ -373,7 +373,7 @@ function ReforgeLite:CreateCategory (name)
   local c = CreateFrame ("Frame", nil, self.content)
   c:ClearAllPoints ()
   c:SetSize(16,16)
-  c.expanded = self.pdb.categoryStates[name] ~= false
+  c.expanded = not self.pdb.categoryStates[name]
   c.name = c:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   c.catname = c.name
   c.name:SetPoint ("TOPLEFT", c, "TOPLEFT", 18, -1)
@@ -419,8 +419,8 @@ function ReforgeLite:CreateCategory (name)
   end
 
   c.Toggle = function (category)
-    category.expanded = not category.expanded
-    self.pdb.categoryStates[name] = category.expanded
+    category.expanded = not category.expanded or nil
+    self.pdb.categoryStates[name] = not category.expanded and 1 or nil
     if c.expanded then
       for k, v in pairs (category.frames) do
         if not v.chidden then
