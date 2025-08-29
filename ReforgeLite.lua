@@ -1674,10 +1674,10 @@ function ReforgeLite:QueueUpdate()
   local time = GetTime()
   if self.lastRan == time then return end
   self.lastRan = time
-  RunNextFrame(function() self:UpdateItems() end)
-  if self.methodWindow then
-    RunNextFrame(function() self:UpdateMethodChecks() end)
-  end
+  RunNextFrame(function()
+    self:UpdateItems()
+    self:RefreshMethodWindow()
+  end)
 end
 
 --------------------------------------------------------------------------
@@ -1853,7 +1853,7 @@ function ReforgeLite:RefreshMethodWindow()
       v.quality:Hide()
     end
     local slotInfo = self.pdb.method.items[i]
-    if slotInfo.reforge then
+    if slotInfo.reforge and not item:IsItemEmpty() then
       v.reforge:SetFormattedText("%d %s > %s", slotInfo.amount, self.itemStats[slotInfo.src].long, self.itemStats[slotInfo.dst].long)
       v.reforge:SetTextColor (1, 1, 1)
     else
