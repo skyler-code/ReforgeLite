@@ -79,6 +79,13 @@ local function ReforgeFrameIsVisible()
   return ReforgingFrame and ReforgingFrame:IsShown()
 end
 
+local PLAYER_ITEM_DATA = setmetatable({}, {
+  __index = function(t, k)
+    rawset(t, k, Item:CreateFromEquipmentSlot(k))
+    return t[k]
+  end
+})
+
 addonTable.localeClass, addonTable.playerClass, addonTable.playerClassID = UnitClass("player")
 addonTable.playerRace = select(2, UnitRace("player"))
 local UNFORGE_INDEX = -1
@@ -1530,12 +1537,12 @@ end
 
 local function GetReforgeID(slotId)
   if ignoredSlots[slotId] then return end
-  return GetReforgeIDFromString(GetInventoryItemLink('player', slotId))
+  return GetReforgeIDFromString(PLAYER_ITEM_DATA[slotId]:GetItemLink())
 end
 
 function ReforgeLite:UpdateItems()
   for _, v in ipairs (self.itemData) do
-    local item = Item:CreateFromEquipmentSlot(v.slotId)
+    local item = PLAYER_ITEM_DATA[v.slotId]
     local stats = {}
     local reforgeSrc, reforgeDst
     if not item:IsItemEmpty() then
@@ -1804,18 +1811,13 @@ function ReforgeLite:CreateMethodWindow()
       function (val) self.methodOverride[i] = (val and 1 or -1) self:UpdateMethodChecks () end, true)
     self.methodWindow.itemTable:SetCell (i, 1, self.methodWindow.items[i].check)
   end
-  self.methodWindow.reforge = GUI:CreatePanelButton (self.methodWindow, REFORGE, function(btn) self:DoReforge() end)
-  self.methodWindow.reforge:SetSize(114, 22)
-  self.methodWindow.reforge:SetPoint ("BOTTOMLEFT", 12, 12)
-  self.methodWindow.reforgeTip = CreateFrame ("Frame", nil, self.methodWindow)
-  self.methodWindow.reforgeTip:SetAllPoints (self.methodWindow.reforge)
-  self.methodWindow.reforgeTip:EnableMouse (true)
-  GUI:SetTooltip (self.methodWindow.reforgeTip, L["Reforging window must be open"])
-  self.methodWindow.reforgeTip:SetFrameLevel (self.methodWindow.reforge:GetFrameLevel () + 5)
-  self.methodWindow.reforgeTip:Hide ()
 
-  self.methodWindow.cost = CreateFrame ("Frame", "ReforgeLiteReforgeCost", self.methodWindow, "SmallMoneyFrameTemplate")
-  MoneyFrame_SetType (self.methodWindow.cost, "REFORGE")
+  self.methodWindow.reforge = GUI:CreatePanelButton(self.methodWindow, REFORGE, function(btn) self:DoReforge() end)
+  self.methodWindow.reforge:SetPoint("BOTTOMLEFT", 12, 12)
+  GUI:SetTooltip (self.methodWindow.reforge, function() return not ReforgeFrameIsVisible() and L["Reforging window must be open"] end)
+
+  self.methodWindow.cost = CreateFrame("Frame", "ReforgeLiteReforgeCost", self.methodWindow, "SmallMoneyFrameTemplate")
+  MoneyFrame_SetType(self.methodWindow.cost, "REFORGE")
   self.methodWindow.cost:SetPoint ("LEFT", self.methodWindow.reforge, "RIGHT", 5, 0)
 
   self.methodWindow.AttachToReforgingFrame = function(frame)
@@ -1836,7 +1838,7 @@ function ReforgeLite:RefreshMethodWindow()
   end
 
   for i, v in ipairs (self.methodWindow.items) do
-    local item = Item:CreateFromEquipmentSlot(v.slotId)
+    local item = PLAYER_ITEM_DATA[v.slotId]
     if not item:IsItemEmpty() then
       v.item = item:GetItemLink()
       v.texture:SetTexture(item:GetItemIcon())
@@ -1879,36 +1881,24 @@ end
 function ReforgeLite:UpdateMethodChecks ()
   if self.methodWindow and self.pdb.method then
     local cost = 0
-    local anyDiffer = false
+    local anyDiffer
     for i, v in ipairs (self.methodWindow.items) do
-      local item = Item:CreateFromEquipmentSlot(v.slotId)
+      local item = PLAYER_ITEM_DATA[v.slotId]
       v.item = item:GetItemLink()
       v.texture:SetTexture (item:GetItemIcon() or v.slotTexture)
-      if item:IsItemEmpty() or IsReforgeMatching(v.slotId, self.pdb.method.items[i].reforge, self.methodOverride[i]) then
-        v.check:SetChecked (true)
-      else
-        anyDiffer = true
-        v.check:SetChecked (false)
-        if self.pdb.method.items[i].reforge then
-          local itemCost = select (11, C_Item.GetItemInfo (v.item)) or 0
-          cost = cost + (itemCost > 0 and itemCost or 100000)
-        end
+      local isMatching = item:IsItemEmpty() or IsReforgeMatching(v.slotId, self.pdb.method.items[i].reforge, self.methodOverride[i])
+      v.check:SetChecked(isMatching)
+      anyDiffer = anyDiffer or not isMatching
+      if not isMatching and self.pdb.method.items[i].reforge then
+        local itemCost = select (11, C_Item.GetItemInfo(v.item)) or 0
+        cost = cost + (itemCost > 0 and itemCost or 100000)
       end
     end
-    self.methodWindow.reforge:Disable()
-    self.methodWindow.reforgeTip:Hide()
-    self.methodWindow.cost:Hide()
-    if anyDiffer then
-      local enoughMoney = GetMoney() >= cost
-      SetMoneyFrameColorByFrame(self.methodWindow.cost, enoughMoney and "white" or "red")
-      if not ReforgeFrameIsVisible() then
-        self.methodWindow.reforgeTip:Show()
-      elseif enoughMoney then
-        self.methodWindow.reforge:Enable()
-      end
-      self.methodWindow.cost:Show()
-    end
-    MoneyFrame_Update (self.methodWindow.cost, cost)
+    self.methodWindow.cost:SetShown(anyDiffer)
+    local enoughMoney = anyDiffer and GetMoney() >= cost
+    self.methodWindow.reforge:SetEnabled(enoughMoney)
+    SetMoneyFrameColorByFrame(self.methodWindow.cost, enoughMoney and "white" or "red")
+    MoneyFrame_Update(self.methodWindow.cost, cost)
   end
 end
 
