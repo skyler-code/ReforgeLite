@@ -10,8 +10,10 @@ local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 
 local GetItemStats = addonTable.GetItemStatsUp
 
+addonTable.printLog = {}
 local gprint = print
 local function print(...)
+    tinsert(addonTable.printLog, (" "):join(date("[%X]:"), tostringall(...)))
     gprint("|cff33ff99"..addonName.."|r:",...)
 end
 addonTable.print = print
@@ -1381,6 +1383,7 @@ function ReforgeLite:FillSettings()
   self.settings:SetCell (getOrderId('settings'), 0, self.debugButton, "LEFT")
 
 --@debug@
+
   self.settings:AddRow()
   self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton(
     self.settings,
@@ -1717,6 +1720,11 @@ function ReforgeLite:CreateMethodWindow()
   self.methodWindow.close:SetScript ("OnClick", function (btn)
     btn:GetParent():Hide()
   end)
+  self.methodWindow:SetScript ("OnShow", function (frame)
+    self:SetNewTopWindow(frame)
+    self:RefreshMethodWindow()
+    self:RegisterQueueUpdateEvents()
+  end)
   self.methodWindow:SetScript ("OnHide", function (frame)
     local activeWindow = self:GetActiveWindow()
     if activeWindow then
@@ -1724,11 +1732,6 @@ function ReforgeLite:CreateMethodWindow()
     else
       self:UnregisterQueueUpdateEvents()
     end
-  end)
-  self.methodWindow:SetScript ("OnShow", function (frame)
-    self:SetNewTopWindow(frame)
-    self:RefreshMethodWindow()
-    self:RegisterQueueUpdateEvents()
   end)
 
   self.methodWindow.itemTable = GUI:CreateTable (#self.itemSlots + 1, 3, 0, 0, nil, self.methodWindow)
@@ -1842,13 +1845,16 @@ function ReforgeLite:RefreshMethodWindow()
   self:UpdateMethodChecks ()
 end
 
-function ReforgeLite:ShowMethodWindow()
+function ReforgeLite:ShowMethodWindow(attachToReforge)
   if not self.methodWindow then
     self:CreateMethodWindow()
   end
 
   GUI:ClearFocus()
   self.methodWindow:Show()
+  if attachToReforge then
+      self.methodWindow:AttachToReforgingFrame()
+  end
 end
 
 local function IsReforgeMatching (slotId, reforge, override)

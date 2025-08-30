@@ -5,6 +5,7 @@ local ReforgeLite = addonTable.ReforgeLite
 local L = addonTable.L
 local playerClass, playerRace = addonTable.playerClass, addonTable.playerRace
 local statIds = addonTable.statIds
+local print = addonTable.print
 
 local GetItemStats = addonTable.GetItemStatsUp
 
@@ -414,6 +415,7 @@ local chooseLoops = 0
 
 function ReforgeLite:ComputeReforge()
   self.TABLE_SIZE = floor(10000 * (self.db.accuracy / addonTable.MAX_SPEED))
+  TABLE_SIZE = floor(10000 * (self.db.accuracy / addonTable.MAX_SPEED))
   local data = self:InitReforgeClassic()
   local reforgeOptions = {}
   for i = 1, #self.itemData do
@@ -438,9 +440,9 @@ function ReforgeLite:ComputeReforge()
     data.method.items[i].src = opt.src
     data.method.items[i].dst = opt.dst
   end
-  self.methodDebug = { data = CopyTable(data) }
+  addonTable.methodDebug = { data = CopyTable(data) }
   self:FinalizeReforge (data)
-  self.methodDebug.method = CopyTable(data.method)
+  addonTable.methodDebug.method = CopyTable(data.method)
   if data.method then
     self.pdb.method = data.method
     self.pdb.methodOrigin = addonName
