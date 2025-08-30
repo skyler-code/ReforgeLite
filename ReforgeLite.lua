@@ -1383,6 +1383,8 @@ function ReforgeLite:FillSettings()
   self.settings:SetCell (getOrderId('settings'), 0, self.debugButton, "LEFT")
 
 --@debug@
+  self.settings:AddRow()
+  self.settings:SetCell (getOrderId('settings'), 0, GUI:CreatePanelButton (self.settings, "Print Log", function(btn) self:PrintLog () end), "LEFT")
 
   self.settings:AddRow()
   self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton(
