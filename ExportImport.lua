@@ -89,10 +89,4 @@ function ReforgeLite:ImportData(anchor)
             frame:SetStatusText(ERROR_CAPS)
         end
     end)
-    if self.pdb.methodOrigin == addonTable.WoWSimsOriginTag then
-        self:ShowMethodWindow()
-        if anchor then
-            self.methodWindow:AttachToReforgingFrame()
-        end
-    end
 end
