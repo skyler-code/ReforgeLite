@@ -1542,7 +1542,7 @@ function ReforgeLite:UpdateItems()
       if v.reforge then
         local srcId, dstId = unpack(reforgeTable[v.reforge])
         reforgeSrc, reforgeDst = self.itemStats[srcId].name, self.itemStats[dstId].name
-        local amount = floor ((stats[reforgeSrc] or 0) * 0.4)
+        local amount = floor ((stats[reforgeSrc] or 0) * addonTable.REFORGE_COEFF)
         stats[reforgeSrc] = (stats[reforgeSrc] or 0) - amount
         stats[reforgeDst] = (stats[reforgeDst] or 0) + amount
       end
