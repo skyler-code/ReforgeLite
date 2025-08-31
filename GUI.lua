@@ -3,6 +3,17 @@ local GUI = {}
 
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 
+addonTable.FONTS = {
+  grey = INACTIVE_COLOR,
+  lightgrey = TUTORIAL_FONT_COLOR,
+  white = WHITE_FONT_COLOR,
+  green = GREEN_FONT_COLOR,
+  red = RED_FONT_COLOR,
+  panel = PANEL_BACKGROUND_COLOR,
+  gold = GOLD_FONT_COLOR,
+  darkyellow = DARKYELLOW_FONT_COLOR
+}
+
 GUI.widgetCount = 0
 function GUI:GenerateWidgetName ()
   self.widgetCount = self.widgetCount + 1
@@ -37,7 +48,7 @@ function GUI:Lock()
         end
         if frame.SetTextColor then
           frame.prevColor = {frame:GetTextColor()}
-          frame:SetTextColor (0.5, 0.5, 0.5)
+          frame:SetTextColor(addonTable.FONTS.grey:GetRGB())
         end
       end
     end
@@ -62,7 +73,7 @@ function GUI:UnlockFrame(frame)
       frame.mouseMotionDisabled = nil
     end
     if frame.prevColor then
-      frame:SetTextColor (unpack(frame.prevColor))
+      frame:SetTextColor(unpack(frame.prevColor))
       frame.prevColor = nil
     end
   end
@@ -116,17 +127,18 @@ GUI.unusedEditBoxes = {}
 function GUI:CreateEditBox (parent, width, height, default, setter)
   local box
   if #self.unusedEditBoxes > 0 then
-    box = tremove (self.unusedEditBoxes)
-    box:SetParent (parent)
-    box:Show ()
-    box:SetTextColor (1, 1, 1)
-    box:EnableMouse (true)
+    box = tremove(self.unusedEditBoxes)
+    box:SetParent(parent)
+    box:Show()
+    box:SetTextColor(addonTable.FONTS.white:GetRGB())
+    box:EnableMouse(true)
     self.editBoxes[box:GetName()] = box
   else
     box = CreateFrame ("EditBox", self:GenerateWidgetName (), parent, "InputBoxTemplate")
     self.editBoxes[box:GetName()] = box
     box:SetAutoFocus (false)
-    box:SetFontObject (ChatFontNormal)
+    box:SetFontObject(ChatFontNormal)
+    box:SetTextColor(addonTable.FONTS.white:GetRGB())
     box:SetNumeric ()
     box:SetTextInsets (0, 0, 3, 3)
     box:SetMaxLetters (8)
@@ -224,6 +236,7 @@ function GUI:CreateDropdown (parent, values, options)
     sel.Middle:SetHeight(50)
     sel.Right:SetHeight(50)
     sel.Text:SetPoint ("LEFT", sel.Left, "LEFT", 27, 1)
+    sel.Text:SetTextColor(addonTable.FONTS.white:GetRGB())
     sel.Button:SetSize(22, 22)
     sel.Button:SetPoint ("TOPRIGHT", sel.Right, "TOPRIGHT", -16, -13)
     sel.Recycle = function (frame)
@@ -365,7 +378,8 @@ function GUI:CreateColorPicker (parent, width, height, color, handler)
   box.glow = box:CreateTexture (nil, "BACKGROUND")
   box.glow:SetPoint ("TOPLEFT", -2, 2)
   box.glow:SetPoint ("BOTTOMRIGHT", 2, -2)
-  box.glow:SetColorTexture (1, 1, 1, 0.3)
+  
+  box.glow:SetColorTexture (addonTable.FONTS.grey:GetRGB())
   box.glow:Hide ()
 
   box:SetScript ("OnEnter", function (b) b.glow:Show() end)
@@ -745,7 +759,7 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
   t.textTagPool = {}
   t.SetCellText = function (self, i, j, text, align, color, font)
     align = align or "CENTER"
-    color = color or {1, 1, 1}
+    color = color or {addonTable.FONTS.white:GetRGB()}
     font = font or "GameFontNormalSmall"
 
     if self.cells[i][j] and not self.cells[i][j].istag then
@@ -772,7 +786,7 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
       end
     end
     self.cells[i][j].istag = true
-    self.cells[i][j]:SetTextColor (unpack(color))
+    self.cells[i][j]:SetTextColor(unpack(color))
     self.cells[i][j]:SetText (text)
     self.cells[i][j].align = align
     self:AlignCell (i, j)

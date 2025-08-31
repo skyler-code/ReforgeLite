@@ -397,7 +397,7 @@ function ReforgeLite:CreateCategory (name)
   c.name = c:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   c.catname = c.name
   c.name:SetPoint ("TOPLEFT", c, "TOPLEFT", 18, -1)
-  c.name:SetTextColor (1, 1, 1)
+  c.name:SetTextColor(addonTable.FONTS.white:GetRGB())
   c.name:SetText (name)
 
   c.button = CreateFrame ("Button", nil, c)
@@ -496,11 +496,11 @@ end
 local function SetTextDelta (text, value, cur, override)
   override = override or (value - cur)
   if override == 0 then
-    text:SetTextColor (0.7, 0.7, 0.7)
+    text:SetTextColor(addonTable.FONTS.grey:GetRGB())
   elseif override > 0 then
-    text:SetTextColor (0.6, 1, 0.6)
+    text:SetTextColor(addonTable.FONTS.green:GetRGB())
   else
-    text:SetTextColor (1, 0.4, 0.4)
+    text:SetTextColor(addonTable.FONTS.red:GetRGB())
   end
   text:SetFormattedText(value - cur >= 0 and "+%s" or "%s", value - cur)
 end
@@ -584,8 +584,8 @@ function ReforgeLite:CreateFrame()
     insets = { left = 3, right = 3, top = 22, bottom = 3 }
   }
   self:ApplyBackdrop()
-  self:SetBackdropBorderColor (0.1,0.1,0.1)
-  self:SetBackdropColor (0.1, 0.1, 0.1)
+  self:SetBackdropColor(addonTable.FONTS.panel:GetRGB())
+  self:SetBackdropBorderColor(addonTable.FONTS.panel:GetRGB())
 
   self.titlebar = self:CreateTexture(nil,"BACKGROUND")
   self.titlebar:SetPoint("TOPLEFT", 3, -3)
@@ -630,7 +630,7 @@ function ReforgeLite:CreateFrame()
 
   self.title = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   self.title:SetText (addonTitle)
-  self.title:SetTextColor (1, 1, 1)
+  self.title:SetTextColor (addonTable.FONTS.white:GetRGB())
   self.title:SetPoint ("BOTTOMLEFT", self.titleIcon, "BOTTOMRIGHT", 2, 1)
 
   self.close = CreateFrame ("Button", nil, self, "UIPanelCloseButtonNoScripts")
@@ -745,7 +745,7 @@ function ReforgeLite:CreateItemTable ()
 
   self.itemLevel = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   self.itemLevel:SetPoint ("BOTTOMRIGHT", self.itemTable, "TOPRIGHT", 0, 8)
-  self.itemLevel:SetTextColor (1, 1, 0.8)
+  self.itemLevel:SetTextColor(addonTable.FONTS.gold:GetRGB())
   self:RegisterEvent("PLAYER_AVG_ITEM_LEVEL_UPDATE")
   self:PLAYER_AVG_ITEM_LEVEL_UPDATE()
 
@@ -798,19 +798,21 @@ function ReforgeLite:CreateItemTable ()
 
     self.itemData[i].stats = {}
     for j, s in ipairs (ITEM_STATS) do
-      self.itemData[i].stats[j] = self.itemTable:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
-      self.itemTable:SetCell (i, j, self.itemData[i].stats[j])
-      self.itemData[i].stats[j]:SetTextColor (0.8, 0.8, 0.8)
-      self.itemData[i].stats[j]:SetText ("-")
+      local statFontString = self.itemTable:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
+      self.itemData[i].stats[j] = statFontString
+      self.itemTable:SetCell (i, j, statFontString)
+      statFontString.fontColors = { grey = addonTable.FONTS.lightgrey, red = addonTable.FONTS.red, green = addonTable.FONTS.green, white = addonTable.FONTS.white  }
+      statFontString:SetTextColor(statFontString.fontColors.grey:GetRGB())
+      statFontString:SetText ("-")
     end
   end
   self.statTotals = {}
-  self.itemTable:SetCellText (ITEM_SLOT_COUNT + 1, 0, L["Sum"], "CENTER", {1, 0.8, 0})
+  self.itemTable:SetCellText (ITEM_SLOT_COUNT + 1, 0, L["Sum"], "CENTER", {addonTable.FONTS.darkyellow:GetRGB()})
   for i, v in ipairs (ITEM_STATS) do
     self.statTotals[i] = self.itemTable:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
     self.itemTable:SetCell (ITEM_SLOT_COUNT + 1, i, self.statTotals[i])
-    self.statTotals[i]:SetTextColor (1, 0.8, 0)
-    self.statTotals[i]:SetText ("0")
+    self.statTotals[i]:SetTextColor (addonTable.FONTS.darkyellow:GetRGB())
+    self.statTotals[i]:SetText("0")
   end
 end
 
@@ -1439,12 +1441,12 @@ function ReforgeLite:UpdateMethodCategory()
 
       self.methodStats[i].value = self.methodStats:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
       self.methodStats:SetCell (i - 1, 1, self.methodStats[i].value)
-      self.methodStats[i].value:SetTextColor (1, 1, 1)
+      self.methodStats[i].value:SetTextColor(addonTable.FONTS.white:GetRGB())
       self.methodStats[i].value:SetText ("0")
 
       self.methodStats[i].delta = self.methodStats:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
       self.methodStats:SetCell (i - 1, 2, self.methodStats[i].delta)
-      self.methodStats[i].delta:SetTextColor (0.7, 0.7, 0.7)
+      self.methodStats[i].delta:SetTextColor(addonTable.FONTS.grey:GetRGB())
       self.methodStats[i].delta:SetText ("+0")
     end
 
@@ -1566,7 +1568,7 @@ function ReforgeLite:UpdateItems()
       v.qualityColor = nil
       v.upgradeLevel = nil
       v.texture:SetTexture (v.slotTexture)
-      v.quality:SetVertexColor(1,1,1)
+      v.quality:SetVertexColor(addonTable.FONTS.white:GetRGB())
       v.quality:Hide()
     end
     if self.pdb.itemsLocked[v.itemGUID] then
@@ -1578,15 +1580,16 @@ function ReforgeLite:UpdateItems()
       if stats[s.name] and stats[s.name] ~= 0 then
         v.stats[j]:SetText (stats[s.name])
         if s.name == reforgeSrc then
-          v.stats[j]:SetTextColor (1, 0.4, 0.4)
+          v.stats[j]:SetTextColor(v.stats[j].fontColors.red:GetRGB())
+          
         elseif s.name == reforgeDst then
-          v.stats[j]:SetTextColor (0.6, 1, 0.6)
+          v.stats[j]:SetTextColor(v.stats[j].fontColors.green:GetRGB())
         else
-          v.stats[j]:SetTextColor (1, 1, 1)
+          v.stats[j]:SetTextColor(v.stats[j].fontColors.white:GetRGB())
         end
       else
-        v.stats[j]:SetText ("-")
-        v.stats[j]:SetTextColor (0.8, 0.8, 0.8)
+        v.stats[j]:SetText("-")
+        v.stats[j]:SetTextColor(v.stats[j].fontColors.grey:GetRGB())
       end
     end
   end
@@ -1696,8 +1699,8 @@ function ReforgeLite:CreateMethodWindow()
   self.methodWindow.SetFrameActive = self.SetFrameActive
   self.methodWindow:SetFrameActive(true)
 
-  self.methodWindow:SetBackdropColor (0.1, 0.1, 0.1)
-  self.methodWindow:SetBackdropBorderColor (0, 0, 0)
+  self.methodWindow:SetBackdropColor(self:GetBackdropColor())
+  self.methodWindow:SetBackdropBorderColor(self:GetBackdropBorderColor())
 
   self.methodWindow:EnableMouse (true)
   self.methodWindow:SetMovable (true)
@@ -1720,7 +1723,7 @@ function ReforgeLite:CreateMethodWindow()
   tinsert(RFL_FRAMES, self.methodWindow)
 
   self.methodWindow.title = self.methodWindow:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.methodWindow.title:SetTextColor (1, 1, 1)
+  self.methodWindow.title:SetTextColor(addonTable.FONTS.white:GetRGB())
   self.methodWindow.title.RefreshText = function(frame)
     frame:SetFormattedText(L["Apply %s Output"], self.pdb.methodOrigin)
   end
@@ -1797,7 +1800,7 @@ function ReforgeLite:CreateMethodWindow()
 
     self.methodWindow.items[i].reforge = self.methodWindow.itemTable:CreateFontString (nil, "OVERLAY", "GameFontNormal")
     self.methodWindow.itemTable:SetCell (i, 3, self.methodWindow.items[i].reforge, "LEFT")
-    self.methodWindow.items[i].reforge:SetTextColor (1, 1, 1)
+    self.methodWindow.items[i].reforge:SetTextColor(addonTable.FONTS.white:GetRGB())
     self.methodWindow.items[i].reforge:SetText ("")
 
     self.methodWindow.items[i].check = GUI:CreateCheckButton (self.methodWindow.itemTable, "", false,
@@ -1842,16 +1845,16 @@ function ReforgeLite:RefreshMethodWindow()
       v.item = nil
       v.texture:SetTexture (v.slotTexture)
       v.qualityColor = nil
-      v.quality:SetVertexColor(1,1,1)
+      v.quality:SetVertexColor(addonTable.FONTS.white:GetRGB())
       v.quality:Hide()
     end
     local slotInfo = self.pdb.method.items[i]
     if slotInfo.reforge and not item:IsItemEmpty() then
       v.reforge:SetFormattedText("%d %s > %s", slotInfo.amount, ITEM_STATS[slotInfo.src].long, ITEM_STATS[slotInfo.dst].long)
-      v.reforge:SetTextColor (1, 1, 1)
+      v.reforge:SetTextColor(addonTable.FONTS.white:GetRGB())
     else
       v.reforge:SetText (L["No reforge"])
-      v.reforge:SetTextColor (0.7, 0.7, 0.7)
+      v.reforge:SetTextColor(addonTable.FONTS.grey:GetRGB())
     end
   end
   self.methodWindow.title:RefreshText()
