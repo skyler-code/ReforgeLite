@@ -393,7 +393,7 @@ function ReforgeLite:CreateCategory (name)
   local c = CreateFrame ("Frame", nil, self.content)
   c:ClearAllPoints ()
   c:SetSize(16,16)
-  c.expanded = not self.pdb.categoryStates[name]
+  c.expanded = self.pdb.categoryStates[name] ~= 1
   c.name = c:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   c.catname = c.name
   c.name:SetPoint ("TOPLEFT", c, "TOPLEFT", 18, -1)
