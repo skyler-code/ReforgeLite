@@ -572,7 +572,7 @@ function ReforgeLite:InitClassPresets()
       },
       [specs.PRIEST.shadow] = {
         weights = {
-          90, 0, 0, 85, 42, 76, 0, 48
+          0, 0, 0, 85, 42, 76, 0, 48
         },
         caps = CasterCaps
       },
