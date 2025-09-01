@@ -85,26 +85,24 @@ function ReforgeLite:ImportData(anchor)
     frame.editbox:SetLabel(L["Enter WoWSims JSON or Pawn string"])
     frame.editbox.editBox:SetFocus()
     frame.editbox:SetCallback("OnTextChanged", function(widget)
-        local values = self:ValidateWoWSimsString(widget:GetText())
-        if values then
-            local valueType = type(values)
-            if valueType == "table" then
-                self:ApplyWoWSimsImport(values)
-                self:ShowMethodWindow(anchor ~= nil)
-            elseif valueType == "string" then
-                widget.parent:SetStatusText(values)
-                return
-            end
-        else
-            values = self:ValidatePawnString(widget:GetText())
-            if values then
-                self:ParsePawnString(values)
-            end
+        local userInput = widget:GetText()
+        if not userInput or userInput == "" then
+            widget.parent:SetStatusText("")
+            return
         end
-        if values then
+        local validWoWSims, wowsims = self:ValidateWoWSimsString(userInput)
+        if validWoWSims then
+            self:ApplyWoWSimsImport(wowsims, anchor ~= nil)
             widget.parent:Hide()
-        else
-            widget.parent:SetStatusText(ERROR_CAPS)
+            return
         end
+        local validPawn, pawn = self:ValidatePawnString(userInput)
+        if pawn then
+            self:ParsePawnString(pawn)
+            widget.parent:Hide()
+            addonTable.print(L["Pawn successfully imported."])
+            return
+        end
+        widget.parent:SetStatusText(wowsims or ERROR_CAPS)
     end)
 end

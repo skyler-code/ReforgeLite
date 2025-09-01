@@ -299,26 +299,28 @@ addonTable.WoWSimsOriginTag = "WoWSims"
 
 function ReforgeLite:ValidateWoWSimsString(importStr)
   local success, wowsims = pcall(function () return C_EncodingUtil.DeserializeJSON(importStr) end)
-  if success and type(wowsims) == "table"  and wowsims.player then
-    local newItems = CopyTable((self.pdb.method or self:InitializeMethod()).items)
-    for slot,item in ipairs(newItems) do
-      local simItemInfo = wowsims.player.equipment.items[slot] or {}
-      local equippedItemInfo = self.itemData[slot]
-      if simItemInfo.id ~= equippedItemInfo.itemId then
-        local _, importItemLink = C_Item.GetItemInfo(simItemInfo.id)
-        return L["%s does not match your currently equipped %s. ReforgeLite only supports equipped items."]:format(importItemLink or ("item:"..simItemInfo.id), equippedItemInfo.item)
-      end
-      if simItemInfo.reforging then
-        item.src, item.dst = unpack(self.reforgeTable[simItemInfo.reforging - REFORGE_TABLE_BASE])
-      else
-        item.src, item.dst = nil, nil
-      end
-    end
-    return newItems
+  if not success or type(wowsims) ~= "table" then return false, wowsims end
+  if not (wowsims.player or {}).equipment then
+    return false, L['This import is missing player equipment data! Please make sure "Gear" is selected when exporting from WoWSims.']
   end
+  local newItems = CopyTable((self.pdb.method or self:InitializeMethod()).items)
+  for slot, item in ipairs(newItems) do
+    local simItemInfo = wowsims.player.equipment.items[slot] or {}
+    local equippedItemInfo = self.itemData[slot]
+    if simItemInfo.id ~= equippedItemInfo.itemId then
+      local _, importItemLink = C_Item.GetItemInfo(simItemInfo.id)
+      return false, L["%s does not match your currently equipped %s. ReforgeLite only supports equipped items."]:format((self.itemSlots[slot]), equippedItemInfo.item)
+    end
+    if simItemInfo.reforging then
+      item.src, item.dst = unpack(self.reforgeTable[simItemInfo.reforging - REFORGE_TABLE_BASE])
+    else
+      item.src, item.dst = nil, nil
+    end
+  end
+  return true, newItems
 end
 
-function ReforgeLite:ApplyWoWSimsImport(newItems)
+function ReforgeLite:ApplyWoWSimsImport(newItems, attachToReforge)
   if not self.pdb.method then
     self.pdb.method = { items = newItems }
   else
@@ -327,6 +329,7 @@ function ReforgeLite:ApplyWoWSimsImport(newItems)
   self.pdb.methodOrigin = addonTable.WoWSimsOriginTag
   self:FinalizeReforge(self.pdb)
   self:UpdateMethodCategory()
+  self:ShowMethodWindow(attachToReforge)
 end
 
 --@debug@
@@ -341,11 +344,11 @@ end
 function ReforgeLite:ValidatePawnString(importStr)
   local pos, _, version, name, values = strfind (importStr, "^%s*%(%s*Pawn%s*:%s*v(%d+)%s*:%s*\"([^\"]+)\"%s*:%s*(.+)%s*%)%s*$")
   version = tonumber (version)
-  if version and version > 1 then return end
+  if version and version > 1 then return false end
   if not (pos and version and name and values) or name == "" or values == "" then
-    return
+    return false
   end
-  return values
+  return true, values
 end
 
 function ReforgeLite:ParsePawnString(values)
