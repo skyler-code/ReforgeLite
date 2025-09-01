@@ -99,7 +99,7 @@ local DefaultDB = {
 
 local RFL_FRAMES = { ReforgeLite }
 
-local function ReforgeFrameIsVisible()
+local function ReforgingFrameIsVisible()
   return ReforgingFrame and ReforgingFrame:IsShown()
 end
 
@@ -1785,7 +1785,7 @@ function ReforgeLite:CreateMethodWindow()
     end)
     self.methodWindow.items[i]:SetScript ("OnLeave", GameTooltip_Hide)
     self.methodWindow.items[i]:SetScript ("OnDragStart", function (itemSlot)
-      if itemSlot.item and ReforgeFrameIsVisible() then
+      if itemSlot.item and ReforgingFrameIsVisible() then
         PickupInventoryItem(itemSlot.slotId)
       end
     end)
@@ -1813,7 +1813,7 @@ function ReforgeLite:CreateMethodWindow()
 
   self.methodWindow.reforge = GUI:CreatePanelButton(self.methodWindow, REFORGE, function(btn) self:DoReforge() end)
   self.methodWindow.reforge:SetPoint("BOTTOMLEFT", 12, 12)
-  GUI:SetTooltip (self.methodWindow.reforge, function() return not ReforgeFrameIsVisible() and L["Reforging window must be open"] end)
+  GUI:SetTooltip (self.methodWindow.reforge, function() return not ReforgingFrameIsVisible() and L["Reforging window must be open"] end)
 
   self.methodWindow.cost = CreateFrame("Frame", "ReforgeLiteReforgeCost", self.methodWindow, "SmallMoneyFrameTemplate")
   MoneyFrame_SetType(self.methodWindow.cost, "REFORGE")
@@ -1935,7 +1935,7 @@ end
 local reforgeCo
 
 function ReforgeLite:DoReforge()
-  if self.pdb.method and self.methodWindow and ReforgeFrameIsVisible() then
+  if self.pdb.method and self.methodWindow and ReforgingFrameIsVisible() then
     if reforgeCo then
       self:StopReforging()
     else
@@ -1959,7 +1959,7 @@ function ReforgeLite:StopReforging()
 end
 
 function ReforgeLite:ContinueReforge()
-  if not (self.pdb.method and self.methodWindow and self.methodWindow:IsShown() and ReforgeFrameIsVisible()) then
+  if not (self.pdb.method and self.methodWindow and self.methodWindow:IsShown() and ReforgingFrameIsVisible()) then
     self:StopReforging()
     return
   end
