@@ -67,6 +67,7 @@ function ReforgeLite:ImportData(anchor)
     self:UpdateItems()
     local frame = GetDataFrame()
     frame:SetTitle(L["Import"])
+    frame:ClearAllPoints()
     if anchor then
         frame:SetPoint("TOP", anchor, "TOP")
     else
