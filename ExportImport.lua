@@ -17,6 +17,14 @@ local function GetDataFrame()
             displayFrame = nil
             _G[FRAME_NAME] = nil
         end)
+        displayFrame:SetCallback("OnEnterStatusBar", function(widget)
+            if widget.statustext:IsTruncated() then
+                GameTooltip:SetOwner(widget.statustext, "ANCHOR_LEFT")
+                GameTooltip:AddLine(widget.statustext:GetText(), nil, nil, nil, true)
+                GameTooltip:Show()
+            end
+        end)
+        displayFrame:SetCallback("OnLeaveStatusBar", GameTooltip_Hide)
         displayFrame:SetWidth(525)
         displayFrame:SetHeight(275)
 
