@@ -490,11 +490,7 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
       end
       self.rowHeight[n] = h
       if n == 0 and self.hlines then
-        if h == 0 then
-          self.hlines[-1]:Hide ()
-        else
-          self.hlines[-1]:Show ()
-        end
+        self.hlines[-1]:SetShown(h ~= 0)
       end
     else
       for i = 1, self.rows do
@@ -510,11 +506,7 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
       end
       self.colWidth[n] = w
       if n == 0 and self.vlines then
-        if w == 0 then
-          self.vlines[-1]:Hide ()
-        else
-          self.vlines[-1]:Show ()
-        end
+        self.vlines[-1]:SetShown(w ~= 0)
       end
     else
       for i = 1, self.cols do
