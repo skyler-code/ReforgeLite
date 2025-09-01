@@ -1,91 +1,92 @@
 local addonName, addonTable = ...
+
 local ReforgeLite = addonTable.ReforgeLite
 
 local FRAME_NAME = addonName .. "ExportImport"
-
 local L = addonTable.L
+local print = addonTable.print
 
-local displayFrame, specialFrameTouched
-local function GetDataFrame()
-    if not displayFrame then
-        local AceGUI = LibStub("AceGUI-3.0")
-
-        displayFrame = AceGUI:Create("Frame")
-        displayFrame:SetLayout("Flow")
-        displayFrame:SetCallback("OnClose", function(widget)
-            AceGUI:Release(widget)
-            displayFrame = nil
-            _G[FRAME_NAME] = nil
-        end)
-        displayFrame:SetCallback("OnEnterStatusBar", function(widget)
-            if widget.statustext:IsTruncated() then
-                GameTooltip:SetOwner(widget.statustext, "ANCHOR_LEFT")
-                GameTooltip:AddLine(widget.statustext:GetText(), nil, nil, nil, true)
-                GameTooltip:Show()
-            end
-        end)
-        displayFrame:SetCallback("OnLeaveStatusBar", GameTooltip_Hide)
-        displayFrame:SetWidth(525)
-        displayFrame:SetHeight(275)
-
-        displayFrame.editbox = AceGUI:Create("MultiLineEditBox")
-        displayFrame.editbox.editBox:SetFontObject(GameFontHighlightSmall)
-        displayFrame.editbox:SetFullWidth(true)
-        displayFrame.editbox:SetFullHeight(true)
-        displayFrame:AddChild(displayFrame.editbox)
-        _G[FRAME_NAME] = displayFrame.frame
-        if not specialFrameTouched then
-            tinsert(UISpecialFrames, FRAME_NAME)
-            specialFrameTouched = true
-        end
+local firstInitialize
+local function GetDataFrame(anchor)
+    if _G[FRAME_NAME] then
+        _G[FRAME_NAME]:Hide()
     end
-    return displayFrame
+    local AceGUI = LibStub("AceGUI-3.0")
+    local displayFrame = AceGUI:Create("Frame")
+    displayFrame:SetLayout("Flow")
+    displayFrame:SetStatusTable({ width = 525, height = 275 })
+    if anchor then
+        displayFrame:ClearAllPoints()
+        displayFrame:SetPoint("CENTER", anchor, "CENTER")
+    end
+    displayFrame:SetCallback("OnClose", function(widget)
+        AceGUI:Release(widget)
+        _G[FRAME_NAME] = nil
+    end)
+    displayFrame:SetCallback("OnEnterStatusBar", function(widget)
+        if widget.statustext:IsTruncated() then
+            GameTooltip:SetOwner(widget.statustext, "ANCHOR_LEFT")
+            GameTooltip:AddLine(widget.statustext:GetText(), nil, nil, nil, true)
+            GameTooltip:Show()
+        end
+    end)
+    displayFrame:SetCallback("OnLeaveStatusBar", GameTooltip_Hide)
+
+    local editbox = AceGUI:Create("MultiLineEditBox")
+    editbox:SetFullWidth(true)
+    editbox:SetFullHeight(true)
+    displayFrame:AddChild(editbox)
+
+    if not firstInitialize then
+        tinsert(UISpecialFrames, FRAME_NAME)
+        firstInitialize = true
+    end
+    _G[FRAME_NAME] = displayFrame.frame
+    return displayFrame, editbox
 end
 
-function ReforgeLite:DisplayMessage(name, message, noFocus)
-    local frame = GetDataFrame()
+function ReforgeLite:DisplayMessage(message, name, copyOnly)
+    local frame, editBox = GetDataFrame(self)
     frame:SetTitle(L["Export"])
     frame:SetStatusText(name or "")
-    frame.editbox:DisableButton(true)
-    frame.editbox:SetLabel()
-    frame.editbox:SetText(message)
-    if not noFocus then
-        frame.editbox.editBox:SetFocus()
-        frame.editbox.editBox:HighlightText()
-        frame.editbox:SetCallback("OnLeave", function(widget) widget.editBox:HighlightText() widget:SetFocus() end)
-        frame.editbox:SetCallback("OnEnter", function(widget) widget.editBox:HighlightText() widget:SetFocus() end)
-        frame.editbox:SetCallback("OnTextChanged", function(widget) widget.editBox:SetText(message) widget.editBox:HighlightText() end)
+    editBox:DisableButton(true)
+    editBox:SetLabel()
+    editBox:SetText(message)
+    if copyOnly then
+        frame.status.message = message
+        editBox.editBox:SetFocus()
+        editBox.editBox:HighlightText()
+        editBox:SetCallback("OnLeave", function(widget) widget.editBox:HighlightText() widget:SetFocus() end)
+        editBox:SetCallback("OnEnter", function(widget) widget.editBox:HighlightText() widget:SetFocus() end)
+        editBox:SetCallback("OnTextChanged", function(widget) widget.editBox:SetText(widget.parent.status.message) widget.editBox:HighlightText() end)
     end
 end
 
 function ReforgeLite:DebugMethod()
-    self:DisplayMessage(C_AddOns.GetAddOnMetadata(addonName, "X-Website"), C_EncodingUtil.SerializeJSON(addonTable.methodDebug or {nty="<3"}))
+    self:DisplayMessage(C_EncodingUtil.SerializeJSON(addonTable.methodDebug or {nty="<3"}), C_AddOns.GetAddOnMetadata(addonName, "X-Website"), true)
 end
 
 function ReforgeLite:PrintLog()
-    self:DisplayMessage("Print Log", table.concat(addonTable.printLog, "\n"), true)
+    self:DisplayMessage(table.concat(addonTable.printLog, "\n"), "Print Log")
 end
 
 function ReforgeLite:ExportJSON(preset, name)
-    self:DisplayMessage(name, C_EncodingUtil.SerializeJSON(preset))
+    self:DisplayMessage(C_EncodingUtil.SerializeJSON(preset), name, true)
 end
 
 function ReforgeLite:ImportData(anchor)
     self:Initialize()
     self:UpdateItems()
-    local frame = GetDataFrame()
+    local frame, editBox = GetDataFrame(not anchor and self)
     frame:SetTitle(L["Import"])
-    frame:ClearAllPoints()
     if anchor then
+        frame:ClearAllPoints()
         frame:SetPoint("TOP", anchor, "TOP")
-    else
-        frame:SetPoint("CENTER", self, "CENTER")
     end
-    frame.editbox:DisableButton(true)
-    frame.editbox:SetLabel(L["Enter WoWSims JSON or Pawn string"])
-    frame.editbox.editBox:SetFocus()
-    frame.editbox:SetCallback("OnTextChanged", function(widget)
-        local userInput = widget:GetText()
+    editBox:DisableButton(true)
+    editBox:SetLabel(L["Enter WoWSims JSON or Pawn string"])
+    editBox.editBox:SetFocus()
+    editBox:SetCallback("OnTextChanged", function(widget, _, userInput)
         if not userInput or userInput == "" then
             widget.parent:SetStatusText("")
             return
@@ -100,7 +101,7 @@ function ReforgeLite:ImportData(anchor)
         if pawn then
             self:ParsePawnString(pawn)
             widget.parent:Hide()
-            addonTable.print(L["Pawn successfully imported."])
+            print(L["Pawn successfully imported."])
             return
         end
         widget.parent:SetStatusText(wowsims or ERROR_CAPS)
