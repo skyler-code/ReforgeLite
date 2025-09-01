@@ -502,7 +502,7 @@ local function SetTextDelta (text, value, cur, override)
   else
     text:SetTextColor(addonTable.FONTS.red:GetRGB())
   end
-  text:SetFormattedText(value - cur >= 0 and "+%s" or "%s", value - cur)
+  text:SetFormattedText(value - cur > 0 and "+%s" or "%s", value - cur)
 end
 
 ------------------------------------------------------------------------
