@@ -2112,11 +2112,9 @@ function ReforgeLite:ACTIVE_TALENT_GROUP_CHANGED(curr)
   end
 end
 
-function ReforgeLite:PLAYER_SPECIALIZATION_CHANGED(unitId)
-  if unitId == 'player' then
-    self:GetConversion()
-    self:UpdatePlayerSpecInfo()
-  end
+function ReforgeLite:PLAYER_SPECIALIZATION_CHANGED()
+  self:GetConversion()
+  self:UpdatePlayerSpecInfo()
 end
 
 function ReforgeLite:PLAYER_ENTERING_WORLD()
@@ -2151,7 +2149,7 @@ function ReforgeLite:ADDON_LOADED (addon)
   self:RegisterEvent("FORGE_MASTER_CLOSED")
   self:RegisterEvent("PLAYER_REGEN_DISABLED")
   self:RegisterEvent("PLAYER_ENTERING_WORLD")
-  self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+  self:RegisterUnitEvent("PLAYER_SPECIALIZATION_CHANGED", "player")
   if self.db.specProfiles then
     self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
   end
