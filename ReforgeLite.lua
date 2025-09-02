@@ -1312,7 +1312,7 @@ function ReforgeLite:CreateOptionList ()
   self:UpdateContentSize ()
 
   if self.pdb.method then
-    ReforgeLite:UpdateMethodCategory ()
+    self:UpdateMethodCategory ()
   end
 end
 
