@@ -306,9 +306,9 @@ local function IsItemSwapped(slot, wowsims)
   }
   local oppositeSlotId = SWAPPABLE_SLOTS[GetInventorySlotInfo(ITEM_SLOTS[slot])]
   if not oppositeSlotId then return end
-  local slotItem = wowsims.player.equipment.items[slot] or {}
-  local oppositeSlotItem = wowsims.player.equipment.items[oppositeSlotId] or {}
-  if C_Item.IsEquippedItem(slotItem.id) and C_Item.IsEquippedItem(oppositeSlotItem.id) then
+  local slotItemId = (wowsims.player.equipment.items[slot] or {}).id or 0
+  local oppositeSlotItemId = (wowsims.player.equipment.items[oppositeSlotId] or {}).id or 0
+  if C_Item.IsEquippedItem(slotItemId) and C_Item.IsEquippedItem(oppositeSlotItemId) then
     return oppositeSlotId
   end
 end
