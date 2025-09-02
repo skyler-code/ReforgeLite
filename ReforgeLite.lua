@@ -740,6 +740,7 @@ function ReforgeLite:CreateFrame()
   self:CreateOptionList ()
 
   RunNextFrame(function() self:FixScroll() end)
+  self:RegisterEvent("PLAYER_REGEN_DISABLED")
 end
 
 function ReforgeLite:CreateItemTable ()
@@ -2157,7 +2158,6 @@ function ReforgeLite:ADDON_LOADED (addon)
   end
   self:RegisterEvent("FORGE_MASTER_OPENED")
   self:RegisterEvent("FORGE_MASTER_CLOSED")
-  self:RegisterEvent("PLAYER_REGEN_DISABLED")
   self:RegisterEvent("PLAYER_ENTERING_WORLD")
   self:RegisterUnitEvent("PLAYER_SPECIALIZATION_CHANGED", "player")
   if self.db.specProfiles then
