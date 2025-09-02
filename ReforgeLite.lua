@@ -1889,7 +1889,11 @@ function ReforgeLite:ShowMethodWindow(attachToReforge)
   end
 
   GUI:ClearFocus()
-  self.methodWindow:Show()
+  if self.methodWindow:IsShown() then
+    self:SetNewTopWindow(self.methodWindow)
+  else
+    self.methodWindow:Show()
+  end
   if attachToReforge then
       self.methodWindow:AttachToReforgingFrame()
   end
