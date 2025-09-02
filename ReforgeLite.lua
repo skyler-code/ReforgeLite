@@ -98,6 +98,11 @@ local DefaultDB = {
 }
 
 local RFL_FRAMES = { ReforgeLite }
+RFL_FRAMES.CloseAll = function(t)
+  for _, frame in ipairs(t) do
+    frame:Hide()
+  end
+end
 
 local function ReforgingFrameIsVisible()
   return ReforgingFrame and ReforgingFrame:IsShown()
@@ -105,14 +110,8 @@ end
 
 local PLAYER_ITEM_DATA = setmetatable({}, {
   __index = function(t, k)
-    if type(k) == "number" and k >= INVSLOT_FIRST_EQUIPPED and k <= INVSLOT_LAST_EQUIPPED then
       rawset(t, k, Item:CreateFromEquipmentSlot(k))
       return t[k]
-    elseif tContains(ITEM_SLOTS, k) then
-      local slotId = GetInventorySlotInfo(k)
-      rawset(t, k, t[slotId])
-      return t[slotId]
-    end
   end
 })
 ReforgeLite.playerData = PLAYER_ITEM_DATA
@@ -1559,7 +1558,7 @@ end
 
 function ReforgeLite:UpdateItems()
   for _, v in ipairs (self.itemData) do
-    local item = PLAYER_ITEM_DATA[v.slotId]
+    local item = self.playerData[v.slotId]
     local stats = {}
     local reforgeSrc, reforgeDst
     if not item:IsItemEmpty() then
@@ -1764,8 +1763,7 @@ function ReforgeLite:CreateMethodWindow()
     self:RegisterQueueUpdateEvents()
   end)
   self.methodWindow:SetScript ("OnHide", function (frame)
-    local activeWindow = self:GetActiveWindow()
-    if activeWindow then
+    if self:GetActiveWindow() then
       self:SetFrameActive(true)
     else
       self:UnregisterQueueUpdateEvents()
@@ -1856,7 +1854,7 @@ function ReforgeLite:RefreshMethodWindow()
   end
 
   for i, v in ipairs (self.methodWindow.items) do
-    local item = PLAYER_ITEM_DATA[v.slotId]
+    local item = self.playerData[v.slotId]
     if not item:IsItemEmpty() then
       v.item = item:GetItemLink()
       v.texture:SetTexture(item:GetItemIcon())
@@ -1908,7 +1906,7 @@ function ReforgeLite:UpdateMethodChecks ()
     local cost = 0
     local anyDiffer
     for i, v in ipairs (self.methodWindow.items) do
-      local item = PLAYER_ITEM_DATA[v.slotId]
+      local item = self.playerData[v.slotId]
       v.item = item:GetItemLink()
       v.texture:SetTexture (item:GetItemIcon() or v.slotTexture)
       local isMatching = item:IsItemEmpty() or IsReforgeMatching(v.slotId, self.pdb.method.items[i].reforge, self.methodOverride[i])
@@ -2114,20 +2112,14 @@ end
 
 function ReforgeLite:FORGE_MASTER_CLOSED()
   if self.autoOpened then
-    self:Hide()
-    if self.methodWindow then
-      self.methodWindow:Hide()
-    end
+    RFL_FRAMES:CloseAll()
     self.autoOpened = nil
   end
   self:StopReforging()
 end
 
 function ReforgeLite:PLAYER_REGEN_DISABLED()
-  if self.methodWindow then
-    self.methodWindow:Hide()
-  end
-  self:Hide()
+  RFL_FRAMES:CloseAll()
 end
 
 local currentSpec -- hack because this event likes to fire twice
