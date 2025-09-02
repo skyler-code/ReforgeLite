@@ -110,8 +110,8 @@ end
 
 local PLAYER_ITEM_DATA = setmetatable({}, {
   __index = function(t, k)
-      rawset(t, k, Item:CreateFromEquipmentSlot(k))
-      return t[k]
+    rawset(t, k, Item:CreateFromEquipmentSlot(k))
+    return t[k]
   end
 })
 ReforgeLite.playerData = PLAYER_ITEM_DATA
