@@ -83,10 +83,10 @@ function ReforgeLite:ImportData(anchor)
         frame:ClearAllPoints()
         frame:SetPoint("TOP", anchor, "TOP")
     end
-    editBox:DisableButton(true)
     editBox:SetLabel(L["Enter WoWSims JSON or Pawn string"])
     editBox.editBox:SetFocus()
-    editBox:SetCallback("OnTextChanged", function(widget, _, userInput)
+    local function ParseUserInput(widget)
+        local userInput = widget:GetText()
         if not userInput or userInput == "" then
             widget.parent:SetStatusText("")
             return
@@ -117,5 +117,7 @@ function ReforgeLite:ImportData(anchor)
             return
         end
         widget.parent:SetStatusText(wowsims or ERROR_CAPS)
-    end)
+    end
+    editBox.button:SetScript("OnClick", function(btn) ParseUserInput(btn.obj) end)
+    editBox:SetCallback("OnTextChanged", ParseUserInput)
 end
