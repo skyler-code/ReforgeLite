@@ -1358,7 +1358,6 @@ function ReforgeLite:FillSettings()
   accuracySlider.Text:SetText (L["Accuracy"])
   accuracySlider.Low:SetText (LOW)
   accuracySlider.High:SetText (HIGH)
-  self.accuracySlider = accuracySlider
 
   GUI:SetTooltip(accuracySlider, L["Setting to Low will result in lower accuracy but faster results! Set this back to High if you're not getting the results you expect."])
 
