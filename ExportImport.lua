@@ -41,7 +41,7 @@ local function GetDataFrame(anchor)
         tinsert(UISpecialFrames, FRAME_NAME)
         firstInitialize = true
     end
-    _G[FRAME_NAME] = displayFrame.frame
+    _G[FRAME_NAME] = displayFrame
     return displayFrame, editbox
 end
 
@@ -95,6 +95,18 @@ function ReforgeLite:ImportData(anchor)
         if validWoWSims then
             self:ApplyWoWSimsImport(wowsims, anchor ~= nil)
             widget.parent:Hide()
+            return
+        elseif type(wowsims) == "table" and wowsims.itemId then
+            local mismatchItem = Item:CreateFromItemID(wowsims.itemId)
+            mismatchItem:ContinueOnItemLoad(function()
+                if _G[FRAME_NAME] then
+                    _G[FRAME_NAME]:SetStatusText(L["%s does not match your currently equipped %s: %s. ReforgeLite only supports equipped items."]:format(
+                        mismatchItem:GetItemLink(),
+                        _G[self.itemSlots[wowsims.slot]],
+                        self.itemData[wowsims.slot].item or EMPTY
+                    ))    
+                end
+            end)
             return
         end
         local validPawn, pawn = self:ValidatePawnString(userInput)

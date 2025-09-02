@@ -306,10 +306,8 @@ function ReforgeLite:ValidateWoWSimsString(importStr)
   local newItems = CopyTable((self.pdb.method or self:InitializeMethod()).items)
   for slot, item in ipairs(newItems) do
     local simItemInfo = wowsims.player.equipment.items[slot] or {}
-    local equippedItemInfo = self.itemData[slot]
-    if simItemInfo.id ~= equippedItemInfo.itemId then
-      local _, importItemLink = C_Item.GetItemInfo(simItemInfo.id)
-      return false, L["%s does not match your currently equipped %s. ReforgeLite only supports equipped items."]:format((self.itemSlots[slot]), equippedItemInfo.item)
+    if simItemInfo.id ~= self.itemData[slot].itemId then
+      return false, { itemId = simItemInfo.id, slot = slot }
     end
     if simItemInfo.reforging then
       item.src, item.dst = unpack(self.reforgeTable[simItemInfo.reforging - REFORGE_TABLE_BASE])
