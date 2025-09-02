@@ -297,6 +297,22 @@ end
 
 addonTable.WoWSimsOriginTag = "WoWSims"
 
+local function IsItemSwapped(slot, wowsims)
+  local SWAPPABLE_SLOTS = {
+    [INVSLOT_FINGER1] = INVSLOT_FINGER2,
+    [INVSLOT_FINGER2] = INVSLOT_FINGER1,
+    [INVSLOT_TRINKET1] = INVSLOT_TRINKET2,
+    [INVSLOT_TRINKET2] = INVSLOT_TRINKET1
+  }
+  local oppositeSlotId = SWAPPABLE_SLOTS[GetInventorySlotInfo(ITEM_SLOTS[slot])]
+  if not oppositeSlotId then return end
+  local slotItem = wowsims.player.equipment.items[slot] or {}
+  local oppositeSlotItem = wowsims.player.equipment.items[oppositeSlotId] or {}
+  if C_Item.IsEquippedItem(slotItem.id) and C_Item.IsEquippedItem(oppositeSlotItem.id) then
+    return oppositeSlotId
+  end
+end
+
 function ReforgeLite:ValidateWoWSimsString(importStr)
   local success, wowsims = pcall(function () return C_EncodingUtil.DeserializeJSON(importStr) end)
   if not success or type(wowsims) ~= "table" then return false, wowsims end
@@ -307,7 +323,12 @@ function ReforgeLite:ValidateWoWSimsString(importStr)
   for slot, item in ipairs(newItems) do
     local simItemInfo = wowsims.player.equipment.items[slot] or {}
     if simItemInfo.id ~= self.itemData[slot].itemId then
-      return false, { itemId = simItemInfo.id, slot = slot }
+      local swappedSlotId = IsItemSwapped(slot, wowsims)
+      if swappedSlotId then
+        simItemInfo = wowsims.player.equipment.items[swappedSlotId]
+      else
+        return false, { itemId = simItemInfo.id, slot = slot }
+      end
     end
     if simItemInfo.reforging then
       item.src, item.dst = unpack(self.reforgeTable[simItemInfo.reforging - REFORGE_TABLE_BASE])
