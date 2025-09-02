@@ -2092,7 +2092,7 @@ function ReforgeLite:FORGE_MASTER_ITEM_CHANGED()
 end
 
 function ReforgeLite:FORGE_MASTER_OPENED()
-  if self.db.openOnReforge and not self:IsShown() and (not self.methodWindow or not self.methodWindow:IsShown()) then
+  if self.db.openOnReforge and not self:GetActiveWindow() then
     self.autoOpened = true
     self:Show()
   end
