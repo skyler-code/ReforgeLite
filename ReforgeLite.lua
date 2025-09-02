@@ -1317,8 +1317,8 @@ function ReforgeLite:CreateOptionList ()
 end
 
 function ReforgeLite:GetActiveWindow()
-  if(not RFL_FRAMES[2] and RFL_FRAMES[1]:IsShown()) then
-    return RFL_FRAMES[1]
+  if not RFL_FRAMES[2] then
+    return RFL_FRAMES[1]:IsShown() and RFL_FRAMES[1] or nil
   end
   local topWindow
   for _, frame in ipairs(RFL_FRAMES) do
