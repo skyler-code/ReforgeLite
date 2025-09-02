@@ -1592,11 +1592,7 @@ function ReforgeLite:UpdateItems()
       v.quality:SetVertexColor(addonTable.FONTS.white:GetRGB())
       v.quality:Hide()
     end
-    if self.pdb.itemsLocked[v.itemGUID] then
-      v.locked:Show()
-    else
-      v.locked:Hide()
-    end
+    v.locked:SetShown(self.pdb.itemsLocked[v.itemGUID])
     for j, s in ipairs (ITEM_STATS) do
       if stats[s.name] and stats[s.name] ~= 0 then
         v.stats[j]:SetText (stats[s.name])
@@ -1631,29 +1627,25 @@ function ReforgeLite:UpdatePlayerSpecInfo()
   self.playerSpecTexture:SetTexture(icon)
   local activeSpecGroup = C_SpecializationInfo.GetActiveSpecGroup()
   for tier = 1, MAX_NUM_TALENT_TIERS do
-    self.playerTalents[tier]:Show()
     local tierAvailable, selectedTalentColumn = GetTalentTierInfo(tier, activeSpecGroup, false, "player")
-    if tierAvailable then
-      if selectedTalentColumn > 0 then
-        local talentInfo = C_SpecializationInfo.GetTalentInfo({
-          tier = tier,
-          column = selectedTalentColumn,
-          groupIndex = activeSpecGroup,
-          target = 'player'
-        })
-        self.playerTalents[tier]:SetTexture(talentInfo.icon)
-        self.playerTalents[tier]:SetScript("OnEnter", function(f)
-          GameTooltip:SetOwner(f, "ANCHOR_LEFT")
-          GameTooltip:SetTalent(talentInfo.talentID, false, false, activeSpecGroup)
-          GameTooltip:Show()
-        end)
-      else
-        self.playerTalents[tier]:SetTexture(132222)
-        self.playerTalents[tier]:SetScript("OnEnter", nil)
-      end
+    if selectedTalentColumn > 0 then
+      local talentInfo = C_SpecializationInfo.GetTalentInfo({
+        tier = tier,
+        column = selectedTalentColumn,
+        groupIndex = activeSpecGroup,
+        target = 'player'
+      })
+      self.playerTalents[tier]:SetTexture(talentInfo.icon)
+      self.playerTalents[tier]:SetScript("OnEnter", function(f)
+        GameTooltip:SetOwner(f, "ANCHOR_LEFT")
+        GameTooltip:SetTalent(talentInfo.talentID, false, false, activeSpecGroup)
+        GameTooltip:Show()
+      end)
     else
-      self.playerTalents[tier]:Hide()
+      self.playerTalents[tier]:SetTexture(132222)
+      self.playerTalents[tier]:SetScript("OnEnter", nil)
     end
+    self.playerTalents[tier]:SetShown(tierAvailable)
   end
 end
 
