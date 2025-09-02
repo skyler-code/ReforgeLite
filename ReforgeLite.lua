@@ -754,7 +754,7 @@ function ReforgeLite:CreateItemTable ()
     self.playerTalents[tier] = self:CreateTexture(nil, "ARTWORK")
     self.playerTalents[tier]:SetPoint("TOPLEFT", self.playerTalents[tier-1] or self.playerSpecTexture, "TOPRIGHT", 4, 0)
     self.playerTalents[tier]:SetSize(18, 18)
-    self.playerTalents[tier]:SetTexCoord(0.0825, 0.0825, 0.0825, 0.9175, 0.9175, 0.0825, 0.9175, 0.9175)
+    self.playerTalents[tier]:SetTexCoord(self.playerSpecTexture:GetTexCoord())
     self.playerTalents[tier]:SetScript("OnLeave", GameTooltip_Hide)
   end
 
