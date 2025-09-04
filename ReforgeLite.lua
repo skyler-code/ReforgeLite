@@ -1354,10 +1354,7 @@ function ReforgeLite:FillSettings()
   accuracySlider:SetScript ("OnValueChanged", function (slider)
     self.db.accuracy = slider:GetValue ()
   end)
-
   accuracySlider.Text:SetText (L["Accuracy"])
-  accuracySlider.Low:SetText (LOW)
-  accuracySlider.High:SetText (HIGH)
 
   GUI:SetTooltip(accuracySlider, L["Setting to Low will result in lower accuracy but faster results! Set this back to High if you're not getting the results you expect."])
 
