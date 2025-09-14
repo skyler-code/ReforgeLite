@@ -351,12 +351,21 @@ function ReforgeLite:ApplyWoWSimsImport(newItems, attachToReforge)
 end
 
 --@debug@
+addonTable.isDev = true
 function ReforgeLite:ParsePresetString(presetStr)
   local success, preset = pcall(function () return C_EncodingUtil.DeserializeJSON(presetStr) end)
   if success and type(preset.caps) == "table" then
     DevTools_Dump(preset)
   end
 end
+
+function ReforgeLite:PreviewColors()
+  for _, dbColor in ipairs(C_UIColor.GetColors()) do
+    local color = _G[dbColor.baseTag]
+    print(color:WrapTextInColorCode(string.join(", ", dbColor.baseTag, color:GetRGB())))
+  end
+end
+
 --@end-debug@
 
 function ReforgeLite:ValidatePawnString(importStr)
@@ -1563,7 +1572,7 @@ function ReforgeLite:UpdateItems()
       v.itemId = item:GetItemID()
       v.ilvl = item:GetCurrentItemLevel()
       v.itemGUID = item:GetItemGUID()
-      v.upgradeLevel = v.ilvl >= 458 and addonTable.GetUpgradeIdForInventorySlot(v.slotId) or 0
+      v.upgradeLevel, v.upgradeLevelMax = addonTable.GetItemUpgradeId(item)
       v.texture:SetTexture(item:GetItemIcon())
       v.qualityColor = item:GetItemQualityColor()
       v.quality:SetVertexColor(v.qualityColor.r, v.qualityColor.g, v.qualityColor.b)
