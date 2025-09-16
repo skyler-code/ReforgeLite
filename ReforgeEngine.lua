@@ -17,8 +17,8 @@ function ReforgeLite:GetStatMultipliers()
     result[addonTable.statIds.SPIRIT] = (result[addonTable.statIds.SPIRIT] or 1) * 1.03
   end
   for _, v in ipairs(self.itemData) do
-    if addonTable.AmplificationItems[v.itemId] then
-      local factor = 1 + 0.01 * Round(addonTable.GetRandPropPoints(v.ilvl, 2) / 420)
+    if addonTable.AmplificationItems[v.itemInfo.itemId] then
+      local factor = 1 + 0.01 * Round(addonTable.GetRandPropPoints(v.itemInfo.ilvl, 2) / 420)
       result[addonTable.statIds.HASTE] = (result[addonTable.statIds.HASTE] or 1) * factor
       result[addonTable.statIds.MASTERY] = (result[addonTable.statIds.MASTERY] or 1) * factor
       result[addonTable.statIds.SPIRIT] = (result[addonTable.statIds.SPIRIT] or 1) * factor
@@ -90,16 +90,15 @@ function ReforgeLite:UpdateMethodStats (method)
     method.stats[i] = oldstats[i] / (mult[i] or 1)
   end
   method.items = method.items or {}
-  for i = 1, #self.itemData do
-    local item = self.itemData[i].item
-    local orgstats = (item and GetItemStats(item, self.itemData[i].upgradeLevel) or {})
-    local stats = (item and GetItemStats(item, self.itemData[i].upgradeLevel) or {})
-    local reforge = self.itemData[i].reforge
+  for k, item in ipairs(self.itemData) do
+    local orgstats = (item.itemInfo.link and GetItemStats(item.itemInfo.link, item.itemInfo.upgradeLevel) or {})
+    local stats = (item.itemInfo.link and GetItemStats(item.itemInfo.link, item.itemInfo.upgradeLevel) or {})
+    local reforge = item.itemInfo.reforge
 
-    method.items[i] = method.items[i] or {}
+    method.items[k] = method.items[k] or {}
 
-    method.items[i].stats = nil
-    method.items[i].amount = nil
+    method.items[k].stats = nil
+    method.items[k].amount = nil
 
     for s, v in ipairs(self.itemStats) do
       method.stats[s] = method.stats[s] - (orgstats[v.name] or 0) + (stats[v.name] or 0)
@@ -110,10 +109,10 @@ function ReforgeLite:UpdateMethodStats (method)
       method.stats[src] = method.stats[src] + amount
       method.stats[dst] = method.stats[dst] - amount
     end
-    if method.items[i].src and method.items[i].dst then
-      method.items[i].amount = floor ((stats[self.itemStats[method.items[i].src].name] or 0) * REFORGE_COEFF)
-      method.stats[method.items[i].src] = method.stats[method.items[i].src] - method.items[i].amount
-      method.stats[method.items[i].dst] = method.stats[method.items[i].dst] + method.items[i].amount
+    if method.items[k].src and method.items[k].dst then
+      method.items[k].amount = floor ((stats[self.itemStats[method.items[k].src].name] or 0) * REFORGE_COEFF)
+      method.stats[method.items[k].src] = method.stats[method.items[k].src] - method.items[k].amount
+      method.stats[method.items[k].dst] = method.stats[method.items[k].dst] + method.items[k].amount
     end
   end
 
@@ -141,11 +140,11 @@ end
 
 function ReforgeLite:ResetMethod ()
   local method = { items = {} }
-  for i = 1, #self.itemData do
-    method.items[i] = {}
-    if self.itemData[i].reforge then
-      method.items[i].reforge = self.itemData[i].reforge
-      method.items[i].src, method.items[i].dst = unpack(self.reforgeTable[self.itemData[i].reforge])
+  for k, v in ipairs(self.itemData) do
+    method.items[k] = {}
+    if v.itemInfo.reforge then
+      method.items[k].reforge = v.itemInfo.reforge
+      method.items[k].src, method.items[k].dst = unpack(self.reforgeTable[v.itemInfo.reforge])
     end
   end
   self:UpdateMethodStats (method)
@@ -168,8 +167,8 @@ function ReforgeLite:CapAllows (cap, value)
 end
 
 function ReforgeLite:IsItemLocked (slot)
-  local slotData = self.itemData[slot]
-  return not slotData.item
+  local slotData = self.itemData[slot].itemInfo
+  return not slotData.link
   or slotData.ilvl < 200
   or self.pdb.itemsLocked[slotData.itemGUID]
 end
@@ -227,8 +226,8 @@ end
 function ReforgeLite:GetItemReforgeOptions (item, data, slot)
   if self:IsItemLocked (slot) then
     local src, dst = nil, nil
-    if self.itemData[slot].reforge then
-      src, dst = unpack(self.reforgeTable[self.itemData[slot].reforge])
+    if self.itemData[slot].itemInfo.reforge then
+      src, dst = unpack(self.reforgeTable[self.itemData[slot].itemInfo.reforge])
     end
     return { self:MakeReforgeOption (item, data, src, dst) }
   end
@@ -257,16 +256,15 @@ end
 function ReforgeLite:InitializeMethod()
   local method = { items = {} }
   local orgitems = {}
-  for i = 1, #self.itemData do
-    method.items[i] = {}
-    method.items[i].stats = {}
-    orgitems[i] = {}
-    local item = self.itemData[i].item
-    local stats = (item and GetItemStats(item, self.itemData[i].upgradeLevel) or {})
-    local orgstats = (item and GetItemStats(item, self.itemData[i].upgradeLevel) or {})
-    for j, v in ipairs(self.itemStats) do
-      method.items[i].stats[j] = (stats[v.name] or 0)
-      orgitems[i][j] = (orgstats[v.name] or 0)
+  for k, v in ipairs(self.itemData) do
+    method.items[k] = { stats = {} }
+    orgitems[k] = {}
+    local item = v.itemInfo.link
+    local stats = (item and GetItemStats(item, v.itemInfo.upgradeLevel) or {})
+    local orgstats = (item and GetItemStats(item, v.itemInfo.upgradeLevel) or {})
+    for j, stat in ipairs(self.itemStats) do
+      method.items[k].stats[j] = (stats[stat.name] or 0)
+      orgitems[k][j] = (orgstats[stat.name] or 0)
     end
   end
   return method, orgitems
@@ -308,7 +306,7 @@ function ReforgeLite:InitReforgeClassic()
     reforged[i] = 0
   end
   for i = 1, #data.method.items do
-    local reforge = self.itemData[i].reforge
+    local reforge = self.itemData[i].itemInfo.reforge
     if reforge then
       local src, dst = unpack(self.reforgeTable[reforge])
       local amount = floor (method.items[i].stats[src] * REFORGE_COEFF)

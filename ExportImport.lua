@@ -102,7 +102,7 @@ function ReforgeLite:ImportData(anchor)
                     _G[FRAME_NAME]:SetStatusText(L["%s does not match your currently equipped %s: %s. ReforgeLite only supports equipped items."]:format(
                         item or self.itemSlots[wowsims.slot],
                         _G[self.itemSlots[wowsims.slot]],
-                        self.itemData[wowsims.slot].item or EMPTY
+                        self.itemData[wowsims.slot].itemInfo.link or EMPTY
                     ))    
                 end
             end

@@ -321,7 +321,7 @@ function ReforgeLite:ValidateWoWSimsString(importStr)
   local newItems = CopyTable((self.pdb.method or self:InitializeMethod()).items)
   for slot, item in ipairs(newItems) do
     local simItemInfo = wowsims.player.equipment.items[slot] or {}
-    if simItemInfo.id ~= self.itemData[slot].itemId then
+    if simItemInfo.id ~= self.itemData[slot].itemInfo.itemId then
       local swappedSlotId = IsItemSwapped(slot, wowsims)
       if swappedSlotId then
         simItemInfo = wowsims.player.equipment.items[swappedSlotId]
@@ -792,26 +792,25 @@ function ReforgeLite:CreateItemTable ()
   end
   self.itemData = {}
   for i, v in ipairs (ITEM_SLOTS) do
-    self.itemData[i] = CreateFrame ("Frame", nil, self.itemTable)
+    self.itemData[i] = CreateFrame("Frame", nil, self.itemTable)
     self.itemData[i].slot = v
-    self.itemData[i]:ClearAllPoints ()
+    self.itemData[i]:ClearAllPoints()
     self.itemData[i]:SetSize(ITEM_SIZE, ITEM_SIZE)
-    self.itemTable:SetCell (i, 0, self.itemData[i])
-    self.itemData[i]:EnableMouse (true)
-    self.itemData[i]:SetScript ("OnEnter", function (frame)
-      GameTooltip:SetOwner (frame, "ANCHOR_LEFT")
-      if frame.item then
-        GameTooltip:SetInventoryItem("player", frame.slotId)
-      else
+    self.itemTable:SetCell(i, 0, self.itemData[i])
+    self.itemData[i]:EnableMouse(true)
+    self.itemData[i]:SetScript("OnEnter", function(frame)
+      GameTooltip:SetOwner(frame, "ANCHOR_LEFT")
+      local hasItem = GameTooltip:SetInventoryItem("player", frame.slotId)
+      if not hasItem then
         GameTooltip:SetText(_G[strupper(frame.slot)])
       end
-      GameTooltip:Show ()
+      GameTooltip:Show()
     end)
     self.itemData[i]:SetScript ("OnLeave", GameTooltip_Hide)
     self.itemData[i]:SetScript ("OnMouseDown", function (frame)
-      if not frame.itemGUID then return end
-      self.pdb.itemsLocked[frame.itemGUID] = not self.pdb.itemsLocked[frame.itemGUID] and 1 or nil
-      frame.locked:SetShown(self.pdb.itemsLocked[frame.itemGUID] ~= nil)
+      if not frame.itemInfo.itemGUID then return end
+      self.pdb.itemsLocked[frame.itemInfo.itemGUID] = not self.pdb.itemsLocked[frame.itemInfo.itemGUID] and 1 or nil
+      frame.locked:SetShown(self.pdb.itemsLocked[frame.itemInfo.itemGUID] ~= nil)
     end)
     self.itemData[i].slotId, self.itemData[i].slotTexture = GetInventorySlotInfo (v)
     self.itemData[i].texture = self.itemData[i]:CreateTexture (nil, "ARTWORK")
@@ -826,7 +825,7 @@ function ReforgeLite:CreateItemTable ()
     self.itemData[i].quality:SetAlpha(0.75)
     self.itemData[i].quality:SetSize(44,44)
     self.itemData[i].quality:SetPoint ("CENTER", self.itemData[i])
-
+    self.itemData[i].itemInfo = {}
     self.itemData[i].stats = {}
     for j, s in ipairs (ITEM_STATS) do
       local statFontString = self.itemTable:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
@@ -1567,38 +1566,34 @@ function ReforgeLite:UpdateItems()
     local item = self.playerData[v.slotId]
     local stats = {}
     local reforgeSrc, reforgeDst
-    if not item:IsItemEmpty() then
-      v.item = item:GetItemLink()
-      v.itemId = item:GetItemID()
-      v.ilvl = item:GetCurrentItemLevel()
-      v.itemGUID = item:GetItemGUID()
-      v.upgradeLevel, v.upgradeLevelMax = addonTable.GetItemUpgradeId(item)
+    if item:IsItemEmpty() then
+      wipe(v.itemInfo)
+      v.texture:SetTexture(v.slotTexture)
+      v.quality:SetVertexColor(addonTable.FONTS.white:GetRGB())
+    else
+      local upgradeLevel, upgradeLevelMax = addonTable.GetItemUpgradeId(item)
+      v.itemInfo = {
+        link = item:GetItemLink(),
+        itemId = item:GetItemID(),
+        ilvl = item:GetCurrentItemLevel(),
+        itemGUID = item:GetItemGUID(),
+        upgradeLevel = upgradeLevel,
+        upgradeLevelMax = upgradeLevelMax,
+        reforge = GetReforgeID(v.slotId)
+      }
       v.texture:SetTexture(item:GetItemIcon())
-      v.qualityColor = item:GetItemQualityColor()
-      v.quality:SetVertexColor(v.qualityColor.r, v.qualityColor.g, v.qualityColor.b)
-      v.quality:Show()
-      stats = GetItemStats(v.item, v.upgradeLevel)
-      v.reforge = GetReforgeID(v.slotId)
-      if v.reforge then
-        local srcId, dstId = unpack(reforgeTable[v.reforge])
+      v.quality:SetVertexColor(item:GetItemQualityColor().color:GetRGB())
+      stats = GetItemStats(v.itemInfo.link, v.itemInfo.upgradeLevel)
+      if v.itemInfo.reforge then
+        local srcId, dstId = unpack(reforgeTable[v.itemInfo.reforge])
         reforgeSrc, reforgeDst = ITEM_STATS[srcId].name, ITEM_STATS[dstId].name
         local amount = floor ((stats[reforgeSrc] or 0) * addonTable.REFORGE_COEFF)
         stats[reforgeSrc] = (stats[reforgeSrc] or 0) - amount
         stats[reforgeDst] = (stats[reforgeDst] or 0) + amount
       end
-    else
-      v.item = nil
-      v.itemId = nil
-      v.ilvl = nil
-      v.reforge = nil
-      v.itemGUID = nil
-      v.qualityColor = nil
-      v.upgradeLevel = nil
-      v.texture:SetTexture (v.slotTexture)
-      v.quality:SetVertexColor(addonTable.FONTS.white:GetRGB())
-      v.quality:Hide()
     end
-    v.locked:SetShown(self.pdb.itemsLocked[v.itemGUID])
+    v.quality:SetShown(not item:IsItemEmpty())
+    v.locked:SetShown(self.pdb.itemsLocked[v.itemInfo.itemGUID])
     for j, s in ipairs (ITEM_STATS) do
       if stats[s.name] and stats[s.name] ~= 0 then
         v.stats[j]:SetText (stats[s.name])
