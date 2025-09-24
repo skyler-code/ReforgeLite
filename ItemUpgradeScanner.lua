@@ -1,12 +1,10 @@
 local addonName, addonTable = ...
 
 local ITEM_UPGRADE_TOOLTIP_FORMAT_MSG = ITEM_UPGRADE_TOOLTIP_FORMAT:gsub("%%d", "(.+)")
-local ITEM_UPGRADES_ENABLED = addonTable.isDev or select(7,GetBuildInfo()) > 50500
 
 local reforgeIdTooltip
 function addonTable.GetItemUpgradeId(item)
-    if not ITEM_UPGRADES_ENABLED
-    or item:IsItemEmpty()
+    if item:IsItemEmpty()
     or not item:HasItemLocation()
     or item:GetItemQuality() < Enum.ItemQuality.Rare
     or item:GetCurrentItemLevel() < 458 then
