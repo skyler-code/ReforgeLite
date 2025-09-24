@@ -1,5 +1,6 @@
 local addonName, addonTable = ...
 local GUI = {}
+addonTable.GUI = GUI
 
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 
@@ -787,54 +788,36 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
   return t
 end
 
-local function GetStaticPopupEditBox(popup)
-  if popup.GetEditBox then
-    return popup:GetEditBox()
-  end
-  return popup.editBox or popup.EditBox
-end
-
-local function GetStaticPopupButton1(popup)
-  if popup.GetButton1 then
-    return popup:GetButton1()
-  end
-  return popup.button1
-end
-
 function GUI.CreateStaticPopup(name, text, options)
   StaticPopupDialogs[name] = {
     text = text,
     button1 = ACCEPT,
     button2 = CANCEL,
-    hasEditBox = true,
-    OnAccept = function (self)
-      options.func(GetStaticPopupEditBox(self):GetText())
+    hasEditBox = 1,
+    timeout = 0,
+    whileDead = 1,
+    OnAccept = function(self)
+      options.func(self:GetEditBox():GetText())
     end,
-    EditBoxOnEnterPressed = function (self)
-      local importStr = self:GetText()
-      if importStr ~= "" then
-        options.func(importStr)
+    OnShow = function(self)
+      LibDD:CloseDropDownMenus()
+      self:GetButton1():Disable()
+      self:GetButton2():Enable()
+      self:GetEditBox():SetFocus()
+    end,
+    OnHide = function(self)
+      ChatEdit_FocusActiveWindow()
+      self:GetEditBox():SetText("")
+    end,
+    EditBoxOnEnterPressed = function(self)
+      if self:GetParent():GetButton1():IsEnabled() then
+        options.func(self:GetText())
         self:GetParent():Hide()
       end
     end,
-    EditBoxOnTextChanged = function (self)
-      GetStaticPopupButton1(self:GetParent()):SetEnabled(self:GetText() ~= "")
+    EditBoxOnTextChanged = function(self)
+      self:GetParent():GetButton1():SetEnabled(self:GetText() ~= "")
     end,
     EditBoxOnEscapePressed = function(self) self:GetParent():Hide() end,
-    OnShow = function (self)
-      LibDD:CloseDropDownMenus()
-      local editBox = GetStaticPopupEditBox(self)
-      editBox:SetText("")
-      editBox:SetFocus()
-      RunNextFrame(function() GetStaticPopupButton1(self):Disable() end)
-    end,
-    OnHide = function (self)
-      ChatEdit_FocusActiveWindow()
-      GetStaticPopupEditBox(self):SetText("")
-    end,
-    timeout = 0,
-    whileDead = true,
   }
 end
-
-addonTable.GUI = GUI
