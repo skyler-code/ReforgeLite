@@ -1566,11 +1566,11 @@ local function GetItemUpgradeLevel(item)
     or not item:HasItemLocation()
     or item:GetItemQuality() < Enum.ItemQuality.Rare
     or item:GetCurrentItemLevel() < 458 then
-        return 0, 0
+        return 0
     end
     local originalIlvl = C_Item.GetDetailedItemLevelInfo(item:GetItemID())
     if not originalIlvl then
-        return 0,0
+        return 0
     end
 
     return (item:GetCurrentItemLevel() - originalIlvl) / 4
