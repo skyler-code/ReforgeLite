@@ -1,6 +1,6 @@
 local _, addonTable = ...
 
-local RandPropPoints, ItemStats, ItemStatsRef = addonTable.RandPropPoints, addonTable.ItemStats, addonTable.ItemStatsRef
+local RandPropPoints, ItemUpgradeStats, ItemStatsRef = addonTable.RandPropPoints, addonTable.ItemUpgradeStats, addonTable.ItemStatsRef
 
 function addonTable.GetRandPropPoints(iLvl, t)
     return (RandPropPoints[iLvl] and RandPropPoints[iLvl][t] or 0)
@@ -17,11 +17,11 @@ function addonTable.GetItemStatsUp(link, upgrade)
     if result and upgrade and upgrade > 0 then
         local id, iLvl, iLvlBase = GetItemInfoUp(link, upgrade)
         local budget, ref
-        if RandPropPoints[iLvl] and ItemStats[id] then
-            budget = RandPropPoints[iLvl][ItemStats[id][1]]
-            ref = ItemStatsRef[ItemStats[id][2] + 1]
+        if RandPropPoints[iLvl] and ItemUpgradeStats[id] then
+            budget = RandPropPoints[iLvl][ItemUpgradeStats[id][1]]
+            ref = ItemStatsRef[ItemUpgradeStats[id][2] + 1]
         end
-        for sid, sv in ipairs(ReforgeLite.itemStats) do
+        for sid, sv in ipairs(addonTable.itemStats) do
             if result[sv.name] then
                 if budget and ref and ref[sid] then
                     result[sv.name] = floor(ref[sid][1] * budget * 0.0001 - ref[sid][2] * 160 + 0.5)

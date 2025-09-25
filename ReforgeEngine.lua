@@ -85,8 +85,8 @@ function ReforgeLite:UpdateMethodStats (method)
   local mult = self:GetStatMultipliers()
   local oldstats = {}
   method.stats = {}
-  for i = 1, #self.itemStats do
-    oldstats[i] = self.itemStats[i].getter ()
+  for i = 1, addonTable.itemStatCount do
+    oldstats[i] = addonTable.itemStats[i].getter ()
     method.stats[i] = oldstats[i] / (mult[i] or 1)
   end
   method.items = method.items or {}
@@ -100,17 +100,17 @@ function ReforgeLite:UpdateMethodStats (method)
     method.items[k].stats = nil
     method.items[k].amount = nil
 
-    for s, v in ipairs(self.itemStats) do
+    for s, v in ipairs(addonTable.itemStats) do
       method.stats[s] = method.stats[s] - (orgstats[v.name] or 0) + (stats[v.name] or 0)
     end
     if reforge then
       local src, dst = unpack(self.reforgeTable[reforge])
-      local amount = floor ((orgstats[self.itemStats[src].name] or 0) * REFORGE_COEFF)
+      local amount = floor ((orgstats[addonTable.itemStats[src].name] or 0) * REFORGE_COEFF)
       method.stats[src] = method.stats[src] + amount
       method.stats[dst] = method.stats[dst] - amount
     end
     if method.items[k].src and method.items[k].dst then
-      method.items[k].amount = floor ((stats[self.itemStats[method.items[k].src].name] or 0) * REFORGE_COEFF)
+      method.items[k].amount = floor ((stats[addonTable.itemStats[method.items[k].src].name] or 0) * REFORGE_COEFF)
       method.stats[method.items[k].src] = method.stats[method.items[k].src] - method.items[k].amount
       method.stats[method.items[k].dst] = method.stats[method.items[k].dst] + method.items[k].amount
     end
@@ -233,9 +233,9 @@ function ReforgeLite:GetItemReforgeOptions (item, data, slot)
   end
   local aopt = {}
   aopt[0] = self:MakeReforgeOption (item, data)
-  for src = 1, #self.itemStats do
+  for src = 1, addonTable.itemStatCount do
     if item.stats[src] > 0 then
-      for dst = 1, #self.itemStats do
+      for dst = 1, addonTable.itemStatCount do
         if item.stats[dst] == 0 then
           local o = self:MakeReforgeOption (item, data, src, dst)
           local pos = o.d1 + o.d2 * self.TABLE_SIZE
@@ -262,7 +262,7 @@ function ReforgeLite:InitializeMethod()
     local item = v.itemInfo.link
     local stats = (item and GetItemStats(item, v.itemInfo.upgradeLevel) or {})
     local orgstats = (item and GetItemStats(item, v.itemInfo.upgradeLevel) or {})
-    for j, stat in ipairs(self.itemStats) do
+    for j, stat in ipairs(addonTable.itemStats) do
       method.items[k].stats[j] = (stats[stat.name] or 0)
       orgitems[k][j] = (orgstats[stat.name] or 0)
     end
@@ -295,14 +295,14 @@ function ReforgeLite:InitReforgeClassic()
     end
   end
 
-  for i = 1, #self.itemStats do
-    data.initial[i] = self.itemStats[i].getter() / (data.mult[i] or 1)
+  for i = 1, addonTable.itemStatCount do
+    data.initial[i] = addonTable.itemStats[i].getter() / (data.mult[i] or 1)
     for j = 1, #orgitems do
       data.initial[i] = data.initial[i] - orgitems[j][i]
     end
   end
   local reforged = {}
-  for i = 1, #self.itemStats do
+  for i = 1, addonTable.itemStatCount do
     reforged[i] = 0
   end
   for i = 1, #data.method.items do

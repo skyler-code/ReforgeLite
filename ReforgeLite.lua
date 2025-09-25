@@ -249,8 +249,8 @@ local ITEM_STATS = {
     RatingStat (statIds.EXP,     "ITEM_MOD_EXPERTISE_RATING",     EXPERTISE_ABBR, STAT_EXPERTISE,       CR_EXPERTISE),
     RatingStat (statIds.MASTERY, "ITEM_MOD_MASTERY_RATING_SHORT", STAT_MASTERY,   STAT_MASTERY,         CR_MASTERY),
 }
-ReforgeLite.itemStats = ITEM_STATS
 local ITEM_STAT_COUNT = #ITEM_STATS
+addonTable.itemStats, addonTable.itemStatCount = ITEM_STATS, ITEM_STAT_COUNT
 
 local REFORGE_TABLE_BASE = 112
 local reforgeTable = {
@@ -2036,7 +2036,7 @@ local function HandleTooltipUpdate(tip)
   for _, region in pairs({tip:GetRegions()}) do
     if region:GetObjectType() == "FontString" and region:GetText() == REFORGED then
       local srcId, destId = unpack(reforgeTable[reforgeId])
-      region:SetFormattedText("%s (%s > %s)", REFORGED, ReforgeLite.itemStats[srcId].long, ReforgeLite.itemStats[destId].long)
+      region:SetFormattedText("%s (%s > %s)", REFORGED, ITEM_STATS[srcId].long, ITEM_STATS[destId].long)
       return
     end
   end

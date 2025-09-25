@@ -1093,7 +1093,7 @@ addonTable.ItemStatsRef = {
     {[1] = {6667, 0}},
 }
 
-addonTable.ItemStats = {
+addonTable.ItemUpgradeStats = {
     [44924] = {1, 248},
     [58504] = {2, 443},
     [58505] = {4, 520},
