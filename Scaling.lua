@@ -8,17 +8,14 @@ end
 
 local function GetItemInfoUp(link, upgrade)
     local id = C_Item.GetItemInfoInstant(link)
-    local iLvl = select(4, C_Item.GetItemInfo(link)) or 0
-    if upgrade and upgrade > 0 then
-        iLvl = iLvl + upgrade * 4
-    end
-    return id, iLvl
+    local iLvl = C_Item.GetDetailedItemLevelInfo(id)
+    return id, iLvl + (upgrade or 0) * 4, iLvl
 end
 
 function addonTable.GetItemStatsUp(link, upgrade)
     local result = GetItemStats(link)
     if result and upgrade and upgrade > 0 then
-        local id, iLvl = GetItemInfoUp(link, upgrade)
+        local id, iLvl, iLvlBase = GetItemInfoUp(link, upgrade)
         local budget, ref
         if RandPropPoints[iLvl] and ItemStats[id] then
             budget = RandPropPoints[iLvl][ItemStats[id][1]]
