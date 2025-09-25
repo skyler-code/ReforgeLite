@@ -1561,6 +1561,21 @@ local function GetReforgeID(slotId)
   return GetReforgeIDFromString(PLAYER_ITEM_DATA[slotId]:GetItemLink())
 end
 
+local function GetItemUpgradeLevel(item)
+    if item:IsItemEmpty()
+    or not item:HasItemLocation()
+    or item:GetItemQuality() < Enum.ItemQuality.Rare
+    or item:GetCurrentItemLevel() < 458 then
+        return 0, 0
+    end
+    local originalIlvl = C_Item.GetDetailedItemLevelInfo(item:GetItemID())
+    if not originalIlvl then
+        return 0,0
+    end
+
+    return (item:GetCurrentItemLevel() - originalIlvl) / 4
+end
+
 function ReforgeLite:UpdateItems()
   for _, v in ipairs (self.itemData) do
     local item = self.playerData[v.slotId]
@@ -1571,14 +1586,12 @@ function ReforgeLite:UpdateItems()
       v.texture:SetTexture(v.slotTexture)
       v.quality:SetVertexColor(addonTable.FONTS.white:GetRGB())
     else
-      local upgradeLevel, upgradeLevelMax = addonTable.GetItemUpgradeId(item)
       v.itemInfo = {
         link = item:GetItemLink(),
         itemId = item:GetItemID(),
         ilvl = item:GetCurrentItemLevel(),
         itemGUID = item:GetItemGUID(),
-        upgradeLevel = upgradeLevel,
-        upgradeLevelMax = upgradeLevelMax,
+        upgradeLevel = GetItemUpgradeLevel(item),
         reforge = GetReforgeID(v.slotId)
       }
       v.texture:SetTexture(item:GetItemIcon())
