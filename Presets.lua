@@ -135,20 +135,7 @@ addonTable.CreateIconMarkup = CreateIconMarkup
 
 local AtLeast = addonTable.StatCapMethods.AtLeast
 local AtMost = addonTable.StatCapMethods.AtMost
-
-local CAPS = {
-  ManualCap = 1,
-  MeleeHitCap = 2,
-  SpellHitCap = 3,
-  MeleeDWHitCap = 4,
-  ExpSoftCap = 5,
-  ExpHardCap = 6,
-  FirstHasteBreak = 7,
-  SecondHasteBreak = 8,
-  ThirdHasteBreak = 9,
-  FourthHasteBreak = 10,
-  FifthHasteBreak = 11,
-}
+local CAPS = EnumUtil.MakeEnum("ManualCap", "MeleeHitCap", "SpellHitCap", "MeleeDWHitCap", "ExpSoftCap", "ExpHardCap", "FirstHasteBreak", "SecondHasteBreak", "ThirdHasteBreak", "FourthHasteBreak", "FifthHasteBreak")
 
 ReforgeLite.capPresets = {
   {

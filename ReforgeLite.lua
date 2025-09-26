@@ -119,12 +119,7 @@ ReforgeLite.playerData = PLAYER_ITEM_DATA
 addonTable.localeClass, addonTable.playerClass, addonTable.playerClassID = UnitClass("player")
 addonTable.playerRace = select(2, UnitRace("player"))
 local UNFORGE_INDEX = -1
-addonTable.StatCapMethods = {
-  AtLeast = 1,
-  AtMost = 2,
-  NewValue = 3,
-  Exactly = 4,
-}
+addonTable.StatCapMethods = EnumUtil.MakeEnum("AtLeast", "AtMost", "NewValue", "Exactly")
 
 function ReforgeLite:UpgradeDB()
   local db = ReforgeLiteDB
@@ -162,9 +157,7 @@ GUI.CreateStaticPopup("REFORGE_LITE_SAVE_PRESET", L["Enter the preset name"], { 
   ReforgeLite.deletePresetButton:ToggleStatus()
 end })
 
-local statIds = {
-  SPIRIT = 1, DODGE = 2, PARRY = 3, HIT = 4, CRIT = 5, HASTE = 6, EXP = 7, MASTERY = 8, SPELLHIT = 9
-}
+local statIds = EnumUtil.MakeEnum("SPIRIT", "DODGE", "PARRY", "HIT", "CRIT", "HASTE", "EXP", "MASTERY", "SPELLHIT")
 addonTable.statIds = statIds
 ReforgeLite.STATS = statIds
 
