@@ -117,7 +117,6 @@ local PLAYER_ITEM_DATA = setmetatable({}, {
 ReforgeLite.playerData = PLAYER_ITEM_DATA
 
 addonTable.localeClass, addonTable.playerClass, addonTable.playerClassID = UnitClass("player")
-addonTable.playerRace = select(2, UnitRace("player"))
 local UNFORGE_INDEX = -1
 addonTable.StatCapMethods = EnumUtil.MakeEnum("AtLeast", "AtMost", "NewValue", "Exactly")
 
@@ -2157,7 +2156,12 @@ function ReforgeLite:ADDON_LOADED (addon)
     tremove(self.pdb.caps)
   end
 
-  self.conversion = {}
+  self.conversion = setmetatable({}, {
+    __index = function(t, k)
+      rawset(t, k, {})
+      return t[k]
+    end
+  })
 
   if self.db.updateTooltip then
     self:HookTooltipScripts()

@@ -3,25 +3,23 @@ local REFORGE_COEFF = addonTable.REFORGE_COEFF
 
 local ReforgeLite = addonTable.ReforgeLite
 local L = addonTable.L
-local playerClass, playerRace = addonTable.playerClass, addonTable.playerRace
+local playerClass = addonTable.playerClass
 local statIds = addonTable.statIds
 local print = addonTable.print
 
 local GetItemStats = addonTable.GetItemStatsUp
+local playerRace = select(2, UnitRace("player"))
 
 ---------------------------------------------------------------------------------------
 
 function ReforgeLite:GetStatMultipliers()
   local result = {}
-  if playerRace == "HUMAN" then
-    result[addonTable.statIds.SPIRIT] = (result[addonTable.statIds.SPIRIT] or 1) * 1.03
-  end
   for _, v in ipairs(self.itemData) do
     if addonTable.AmplificationItems[v.itemInfo.itemId] then
       local factor = 1 + 0.01 * Round(addonTable.GetRandPropPoints(v.itemInfo.ilvl, 2) / 420)
-      result[addonTable.statIds.HASTE] = (result[addonTable.statIds.HASTE] or 1) * factor
-      result[addonTable.statIds.MASTERY] = (result[addonTable.statIds.MASTERY] or 1) * factor
-      result[addonTable.statIds.SPIRIT] = (result[addonTable.statIds.SPIRIT] or 1) * factor
+      result[statIds.HASTE] = (result[statIds.HASTE] or 1) * factor
+      result[statIds.MASTERY] = (result[statIds.MASTERY] or 1) * factor
+      result[statIds.SPIRIT] = (result[statIds.SPIRIT] or 1) * factor
     end
   end
   return result
@@ -66,21 +64,23 @@ local STAT_CONVERSIONS = {
 }
 
 function ReforgeLite:GetConversion()
-  local classConversionInfo = STAT_CONVERSIONS[playerClass]
-  if not classConversionInfo then return end
+  wipe(self.conversion)
 
-  local result = {}
-
-  if classConversionInfo.base then
-    MergeTable(result, classConversionInfo.base)
+  if playerRace == "Human" then
+    self.conversion[statIds.SPIRIT][statIds.SPIRIT] = (self.conversion[statIds.SPIRIT][statIds.SPIRIT] or 1) * 0.03
   end
 
-  local spec = C_SpecializationInfo.GetSpecialization()
-  if spec and classConversionInfo.specs and classConversionInfo.specs[spec] then
-    MergeTable(result, classConversionInfo.specs[spec])
-  end
+  local classInfo = STAT_CONVERSIONS[playerClass]
+  if classInfo then
+    if classInfo.base then
+      MergeTable(self.conversion, classInfo.base)
+    end
 
-  self.conversion = result
+    local spec = C_SpecializationInfo.GetSpecialization()
+    if spec and classInfo.specs and classInfo.specs[spec] then
+      MergeTable(self.conversion, classInfo.specs[spec])
+    end
+  end
 end
 
 
@@ -347,7 +347,7 @@ function ReforgeLite:InitReforgeClassic()
   for src, conv in pairs(data.conv) do
     if data.weights[src] == 0 then
       if (data.caps[1].stat and conv[data.caps[1].stat]) or (data.caps[2].stat and conv[data.caps[2].stat]) then
-        if src == addonTable.statIds.EXP then
+        if src == statIds.EXP then
           data.weights[src] = -1
         else
           data.weights[src] = 1
@@ -433,9 +433,9 @@ function ReforgeLite:ComputeReforge()
 
   for i = 1, #data.method.items do
     local opt = reforgeOptions[i][code:byte(i)]
-    if data.conv[addonTable.statIds.SPIRIT] and data.conv[addonTable.statIds.SPIRIT][addonTable.statIds.HIT] == 1 then
-      if opt.dst == addonTable.statIds.HIT and data.method.items[i].stats[addonTable.statIds.SPIRIT] == 0 then
-        opt.dst = addonTable.statIds.SPIRIT
+    if data.conv[statIds.SPIRIT] and data.conv[statIds.SPIRIT][statIds.HIT] == 1 then
+      if opt.dst == statIds.HIT and data.method.items[i].stats[statIds.SPIRIT] == 0 then
+        opt.dst = statIds.SPIRIT
       end
     end
     data.method.items[i].src = opt.src
