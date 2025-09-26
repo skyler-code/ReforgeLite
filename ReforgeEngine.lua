@@ -65,11 +65,6 @@ local STAT_CONVERSIONS = {
 
 function ReforgeLite:GetConversion()
   wipe(self.conversion)
-
-  if playerRace == "Human" then
-    self.conversion[statIds.SPIRIT][statIds.SPIRIT] = (self.conversion[statIds.SPIRIT][statIds.SPIRIT] or 1) * 0.03
-  end
-
   local classInfo = STAT_CONVERSIONS[playerClass]
   if classInfo then
     if classInfo.base then
@@ -80,6 +75,9 @@ function ReforgeLite:GetConversion()
     if spec and classInfo.specs and classInfo.specs[spec] then
       MergeTable(self.conversion, classInfo.specs[spec])
     end
+  end
+  if playerRace == "Human" then
+    self.conversion[statIds.SPIRIT][statIds.SPIRIT] = (self.conversion[statIds.SPIRIT][statIds.SPIRIT] or 1) * 0.03
   end
 end
 
