@@ -39,7 +39,10 @@ local STAT_CONVERSIONS = {
   MAGE = { base = CASTER_SPEC },
   MONK = {
     specs = {
-      [SPEC_MONK_MISTWEAVER] = {[statIds.SPIRIT] = {[statIds.HIT] = 0.5, [statIds.EXP] = 0.5}}
+      [SPEC_MONK_MISTWEAVER] = {
+        [statIds.SPIRIT] = {[statIds.HIT] = 0.5, [statIds.EXP] = 0.5},
+        [statIds.HASTE] = {[statIds.HASTE] = 0.5},
+      }
     }
   },
   PALADIN = {
