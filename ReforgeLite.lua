@@ -2156,8 +2156,6 @@ function ReforgeLite:ADDON_LOADED (addon)
     tremove(self.pdb.caps)
   end
 
-  self.conversion = {}
-
   if self.db.updateTooltip then
     self:HookTooltipScripts()
   end

@@ -64,7 +64,7 @@ local STAT_CONVERSIONS = {
 }
 
 function ReforgeLite:GetConversion()
-  wipe(self.conversion)
+  self.conversion = wipe(self.conversion or {})
   local classInfo = STAT_CONVERSIONS[playerClass]
   if classInfo then
     if classInfo.base then
