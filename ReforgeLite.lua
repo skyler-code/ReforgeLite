@@ -2156,12 +2156,7 @@ function ReforgeLite:ADDON_LOADED (addon)
     tremove(self.pdb.caps)
   end
 
-  self.conversion = setmetatable({}, {
-    __index = function(t, k)
-      rawset(t, k, {})
-      return t[k]
-    end
-  })
+  self.conversion = {}
 
   if self.db.updateTooltip then
     self:HookTooltipScripts()

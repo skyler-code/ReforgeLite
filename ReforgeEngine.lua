@@ -77,6 +77,7 @@ function ReforgeLite:GetConversion()
     end
   end
   if playerRace == "Human" then
+    self.conversion[statIds.SPIRIT] = self.conversion[statIds.SPIRIT] or {}
     self.conversion[statIds.SPIRIT][statIds.SPIRIT] = (self.conversion[statIds.SPIRIT][statIds.SPIRIT] or 1) * 0.03
   end
 end
