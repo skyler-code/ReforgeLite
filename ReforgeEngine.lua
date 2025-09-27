@@ -415,7 +415,6 @@ local chooseLoops = 0
 
 function ReforgeLite:ComputeReforge()
   self.TABLE_SIZE = floor(10000 * (self.db.accuracy / addonTable.MAX_SPEED))
-  TABLE_SIZE = floor(10000 * (self.db.accuracy / addonTable.MAX_SPEED))
   local data = self:InitReforgeClassic()
   local reforgeOptions = {}
   for i = 1, #self.itemData do
