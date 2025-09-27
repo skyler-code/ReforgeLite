@@ -1589,7 +1589,7 @@ function ReforgeLite:UpdateItems()
       }
       v.texture:SetTexture(item:GetItemIcon())
       v.quality:SetVertexColor(item:GetItemQualityColor().color:GetRGB())
-      stats = GetItemStats(v.itemInfo.link, v.itemInfo.upgradeLevel)
+      stats = GetItemStats(v.itemInfo)
       if v.itemInfo.reforge then
         local srcId, dstId = unpack(reforgeTable[v.itemInfo.reforge])
         reforgeSrc, reforgeDst = ITEM_STATS[srcId].name, ITEM_STATS[dstId].name
@@ -1989,19 +1989,19 @@ end
 function ReforgeLite:DoReforgeUpdate()
   if self.methodWindow then
     for slotId, slotInfo in ipairs(self.methodWindow.items) do
-      local newReforge = self.pdb.method.items[slotId].reforge
-      if slotInfo.item and not IsReforgeMatching(slotInfo.slotId, newReforge, self.methodOverride[slotId]) then
+      local itemMethod = self.pdb.method.items[slotId]
+      if slotInfo.item and not IsReforgeMatching(slotInfo.slotId, itemMethod.reforge, self.methodOverride[slotId]) then
         PickupInventoryItem(slotInfo.slotId)
         C_Reforge.SetReforgeFromCursorItem()
-        if newReforge then
+        if itemMethod.reforge then
           local id = UNFORGE_INDEX
-          local stats = GetItemStats (slotInfo.item, self.itemData[slotId].upgradeLevel)
-          for s, reforgeInfo in ipairs(reforgeTable) do
+          local stats = GetItemStats(self.itemData[slotId].itemInfo)
+          for _, reforgeInfo in ipairs(reforgeTable) do
             local srcstat, dststat = unpack(reforgeInfo)
             if (stats[ITEM_STATS[srcstat].name] or 0) ~= 0 and (stats[ITEM_STATS[dststat].name] or 0) == 0 then
               id = id + 1
             end
-            if srcstat == self.pdb.method.items[slotId].src and dststat == self.pdb.method.items[slotId].dst then
+            if srcstat == itemMethod.src and dststat == itemMethod.dst then
               C_Reforge.ReforgeItem (id)
               coroutine.yield()
             end
