@@ -412,7 +412,7 @@ end
 
 local chooseLoops = 0
 
-function ReforgeLite:ComputeReforge()
+function ReforgeLite:ComputeReforgeClassic()
   self.TABLE_SIZE = floor(10000 * (self.db.accuracy / addonTable.MAX_SPEED))
   local data = self:InitReforgeClassic()
   local reforgeOptions = {}
@@ -445,6 +445,19 @@ function ReforgeLite:ComputeReforge()
     self.pdb.method = data.method
     self.pdb.methodOrigin = addonName
     self:UpdateMethodCategory ()
+  end
+end
+
+function ReforgeLite:ComputeReforge()
+  if self.pdb.algorithmComparison then
+    self:RunAlgorithmComparison()
+    return
+  end
+  
+  if self.db.useBranchBound then
+    self:ComputeReforgeBranchBound()
+  else
+    self:ComputeReforgeClassic()
   end
 end
 

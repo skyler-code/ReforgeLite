@@ -22,5 +22,6 @@ Scaling.lua
 GUI.lua
 ReforgeLite.lua
 ReforgeEngine.lua
+BranchAndBound.lua
 Presets.lua
 ExportImport.lua
