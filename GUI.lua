@@ -12,7 +12,8 @@ addonTable.FONTS = {
   red = CreateColor(1, 0.4, 0.4),
   panel = PANEL_BACKGROUND_COLOR,
   gold = GOLD_FONT_COLOR,
-  darkyellow = DARKYELLOW_FONT_COLOR
+  darkyellow = DARKYELLOW_FONT_COLOR,
+  disabled = DISABLED_FONT_COLOR,
 }
 
 GUI.widgetCount = 0
@@ -298,6 +299,14 @@ function GUI:CreateCheckButton (parent, text, default, setter, forceNew)
       setter (self:GetChecked ())
     end)
   end
+  btn:SetScript("OnEnable", function(self)
+    self.Text:SetTextColor(unpack(self.Text.originalFontColor))
+    self.Text.originalFontColor = nil
+  end)
+  btn:SetScript("OnDisable", function(self)
+    self.Text.originalFontColor = {self.Text:GetTextColor()}
+    self.Text:SetTextColor(addonTable.FONTS.disabled:GetRGB())
+  end)
   return btn
 end
 
