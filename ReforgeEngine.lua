@@ -449,12 +449,7 @@ function ReforgeLite:ComputeReforgeClassic()
 end
 
 function ReforgeLite:ComputeReforge()
-  if self.pdb.algorithmComparison then
-    self:RunAlgorithmComparison()
-    return
-  end
-  
-  if self.db.useBranchBound then
+  if self.pdb.useBranchBound then
     self:ComputeReforgeBranchBound()
   else
     self:ComputeReforgeClassic()
@@ -490,20 +485,27 @@ function ReforgeLite:RunYieldCheck(maxLoops)
   end
 end
 
-function ReforgeLite:StartCompute()
-  if routine and addonTable.pauseRoutine == 'pause' and NORMAL_STATUS_CODES[coroutine.status(routine)]  then
+function ReforgeLite:CreateRoutine(func)
+  addonTable.callbacks:TriggerEvent("PreCalculateStart")
+  if routine and NORMAL_STATUS_CODES[coroutine.status(routine)] then
     coroutine.resume(routine)
   else
-    routine = coroutine.create(function() self:ComputeReforge() end)
+    routine = coroutine.create(function() self[func](self) end)
   end
   self:ResumeComputeNextFrame()
 end
 
+function ReforgeLite:StartAlgorithmComparison()
+  self:CreateRoutine("RunAlgorithmComparison")
+end
+
+function ReforgeLite:StartCompute()
+  addonTable.pauseRoutine = nil
+  self:CreateRoutine("ComputeReforge")
+end
+
 function ReforgeLite:EndCompute()
-  self.computeButton:RenderText(L["Compute"])
-  addonTable.GUI:Unlock()
-  self.pauseButton:RenderText(KEY_PAUSE)
-  self.pauseButton:Disable()
+  addonTable.callbacks:TriggerEvent("OnCalculateFinish")
   routine = nil
   collectgarbage('collect')
 end

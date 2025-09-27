@@ -93,6 +93,7 @@ local DefaultDB = {
     methodOrigin = addonName,
     itemsLocked = {},
     categoryStates = {},
+    useBranchAndBound = false,
   },
   class = {
     customPresets = {}
@@ -1274,32 +1275,50 @@ function ReforgeLite:CreateOptionList ()
   end
   self.statCaps:OnUpdate()
   RunNextFrame(function() self:CapUpdater() end)
-
   self.computeButton = GUI:CreatePanelButton (self.content, L["Compute"], function() self:StartCompute() end, {
-    PreClick = function(btn)
-      GUI:Lock()
+    OnCalculateFinish = function(btn)
+      btn:RenderText(L["Compute"])
+    end,
+    PreCalculateStart = function(btn)
       btn:RenderText(IN_PROGRESS)
+    end,
+    PreClick = function (btn)
       addonTable.pauseRoutine = nil
-      self.pauseButton:Enable()
-      self.pauseButton:RenderText(KEY_PAUSE)
     end
   })
 
-  self.pauseButton = GUI:CreatePanelButton (self.content, KEY_PAUSE, function(btn)
-    if addonTable.pauseRoutine then
-      addonTable.pauseRoutine = 'kill'
-      self:EndCompute(addonTable.pauseRoutine)
-    else
-      addonTable.pauseRoutine = 'pause'
-      btn:RenderText(CANCEL)
-      self.computeButton:RenderText(CONTINUE)
-      addonTable.GUI:UnlockFrame(self.computeButton)
-    end
-  end, {preventLock = true})
+  self.pauseButton = GUI:CreatePanelButton(
+    self.content,
+    KEY_PAUSE,
+    function(btn)
+      if addonTable.pauseRoutine then
+        addonTable.pauseRoutine = 'kill'
+        self:EndCompute(addonTable.pauseRoutine)
+      else
+        addonTable.pauseRoutine = 'pause'
+        btn:RenderText(CANCEL)
+        self.computeButton:RenderText(CONTINUE)
+        addonTable.GUI:UnlockFrame(self.computeButton)
+      end
+    end, 
+    {
+      preventLock = true,
+      PreCalculateStart = function(btn)
+        btn:RenderText(KEY_PAUSE)
+        btn:Enable()
+      end,
+      OnCalculateFinish = function(btn) 
+        btn:RenderText(KEY_PAUSE)
+        btn:Disable()
+      end
+    }
+  )
   self:SetAnchor (self.pauseButton, "LEFT", self.computeButton, "RIGHT", 4, 0)
   self.pauseButton:Disable()
 
-  GUI:CreateCheckButton(self.content, L["Experimental: Fast Mode"], self.db.openOnReforge, function (val) self.db.openOnReforge = val end)
+  local fastMode = GUI:CreateCheckButton(self.content, L["Experimental Fast Mode"], self.pdb.useBranchBound, function (val) self.pdb.useBranchBound = val end)
+  self:SetAnchor(fastMode, "LEFT", self.pauseButton, "RIGHT", 4, 0)
+  GUI:SetTooltip(fastMode, L["EXPERIMENTAL!!\nThis feature utilizes the branch and bound method which attempts to speed up the process without sacrificing any accuracy. While it should be faster for most users, there are still some edge cases where it can be even slower than the original formula.\n\nThank you!"])
 
   self:UpdateStatWeightList ()
 
@@ -1426,8 +1445,18 @@ function ReforgeLite:FillSettings()
     end
   end), "LEFT")
 
-  self.debugButton = GUI:CreatePanelButton (self.settings, L["Debug"], function(btn) self:DebugMethod () end)
-  self.settings:SetCell (getOrderId('settings'), 0, self.debugButton, "LEFT")
+  local testAlgoButton = GUI:CreatePanelButton (self.settings, L["Run Algorithm Comparison"], function(btn) self:StartAlgorithmComparison() end, {
+    OnCalculateFinish = function(btn)
+      btn:RenderText(L["Run Algorithm Comparison"])
+    end,
+    PreCalculateStart = function(btn)
+      btn:RenderText(IN_PROGRESS)
+    end
+  })
+  self.settings:SetCell(getOrderId('settings'), 0, testAlgoButton, "LEFT")
+
+  local debugButton = GUI:CreatePanelButton (self.settings, L["Debug"], function(btn) self:DebugMethod () end)
+  self.settings:SetCell (getOrderId('settings'), 0, debugButton, "LEFT")
 
 --@debug@
   self.settings:AddRow()
