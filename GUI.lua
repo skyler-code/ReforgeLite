@@ -35,6 +35,7 @@ function GUI:ClearFocus()
 end
 
 function GUI:Lock()
+  LibDD:CloseDropDownMenus()
   for _, frames in ipairs({self.panelButtons, self.imgButtons, self.editBoxes, self.checkButtons}) do
     for _, frame in pairs(frames) do
       if frame:IsEnabled() and not frame.preventLock then

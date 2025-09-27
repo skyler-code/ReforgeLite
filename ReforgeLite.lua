@@ -1273,7 +1273,6 @@ function ReforgeLite:CreateOptionList ()
   self.computeButton = GUI:CreatePanelButton (self.content, L["Compute"], function() self:StartCompute() end)
   self.computeButton:SetScript ("PreClick", function (btn)
     GUI:Lock()
-    GUI:ClearFocus()
     btn:RenderText(IN_PROGRESS)
     addonTable.pauseRoutine = nil
     self.pauseButton:Enable()
