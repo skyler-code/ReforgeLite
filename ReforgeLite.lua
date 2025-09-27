@@ -1297,6 +1297,8 @@ function ReforgeLite:CreateOptionList ()
   self:SetAnchor (self.pauseButton, "LEFT", self.computeButton, "RIGHT", 4, 0)
   self.pauseButton:Disable()
 
+  GUI:CreateCheckButton(self.content, L["Experimental: Fast Mode"], self.db.openOnReforge, function (val) self.db.openOnReforge = val end)
+
   self:UpdateStatWeightList ()
 
   self.settingsCategory = self:CreateCategory (SETTINGS)
