@@ -250,8 +250,7 @@ function GUI:CreateDropdown (parent, values, options)
     sel.Button:SetPoint ("TOPRIGHT", sel.Right, "TOPRIGHT", -16, -13)
     sel.Recycle = function (frame)
       frame:Hide ()
-      frame:SetScript ("OnEnter", nil)
-      frame:SetScript ("OnLeave", nil)
+      frame:ClearScripts()
       frame.setter = nil
       frame.value = nil
       frame.selectedName = nil
@@ -288,7 +287,7 @@ function GUI:CreateCheckButton (parent, text, default, setter)
   else
     local name = self:GenerateWidgetName ()
     btn = CreateFrame ("CheckButton", name, parent, "UICheckButtonTemplate")
-    self.checkButtons[btn:GetName()] = btn
+    self.checkButtons[name] = btn
     btn.Recycle = function (btn)
       btn:Hide ()
       btn:ClearScripts()
@@ -300,7 +299,7 @@ function GUI:CreateCheckButton (parent, text, default, setter)
   btn:SetChecked (default)
   if setter then
     btn:SetScript ("OnClick", function (self)
-      setter (self:GetChecked ())
+      setter(self:GetChecked ())
     end)
   end
   btn:SetScript("OnEnable", function(self)
@@ -362,7 +361,6 @@ function GUI:CreatePanelButton(parent, text, handler, opts)
       f:SetText("")
       f:Hide ()
       f:ClearScripts()
-      f:SetScript ("OnClick", nil)
       callbacks:UnregisterCallback('OnCalculateFinish', f:GetName())
       self.panelButtons[f:GetName()] = nil
       tinsert (self.unusedPanelButtons, f)
