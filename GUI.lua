@@ -151,17 +151,9 @@ function GUI:CreateEditBox (parent, width, height, default, setter, opts)
     box:SetNumeric ()
     box:SetTextInsets (0, 0, 3, 3)
     box:SetMaxLetters (8)
-    box:SetScript ("OnEnterPressed", box.ClearFocus)
-    box:SetScript ("OnEditFocusGained", function(frame)
-      LibDD:CloseDropDownMenus()
-      frame.prevValue = tonumber(frame:GetText())
-      frame:HighlightText()
-    end)
     box.Recycle = function (box)
       box:Hide ()
-      box:SetScript ("OnEditFocusLost", nil)
-      box:SetScript ("OnEnter", nil)
-      box:SetScript ("OnLeave", nil)
+      box:ClearScripts()
       self.editBoxes[box:GetName()] = nil
       tinsert (self.unusedEditBoxes, box)
     end
@@ -172,8 +164,14 @@ function GUI:CreateEditBox (parent, width, height, default, setter, opts)
   if height then
     box:SetHeight (height)
   end
-  box:SetText (default)
-  box:SetScript ("OnEditFocusLost", function (frame)
+  box:SetText(default)
+  box:SetScript("OnEnterPressed", box.ClearFocus)
+  box:SetScript("OnEditFocusGained", function(frame)
+    LibDD:CloseDropDownMenus()
+    frame.prevValue = tonumber(frame:GetText())
+    frame:HighlightText()
+  end)
+  box:SetScript("OnEditFocusLost", function (frame)
     local value = tonumber(frame:GetText())
     if not value then
       value = frame.prevValue or 0
@@ -256,8 +254,7 @@ function GUI:CreateDropdown (parent, values, options)
     sel.Button:SetPoint ("TOPRIGHT", sel.Right, "TOPRIGHT", -16, -13)
     sel.Recycle = function (frame)
       frame:Hide ()
-      frame:SetScript ("OnEnter", nil)
-      frame:SetScript ("OnLeave", nil)
+      frame:ClearScripts()
       frame.setter = nil
       frame.value = nil
       frame.selectedName = nil
@@ -294,12 +291,10 @@ function GUI:CreateCheckButton (parent, text, default, setter, forceNew)
   else
     local name = self:GenerateWidgetName ()
     btn = CreateFrame ("CheckButton", name, parent, "UICheckButtonTemplate")
-    self.checkButtons[btn:GetName()] = btn
+    self.checkButtons[name] = btn
     btn.Recycle = function (btn)
       btn:Hide ()
-      btn:SetScript ("OnEnter", nil)
-      btn:SetScript ("OnLeave", nil)
-      btn:SetScript ("OnClick", nil)
+      btn:ClearScripts()
       self.checkButtons[btn:GetName()] = nil
       tinsert (self.unusedCheckButtons, btn)
     end
@@ -308,7 +303,7 @@ function GUI:CreateCheckButton (parent, text, default, setter, forceNew)
   btn:SetChecked (default)
   if setter then
     btn:SetScript ("OnClick", function (self)
-      setter (self:GetChecked ())
+      setter(self:GetChecked ())
     end)
   end
   btn:SetScript("OnEnable", function(self)
@@ -336,9 +331,7 @@ function GUI:CreateImageButton (parent, width, height, img, pus, hlt, disabledTe
     self.imgButtons[btn:GetName()] = btn
     btn.Recycle = function (f)
       f:Hide ()
-      f:SetScript ("OnEnter", nil)
-      f:SetScript ("OnLeave", nil)
-      f:SetScript ("OnClick", nil)
+      f:ClearScripts()
       self.imgButtons[f:GetName()] = nil
       tinsert (self.unusedImgButtons, f)
     end
@@ -371,10 +364,7 @@ function GUI:CreatePanelButton(parent, text, handler, opts)
     btn.Recycle = function (f)
       f:SetText("")
       f:Hide ()
-      f:SetScript ("OnEnter", nil)
-      f:SetScript ("OnLeave", nil)
-      f:SetScript ("OnPreClick", nil)
-      f:SetScript ("OnClick", nil)
+      f:ClearScripts()
       callbacks:UnregisterCallback('OnCalculateFinish', f:GetName())
       self.panelButtons[f:GetName()] = nil
       tinsert (self.unusedPanelButtons, f)
