@@ -1027,7 +1027,7 @@ function ReforgeLite:RunAlgorithmComparison()
       reforgeStr = ", reforge: none"
     end
 
-    print(string.format("Item %s:%s, locked: %s%s", _G[strupper(self.itemData[i].slot)], statsStr, isLocked and "yes" or "no", reforgeStr))
+    print(string.format("Item %d %s:%s, locked: %s%s", i, _G[strupper(self.itemData[i].slot)], statsStr, isLocked and "yes" or "no", reforgeStr))
   end
 
   -- Store original method
