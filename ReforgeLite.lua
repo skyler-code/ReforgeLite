@@ -1856,13 +1856,11 @@ function ReforgeLite:RefreshMethodWindow()
     if not item:IsItemEmpty() then
       v.item = item:GetItemLink()
       v.texture:SetTexture(item:GetItemIcon())
-      v.qualityColor = item:GetItemQualityColor()
-      v.quality:SetVertexColor(v.qualityColor.r, v.qualityColor.g, v.qualityColor.b)
+      v.quality:SetVertexColor(item:GetItemQualityColor().color:GetRGB())
       v.quality:Show()
     else
       v.item = nil
       v.texture:SetTexture (v.slotTexture)
-      v.qualityColor = nil
       v.quality:SetVertexColor(addonTable.FONTS.white:GetRGB())
       v.quality:Hide()
     end
