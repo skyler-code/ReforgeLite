@@ -11,9 +11,10 @@ local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 local GetItemStats = addonTable.GetItemStatsUp
 
 addonTable.printLog = {}
+local gprint = print
 local function print(...)
     tinsert(addonTable.printLog, (" "):join(date("[%X]:"), tostringall(...)))
-    getprinthandler()(TRANSMOGRIFY_FONT_COLOR:WrapTextInColorCode(addonName)..":",...)
+    gprint(TRANSMOGRIFY_FONT_COLOR:WrapTextInColorCode(addonName)..":",...)
 end
 addonTable.print = print
 
