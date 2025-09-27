@@ -4,6 +4,12 @@ addonTable.GUI = GUI
 
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 
+local callbacks = CreateFromMixins(CallbackRegistryMixin)
+callbacks:OnLoad()
+callbacks:GenerateCallbackEvents({ "OnCalculateFinish", "PreCalculateStart", "OnCalculateStart" })
+
+addonTable.callbacks = callbacks
+
 addonTable.FONTS = {
   grey = INACTIVE_COLOR,
   lightgrey = TUTORIAL_FONT_COLOR,
@@ -369,6 +375,7 @@ function GUI:CreatePanelButton(parent, text, handler, opts)
       f:SetScript ("OnLeave", nil)
       f:SetScript ("OnPreClick", nil)
       f:SetScript ("OnClick", nil)
+      callbacks:UnregisterCallback('OnCalculateFinish', f:GetName())
       self.panelButtons[f:GetName()] = nil
       tinsert (self.unusedPanelButtons, f)
     end
@@ -378,8 +385,15 @@ function GUI:CreatePanelButton(parent, text, handler, opts)
     end
     btn.originalFitTextWidthPadding = btn.fitTextWidthPadding
   end
-  btn.fitTextWidthPadding = (opts or {}).fitTextWidthPadding or btn.originalFitTextWidthPadding
-  btn.preventLock = (opts or {}).preventLock
+  if opts then
+    btn.fitTextWidthPadding = opts.fitTextWidthPadding or btn.originalFitTextWidthPadding
+    btn.preventLock = opts.preventLock
+    for event in pairs(callbacks.Event) do
+      if opts[event] then
+        callbacks:RegisterCallback(event, function(_, self) opts[event](self) end, btn:GetName(), btn)
+      end
+    end
+  end
   btn:RenderText(text)
   btn:SetScript("OnClick", handler)
   return btn
@@ -884,3 +898,6 @@ function GUI.CreateStaticPopup(name, text, options)
     EditBoxOnEscapePressed = function(self) self:GetParent():Hide() end,
   }
 end
+
+callbacks:RegisterCallback("PreCalculateStart", function(_, self) self:Lock() end, "GUI", GUI)
+callbacks:RegisterCallback("OnCalculateFinish", function(_, self) self:Unlock() end, "GUI", GUI)
