@@ -1006,7 +1006,7 @@ function ReforgeLite:RunAlgorithmComparison()
     local isLocked = self:IsItemLocked(i)
 
     -- Get item stats
-    local stats = (itemInfo.link and GetItemStats(itemInfo.link, itemInfo.upgradeLevel) or {})
+    local stats = GetItemStats(self.itemData[i].itemInfo)
     local statsStr = ""
     for statIdx = 1, #ITEM_STATS do
       local statValue = stats[ITEM_STATS[statIdx].name] or 0
