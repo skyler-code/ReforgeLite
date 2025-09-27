@@ -37,7 +37,7 @@ end
 
 function GUI:Lock()
   LibDD:CloseDropDownMenus()
-  for _, frames in ipairs({self.panelButtons, self.imgButtons, self.editBoxes, self.checkButtons}) do
+  for _, frames in ipairs({self.panelButtons, self.imgButtons, self.editBoxes, self.checkButtons, self.sliders}) do
     for _, frame in pairs(frames) do
       if frame:IsEnabled() and not frame.preventLock then
         frame.locked = true
@@ -83,7 +83,7 @@ function GUI:UnlockFrame(frame)
 end
 
 function GUI:Unlock()
-  for _, frames in ipairs({self.panelButtons, self.imgButtons, self.editBoxes, self.checkButtons}) do
+  for _, frames in ipairs({self.panelButtons, self.imgButtons, self.editBoxes, self.checkButtons, self.sliders}) do
     for _, frame in pairs(frames) do
       self:UnlockFrame(frame)
     end
@@ -363,7 +363,7 @@ function GUI:CreatePanelButton(parent, text, handler, opts)
       f:SetScript ("OnLeave", nil)
       f:SetScript ("OnPreClick", nil)
       f:SetScript ("OnClick", nil)
-      self.panelButtons[btn:GetName()] = nil
+      self.panelButtons[f:GetName()] = nil
       tinsert (self.unusedPanelButtons, f)
     end
     btn.RenderText = function(f, ...)
@@ -414,6 +414,53 @@ function GUI:CreateColorPicker (parent, width, height, color, handler)
   end)
 
   return box
+end
+
+GUI.sliders = {}
+GUI.unusedSliders = {}
+function GUI:CreateSlider(parent, text, value, max, onChange)
+  local slider
+  if #self.unusedSliders > 0 then
+    slider = tremove(self.unusedSliders)
+    slider:SetParent(parent)
+    slider:Show()
+    slider:Enable()
+    self.sliders[slider:GetName()] = slider
+  else
+    local name = self:GenerateWidgetName ()
+    slider = CreateFrame("Slider", name, parent, "UISliderTemplateWithLabels")
+    self.sliders[name] = slider
+    slider.Recycle = function (f)
+      f.Text:SetText("")
+      f:Hide()
+      f:ClearScripts()
+      self.sliders[f:GetName()] = nil
+      tinsert(self.unusedSliders, f)
+    end
+  end
+  slider:SetSize(150, 15)
+  slider:SetMinMaxValues(1, max)
+  slider:SetValueStep(1)
+  slider:SetObeyStepOnDrag(true)
+  slider:SetValue(value)
+  slider:EnableMouseWheel(false)
+  slider:SetScript("OnValueChanged", onChange)
+  slider.Text:SetText(text)
+
+  slider:SetScript("OnEnable", function(self)
+    for k, v in ipairs({self.Text, self.Low, self.High}) do
+      v:SetTextColor(unpack(v.originalFontColor))
+      v.originalFontColor = nil
+    end
+  end)
+  slider:SetScript("OnDisable", function(self)
+    for k, v in ipairs({self.Text, self.Low, self.High}) do
+      v.originalFontColor = {v:GetTextColor()}
+      v:SetTextColor(addonTable.FONTS.disabled:GetRGB())
+    end
+  end)
+
+  return slider
 end
 
 -------------------------------------------------------------------------------

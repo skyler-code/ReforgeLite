@@ -1344,17 +1344,15 @@ function ReforgeLite:GetInactiveWindows()
 end
 
 function ReforgeLite:FillSettings()
-  local accuracySlider = CreateFrame ("Slider", nil, self.settings, "UISliderTemplateWithLabels")
-  accuracySlider:SetSize(150, 15)
-  accuracySlider:SetMinMaxValues (1, addonTable.MAX_SPEED)
-  accuracySlider:SetValueStep (1)
-  accuracySlider:SetObeyStepOnDrag(true)
-  accuracySlider:SetValue (self.db.accuracy)
-  accuracySlider:EnableMouseWheel (false)
-  accuracySlider:SetScript ("OnValueChanged", function (slider)
-    self.db.accuracy = slider:GetValue ()
-  end)
-  accuracySlider.Text:SetText (L["Accuracy"])
+  local accuracySlider = GUI:CreateSlider(
+  self.settings,
+  L["Accuracy"],
+  self.db.accuracy,
+  addonTable.MAX_SPEED, 
+    function(slider)
+      self.db.accuracy = slider:GetValue()
+    end
+  )
 
   GUI:SetTooltip(accuracySlider, L["Setting to Low will result in lower accuracy but faster results! Set this back to High if you're not getting the results you expect."])
 
