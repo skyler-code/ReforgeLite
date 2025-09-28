@@ -1322,9 +1322,10 @@ function ReforgeLite:CreateOptionList ()
   self:SetAnchor (self.pauseButton, "LEFT", self.computeButton, "RIGHT", 4, 0)
   self.pauseButton:Disable()
 
-  local fastMode = GUI:CreateCheckButton(self.content, L["Experimental Fast Mode"], self.pdb.useBranchBound, function (val) self.pdb.useBranchBound = val end)
-  self:SetAnchor(fastMode, "LEFT", self.pauseButton, "RIGHT", 4, 0)
-  GUI:SetTooltip(fastMode, L["EXPERIMENTAL!!\nThis feature utilizes the branch and bound method which attempts to speed up the process without sacrificing any accuracy. While it should be faster for most users, there are still some edge cases where it can be even slower than the original formula.\n\nThank you!"])
+  self.fastModeButton = GUI:CreateCheckButton(self.content, L["Experimental Fast Mode"], self.pdb.useBranchBound, function (val) self.pdb.useBranchBound = val end)
+  self:SetAnchor(self.fastModeButton, "LEFT", self.pauseButton, "RIGHT", 4, 0)
+  GUI:SetTooltip(self.fastModeButton, L["EXPERIMENTAL!!\nThis feature utilizes the branch and bound method which attempts to speed up the process without sacrificing any accuracy. While it should be faster for most users, there are still some edge cases where it can be even slower than the original formula.\n\nThank you!"])
+
 
   self:UpdateStatWeightList ()
 
