@@ -449,7 +449,7 @@ function ReforgeLite:ComputeReforgeClassic()
 end
 
 function ReforgeLite:ComputeReforge()
-  if self.pdb.useBranchBound then
+  if self.pdb.useBranchBound and self.pdb.caps[2].stat ~= 0 then
     self:ComputeReforgeBranchBound()
   else
     self:ComputeReforgeClassic()
