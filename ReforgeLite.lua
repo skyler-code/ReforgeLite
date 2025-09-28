@@ -1219,6 +1219,9 @@ function ReforgeLite:CreateOptionList ()
     for i = 2, #caps do
       caps[i].stat:SetDropDownEnabled(self.pdb.caps[i-1].stat ~= 0)
     end
+    if self.fastModeButton then
+      self.fastModeButton:SetEnabled(self.pdb.caps[#caps].stat ~= 0)  
+    end
   end
   for i = 1, 2 do
     self.statCaps[i] = {}
