@@ -486,6 +486,7 @@ function ReforgeLite:RunYieldCheck(maxLoops)
 end
 
 function ReforgeLite:CreateRoutine(func)
+  addonTable.pauseRoutine = nil
   addonTable.callbacks:TriggerEvent("PreCalculateStart")
   if routine and NORMAL_STATUS_CODES[coroutine.status(routine)] then
     coroutine.resume(routine)
@@ -500,7 +501,6 @@ function ReforgeLite:StartAlgorithmComparison()
 end
 
 function ReforgeLite:StartCompute()
-  addonTable.pauseRoutine = nil
   self:CreateRoutine("ComputeReforge")
 end
 
