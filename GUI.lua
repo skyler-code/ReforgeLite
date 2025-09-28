@@ -236,6 +236,9 @@ function GUI:CreateDropdown (parent, values, options)
     sel.DisableDropdown = function(dropdown)
       LibDD:UIDropDownMenu_DisableDropDown (dropdown)
     end
+    sel.SetDropDownEnabled = function(dropdown, enabled)
+      LibDD:UIDropDownMenu_SetDropDownEnabled(dropdown, enabled)
+    end
     LibDD:UIDropDownMenu_JustifyText (sel, "LEFT")
     sel:SetHeight (50)
     sel.Left:SetHeight(50)

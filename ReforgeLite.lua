@@ -1214,11 +1214,7 @@ function ReforgeLite:CreateOptionList ()
   end
   self.statCaps.ToggleStatDropdownToCorrectState = function(caps)
     for i = 2, #caps do
-      if self.pdb.caps[i-1].stat == 0  then
-        caps[i].stat:DisableDropdown()
-      else
-        caps[i].stat:EnableDropdown()
-      end
+      caps[i].stat:SetDropDownEnabled(self.pdb.caps[i-1].stat ~= 0)
     end
   end
   for i = 1, 2 do
