@@ -851,6 +851,7 @@ function ReforgeLite:AddCapPoint (i, loading)
   local rem = GUI:CreateImageButton (self.statCaps, 20, 20, "Interface\\PaperDollInfoFrame\\UI-GearManager-LeaveItem-Transparent",
     "Interface\\PaperDollInfoFrame\\UI-GearManager-LeaveItem-Transparent", nil, nil, function ()
     self:RemoveCapPoint (i, point)
+    self.statCaps:ToggleStatDropdownToCorrectState()
   end)
   local methodList = {
     {value = addonTable.StatCapMethods.AtLeast, name = L["At least"]},
