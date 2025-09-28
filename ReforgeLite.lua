@@ -1220,7 +1220,7 @@ function ReforgeLite:CreateOptionList ()
       caps[i].stat:SetDropDownEnabled(self.pdb.caps[i-1].stat ~= 0)
     end
     if self.fastModeButton then
-      self.fastModeButton:SetEnabled(self.pdb.caps[#caps].stat ~= 0)  
+      self.fastModeButton:SetShown(self.pdb.caps[#self.pdb.caps].stat ~= 0)  
     end
   end
   for i = 1, 2 do
@@ -1321,6 +1321,8 @@ function ReforgeLite:CreateOptionList ()
 
   self.fastModeButton = GUI:CreateCheckButton(self.content, L["Experimental Fast Mode"], self.pdb.useBranchBound, function (val) self.pdb.useBranchBound = val end)
   self:SetAnchor(self.fastModeButton, "LEFT", self.pauseButton, "RIGHT", 4, 0)
+  self.fastModeButton:SetShown(self.pdb.caps[#self.pdb.caps].stat ~= 0) 
+
   GUI:SetTooltip(self.fastModeButton, L["EXPERIMENTAL!!\nThis feature utilizes the branch and bound method which attempts to speed up the process without sacrificing any accuracy. While it should be faster for most users, there are still some edge cases where it can be even slower than the original formula.\n\nThank you!"])
 
 
