@@ -361,7 +361,9 @@ function GUI:CreatePanelButton(parent, text, handler, opts)
       f:SetText("")
       f:Hide ()
       f:ClearScripts()
-      callbacks:UnregisterCallback('OnCalculateFinish', f:GetName())
+      for event in pairs(callbacks.Event) do
+          callbacks:UnregisterCallback(event, f:GetName())
+      end
       self.panelButtons[f:GetName()] = nil
       tinsert (self.unusedPanelButtons, f)
     end
