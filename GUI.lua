@@ -127,7 +127,7 @@ end
 
 GUI.editBoxes = {}
 GUI.unusedEditBoxes = {}
-function GUI:CreateEditBox (parent, width, height, default, setter)
+function GUI:CreateEditBox (parent, width, height, default, setter, opts)
   local box
   if #self.unusedEditBoxes > 0 then
     box = tremove(self.unusedEditBoxes)
@@ -178,6 +178,9 @@ function GUI:CreateEditBox (parent, width, height, default, setter)
     end
     frame.prevValue = nil
   end)
+  if opts and opts.OnTabPressed then
+    box:SetScript("OnTabPressed", opts.OnTabPressed)
+  end
   return box
 end
 
@@ -760,8 +763,8 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
       RunNextFrame(function() self:OnUpdateFix() end)
     end)
 
-    if self.onUpdate then
-      self.onUpdate ()
+    if self.OnUpdate then
+      self:OnUpdate ()
     end
   end
 

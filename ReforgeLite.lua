@@ -1051,17 +1051,17 @@ function ReforgeLite:SetStatWeights (weights, caps)
       self:UpdateCapPoints (i)
     end
     self.statCaps:ToggleStatDropdownToCorrectState()
-    self.statCaps.onUpdate ()
-    self:UpdateContentSize ()
+    self.statCaps:OnUpdate()
+    self:UpdateContentSize()
     RunNextFrame(function() self:CapUpdater() end)
   end
   self:RefreshMethodStats ()
 end
-function ReforgeLite:CapUpdater ()
-  self.statCaps[1].stat:SetValue (self.pdb.caps[1].stat)
-  self.statCaps[2].stat:SetValue (self.pdb.caps[2].stat)
-  self:UpdateCapPoints (1)
-  self:UpdateCapPoints (2)
+function ReforgeLite:CapUpdater()
+  for i, statCap in ipairs(self.statCaps) do
+    statCap.stat:SetValue(self.pdb.caps[i].stat)
+    self:UpdateCapPoints(i)
+  end
 end
 function ReforgeLite:UpdateStatWeightList ()
   local rows = ITEM_STAT_COUNT
@@ -1081,17 +1081,24 @@ function ReforgeLite:UpdateStatWeightList ()
     col = 1 + 2 * col
 
     self.statWeights:SetCellText (row, col, v.long, "LEFT")
-    self.statWeights.inputs[i] = GUI:CreateEditBox (self.statWeights, 60, ITEM_SIZE, self.pdb.weights[i], function (val)
-      self.pdb.weights[i] = val
-      self:RefreshMethodStats ()
-    end)
-    self.statWeights.inputs[i]:SetScript("OnTabPressed", function(frame)
-      if self.statWeights.inputs[i+1] then
-        self.statWeights.inputs[i+1]:SetFocus()
-      else
-        frame:ClearFocus()
+    self.statWeights.inputs[i] = GUI:CreateEditBox(
+      self.statWeights,
+      60,
+      ITEM_SIZE,
+      self.pdb.weights[i],
+        function (val)
+        self.pdb.weights[i] = val
+        self:RefreshMethodStats()
+      end,
+      {
+      OnTabPressed = function(frame)
+        if self.statWeights.inputs[i+1] then
+          self.statWeights.inputs[i+1]:SetFocus()
+        else
+          frame:ClearFocus()
+        end
       end
-    end)
+    })
     self.statWeights:SetCell (row, col + 1, self.statWeights.inputs[i])
   end
 
@@ -1255,20 +1262,19 @@ function ReforgeLite:CreateOptionList ()
     end
   end
   self.statCaps:ToggleStatDropdownToCorrectState()
-  self.statCaps.onUpdate = function ()
+  self.statCaps.OnUpdate = function(statCaps)
     local row = 1
-    for i = 1, 2 do
+    for i, cap in ipairs(self.pdb.caps) do
       row = row + 1
-      for point = 1, #self.pdb.caps[i].points do
-        if self.statCaps.cells[row][2] and self.statCaps.cells[row][2].values then
-          LibDD:UIDropDownMenu_SetWidth (self.statCaps.cells[row][2], self.statCaps:GetColumnWidth (2) - 20)
+      for point = 1, #cap.points do
+        if statCaps.cells[row][2] and statCaps.cells[row][2].values then
+          LibDD:UIDropDownMenu_SetWidth(statCaps.cells[row][2], statCaps:GetColumnWidth (2) - 20)
         end
         row = row + 1
       end
     end
   end
-  self.statCaps.saveOnUpdate = self.statCaps.onUpdate
-  self.statCaps.onUpdate ()
+  self.statCaps:OnUpdate()
   RunNextFrame(function() self:CapUpdater() end)
 
   self.computeButton = GUI:CreatePanelButton (self.content, L["Compute"], function() self:StartCompute() end)
