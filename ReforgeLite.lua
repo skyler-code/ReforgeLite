@@ -1366,6 +1366,17 @@ function ReforgeLite:FillSettings()
   self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Open window when reforging"],
     self.db.openOnReforge, function (val) self.db.openOnReforge = val end), "LEFT")
 
+  self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Show import button on Reforging window"],
+    self.db.importButton, function (val)
+      self.db.importButton = val
+      if val then
+        self:CreateImportButton()
+      elseif self.importButton then
+        self.importButton:Hide()
+      end
+    end),
+    "LEFT")
+
   self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Summarize reforged stats on tooltip"],
     self.db.updateTooltip,
     function (val)
@@ -1384,17 +1395,6 @@ function ReforgeLite:FillSettings()
       else
         self.pdb.prevSpecSettings = nil
         self:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-      end
-    end),
-    "LEFT")
-
-  self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Show import button on Reforging window"],
-    self.db.importButton, function (val)
-      self.db.importButton = val
-      if val then
-        self:CreateImportButton()
-      elseif self.importButton then
-        self.importButton:Hide()
       end
     end),
     "LEFT")
