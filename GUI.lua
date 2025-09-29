@@ -16,12 +16,10 @@ addonTable.FONTS = {
   disabled = DISABLED_FONT_COLOR,
 }
 
-GUI.widgetCount = 0
 function GUI:GenerateWidgetName ()
-  self.widgetCount = self.widgetCount + 1
+  self.widgetCount = (self.widgetCount or 0) + 1
   return addonName .. "Widget" .. self.widgetCount
 end
-GUI.defaultParent = nil
 
 function GUI:ClearEditFocus()
   LibDD:CloseDropDownMenus()
@@ -145,30 +143,27 @@ function GUI:CreateEditBox (parent, width, height, default, setter, opts)
     box:SetNumeric ()
     box:SetTextInsets (0, 0, 3, 3)
     box:SetMaxLetters (8)
-    box:SetScript ("OnEnterPressed", box.ClearFocus)
-    box:SetScript ("OnEditFocusGained", function(frame)
-      LibDD:CloseDropDownMenus()
-      frame.prevValue = tonumber(frame:GetText())
-      frame:HighlightText()
-    end)
     box.Recycle = function (box)
       box:Hide ()
-      box:SetScript("OnEditFocusLost", nil)
-      box:SetScript("OnEnter", nil)
-      box:SetScript("OnLeave", nil)
-      box:SetScript("OnTabPressed", nil)
+      box:ClearScripts()
       self.editBoxes[box:GetName()] = nil
       tinsert (self.unusedEditBoxes, box)
     end
   end
   if width then
-    box:SetWidth (width)
+    box:SetWidth(width)
   end
   if height then
-    box:SetHeight (height)
+    box:SetHeight(height)
   end
-  box:SetText (default)
-  box:SetScript ("OnEditFocusLost", function (frame)
+  box:SetText(default)
+  box:SetScript("OnEnterPressed", box.ClearFocus)
+  box:SetScript("OnEditFocusGained", function(frame)
+    LibDD:CloseDropDownMenus()
+    frame.prevValue = tonumber(frame:GetText())
+    frame:HighlightText()
+  end)
+  box:SetScript("OnEditFocusLost", function(frame)
     local value = tonumber(frame:GetText())
     if not value then
       value = frame.prevValue or 0
@@ -179,9 +174,7 @@ function GUI:CreateEditBox (parent, width, height, default, setter, opts)
     end
     frame.prevValue = nil
   end)
-  if opts and opts.OnTabPressed then
-    box:SetScript("OnTabPressed", opts.OnTabPressed)
-  end
+  box:SetScript("OnTabPressed", (opts or {}).OnTabPressed)
   return box
 end
 
@@ -279,9 +272,9 @@ end
 
 GUI.checkButtons = {}
 GUI.unusedCheckButtons = {}
-function GUI:CreateCheckButton (parent, text, default, setter, forceNew)
+function GUI:CreateCheckButton (parent, text, default, setter)
   local btn
-  if #self.unusedCheckButtons > 0 and not forceNew then
+  if #self.unusedCheckButtons > 0 then
     btn = tremove (self.unusedCheckButtons)
     btn:SetParent (parent)
     btn:Show ()
@@ -292,9 +285,7 @@ function GUI:CreateCheckButton (parent, text, default, setter, forceNew)
     self.checkButtons[btn:GetName()] = btn
     btn.Recycle = function (btn)
       btn:Hide ()
-      btn:SetScript ("OnEnter", nil)
-      btn:SetScript ("OnLeave", nil)
-      btn:SetScript ("OnClick", nil)
+      btn:ClearScripts()
       self.checkButtons[btn:GetName()] = nil
       tinsert (self.unusedCheckButtons, btn)
     end
@@ -331,9 +322,7 @@ function GUI:CreateImageButton (parent, width, height, img, pus, hlt, disabledTe
     self.imgButtons[btn:GetName()] = btn
     btn.Recycle = function (f)
       f:Hide ()
-      f:SetScript ("OnEnter", nil)
-      f:SetScript ("OnLeave", nil)
-      f:SetScript ("OnClick", nil)
+      f:ClearScripts()
       self.imgButtons[f:GetName()] = nil
       tinsert (self.unusedImgButtons, f)
     end
@@ -366,10 +355,7 @@ function GUI:CreatePanelButton(parent, text, handler, opts)
     btn.Recycle = function (f)
       f:SetText("")
       f:Hide ()
-      f:SetScript ("OnEnter", nil)
-      f:SetScript ("OnLeave", nil)
-      f:SetScript ("OnPreClick", nil)
-      f:SetScript ("OnClick", nil)
+      f:ClearScripts()
       self.panelButtons[f:GetName()] = nil
       tinsert (self.unusedPanelButtons, f)
     end
@@ -377,12 +363,11 @@ function GUI:CreatePanelButton(parent, text, handler, opts)
       f:SetText(...)
       f:FitToText()
     end
-    btn.originalFitTextWidthPadding = btn.fitTextWidthPadding
   end
-  btn.fitTextWidthPadding = (opts or {}).fitTextWidthPadding or btn.originalFitTextWidthPadding
   btn.preventLock = (opts or {}).preventLock
   btn:RenderText(text)
   btn:SetScript("OnClick", handler)
+  btn:SetScript("PreClick", (opts or {}).PreClick)
   return btn
 end
 
@@ -434,9 +419,13 @@ function GUI:CreateSlider(parent, text, value, max, onChange)
     slider:Enable()
     self.sliders[slider:GetName()] = slider
   else
-    local name = self:GenerateWidgetName ()
+    local name = self:GenerateWidgetName()
     slider = CreateFrame("Slider", name, parent, "UISliderTemplateWithLabels")
     self.sliders[name] = slider
+    slider:SetSize(150, 15)
+    slider:SetObeyStepOnDrag(true)
+    slider:EnableMouseWheel(false)
+    slider:SetValueStep(1)
     slider.Recycle = function (f)
       f.Text:SetText("")
       f:Hide()
@@ -445,15 +434,10 @@ function GUI:CreateSlider(parent, text, value, max, onChange)
       tinsert(self.unusedSliders, f)
     end
   end
-  slider:SetSize(150, 15)
   slider:SetMinMaxValues(1, max)
-  slider:SetValueStep(1)
-  slider:SetObeyStepOnDrag(true)
   slider:SetValue(value)
-  slider:EnableMouseWheel(false)
   slider:SetScript("OnValueChanged", onChange)
   slider.Text:SetText(text)
-
   slider:SetScript("OnEnable", function(self)
     for k, v in ipairs({self.Text, self.Low, self.High}) do
       v:SetTextColor(unpack(v.originalFontColor))
@@ -852,7 +836,7 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
   return t
 end
 
-function GUI.CreateStaticPopup(name, text, options)
+function GUI.CreateStaticPopup(name, text, onAccept)
   StaticPopupDialogs[name] = {
     text = text,
     button1 = ACCEPT,
@@ -861,7 +845,7 @@ function GUI.CreateStaticPopup(name, text, options)
     timeout = 0,
     whileDead = 1,
     OnAccept = function(self)
-      options.func(self:GetEditBox():GetText())
+      onAccept(self:GetEditBox():GetText())
     end,
     OnShow = function(self)
       LibDD:CloseDropDownMenus()
@@ -875,7 +859,7 @@ function GUI.CreateStaticPopup(name, text, options)
     end,
     EditBoxOnEnterPressed = function(self)
       if self:GetParent():GetButton1():IsEnabled() then
-        options.func(self:GetText())
+        onAccept(self:GetText())
         self:GetParent():Hide()
       end
     end,

@@ -148,14 +148,14 @@ end
 
 -----------------------------------------------------------------
 
-GUI.CreateStaticPopup("REFORGE_LITE_SAVE_PRESET", L["Enter the preset name"], { func = function(text)
+GUI.CreateStaticPopup("REFORGE_LITE_SAVE_PRESET", L["Enter the preset name"], function(text)
   ReforgeLite.cdb.customPresets[text] = {
     caps = CopyTable(ReforgeLite.pdb.caps),
     weights = CopyTable(ReforgeLite.pdb.weights)
   }
   ReforgeLite:InitCustomPresets()
   ReforgeLite.deletePresetButton:ToggleStatus()
-end })
+end)
 
 local statIds = EnumUtil.MakeEnum("SPIRIT", "DODGE", "PARRY", "HIT", "CRIT", "HASTE", "EXP", "MASTERY", "SPELLHIT")
 addonTable.statIds = statIds
@@ -1274,14 +1274,15 @@ function ReforgeLite:CreateOptionList ()
   self.statCaps:OnUpdate()
   RunNextFrame(function() self:CapUpdater() end)
 
-  self.computeButton = GUI:CreatePanelButton (self.content, L["Compute"], function() self:StartCompute() end)
-  self.computeButton:SetScript ("PreClick", function (btn)
-    GUI:Lock()
-    btn:RenderText(IN_PROGRESS)
-    addonTable.pauseRoutine = nil
-    self.pauseButton:Enable()
-    self.pauseButton:RenderText(KEY_PAUSE)
-  end)
+  self.computeButton = GUI:CreatePanelButton (self.content, L["Compute"], function() self:StartCompute() end, {
+    PreClick = function(btn)
+      GUI:Lock()
+      btn:RenderText(IN_PROGRESS)
+      addonTable.pauseRoutine = nil
+      self.pauseButton:Enable()
+      self.pauseButton:RenderText(KEY_PAUSE)
+    end
+  })
 
   self.pauseButton = GUI:CreatePanelButton (self.content, KEY_PAUSE, function(btn)
     if addonTable.pauseRoutine then
@@ -1826,7 +1827,7 @@ function ReforgeLite:CreateMethodWindow()
     self.methodWindow.items[i].reforge:SetText ("")
 
     self.methodWindow.items[i].check = GUI:CreateCheckButton (self.methodWindow.itemTable, "", false,
-      function (val) self.methodOverride[i] = (val and 1 or -1) self:UpdateMethodChecks () end, true)
+      function (val) self.methodOverride[i] = (val and 1 or -1) self:UpdateMethodChecks () end)
     self.methodWindow.itemTable:SetCell (i, 1, self.methodWindow.items[i].check)
   end
 
