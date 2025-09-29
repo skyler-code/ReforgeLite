@@ -593,6 +593,7 @@ function ReforgeLite:CreateFrame()
   self:SetFrameStrata ("DIALOG")
   self:ClearAllPoints ()
   self:SetToplevel(true)
+  self:SetClampedToScreen(true)
   self:SetSize(self.db.windowWidth, self.db.windowHeight)
   self:SetResizeBounds(780, 500, 1000, 800)
   if self.db.windowLocation then
@@ -1699,10 +1700,12 @@ end
 --------------------------------------------------------------------------
 
 function ReforgeLite:CreateMethodWindow()
+  if self.methodWindow then return end
   self.methodWindow = CreateFrame ("Frame", "ReforgeLiteMethodWindow", UIParent, "BackdropTemplate")
   self.methodWindow:SetFrameStrata ("DIALOG")
   self.methodWindow:SetToplevel(true)
   self.methodWindow:ClearAllPoints ()
+  self.methodWindow:SetClampedToScreen(true)
   self.methodWindow:SetSize(250, 480)
   if self.db.methodWindowLocation then
     self.methodWindow:SetPoint (SafeUnpack(self.db.methodWindowLocation))
@@ -1879,9 +1882,7 @@ function ReforgeLite:RefreshMethodWindow()
 end
 
 function ReforgeLite:ShowMethodWindow(attachToReforge)
-  if not self.methodWindow then
-    self:CreateMethodWindow()
-  end
+  self:CreateMethodWindow()
 
   GUI:ClearFocus()
   if self.methodWindow:IsShown() then
