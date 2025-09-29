@@ -153,9 +153,10 @@ function GUI:CreateEditBox (parent, width, height, default, setter, opts)
     end)
     box.Recycle = function (box)
       box:Hide ()
-      box:SetScript ("OnEditFocusLost", nil)
-      box:SetScript ("OnEnter", nil)
-      box:SetScript ("OnLeave", nil)
+      box:SetScript("OnEditFocusLost", nil)
+      box:SetScript("OnEnter", nil)
+      box:SetScript("OnLeave", nil)
+      box:SetScript("OnTabPressed", nil)
       self.editBoxes[box:GetName()] = nil
       tinsert (self.unusedEditBoxes, box)
     end
