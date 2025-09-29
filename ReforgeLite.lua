@@ -57,6 +57,7 @@ local DefaultDB = {
     inactiveWindowTitle = {0.5, 0.5, 0.5},
     specProfiles = false,
     importButton = true,
+    clampedToScreen = true,
   },
   char = {
     targetLevel = 3,
@@ -593,7 +594,7 @@ function ReforgeLite:CreateFrame()
   self:SetFrameStrata ("DIALOG")
   self:ClearAllPoints ()
   self:SetToplevel(true)
-  self:SetClampedToScreen(true)
+  self:SetClampedToScreen(self.db.clampedToScreen)
   self:SetSize(self.db.windowWidth, self.db.windowHeight)
   self:SetResizeBounds(780, 500, 1000, 800)
   if self.db.windowLocation then
@@ -1302,7 +1303,7 @@ function ReforgeLite:CreateOptionList ()
 
   self.settingsCategory = self:CreateCategory (SETTINGS)
   self:SetAnchor (self.settingsCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
-  self.settings = GUI:CreateTable (8, 1, nil, 200)
+  self.settings = GUI:CreateTable (9, 1, nil, 200)
   self.settingsCategory:AddFrame (self.settings)
   self:SetAnchor (self.settings, "TOPLEFT", self.settingsCategory, "BOTTOMLEFT", 0, -10)
   self.settings:SetPoint ("RIGHT", self.content, -10, 0)
@@ -1395,6 +1396,16 @@ function ReforgeLite:FillSettings()
       else
         self.pdb.prevSpecSettings = nil
         self:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+      end
+    end),
+    "LEFT")
+
+  self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Prevent windows from going off screen"],
+    self.db.clampedToScreen, function (val)
+      self.db.clampedToScreen = val
+      self:SetClampedToScreen(val)
+      if self.methodWindow then
+        self.methodWindow:SetClampedToScreen(val)
       end
     end),
     "LEFT")
@@ -1705,8 +1716,8 @@ function ReforgeLite:CreateMethodWindow()
   self.methodWindow = CreateFrame ("Frame", "ReforgeLiteMethodWindow", UIParent, "BackdropTemplate")
   self.methodWindow:SetFrameStrata ("DIALOG")
   self.methodWindow:SetToplevel(true)
-  self.methodWindow:ClearAllPoints ()
-  self.methodWindow:SetClampedToScreen(true)
+  self.methodWindow:ClearAllPoints()
+  self.methodWindow:SetClampedToScreen(self.db.clampedToScreen)
   self.methodWindow:SetSize(250, 480)
   if self.db.methodWindowLocation then
     self.methodWindow:SetPoint (SafeUnpack(self.db.methodWindowLocation))
