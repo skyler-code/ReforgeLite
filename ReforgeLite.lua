@@ -6,7 +6,6 @@ addonTable.ReforgeLite = ReforgeLite
 
 local L = addonTable.L
 local GUI = addonTable.GUI
-local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 
 local GetItemStats = addonTable.GetItemStatsUp
 
@@ -926,9 +925,9 @@ function ReforgeLite:AddCapPoint (i, loading)
   end)
   GUI:SetTooltip (after, L["Weight after cap"])
 
-  self.statCaps:SetCell (row, 0, rem)
-  self.statCaps:SetCell (row, 1, method, "LEFT", -20, -10)
-  self.statCaps:SetCell (row, 2, preset, "LEFT", -20, -10)
+  self.statCaps:SetCell (row, 0, rem, "LEFT", 0, -10)
+  self.statCaps:SetCell (row, 1, method, "LEFT", 0, -10)
+  self.statCaps:SetCell (row, 2, preset, "LEFT", 0, -10)
   self.statCaps:SetCell (row, 3, value)
   self.statCaps:SetCell (row, 4, after)
 
@@ -1117,7 +1116,9 @@ function ReforgeLite:CreateOptionList ()
 
   self.presetsButton = GUI:CreateImageButton (self.content, 24, 24, "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up",
     "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down", "Interface\\Buttons\\UI-Common-MouseHilight", nil, function (btn)
-    LibDD:ToggleDropDownMenu (nil, nil, self.presetMenu, btn:GetName(), 0, 0)
+    if self.presetMenuGenerator then
+      MenuUtil.CreateContextMenu(btn, self.presetMenuGenerator)
+    end
   end)
   self.statWeightsCategory:AddFrame (self.presetsButton)
   self:SetAnchor (self.presetsButton, "TOPLEFT", self.statWeightsCategory, "BOTTOMLEFT", 0, -5)
@@ -1130,7 +1131,9 @@ function ReforgeLite:CreateOptionList ()
   self:SetAnchor (self.savePresetButton, "LEFT", self.presetsButton.tip, "RIGHT", 8, 0)
 
   self.deletePresetButton = GUI:CreatePanelButton (self.content, DELETE, function(btn)
-    LibDD:ToggleDropDownMenu (nil, nil, self.presetDelMenu, btn:GetName(), 0, 0)
+    if self.presetDelMenuGenerator then
+      MenuUtil.CreateContextMenu(btn, self.presetDelMenuGenerator)
+    end
   end)
   self.statWeightsCategory:AddFrame (self.deletePresetButton)
   self:SetAnchor (self.deletePresetButton, "LEFT", self.savePresetButton, "RIGHT", 5, 0)
@@ -1141,7 +1144,9 @@ function ReforgeLite:CreateOptionList ()
 
   --@debug@
   self.exportPresetButton = GUI:CreatePanelButton (self.content, L["Export"], function(btn)
-    LibDD:ToggleDropDownMenu (nil, nil, self.exportPresetMenu, btn:GetName(), 0, 0)
+    if self.exportPresetMenuGenerator then
+      MenuUtil.CreateContextMenu(btn, self.exportPresetMenuGenerator)
+    end
   end)
   self.statWeightsCategory:AddFrame (self.exportPresetButton)
   self.exportPresetButton:SetPoint ("LEFT", self.deletePresetButton, "RIGHT", 5, 0)
@@ -1227,12 +1232,12 @@ function ReforgeLite:CreateOptionList ()
     self.statCaps[i] = {}
     self.statCaps[i].stat = GUI:CreateDropdown (self.statCaps, statList, {
       default = self.pdb.caps[i].stat,
-      setter = function (dropdown, val)
+      setter = function (dropdown, val, oldVal)
         if val == 0 then
           while #self.pdb.caps[i].points > 0 do
             self:RemoveCapPoint (i, 1)
           end
-        elseif dropdown.value == 0 then
+        elseif oldVal == 0 then
           self:AddCapPoint(i)
         end
         self.pdb.caps[i].stat = val
@@ -1243,7 +1248,7 @@ function ReforgeLite:CreateOptionList ()
       end,
       width = 110,
       menuItemDisabled = function(val)
-        return val > 0 and self.statCaps[3-i].stat.value == val
+        return val > 0 and self.statCaps[3-i] and self.statCaps[3-i].stat and self.statCaps[3-i].stat.value == val
       end
     })
     self.statCaps[i].add = GUI:CreateImageButton (self.statCaps, 20, 20, "Interface\\Buttons\\UI-PlusButton-Up",
@@ -1251,7 +1256,7 @@ function ReforgeLite:CreateOptionList ()
       self:AddCapPoint (i)
     end)
     GUI:SetTooltip (self.statCaps[i].add, L["Add cap"])
-    self.statCaps:SetCell (i, 0, self.statCaps[i].stat, "LEFT", -20, -10)
+    self.statCaps:SetCell (i, 0, self.statCaps[i].stat, "LEFT", 0, -10)
     self.statCaps:SetCell (i, 2, self.statCaps[i].add, "LEFT")
   end
   for i = 1, 2 do
@@ -1270,7 +1275,7 @@ function ReforgeLite:CreateOptionList ()
       row = row + 1
       for point = 1, #cap.points do
         if statCaps.cells[row][2] and statCaps.cells[row][2].values then
-          LibDD:UIDropDownMenu_SetWidth(statCaps.cells[row][2], statCaps:GetColumnWidth (2) - 20)
+          statCaps.cells[row][2]:SetWidth(statCaps:GetColumnWidth (2) - 20)
         end
         row = row + 1
       end

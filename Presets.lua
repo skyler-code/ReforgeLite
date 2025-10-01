@@ -1,7 +1,7 @@
 local _, addonTable = ...
 local L = addonTable.L
 local ReforgeLite = addonTable.ReforgeLite
-local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
+local GUI = addonTable.GUI
 local tsort, tinsert = table.sort, tinsert
 
 local StatHit = addonTable.statIds.HIT
@@ -729,74 +729,46 @@ function ReforgeLite:InitPresets()
     end
   end
 
-  local menuListInit = function(options)
-    return function (menu, level)
-      if not level then return end
-      local list = menu.list
-      if level > 1 then
-        list = L_UIDROPDOWNMENU_MENU_VALUE
-      else
-        addonTable.GUI:ClearEditFocus()
+  -- Create preset menu generator for MenuUtil
+  self.presetMenuGenerator = function(owner, rootDescription)
+    GUI:ClearEditFocus()
+    local menuList = {}
+    for k in pairs(self.presets) do
+      local v = GetValueOrCallFunction(self.presets, k)
+      local info = {
+        sortKey = v.name or k,
+        text = v.name or k,
+        prioritySort = v.prioritySort or 0,
+        value = v,
+      }
+      if specInfo[k] then
+        info.text = CreateIconMarkup(specInfo[k].icon) .. specInfo[k].name
+        info.sortKey = specInfo[k].name
+        info.prioritySort = -1
       end
-      local menuList = {}
-      for k in pairs (list) do
-        local v = GetValueOrCallFunction(list, k)
-        local info = LibDD:UIDropDownMenu_CreateInfo()
-        info.notCheckable = true
-        info.sortKey = v.name or k
-        info.text = info.sortKey
-        info.prioritySort = v.prioritySort or 0
-        info.value = v
-        if specInfo[k] then
-          info.text = CreateIconMarkup(specInfo[k].icon) .. specInfo[k].name
-          info.sortKey = specInfo[k].name
-          info.prioritySort = -1
-        end
-        if v.icon then
-          info.text = CreateIconMarkup(v.icon) .. info.text
-        end
-        if v.tip then
-          info.tooltipTitle = v.tip
-          info.tooltipOnButton = true
-        end
-        if v.caps or v.weights then
-          info.func = function()
-            LibDD:CloseDropDownMenus()
-            options.onClick(info)
-          end
-        else
-          if next (v) then
-            info.hasArrow = true
-          else
-            info.disabled = true
-          end
-          info.keepShownOnClick = true
-        end
-        tinsert(menuList, info)
+      if v.icon then
+        info.text = CreateIconMarkup(v.icon) .. info.text
       end
-      tsort(menuList, function (a, b)
-        if a.prioritySort ~= b.prioritySort then
-          return a.prioritySort > b.prioritySort
-        end
-        return a.sortKey < b.sortKey
-      end)
-      for _,v in ipairs(menuList) do
-        LibDD:UIDropDownMenu_AddButton (v, level)
+      tinsert(menuList, info)
+    end
+    tsort(menuList, function (a, b)
+      if a.prioritySort ~= b.prioritySort then
+        return a.prioritySort > b.prioritySort
+      end
+      return a.sortKey < b.sortKey
+    end)
+    for _, info in ipairs(menuList) do
+      if info.value.caps or info.value.weights then
+        rootDescription:CreateButton(info.text, function()
+          if info.value.targetLevel then
+            self.pdb.targetLevel = info.value.targetLevel
+            self.targetLevel:SetValue(info.value.targetLevel)
+          end
+          self:SetStatWeights(info.value.weights, info.value.caps or {})
+        end)
       end
     end
   end
-
-  self.presetMenu = LibDD:Create_UIDropDownMenu("ReforgeLitePresetMenu", self)
-  self.presetMenu.list = self.presets
-  LibDD:UIDropDownMenu_Initialize(self.presetMenu, menuListInit({
-    onClick = function(info)
-      if info.value.targetLevel then
-        self.pdb.targetLevel = info.value.targetLevel
-        self.targetLevel:SetValue(info.value.targetLevel)
-      end
-      self:SetStatWeights(info.value.weights, info.value.caps or {})
-    end
-  }), "MENU")
 
   local exportList = {
     [REFORGE_CURRENT] = function()
@@ -811,40 +783,67 @@ function ReforgeLite:InitPresets()
   MergeTable(exportList, self.presets)
 
   --@debug@
-  self.exportPresetMenu = LibDD:Create_UIDropDownMenu("ReforgeLiteExportPresetMenu", self)
-  self.exportPresetMenu.list = exportList
-  LibDD:UIDropDownMenu_Initialize(self.exportPresetMenu, menuListInit({
-    onClick = function(info)
-      local output = CopyTable(info.value)
-      output.prioritySort = nil
-      self:ExportJSON(output, info.sortKey)
+  -- Create export preset menu generator for MenuUtil
+  self.exportPresetMenuGenerator = function(owner, rootDescription)
+    GUI:ClearEditFocus()
+    local menuList = {}
+    for k in pairs(exportList) do
+      local v = GetValueOrCallFunction(exportList, k)
+      local info = {
+        sortKey = v.name or k,
+        text = v.name or k,
+        prioritySort = v.prioritySort or 0,
+        value = v,
+      }
+      if specInfo[k] then
+        info.text = CreateIconMarkup(specInfo[k].icon) .. specInfo[k].name
+        info.sortKey = specInfo[k].name
+        info.prioritySort = -1
+      end
+      if v.icon then
+        info.text = CreateIconMarkup(v.icon) .. info.text
+      end
+      tinsert(menuList, info)
     end
-  }), "MENU")
+    tsort(menuList, function (a, b)
+      if a.prioritySort ~= b.prioritySort then
+        return a.prioritySort > b.prioritySort
+      end
+      return a.sortKey < b.sortKey
+    end)
+    for _, info in ipairs(menuList) do
+      if info.value.caps or info.value.weights then
+        rootDescription:CreateButton(info.text, function()
+          local output = CopyTable(info.value)
+          output.prioritySort = nil
+          self:ExportJSON(output, info.sortKey)
+        end)
+      end
+    end
+  end
   --@end-debug@
 
-  self.presetDelMenu = LibDD:Create_UIDropDownMenu("ReforgeLitePresetDelMenu", self)
-  LibDD:UIDropDownMenu_Initialize(self.presetDelMenu, function (menu, level)
-    if level ~= 1 then return end
-    addonTable.GUI:ClearEditFocus()
+  -- Create delete preset menu generator for MenuUtil
+  self.presetDelMenuGenerator = function(owner, rootDescription)
+    GUI:ClearEditFocus()
     local menuList = {}
     for _, db in ipairs({self.db, self.cdb}) do
       for k in pairs(db.customPresets or {}) do
-        local info = LibDD:UIDropDownMenu_CreateInfo()
-        info.notCheckable = true
-        info.text = k
-        info.func = function()
-          db.customPresets[k] = nil
-          self:InitCustomPresets()
-          self.deletePresetButton:ToggleStatus()
-          LibDD:CloseDropDownMenus()
-        end
-        tinsert(menuList, info)
+        tinsert(menuList, {
+          text = k,
+          db = db,
+          key = k
+        })
       end
     end
     tsort(menuList, function (a, b) return a.text < b.text end)
-    for _,v in ipairs(menuList) do
-      LibDD:UIDropDownMenu_AddButton(v, level)
+    for _, info in ipairs(menuList) do
+      rootDescription:CreateButton(info.text, function()
+        info.db.customPresets[info.key] = nil
+        self:InitCustomPresets()
+        self.deletePresetButton:ToggleStatus()
+      end)
     end
-  end, "MENU")
+  end
 
 end
