@@ -751,15 +751,18 @@ function ReforgeLite:InitPresets()
       local isClassMenu = type(v) == "table" and not v.weights and not v.caps
 
       if isClassMenu then
-        -- This is a class submenu
+        -- This is a class submenu (or spec submenu in non-debug mode)
         local classInfo = {
-          sortKey = k,
-          text = k,
+          sortKey = specInfo[k] and specInfo[k].name or k,
+          text = specInfo[k] and specInfo[k].name or k,
           prioritySort = 0,
           key = k,
           isSubmenu = true,
           submenuItems = {}
         }
+        if specInfo[k] then
+          classInfo.text = CreateIconMarkup(specInfo[k].icon) .. specInfo[k].name
+        end
 
         -- Build submenu items
         for specId, preset in pairs(v) do
@@ -799,7 +802,7 @@ function ReforgeLite:InitPresets()
                 if a.prioritySort ~= b.prioritySort then
                   return a.prioritySort > b.prioritySort
                 end
-                return a.sortKey < b.sortKey
+                return tostring(a.sortKey) < tostring(b.sortKey)
               end)
               tinsert(classInfo.submenuItems, specSubmenu)
             end
@@ -826,7 +829,7 @@ function ReforgeLite:InitPresets()
           if a.prioritySort ~= b.prioritySort then
             return a.prioritySort > b.prioritySort
           end
-          return a.sortKey < b.sortKey
+          return tostring(a.sortKey) < tostring(b.sortKey)
         end)
 
         tinsert(menuList, classInfo)
@@ -854,7 +857,7 @@ function ReforgeLite:InitPresets()
       if a.prioritySort ~= b.prioritySort then
         return a.prioritySort > b.prioritySort
       end
-      return a.sortKey < b.sortKey
+      return tostring(a.sortKey) < tostring(b.sortKey)
     end)
 
     local function AddMenuItems(desc, items)
@@ -910,7 +913,7 @@ function ReforgeLite:InitPresets()
       if a.prioritySort ~= b.prioritySort then
         return a.prioritySort > b.prioritySort
       end
-      return a.sortKey < b.sortKey
+      return tostring(a.sortKey) < tostring(b.sortKey)
     end)
     for _, info in ipairs(menuList) do
       if info.value.caps or info.value.weights then
