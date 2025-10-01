@@ -155,7 +155,6 @@ GUI.CreateStaticPopup("REFORGE_LITE_SAVE_PRESET", L["Enter the preset name"], fu
     weights = CopyTable(ReforgeLite.pdb.weights)
   }
   ReforgeLite:InitCustomPresets()
-  ReforgeLite.deletePresetButton:ToggleStatus()
 end)
 
 local statIds = EnumUtil.MakeEnum("SPIRIT", "DODGE", "PARRY", "HIT", "CRIT", "HASTE", "EXP", "MASTERY", "SPELLHIT")
@@ -1120,7 +1119,6 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory:AddFrame(self.presetsButton)
   self:SetAnchor(self.presetsButton, "TOPLEFT", self.statWeightsCategory, "BOTTOMLEFT", 0, -5)
 
-  -- SetupMenu is called after presetMenuGenerator is initialized in InitPresets
   if self.presetMenuGenerator then
     self.presetsButton:SetupMenu(self.presetMenuGenerator)
   end
@@ -1129,26 +1127,15 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory:AddFrame (self.savePresetButton)
   self:SetAnchor (self.savePresetButton, "LEFT", self.presetsButton, "RIGHT", 8, 0)
 
-  self.deletePresetButton = GUI:CreatePanelButton (self.content, DELETE, function(btn)
-    if self.presetDelMenuGenerator then
-      MenuUtil.CreateContextMenu(btn, self.presetDelMenuGenerator)
-    end
-  end)
-  self.statWeightsCategory:AddFrame (self.deletePresetButton)
-  self:SetAnchor (self.deletePresetButton, "LEFT", self.savePresetButton, "RIGHT", 5, 0)
-  self.deletePresetButton.ToggleStatus = function(btn)
-    btn:SetEnabled(TableHasAnyEntries(self.cdb.customPresets))
-  end
-  self.deletePresetButton:ToggleStatus()
-
   --@debug@
-  self.exportPresetButton = GUI:CreatePanelButton (self.content, L["Export"], function(btn)
-    if self.exportPresetMenuGenerator then
-      MenuUtil.CreateContextMenu(btn, self.exportPresetMenuGenerator)
-    end
-  end)
-  self.statWeightsCategory:AddFrame (self.exportPresetButton)
-  self.exportPresetButton:SetPoint ("LEFT", self.deletePresetButton, "RIGHT", 5, 0)
+  self.exportPresetButton = CreateFrame("DropdownButton", nil, self.content, "WowStyle1FilterDropdownTemplate")
+  self.exportPresetButton:SetText(L["Export"])
+  self.exportPresetButton.resizeToTextPadding = 35
+  self.statWeightsCategory:AddFrame(self.exportPresetButton)
+  self.exportPresetButton:SetPoint("LEFT", self.savePresetButton, "RIGHT", 5, 0)
+  if self.exportPresetMenuGenerator then
+    self.exportPresetButton:SetupMenu(self.exportPresetMenuGenerator)
+  end
   --@end-debug@
 
   self.pawnButton = GUI:CreatePanelButton (self.content, L["Import WoWSims/Pawn/QE"], function(btn) self:ImportData() end)

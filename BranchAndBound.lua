@@ -639,7 +639,7 @@ function ReforgeLite:BranchAndBoundSearch(position, currentStats, currentPath, d
           end
           local pathNote = isExactDPPath and " ← EXACT DP PATH!" or ""
           local scoreDelta = actualTotalScore - previousBestScore
-          print(string.format("B&B: Found better solution, score: %.1f (delta: %.1f), constraints: %s, path:%s%s", actualTotalScore, scoreDelta, constraintsMet and "Pass" or "Fail", pathStr, pathNote))
+          print(("B&B: Found better solution, score: %.1f (delta: %.1f), constraints: %s, path:%s%s"):format(actualTotalScore, scoreDelta, constraintsMet and "Pass" or "Fail", pathStr, pathNote))
         end
       end
     end
@@ -734,7 +734,7 @@ function ReforgeLite:BranchAndBoundSearch(position, currentStats, currentPath, d
 
       if upperBound <= bbBestSolution.score then
         shouldPrune = true
-        pruneReason = string.format("upper bound %.1f <= best %.1f", upperBound, bbBestSolution.score)
+        pruneReason = ("upper bound %.1f <= best %.1f"):format(upperBound, bbBestSolution.score)
         bbScorePrunes = bbScorePrunes + 1
       end
     end
@@ -755,7 +755,7 @@ function ReforgeLite:BranchAndBoundSearch(position, currentStats, currentPath, d
       end
 
       if onDPPath then
-        local choiceStr = opt.src and string.format("%d->%d", opt.src, opt.dst) or "none"
+        local choiceStr = opt.src and ("%d->%d"):format(opt.src, opt.dst) or "none"
 
         local tempMethod = { stats = newStats }
         local currentActualScore = self:CalculateMethodScore(tempMethod)
@@ -764,15 +764,15 @@ function ReforgeLite:BranchAndBoundSearch(position, currentStats, currentPath, d
 
         if upperBound == bbBestSolution.score then
           -- Equal scores - just a brief note
-          print(string.format("B&B: Pruning equivalent DP choice at pos%d(slot%d) (%s)", position, slot, choiceStr))
+          print(("B&B: Pruning equivalent DP choice at pos%d(slot%d) (%s)"):format(position, slot, choiceStr))
         else
           -- Different scores - show full debug
-          print(string.format("B&B: PRUNING DP choice at pos%d(slot%d) (%s) - %s", position, slot, choiceStr, pruneReason))
+          print(("B&B: PRUNING DP choice at pos%d(slot%d) (%s) - %s"):format(position, slot, choiceStr, pruneReason))
           if pruneReason:find("upper bound") then
-            print(string.format("  Upper bound debug: currentActualScore=%.1f + suffixMaxScore=%.1f = upperBound=%.1f", 
+            print(("  Upper bound debug: currentActualScore=%.1f + suffixMaxScore=%.1f = upperBound=%.1f"):format(
               currentActualScore, suffixMaxScore, upperBound))
-            print(string.format("  Best solution score: %.1f", bbBestSolution.score))
-            print(string.format("  Pruning because: %.1f <= %.1f is %s", upperBound, bbBestSolution.score, upperBound <= bbBestSolution.score and "true" or "false"))
+            print(("  Best solution score: %.1f"):format(bbBestSolution.score))
+            print(("  Pruning because: %.1f <= %.1f is %s"):format(upperBound, bbBestSolution.score, upperBound <= bbBestSolution.score and "true" or "false"))
           end
         end
       end
@@ -800,10 +800,10 @@ function ReforgeLite:BranchAndBoundSearch(position, currentStats, currentPath, d
           for pos = 1, position do
             local debugSlot = sortedSlots[pos]
             if currentPath[pos] and currentPath[pos].src then
-              pathStr = pathStr .. string.format(" pos%d(slot%d):%d->%d", pos, debugSlot, currentPath[pos].src, currentPath[pos].dst)
+              pathStr = pathStr .. (" pos%d(slot%d):%d->%d"):format(pos, debugSlot, currentPath[pos].src, currentPath[pos].dst)
             end
           end
-          print(string.format("B&B: Following DP path at pos%d(slot%d), path so far:%s", position, slot, pathStr))
+          print(("B&B: Following DP path at pos%d(slot%d), path so far:%s"):format(position, slot, pathStr))
         end
       end
 
@@ -856,7 +856,7 @@ function ReforgeLite:ComputeReforgeBranchBound()
     local priorityCapStat = data.caps[priorityCap].stat
     local otherCap = priorityCap == 1 and 2 or 1
     local otherCapStat = data.caps[otherCap].stat
-    print(string.format("B&B: Priority cap %d (stat %d), secondary cap %d (stat %d)", 
+    print(("B&B: Priority cap %d (stat %d), secondary cap %d (stat %d)"):format(
       priorityCap, priorityCapStat, otherCap, otherCapStat))
 
     local orderStr = "B&B: Item processing order:"
@@ -963,7 +963,7 @@ function ReforgeLite:RunAlgorithmComparison()
   for i = 1, #self.pdb.weights do
     if self.pdb.weights[i] and self.pdb.weights[i] ~= 0 then
       local statName = ITEM_STATS[i] and ITEM_STATS[i].name or ("stat" .. i)
-      print(string.format("Stat %d (%s): %.1f", i, statName, self.pdb.weights[i]))
+      print(("Stat %d (%s): %.1f"):format(i, statName, self.pdb.weights[i]))
     end
   end
 
@@ -973,9 +973,9 @@ function ReforgeLite:RunAlgorithmComparison()
     local cap = self.pdb.caps[i]
     if cap and cap.stat > 0 then
       local statName = ITEM_STATS[cap.stat] and ITEM_STATS[cap.stat].name or ("stat" .. cap.stat)
-      print(string.format("Cap %d: Stat %d (%s)", i, cap.stat, statName))
+      print(("Cap %d: Stat %d (%s)"):format(i, cap.stat, statName))
     else
-      print(string.format("Cap %d: None", i))
+      print(("Cap %d: None"):format(i))
     end
   end
 
@@ -989,7 +989,7 @@ function ReforgeLite:RunAlgorithmComparison()
           hasConversions = true
           local srcName = ITEM_STATS[srcStat] and ITEM_STATS[srcStat].name or ("stat" .. srcStat)
           local dstName = ITEM_STATS[dstStat] and ITEM_STATS[dstStat].name or ("stat" .. dstStat)
-          print(string.format("Conversion: %d (%s) -> %d (%s) at ratio %.3f", 
+          print(("Conversion: %d (%s) -> %d (%s) at ratio %.3f"):format(
             srcStat, srcName, dstStat, dstName, ratio))
         end
       end
@@ -1011,7 +1011,7 @@ function ReforgeLite:RunAlgorithmComparison()
     for statIdx = 1, #ITEM_STATS do
       local statValue = stats[ITEM_STATS[statIdx].name] or 0
       if statValue > 0 then
-        statsStr = statsStr .. string.format(" %s:%d", ITEM_STATS[statIdx].tip, statValue)
+        statsStr = statsStr .. (" %s:%d"):format(ITEM_STATS[statIdx].tip, statValue)
       end
     end
     if statsStr == "" then
@@ -1022,12 +1022,12 @@ function ReforgeLite:RunAlgorithmComparison()
     local reforgeStr = ""
     if isLocked and itemInfo.reforge then
       local src, dst = unpack(self.reforgeTable[itemInfo.reforge])
-      reforgeStr = string.format(", reforge: %d->%d", src, dst)
+      reforgeStr = (", reforge: %d->%d"):format(src, dst)
     elseif isLocked then
       reforgeStr = ", reforge: none"
     end
 
-    print(string.format("Item %d %s:%s, locked: %s%s", i, _G[strupper(self.itemData[i].slot)], statsStr, isLocked and "yes" or "no", reforgeStr))
+    print(("Item %d %s:%s, locked: %s%s"):format(i, _G[strupper(self.itemData[i].slot)], statsStr, isLocked and "yes" or "no", reforgeStr))
   end
 
   -- Store original method
@@ -1048,10 +1048,10 @@ function ReforgeLite:RunAlgorithmComparison()
   for i = 1, #dpMethod.items do
     dpChoices[i] = {src = dpMethod.items[i].src, dst = dpMethod.items[i].dst}
     if dpMethod.items[i].src and dpMethod.items[i].dst then
-      dpPathStr = dpPathStr .. string.format(" %d:%d->%d", i, dpMethod.items[i].src, dpMethod.items[i].dst)
+      dpPathStr = dpPathStr .. (" %d:%d->%d"):format(i, dpMethod.items[i].src, dpMethod.items[i].dst)
     end
   end
-  print(string.format("DP: Found solution, score: %.1f, constraints: %s, path:%s", 
+  print(("DP: Found solution, score: %.1f, constraints: %s, path:%s"):format(
     dpScore, dpConstraintsMet and "Pass" or "Fail", dpPathStr))
 
   -- Check if smart options will be able to generate all DP choices
@@ -1075,8 +1075,8 @@ function ReforgeLite:RunAlgorithmComparison()
           end
         end
         if not foundDPChoice then
-          local dpStr = dpChoice.src and string.format("%d->%d", dpChoice.src, dpChoice.dst) or "none"
-          print(string.format("Item %d: DP choice %s NOT in smart options", i, dpStr))
+          local dpStr = dpChoice.src and ("%d->%d"):format(dpChoice.src, dpChoice.dst) or "none"
+          print(("Item %d: DP choice %s NOT in smart options"):format(i, dpStr))
         end
       end
     end
@@ -1096,9 +1096,9 @@ function ReforgeLite:RunAlgorithmComparison()
 
   -- Print comparison
   print("=== Results ===")
-  print(string.format("DP: Score %.1f, Time %.3fs, Constraints %s", 
+  print(("DP: Score %.1f, Time %.3fs, Constraints %s"):format(
     dpScore, dpTime, dpConstraintsMet and "Pass" or "Fail"))
-  print(string.format("B&B: Score %.1f, Time %.3fs, Constraints %s",
+  print(("B&B: Score %.1f, Time %.3fs, Constraints %s"):format(
     bbScore, bbTime, bbConstraintsMet and "Pass" or "Fail"))
 
   -- Compare individual choices
@@ -1108,11 +1108,11 @@ function ReforgeLite:RunAlgorithmComparison()
       local dpChoice = dpChoices[i]
       local bbChoice = {src = bbMethod.items[i].src, dst = bbMethod.items[i].dst}
 
-      local dpStr = dpChoice.src and string.format("%d->%d", dpChoice.src, dpChoice.dst) or "none"
-      local bbStr = bbChoice.src and string.format("%d->%d", bbChoice.src, bbChoice.dst) or "none"
+      local dpStr = dpChoice.src and ("%d->%d"):format(dpChoice.src, dpChoice.dst) or "none"
+      local bbStr = bbChoice.src and ("%d->%d"):format(bbChoice.src, bbChoice.dst) or "none"
 
       if dpChoice.src ~= bbChoice.src or dpChoice.dst ~= bbChoice.dst then
-        print(string.format("Item %d: DP=%s, B&B=%s (DIFFERENT)", i, dpStr, bbStr))
+        print(("Item %d: DP=%s, B&B=%s (DIFFERENT)"):format(i, dpStr, bbStr))
       end
     end
   end
