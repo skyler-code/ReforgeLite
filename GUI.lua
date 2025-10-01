@@ -199,6 +199,7 @@ function GUI:CreateDropdown (parent, values, options)
     sel = tremove (self.unusedDropdowns)
     sel:SetParent (parent)
     sel:Show ()
+    sel:SetEnabled(true)
     self.dropdowns[sel:GetName()] = sel
   else
     sel = CreateFrame("DropdownButton", self:GenerateWidgetName(), parent, "WowStyle1DropdownTemplate")
@@ -209,7 +210,14 @@ function GUI:CreateDropdown (parent, values, options)
     sel.SetValue = function (dropdown, value)
       dropdown.value = value
       dropdown.selectedValue = value
-      for _, v in ipairs(dropdown:GetValues()) do
+      local values = dropdown:GetValues()
+      if not values then
+        if dropdown.Text then
+          dropdown.Text:SetText("")
+        end
+        return
+      end
+      for _, v in ipairs(values) do
         if v.value == value then
           if dropdown.Text then
             dropdown.Text:SetText(v.name)
@@ -235,13 +243,13 @@ function GUI:CreateDropdown (parent, values, options)
     end
 
     sel:SetHeight(20)
+    sel:SetEnabled(true)
     if sel.Text then
       sel.Text:SetTextColor(addonTable.FONTS.white:GetRGB())
     end
 
     sel.Recycle = function (frame)
       frame:Hide ()
-      frame:ClearScripts()
       frame.setter = nil
       frame.value = nil
       frame.selectedName = nil
@@ -249,6 +257,10 @@ function GUI:CreateDropdown (parent, values, options)
       frame.selectedValue = nil
       frame.menuItemDisabled = nil
       frame.menuItemHidden = nil
+      frame.values = nil
+      if frame.Text then
+        frame.Text:SetText("")
+      end
       self.dropdowns[frame:GetName()] = nil
       tinsert(self.unusedDropdowns, frame)
     end
@@ -259,10 +271,14 @@ function GUI:CreateDropdown (parent, values, options)
   sel.menuItemDisabled = options.menuItemDisabled
   sel.menuItemHidden = options.menuItemHidden
 
-  -- Setup menu with MenuUtil
+  -- Setup menu with MenuUtil (always needs to be called, even for recycled dropdowns)
   sel:SetupMenu(function(dropdown, rootDescription)
     GUI:ClearEditFocus()
-    for _, item in ipairs(dropdown:GetValues()) do
+    local values = dropdown:GetValues()
+    if not values then
+      return
+    end
+    for _, item in ipairs(values) do
       -- Skip hidden items
       if dropdown.menuItemHidden and dropdown.menuItemHidden(item) then
         -- Skip
