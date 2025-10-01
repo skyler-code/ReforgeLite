@@ -861,10 +861,10 @@ function ReforgeLite:AddCapPoint (i, loading)
     {value = addonTable.StatCapMethods.Exactly, name = L["Exactly"]},
     {value = addonTable.StatCapMethods.NewValue, name = ""}
   }
-  local method = GUI:CreateDropdown (self.statCaps, methodList, { default = 1, setter = function (_,val) self.pdb.caps[i].points[point].method = val end, width = 80 })
+  local method = GUI:CreateDropdown (self.statCaps, methodList, { default = 1, setter = function (_,val) self.pdb.caps[i].points[point].method = val end, width = 95 })
   local preset = GUI:CreateDropdown (self.statCaps, self.capPresets, {
     default = 1,
-    width = 80,
+    width = 95,
     setter = function (_,val)
       self.pdb.caps[i].points[point].preset = val
       self:UpdateCapPreset (i, point)
@@ -925,9 +925,9 @@ function ReforgeLite:AddCapPoint (i, loading)
   end)
   GUI:SetTooltip (after, L["Weight after cap"])
 
-  self.statCaps:SetCell (row, 0, rem, "LEFT", 0, -10)
-  self.statCaps:SetCell (row, 1, method, "LEFT", 0, -10)
-  self.statCaps:SetCell (row, 2, preset, "LEFT", 0, -10)
+  self.statCaps:SetCell (row, 0, rem, "LEFT", 0, 0)
+  self.statCaps:SetCell (row, 1, method, "LEFT", 0, 0)
+  self.statCaps:SetCell (row, 2, preset, "LEFT", 5, 0)
   self.statCaps:SetCell (row, 3, value)
   self.statCaps:SetCell (row, 4, after)
 
@@ -1174,13 +1174,13 @@ function ReforgeLite:CreateOptionList ()
   self.targetLevel.text = self.targetLevel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
   self.targetLevel.text:SetText(STAT_TARGET_LEVEL)
   self:SetAnchor(self.targetLevel.text, "TOPLEFT", self.pawnButton, "BOTTOMLEFT", 0, -8)
-  self.targetLevel:SetPoint("BOTTOMLEFT", self.targetLevel.text, "BOTTOMLEFT", self.targetLevel.text:GetStringWidth(), -20)
+  self.targetLevel:SetPoint("LEFT", self.targetLevel.text, "RIGHT", 5, 0)
 
   self.buffsContextMenu = CreateFrame("DropdownButton", nil, self.content, "WowStyle1FilterDropdownTemplate")
   self.buffsContextMenu:SetText(L["Buffs"])
   self.buffsContextMenu.resizeToTextPadding = 25
   self.statWeightsCategory:AddFrame(self.buffsContextMenu)
-  self:SetAnchor(self.buffsContextMenu, "TOPLEFT", self.targetLevel, "TOPRIGHT", 0 , 5)
+  self:SetAnchor(self.buffsContextMenu, "LEFT", self.targetLevel, "RIGHT", 10, 0)
 
   local buffsContextValues = {
     spellHaste = { text = addonTable.CreateIconMarkup(136092) .. L["Spell Haste"], selected = self.PlayerHasSpellHasteBuff },
@@ -1246,7 +1246,7 @@ function ReforgeLite:CreateOptionList ()
         end
         self.statCaps:ToggleStatDropdownToCorrectState()
       end,
-      width = 110,
+      width = 125,
       menuItemDisabled = function(val)
         return val > 0 and self.statCaps[3-i] and self.statCaps[3-i].stat and self.statCaps[3-i].stat.value == val
       end
@@ -1256,7 +1256,7 @@ function ReforgeLite:CreateOptionList ()
       self:AddCapPoint (i)
     end)
     GUI:SetTooltip (self.statCaps[i].add, L["Add cap"])
-    self.statCaps:SetCell (i, 0, self.statCaps[i].stat, "LEFT", 0, -10)
+    self.statCaps:SetCell (i, 0, self.statCaps[i].stat, "LEFT", 0, 0)
     self.statCaps:SetCell (i, 2, self.statCaps[i].add, "LEFT")
   end
   for i = 1, 2 do
