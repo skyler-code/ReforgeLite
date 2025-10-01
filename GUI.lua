@@ -2,13 +2,19 @@ local addonName, addonTable = ...
 local GUI = {}
 addonTable.GUI = GUI
 
-local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
-
 local callbacks = CreateFromMixins(CallbackRegistryMixin)
 callbacks:OnLoad()
 callbacks:GenerateCallbackEvents({ "OnCalculateFinish", "PreCalculateStart", "OnCalculateStart" })
 
 addonTable.callbacks = callbacks
+
+-- Helper function to close all dropdown menus
+function GUI:CloseDropdowns()
+	local manager = Menu.GetManager()
+	if manager then
+		manager:CloseMenus()
+	end
+end
 
 addonTable.FONTS = {
   grey = INACTIVE_COLOR,
@@ -28,19 +34,19 @@ function GUI:GenerateWidgetName ()
 end
 
 function GUI:ClearEditFocus()
-  LibDD:CloseDropDownMenus()
+  self:CloseDropdowns()
   for _,v in ipairs(self.editBoxes) do
     v:ClearFocus()
   end
 end
 
 function GUI:ClearFocus()
-  LibDD:CloseDropDownMenus()
+  self:CloseDropdowns()
   self:ClearEditFocus()
 end
 
 function GUI:Lock()
-  LibDD:CloseDropDownMenus()
+  self:CloseDropdowns()
   for _, frames in ipairs({self.panelButtons, self.imgButtons, self.editBoxes, self.checkButtons, self.sliders}) do
     for _, frame in pairs(frames) do
       if frame:IsEnabled() and not frame.preventLock then
@@ -165,7 +171,7 @@ function GUI:CreateEditBox (parent, width, height, default, setter, opts)
   box:SetText(default)
   box:SetScript("OnEnterPressed", box.ClearFocus)
   box:SetScript("OnEditFocusGained", function(frame)
-    LibDD:CloseDropDownMenus()
+    GUI:CloseDropdowns()
     frame.prevValue = tonumber(frame:GetText())
     frame:HighlightText()
   end)
@@ -193,64 +199,64 @@ function GUI:CreateDropdown (parent, values, options)
     sel = tremove (self.unusedDropdowns)
     sel:SetParent (parent)
     sel:Show ()
+    sel:SetEnabled(true)
     self.dropdowns[sel:GetName()] = sel
   else
-    sel = LibDD:Create_UIDropDownMenu(self:GenerateWidgetName(), parent)
+    sel = CreateFrame("DropdownButton", self:GenerateWidgetName(), parent, "WowStyle1DropdownTemplate")
     self.dropdowns[sel:GetName()] = sel
-    LibDD:UIDropDownMenu_SetInitializeFunction(sel, function (dropdown)
-      self:ClearEditFocus()
-      for _, item in ipairs(dropdown:GetValues()) do
-        local info = LibDD:UIDropDownMenu_CreateInfo()
-        info.text = item.name
-        info.value = item.value
-        info.checked = (dropdown.value == item.value)
-        info.category = item.category
-        info.func = function (inf)
-          LibDD:UIDropDownMenu_SetSelectedValue (dropdown, inf.value)
-          if dropdown.setter then dropdown.setter (dropdown,inf.value) end
-          dropdown.value = inf.value
-        end
-        if dropdown.menuItemDisabled then
-          info.disabled = dropdown.menuItemDisabled(info.value)
-        end
-        if not dropdown.menuItemHidden or not dropdown.menuItemHidden(info) then
-          LibDD:UIDropDownMenu_AddButton(info)
-        end
-      end
-    end)
+
+    -- Vertically center the text
+    if sel.Text then
+      sel.Text:ClearAllPoints()
+      sel.Text:SetPoint("RIGHT", sel.Arrow, "LEFT")
+      sel.Text:SetPoint("LEFT", sel, "LEFT", 9, 0)
+    end
+
     sel.GetValues = function(frame) return GetValueOrCallFunction(frame, 'values') end
+
     sel.SetValue = function (dropdown, value)
       dropdown.value = value
       dropdown.selectedValue = value
-      for _, v in ipairs(dropdown:GetValues()) do
+      local values = dropdown:GetValues()
+      if not values then
+        if dropdown.Text then
+          dropdown.Text:SetText("")
+        end
+        return
+      end
+      for _, v in ipairs(values) do
         if v.value == value then
-          LibDD:UIDropDownMenu_SetText(dropdown, v.name)
+          if dropdown.Text then
+            dropdown.Text:SetText(v.name)
+          end
           return
         end
       end
-      LibDD:UIDropDownMenu_SetText(dropdown, "")
+      if dropdown.Text then
+        dropdown.Text:SetText("")
+      end
     end
+
     sel.EnableDropdown = function(dropdown)
-      LibDD:UIDropDownMenu_EnableDropDown (dropdown)
+      dropdown:SetEnabled(true)
     end
+
     sel.DisableDropdown = function(dropdown)
-      LibDD:UIDropDownMenu_DisableDropDown (dropdown)
+      dropdown:SetEnabled(false)
     end
+
     sel.SetDropDownEnabled = function(dropdown, enabled)
-      LibDD:UIDropDownMenu_SetDropDownEnabled(dropdown, enabled)
+      dropdown:SetEnabled(enabled)
     end
-    LibDD:UIDropDownMenu_JustifyText (sel, "LEFT")
-    sel:SetHeight (50)
-    sel.Left:SetHeight(50)
-    sel.Middle:SetHeight(50)
-    sel.Right:SetHeight(50)
-    sel.Text:SetPoint ("LEFT", sel.Left, "LEFT", 27, 1)
-    sel.Text:SetTextColor(addonTable.FONTS.white:GetRGB())
-    sel.Button:SetSize(22, 22)
-    sel.Button:SetPoint ("TOPRIGHT", sel.Right, "TOPRIGHT", -16, -13)
+
+    sel:SetHeight(20)
+    sel:SetEnabled(true)
+    if sel.Text then
+      sel.Text:SetTextColor(addonTable.FONTS.white:GetRGB())
+    end
+
     sel.Recycle = function (frame)
       frame:Hide ()
-      frame:ClearScripts()
       frame.setter = nil
       frame.value = nil
       frame.selectedName = nil
@@ -258,19 +264,58 @@ function GUI:CreateDropdown (parent, values, options)
       frame.selectedValue = nil
       frame.menuItemDisabled = nil
       frame.menuItemHidden = nil
+      frame.values = nil
+      if frame.Text then
+        frame.Text:SetText("")
+      end
       self.dropdowns[frame:GetName()] = nil
       tinsert(self.unusedDropdowns, frame)
     end
   end
+
   sel.values = values
   sel.setter = options.setter
   sel.menuItemDisabled = options.menuItemDisabled
   sel.menuItemHidden = options.menuItemHidden
 
-  LibDD:UIDropDownMenu_Initialize (sel, sel.Initialize)
-  sel:SetValue (options.default)
+  -- Setup menu with MenuUtil (always needs to be called, even for recycled dropdowns)
+  sel:SetupMenu(function(dropdown, rootDescription)
+    GUI:ClearEditFocus()
+    local values = dropdown:GetValues()
+    if not values then
+      return
+    end
+    for _, item in ipairs(values) do
+      -- Skip hidden items
+      if dropdown.menuItemHidden and dropdown.menuItemHidden(item) then
+        -- Skip
+      else
+        local isSelected = function() return dropdown.value == item.value end
+        local setSelected = function()
+          local oldValue = dropdown.value
+          dropdown.value = item.value
+          dropdown.selectedValue = item.value
+          if dropdown.Text then
+            dropdown.Text:SetText(item.name)
+          end
+          if dropdown.setter then
+            dropdown.setter(dropdown, item.value, oldValue)
+          end
+        end
+
+        local button = rootDescription:CreateRadio(item.name, isSelected, setSelected, item.value)
+
+        -- Handle disabled items
+        if dropdown.menuItemDisabled and dropdown.menuItemDisabled(item.value) then
+          button:SetEnabled(false)
+        end
+      end
+    end
+  end)
+
+  sel:SetValue(options.default)
   if options.width then
-    LibDD:UIDropDownMenu_SetWidth (sel, options.width)
+    sel:SetWidth(options.width)
   end
   return sel
 end
@@ -863,7 +908,7 @@ function GUI.CreateStaticPopup(name, text, onAccept)
       onAccept(self:GetEditBox():GetText())
     end,
     OnShow = function(self)
-      LibDD:CloseDropDownMenus()
+      GUI:CloseDropdowns()
       self:GetButton1():Disable()
       self:GetButton2():Enable()
       self:GetEditBox():SetFocus()

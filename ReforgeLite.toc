@@ -4,7 +4,7 @@
 ## Notes: Calculates optimal reforging for given weights/caps.
 ## Version: @project-version@
 ## SavedVariables: ReforgeLiteDB
-## OptionalDeps: Ace3, LibStub, !LibUIDropDownMenu, Pawn
+## OptionalDeps: Ace3, LibStub, Pawn
 ## X-Website: https://github.com/skyler-code/ReforgeLite/issues
 ## X-Curse-Project-ID: 1004227
 
