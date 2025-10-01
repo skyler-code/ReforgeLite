@@ -773,8 +773,11 @@ function ReforgeLite:CreateItemTable ()
 
   self.itemTable:SetCell(0, 0, self.itemLockHelpButton, "TOPLEFT", -5, 10)
 
+  self.statHeaders = {}
   for i, v in ipairs (ITEM_STATS) do
-    self.itemTable:SetCellText (0, i, v.tip)
+    self.statHeaders[i] = self.itemTable:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
+    self.statHeaders[i]:SetText(v.tip)
+    self.itemTable:SetCell (0, i, self.statHeaders[i])
   end
   self.itemData = {}
   for i, v in ipairs (ITEM_SLOTS) do
@@ -802,6 +805,7 @@ function ReforgeLite:CreateItemTable ()
     self.itemData[i].texture = self.itemData[i]:CreateTexture (nil, "ARTWORK")
     self.itemData[i].texture:SetAllPoints (self.itemData[i])
     self.itemData[i].texture:SetTexture (self.itemData[i].slotTexture)
+    self.itemData[i].texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
     self.itemData[i].locked = self.itemData[i]:CreateTexture (nil, "OVERLAY")
     self.itemData[i].locked:SetAllPoints (self.itemData[i])
     self.itemData[i].locked:SetTexture ("Interface\\PaperDollInfoFrame\\UI-GearManager-LeaveItem-Transparent")
@@ -809,7 +813,7 @@ function ReforgeLite:CreateItemTable ()
     self.itemData[i].quality:SetTexture("Interface\\Buttons\\UI-ActionButton-Border")
     self.itemData[i].quality:SetBlendMode("ADD")
     self.itemData[i].quality:SetAlpha(0.75)
-    self.itemData[i].quality:SetSize(44,44)
+    self.itemData[i].quality:SetSize(44, 44)
     self.itemData[i].quality:SetPoint ("CENTER", self.itemData[i])
     self.itemData[i].itemInfo = {}
     self.itemData[i].stats = {}
@@ -1147,7 +1151,7 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory:AddFrame(self.targetLevel)
   self.targetLevel.text = self.targetLevel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
   self.targetLevel.text:SetText(STAT_TARGET_LEVEL)
-  self:SetAnchor(self.targetLevel.text, "TOPLEFT", self.presetsButton, "BOTTOMLEFT", 0, -8)
+  self:SetAnchor(self.targetLevel.text, "TOPLEFT", self.presetsButton, "BOTTOMLEFT", 0, -12)
   self.targetLevel:SetPoint("LEFT", self.targetLevel.text, "RIGHT", 5, 0)
 
   self.buffsContextMenu = CreateFrame("DropdownButton", nil, self.content, "WowStyle1FilterDropdownTemplate")
@@ -1607,6 +1611,8 @@ local function GetItemUpgradeLevel(item)
 end
 
 function ReforgeLite:UpdateItems()
+  local columnHasData = {}
+
   for _, v in ipairs (self.itemData) do
     local item = self.playerData[v.slotId]
     local stats = {}
@@ -1637,12 +1643,21 @@ function ReforgeLite:UpdateItems()
     end
     v.quality:SetShown(not item:IsItemEmpty())
     v.locked:SetShown(self.pdb.itemsLocked[v.itemInfo.itemGUID])
+
+    local statsOrig = GetItemStats(v.itemInfo)
+
     for j, s in ipairs (ITEM_STATS) do
-      if stats[s.name] and stats[s.name] ~= 0 then
-        v.stats[j]:SetText (stats[s.name])
+      local currentValue = stats[s.name]
+      local origValue = statsOrig[s.name]
+
+      if (origValue and origValue ~= 0) or (currentValue and currentValue ~= 0) then
+        columnHasData[j] = true
+      end
+
+      if currentValue and currentValue ~= 0 then
+        v.stats[j]:SetText(currentValue)
         if s.name == reforgeSrc then
           v.stats[j]:SetTextColor(v.stats[j].fontColors.red:GetRGB())
-          
         elseif s.name == reforgeDst then
           v.stats[j]:SetTextColor(v.stats[j].fontColors.green:GetRGB())
         else
@@ -1654,9 +1669,21 @@ function ReforgeLite:UpdateItems()
       end
     end
   end
+
+  local visibleColumns = 0
   for i, v in ipairs (ITEM_STATS) do
+    local hasData = columnHasData[i]
+    self.itemTable:SetColumnWidth(i, hasData and 60 or 0)
+    self.statHeaders[i]:SetShown(hasData)
+    self.statTotals[i]:SetShown(hasData)
     self.statTotals[i]:SetText(v.getter())
+    if hasData then
+      visibleColumns = visibleColumns + 1
+    end
   end
+
+  local minWidth = 480 + (visibleColumns * 60)
+  self:SetResizeBounds(minWidth, 500, 1000, 800)
 
   self:RefreshCaps()
   self:RefreshMethodStats()
