@@ -650,6 +650,23 @@ function ReforgeLite:InitClassPresets()
       },
     },
   }
+
+  if self.db.debug then
+    self.presets = presets
+    for _,ids in pairs(specs) do
+      for _, id in pairs(ids) do
+        local _, tabName, _, icon = GetSpecializationInfoByID(id)
+        specInfo[id] = { name = tabName, icon = icon }
+      end
+    end
+  else
+    self.presets = presets[addonTable.playerClass]
+    for _, id in pairs(specs[addonTable.playerClass]) do
+      local _, tabName, _, icon = GetSpecializationInfoByID(id)
+      specInfo[id] = { name = tabName, icon = icon }
+    end
+  end
+
   --[===[@non-debug@
   self.presets = presets[addonTable.playerClass]
   for _, id in pairs(specs[addonTable.playerClass]) do
@@ -658,13 +675,6 @@ function ReforgeLite:InitClassPresets()
   end
   --@end-non-debug@]===]
   --@debug@
-  self.presets = presets
-  for _,ids in pairs(specs) do
-    for _, id in pairs(ids) do
-      local _, tabName, _, icon = GetSpecializationInfoByID(id)
-      specInfo[id] = { name = tabName, icon = icon }
-    end
-  end
   --@end-debug@
 end
 
@@ -680,9 +690,13 @@ function ReforgeLite:InitCustomPresets()
   self.presets[CUSTOM] = customPresets
 end
 
-function ReforgeLite:InitPresets()
+function ReforgeLite:InitDynamicPresets()
   self:InitClassPresets()
   self:InitCustomPresets()
+end
+
+function ReforgeLite:InitPresets()
+  self:InitDynamicPresets()
   if PawnVersion then
     self.presets["Pawn"] = function ()
       if not PawnCommon or not PawnCommon.Scales then return {} end
@@ -734,18 +748,12 @@ function ReforgeLite:InitPresets()
       if info.hasDelete then
         local button = desc:CreateButton(info.text, function(mouseButton)
           if IsShiftKeyDown() then
-            StaticPopupDialogs["REFORGE_LITE_DELETE_PRESET"] = {
-              text = L["Delete preset '%s'?"]:format(info.presetName),
-              button1 = DELETE,
-              button2 = CANCEL,
-              OnAccept = function()
+            GUI.CreateStaticPopup("REFORGE_LITE_DELETE_PRESET",
+              L["Delete preset '%s'?"]:format(info.presetName),
+              function()
                 self.cdb.customPresets[info.presetName] = nil
                 self:InitCustomPresets()
-              end,
-              timeout = 0,
-              whileDead = true,
-              hideOnEscape = true,
-            }
+              end, { button1 = DELETE })
             StaticPopup_Show("REFORGE_LITE_DELETE_PRESET")
           else
             if info.value.targetLevel then
@@ -808,7 +816,7 @@ function ReforgeLite:InitPresets()
                 local subSubInfo = {
                   sortKey = subK,
                   text = subK,
-                  prioritySort = subPreset.prioritySort or 0,
+                  prioritySort = DYNAMIC_PRESETS[subK] or 0,
                   value = subPreset,
                 }
                 if subPreset.icon then
@@ -831,7 +839,7 @@ function ReforgeLite:InitPresets()
             local subInfo = {
               sortKey = preset.name or (specInfo[specId] and specInfo[specId].name) or tostring(specId),
               text = preset.name or (specInfo[specId] and specInfo[specId].name) or tostring(specId),
-              prioritySort = preset.prioritySort or 0,
+              prioritySort = DYNAMIC_PRESETS[k] or 0,
               value = preset,
               hasDelete = (k == CUSTOM),
               presetName = preset.name,
@@ -859,13 +867,12 @@ function ReforgeLite:InitPresets()
         local info = {
           sortKey = v.name or k,
           text = v.name or k,
-          prioritySort = v.prioritySort or 0,
+          prioritySort = DYNAMIC_PRESETS[k] or 0,
           value = v,
         }
         if specInfo[k] then
           info.text = CreateIconMarkup(specInfo[k].icon) .. specInfo[k].name
           info.sortKey = specInfo[k].name
-          info.prioritySort = -1
         end
         if v.icon then
           info.text = CreateIconMarkup(v.icon) .. info.text
@@ -901,7 +908,6 @@ function ReforgeLite:InitPresets()
   local exportList = {
     [REFORGE_CURRENT] = function()
       local result = {
-        prioritySort = DYNAMIC_PRESETS[REFORGE_CURRENT],
         caps = self.pdb.caps,
         weights = self.pdb.weights,
       }
@@ -1048,6 +1054,7 @@ function ReforgeLite:InitPresets()
 
     AddMenuItems(rootDescription, menuList)
   end
+  
+  addonTable.callbacks:RegisterCallback("ToggleDebug", function() self:InitDynamicPresets() end)
   --@end-debug@
-
 end

@@ -149,13 +149,13 @@ end
 
 -----------------------------------------------------------------
 
-GUI.CreateStaticPopup("REFORGE_LITE_SAVE_PRESET", L["Enter the preset name"], function(text)
-  ReforgeLite.cdb.customPresets[text] = {
+GUI.CreateStaticPopup("REFORGE_LITE_SAVE_PRESET", L["Enter the preset name"], function(popup)
+  ReforgeLite.cdb.customPresets[popup:GetEditBox():GetText()] = {
     caps = CopyTable(ReforgeLite.pdb.caps),
     weights = CopyTable(ReforgeLite.pdb.weights)
   }
   ReforgeLite:InitCustomPresets()
-end)
+end, { hasEditBox = 1 })
 
 local statIds = EnumUtil.MakeEnum("SPIRIT", "DODGE", "PARRY", "HIT", "CRIT", "HASTE", "EXP", "MASTERY", "SPELLHIT")
 addonTable.statIds = statIds
@@ -1442,15 +1442,23 @@ function ReforgeLite:FillSettings()
     end
   end), "LEFT")
 
-  local testAlgoButton = GUI:CreatePanelButton (self.settings, L["Run Algorithm Comparison"], function(btn) self:StartAlgorithmComparison() end, {
-    OnCalculateFinish = function(btn)
-      btn:RenderText(L["Run Algorithm Comparison"])
-    end,
-    PreCalculateStart = function(btn)
-      btn:RenderText(IN_PROGRESS)
-    end
-  })
-  self.settings:SetCell(getOrderId('settings'), 0, testAlgoButton, "LEFT")
+  self.settings:SetCell(
+    getOrderId('settings'),
+    0,
+    GUI:CreatePanelButton(
+        self.settings,
+        L["Run Algorithm Comparison"],
+        function(btn) self:StartAlgorithmComparison() end, 
+        {
+          OnCalculateFinish = function(btn)
+            btn:RenderText(L["Run Algorithm Comparison"])
+          end,
+          PreCalculateStart = function(btn)
+            btn:RenderText(IN_PROGRESS)
+          end
+        }),
+    "LEFT"
+  )
 
   local debugButton = GUI:CreatePanelButton (self.settings, L["Debug"], function(btn) self:DebugMethod () end)
   self.settings:SetCell (getOrderId('settings'), 0, debugButton, "LEFT")
@@ -1464,7 +1472,7 @@ function ReforgeLite:FillSettings()
     self.settings,
     "Debug Mode",
     self.db.debug,
-    function (val) self.db.debug = val or nil end
+    function (val) self.db.debug = val or nil; addonTable.callbacks:TriggerEvent("ToggleDebug", val) end
   ), "LEFT")
 --@end-debug@
 end

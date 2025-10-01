@@ -4,17 +4,9 @@ addonTable.GUI = GUI
 
 local callbacks = CreateFromMixins(CallbackRegistryMixin)
 callbacks:OnLoad()
-callbacks:GenerateCallbackEvents({ "OnCalculateFinish", "PreCalculateStart", "OnCalculateStart" })
+callbacks:GenerateCallbackEvents({ "OnCalculateFinish", "PreCalculateStart", "OnCalculateStart", "ToggleDebug" })
 
 addonTable.callbacks = callbacks
-
--- Helper function to close all dropdown menus
-function GUI:CloseDropdowns()
-	local manager = Menu.GetManager()
-	if manager then
-		manager:CloseMenus()
-	end
-end
 
 addonTable.FONTS = {
   grey = INACTIVE_COLOR,
@@ -34,19 +26,16 @@ function GUI:GenerateWidgetName ()
 end
 
 function GUI:ClearEditFocus()
-  self:CloseDropdowns()
   for _,v in ipairs(self.editBoxes) do
     v:ClearFocus()
   end
 end
 
 function GUI:ClearFocus()
-  self:CloseDropdowns()
   self:ClearEditFocus()
 end
 
 function GUI:Lock()
-  self:CloseDropdowns()
   for _, frames in ipairs({self.panelButtons, self.imgButtons, self.editBoxes, self.checkButtons, self.sliders}) do
     for _, frame in pairs(frames) do
       if frame:IsEnabled() and not frame.preventLock then
@@ -171,7 +160,6 @@ function GUI:CreateEditBox (parent, width, height, default, setter, opts)
   box:SetText(default)
   box:SetScript("OnEnterPressed", box.ClearFocus)
   box:SetScript("OnEditFocusGained", function(frame)
-    GUI:CloseDropdowns()
     frame.prevValue = tonumber(frame:GetText())
     frame:HighlightText()
   end)
@@ -896,22 +884,23 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
   return t
 end
 
-function GUI.CreateStaticPopup(name, text, onAccept)
+function GUI.CreateStaticPopup(name, text, onAccept, opts)
   StaticPopupDialogs[name] = {
     text = text,
-    button1 = ACCEPT,
+    button1 = (opts or {}).button1 or ACCEPT,
     button2 = CANCEL,
-    hasEditBox = 1,
+    hasEditBox = (opts or {}).hasEditBox,
     timeout = 0,
     whileDead = 1,
     OnAccept = function(self)
-      onAccept(self:GetEditBox():GetText())
+      onAccept(self)
     end,
     OnShow = function(self)
-      GUI:CloseDropdowns()
-      self:GetButton1():Disable()
+      if self:GetEditBox():IsVisible() then
+        self:GetButton1():Disable()
+        self:GetEditBox():SetFocus()
+      end
       self:GetButton2():Enable()
-      self:GetEditBox():SetFocus()
     end,
     OnHide = function(self)
       ChatEdit_FocusActiveWindow()
