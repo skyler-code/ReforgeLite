@@ -129,7 +129,8 @@ function ReforgeLite:GetNeededExpertiseHard()
 end
 
 local function CreateIconMarkup(icon)
-  return CreateTextureMarkup(icon, 64, 64, 16, 16, 0.05, 0.95, 0.05, 0.95, 0, 0) .. " "
+  -- Use 7% crop on each side to remove border artifacts (white pixels in corners)
+  return CreateTextureMarkup(icon, 64, 64, 18, 18, 0.07, 0.93, 0.07, 0.93, 0, 0) .. " "
 end
 addonTable.CreateIconMarkup = CreateIconMarkup
 
