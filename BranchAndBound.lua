@@ -639,7 +639,7 @@ function ReforgeLite:BranchAndBoundSearch(position, currentStats, currentPath, d
           end
           local pathNote = isExactDPPath and " ← EXACT DP PATH!" or ""
           local scoreDelta = actualTotalScore - previousBestScore
-          print(format("B&B: Found better solution, score: %.1f (delta: %.1f), constraints: %s, path:%s%s"):format(actualTotalScore, scoreDelta, constraintsMet and "Pass" or "Fail", pathStr, pathNote))
+          print(string.format("B&B: Found better solution, score: %.1f (delta: %.1f), constraints: %s, path:%s%s", actualTotalScore, scoreDelta, constraintsMet and "Pass" or "Fail", pathStr, pathNote))
         end
       end
     end
