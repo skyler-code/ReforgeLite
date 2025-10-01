@@ -205,6 +205,13 @@ function GUI:CreateDropdown (parent, values, options)
     sel = CreateFrame("DropdownButton", self:GenerateWidgetName(), parent, "WowStyle1DropdownTemplate")
     self.dropdowns[sel:GetName()] = sel
 
+    -- Vertically center the text
+    if sel.Text then
+      sel.Text:ClearAllPoints()
+      sel.Text:SetPoint("RIGHT", sel.Arrow, "LEFT")
+      sel.Text:SetPoint("LEFT", sel, "LEFT", 9, 0)
+    end
+
     sel.GetValues = function(frame) return GetValueOrCallFunction(frame, 'values') end
 
     sel.SetValue = function (dropdown, value)
