@@ -1114,21 +1114,20 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory = self:CreateCategory (L["Stat Weights"])
   self:SetAnchor (self.statWeightsCategory, "TOPLEFT", self.content, "TOPLEFT", 2, -2)
 
-  self.presetsButton = GUI:CreateImageButton (self.content, 24, 24, "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up",
-    "Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down", "Interface\\Buttons\\UI-Common-MouseHilight", nil, function (btn)
-    if self.presetMenuGenerator then
-      MenuUtil.CreateContextMenu(btn, self.presetMenuGenerator)
-    end
-  end)
-  self.statWeightsCategory:AddFrame (self.presetsButton)
-  self:SetAnchor (self.presetsButton, "TOPLEFT", self.statWeightsCategory, "BOTTOMLEFT", 0, -5)
-  self.presetsButton.tip = self.presetsButton:CreateFontString (nil, "OVERLAY", "GameFontNormal")
-  self.presetsButton.tip:SetPoint ("LEFT", self.presetsButton, "RIGHT", 5, 0)
-  self.presetsButton.tip:SetText (L["Presets"])
+  self.presetsButton = CreateFrame("DropdownButton", nil, self.content, "WowStyle1FilterDropdownTemplate")
+  self.presetsButton:SetText(L["Presets"])
+  self.presetsButton.resizeToTextPadding = 35
+  self.statWeightsCategory:AddFrame(self.presetsButton)
+  self:SetAnchor(self.presetsButton, "TOPLEFT", self.statWeightsCategory, "BOTTOMLEFT", 0, -5)
+
+  -- SetupMenu is called after presetMenuGenerator is initialized in InitPresets
+  if self.presetMenuGenerator then
+    self.presetsButton:SetupMenu(self.presetMenuGenerator)
+  end
 
   self.savePresetButton = GUI:CreatePanelButton (self.content, SAVE, function() StaticPopup_Show ("REFORGE_LITE_SAVE_PRESET") end)
   self.statWeightsCategory:AddFrame (self.savePresetButton)
-  self:SetAnchor (self.savePresetButton, "LEFT", self.presetsButton.tip, "RIGHT", 8, 0)
+  self:SetAnchor (self.savePresetButton, "LEFT", self.presetsButton, "RIGHT", 8, 0)
 
   self.deletePresetButton = GUI:CreatePanelButton (self.content, DELETE, function(btn)
     if self.presetDelMenuGenerator then
