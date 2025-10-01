@@ -864,6 +864,10 @@ function ReforgeLite:InitPresets()
       for _, info in ipairs(items) do
         if info.isSubmenu then
           local submenu = desc:CreateButton(info.text)
+          -- Disable submenu if there are no items
+          if #info.submenuItems == 0 then
+            submenu:SetEnabled(false)
+          end
           AddMenuItems(submenu, info.submenuItems)
         elseif info.value and (info.value.caps or info.value.weights) then
           AddPresetButton(desc, info)
