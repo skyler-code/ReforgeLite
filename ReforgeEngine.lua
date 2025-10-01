@@ -412,7 +412,7 @@ end
 
 local chooseLoops = 0
 
-function ReforgeLite:ComputeReforge()
+function ReforgeLite:ComputeReforgeClassic()
   self.TABLE_SIZE = floor(10000 * (self.db.accuracy / addonTable.MAX_SPEED))
   local data = self:InitReforgeClassic()
   local reforgeOptions = {}
@@ -448,6 +448,14 @@ function ReforgeLite:ComputeReforge()
   end
 end
 
+function ReforgeLite:ComputeReforge()
+  if self.pdb.useBranchBound and self.pdb.caps[2].stat ~= 0 then
+    self:ComputeReforgeBranchBound()
+  else
+    self:ComputeReforgeClassic()
+  end
+end
+
 local NORMAL_STATUS_CODES = { suspended = true, running = true }
 local routine
 
@@ -477,20 +485,27 @@ function ReforgeLite:RunYieldCheck(maxLoops)
   end
 end
 
-function ReforgeLite:StartCompute()
-  if routine and addonTable.pauseRoutine == 'pause' and NORMAL_STATUS_CODES[coroutine.status(routine)]  then
+function ReforgeLite:CreateRoutine(func)
+  addonTable.pauseRoutine = nil
+  addonTable.callbacks:TriggerEvent("PreCalculateStart")
+  if routine and NORMAL_STATUS_CODES[coroutine.status(routine)] then
     coroutine.resume(routine)
   else
-    routine = coroutine.create(function() self:ComputeReforge() end)
+    routine = coroutine.create(function() self[func](self) end)
   end
   self:ResumeComputeNextFrame()
 end
 
+function ReforgeLite:StartAlgorithmComparison()
+  self:CreateRoutine("RunAlgorithmComparison")
+end
+
+function ReforgeLite:StartCompute()
+  self:CreateRoutine("ComputeReforge")
+end
+
 function ReforgeLite:EndCompute()
-  self.computeButton:RenderText(L["Compute"])
-  addonTable.GUI:Unlock()
-  self.pauseButton:RenderText(KEY_PAUSE)
-  self.pauseButton:Disable()
+  addonTable.callbacks:TriggerEvent("OnCalculateFinish")
   routine = nil
   collectgarbage('collect')
 end

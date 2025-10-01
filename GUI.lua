@@ -4,6 +4,12 @@ addonTable.GUI = GUI
 
 local LibDD = LibStub:GetLibrary("LibUIDropDownMenu-4.0")
 
+local callbacks = CreateFromMixins(CallbackRegistryMixin)
+callbacks:OnLoad()
+callbacks:GenerateCallbackEvents({ "OnCalculateFinish", "PreCalculateStart", "OnCalculateStart" })
+
+addonTable.callbacks = callbacks
+
 addonTable.FONTS = {
   grey = INACTIVE_COLOR,
   lightgrey = TUTORIAL_FONT_COLOR,
@@ -244,8 +250,7 @@ function GUI:CreateDropdown (parent, values, options)
     sel.Button:SetPoint ("TOPRIGHT", sel.Right, "TOPRIGHT", -16, -13)
     sel.Recycle = function (frame)
       frame:Hide ()
-      frame:SetScript ("OnEnter", nil)
-      frame:SetScript ("OnLeave", nil)
+      frame:ClearScripts()
       frame.setter = nil
       frame.value = nil
       frame.selectedName = nil
@@ -282,7 +287,7 @@ function GUI:CreateCheckButton (parent, text, default, setter)
   else
     local name = self:GenerateWidgetName ()
     btn = CreateFrame ("CheckButton", name, parent, "UICheckButtonTemplate")
-    self.checkButtons[btn:GetName()] = btn
+    self.checkButtons[name] = btn
     btn.Recycle = function (btn)
       btn:Hide ()
       btn:ClearScripts()
@@ -294,7 +299,7 @@ function GUI:CreateCheckButton (parent, text, default, setter)
   btn:SetChecked (default)
   if setter then
     btn:SetScript ("OnClick", function (self)
-      setter (self:GetChecked ())
+      setter(self:GetChecked ())
     end)
   end
   btn:SetScript("OnEnable", function(self)
@@ -356,6 +361,9 @@ function GUI:CreatePanelButton(parent, text, handler, opts)
       f:SetText("")
       f:Hide ()
       f:ClearScripts()
+      for event in pairs(callbacks.Event) do
+          callbacks:UnregisterCallback(event, f:GetName())
+      end
       self.panelButtons[f:GetName()] = nil
       tinsert (self.unusedPanelButtons, f)
     end
@@ -365,6 +373,13 @@ function GUI:CreatePanelButton(parent, text, handler, opts)
     end
   end
   btn.preventLock = (opts or {}).preventLock
+  if opts then
+    for event in pairs(callbacks.Event) do
+      if opts[event] then
+        callbacks:RegisterCallback(event, function(_, self) opts[event](self) end, btn:GetName(), btn)
+      end
+    end
+  end
   btn:RenderText(text)
   btn:SetScript("OnClick", handler)
   btn:SetScript("PreClick", (opts or {}).PreClick)
@@ -869,3 +884,6 @@ function GUI.CreateStaticPopup(name, text, onAccept)
     EditBoxOnEscapePressed = function(self) self:GetParent():Hide() end,
   }
 end
+
+callbacks:RegisterCallback("PreCalculateStart", function(_, self) self:Lock() end, "GUI", GUI)
+callbacks:RegisterCallback("OnCalculateFinish", function(_, self) self:Unlock() end, "GUI", GUI)
