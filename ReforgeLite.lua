@@ -149,14 +149,6 @@ end
 
 -----------------------------------------------------------------
 
-GUI.CreateStaticPopup("REFORGE_LITE_SAVE_PRESET", L["Enter the preset name"], function(popup)
-  ReforgeLite.cdb.customPresets[popup:GetEditBox():GetText()] = {
-    caps = CopyTable(ReforgeLite.pdb.caps),
-    weights = CopyTable(ReforgeLite.pdb.weights)
-  }
-  ReforgeLite:InitCustomPresets()
-end, { hasEditBox = 1 })
-
 local statIds = EnumUtil.MakeEnum("SPIRIT", "DODGE", "PARRY", "HIT", "CRIT", "HASTE", "EXP", "MASTERY", "SPELLHIT")
 addonTable.statIds = statIds
 ReforgeLite.STATS = statIds
@@ -1123,16 +1115,12 @@ function ReforgeLite:CreateOptionList ()
     self.presetsButton:SetupMenu(self.presetMenuGenerator)
   end
 
-  self.savePresetButton = GUI:CreatePanelButton (self.content, SAVE, function() StaticPopup_Show ("REFORGE_LITE_SAVE_PRESET") end)
-  self.statWeightsCategory:AddFrame (self.savePresetButton)
-  self:SetAnchor (self.savePresetButton, "LEFT", self.presetsButton, "RIGHT", 8, 0)
-
   --@debug@
   self.exportPresetButton = CreateFrame("DropdownButton", nil, self.content, "WowStyle1FilterDropdownTemplate")
   self.exportPresetButton:SetText(L["Export"])
   self.exportPresetButton.resizeToTextPadding = 35
   self.statWeightsCategory:AddFrame(self.exportPresetButton)
-  self.exportPresetButton:SetPoint("LEFT", self.savePresetButton, "RIGHT", 5, 0)
+  self.exportPresetButton:SetPoint("LEFT", self.presetsButton, "RIGHT", 5, 0)
   if self.exportPresetMenuGenerator then
     self.exportPresetButton:SetupMenu(self.exportPresetMenuGenerator)
   end

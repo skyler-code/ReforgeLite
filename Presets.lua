@@ -744,6 +744,21 @@ function ReforgeLite:InitPresets()
   self.presetMenuGenerator = function(owner, rootDescription)
     GUI:ClearEditFocus()
 
+    rootDescription:CreateButton(SAVE, function()
+      GUI.CreateStaticPopup("REFORGE_LITE_SAVE_PRESET",
+        L["Enter the preset name"],
+        function(popup)
+          self.cdb.customPresets[popup:GetEditBox():GetText()] = {
+            caps = CopyTable(self.pdb.caps),
+            weights = CopyTable(self.pdb.weights)
+          }
+          self:InitCustomPresets()
+        end, { hasEditBox = 1 })
+      StaticPopup_Show("REFORGE_LITE_SAVE_PRESET")
+    end)
+
+    rootDescription:CreateDivider()
+
     local function AddPresetButton(desc, info)
       if info.hasDelete then
         local button = desc:CreateButton(info.text, function(mouseButton)
