@@ -672,6 +672,8 @@ function ReforgeLite:InitClassPresets()
   --@end-debug@
 end
 
+local DYNAMIC_PRESETS = tInvert( { "Pawn", CUSTOM } )
+
 function ReforgeLite:InitCustomPresets()
   local customPresets = {}
   for k, v in pairs(self.cdb.customPresets) do
@@ -755,7 +757,7 @@ function ReforgeLite:InitPresets()
         local classInfo = {
           sortKey = specInfo[k] and specInfo[k].name or k,
           text = specInfo[k] and specInfo[k].name or k,
-          prioritySort = 0,
+          prioritySort = DYNAMIC_PRESETS[k] or 0,
           key = k,
           isSubmenu = true,
           submenuItems = {}
