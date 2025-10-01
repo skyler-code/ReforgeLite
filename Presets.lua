@@ -129,7 +129,7 @@ function ReforgeLite:GetNeededExpertiseHard()
 end
 
 local function CreateIconMarkup(icon)
-  return CreateSimpleTextureMarkup(icon, 16, 16) .. " "
+  return CreateTextureMarkup(icon, 64, 64, 16, 16, 0.05, 0.95, 0.05, 0.95, 0, 0) .. " "
 end
 addonTable.CreateIconMarkup = CreateIconMarkup
 
