@@ -1115,20 +1115,20 @@ function ReforgeLite:CreateOptionList ()
     self.presetsButton:SetupMenu(self.presetMenuGenerator)
   end
 
+  self.pawnButton = GUI:CreatePanelButton (self.content, L["Import WoWSims/Pawn/QE"], function(btn) self:ImportData() end)
+  self.statWeightsCategory:AddFrame (self.pawnButton)
+  self:SetAnchor (self.pawnButton, "LEFT", self.presetsButton, "RIGHT", 8, 0)
+
   --@debug@
   self.exportPresetButton = CreateFrame("DropdownButton", nil, self.content, "WowStyle1FilterDropdownTemplate")
   self.exportPresetButton:SetText(L["Export"])
   self.exportPresetButton.resizeToTextPadding = 35
   self.statWeightsCategory:AddFrame(self.exportPresetButton)
-  self.exportPresetButton:SetPoint("LEFT", self.presetsButton, "RIGHT", 5, 0)
+  self.exportPresetButton:SetPoint("LEFT", self.pawnButton, "RIGHT", 5, 0)
   if self.exportPresetMenuGenerator then
     self.exportPresetButton:SetupMenu(self.exportPresetMenuGenerator)
   end
   --@end-debug@
-
-  self.pawnButton = GUI:CreatePanelButton (self.content, L["Import WoWSims/Pawn/QE"], function(btn) self:ImportData() end)
-  self.statWeightsCategory:AddFrame (self.pawnButton)
-  self:SetAnchor (self.pawnButton, "TOPLEFT", self.presetsButton, "BOTTOMLEFT", 0, -5)
 
   local levelList = function()
     return {
@@ -1147,7 +1147,7 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory:AddFrame(self.targetLevel)
   self.targetLevel.text = self.targetLevel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
   self.targetLevel.text:SetText(STAT_TARGET_LEVEL)
-  self:SetAnchor(self.targetLevel.text, "TOPLEFT", self.pawnButton, "BOTTOMLEFT", 0, -8)
+  self:SetAnchor(self.targetLevel.text, "TOPLEFT", self.presetsButton, "BOTTOMLEFT", 0, -8)
   self.targetLevel:SetPoint("LEFT", self.targetLevel.text, "RIGHT", 5, 0)
 
   self.buffsContextMenu = CreateFrame("DropdownButton", nil, self.content, "WowStyle1FilterDropdownTemplate")
