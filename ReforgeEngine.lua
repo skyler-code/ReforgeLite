@@ -460,6 +460,7 @@ local NORMAL_STATUS_CODES = { suspended = true, running = true }
 local routine
 
 function ReforgeLite:ResumeCompute()
+  if not routine then return end
   coroutine.resume(routine)
   if not NORMAL_STATUS_CODES[coroutine.status(routine)] then
     self:EndCompute()
