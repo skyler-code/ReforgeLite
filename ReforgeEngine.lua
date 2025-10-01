@@ -461,8 +461,11 @@ local routine
 
 function ReforgeLite:ResumeCompute()
   if not routine then return end
-  coroutine.resume(routine)
-  if not NORMAL_STATUS_CODES[coroutine.status(routine)] then
+  local success, err = coroutine.resume(routine)
+  if not success then
+    print("Coroutine error - " .. tostring(err))
+    self:EndCompute()
+  elseif not NORMAL_STATUS_CODES[coroutine.status(routine)] then
     self:EndCompute()
   end
 end
