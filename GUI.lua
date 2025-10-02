@@ -848,7 +848,7 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
   t.textTagPool = {}
   t.SetCellText = function (self, i, j, text, align, color, font)
     align = align or "CENTER"
-    color = color or {addonTable.FONTS.white:GetRGB()}
+    color = color or addonTable.FONTS.white
     font = font or "GameFontNormalSmall"
 
     if self.cells[i][j] and not self.cells[i][j].istag then
@@ -875,7 +875,7 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
       end
     end
     self.cells[i][j].istag = true
-    self.cells[i][j]:SetTextColor(unpack(color))
+    self.cells[i][j]:SetTextColor(color:GetRGB())
     self.cells[i][j]:SetText (text)
     self.cells[i][j].align = align
     self:AlignCell (i, j)
