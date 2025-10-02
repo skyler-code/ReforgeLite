@@ -57,6 +57,7 @@ local DefaultDB = {
     specProfiles = false,
     importButton = true,
     clampedToScreen = true,
+    showHelp = true,
   },
   char = {
     targetLevel = 3,
@@ -736,6 +737,9 @@ function ReforgeLite:CreateFrame()
 
   RunNextFrame(function() self:FixScroll() end)
   self:RegisterEvent("PLAYER_REGEN_DISABLED")
+  if not self.db.showHelp then
+    GUI:SetHelpButtonsShown(false)
+  end
 end
 
 function ReforgeLite:CreateItemTable ()
@@ -766,8 +770,7 @@ function ReforgeLite:CreateItemTable ()
   self:RegisterEvent("PLAYER_AVG_ITEM_LEVEL_UPDATE")
   self:PLAYER_AVG_ITEM_LEVEL_UPDATE()
 
-  self.itemLockHelpButton = GUI:CreateHelpButton(self, L["The Item Table shows your currently equipped gear and their stats.\n\nEach row represents one equipped item. Only stats present on your gear are shown as columns.\n\nAfter computing, items being reforged show:\n• Red numbers: Stat being reduced\n• Green numbers: Stat being added\n\nClick an item icon to lock/unlock it. Locked items (shown with a lock icon) are ignored during optimization."])
-  self.itemLockHelpButton:SetScale(0.5)
+  self.itemLockHelpButton = GUI:CreateHelpButton(self, L["The Item Table shows your currently equipped gear and their stats.\n\nEach row represents one equipped item. Only stats present on your gear are shown as columns.\n\nAfter computing, items being reforged show:\n• Red numbers: Stat being reduced\n• Green numbers: Stat being added\n\nClick an item icon to lock/unlock it. Locked items (shown with a lock icon) are ignored during optimization."], { scale = 0.5 })
 
   self.itemTable:SetCell(0, 0, self.itemLockHelpButton, "TOPLEFT", -5, 10)
 
@@ -1324,7 +1327,7 @@ function ReforgeLite:CreateOptionList ()
 
   self.settingsCategory = self:CreateCategory (SETTINGS)
   self:SetAnchor (self.settingsCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
-  self.settings = GUI:CreateTable (10, 1, nil, 200)
+  self.settings = GUI:CreateTable (11, 1, nil, 200)
   self.settingsCategory:AddFrame (self.settings)
   self:SetAnchor (self.settings, "TOPLEFT", self.settingsCategory, "BOTTOMLEFT", 0, -10)
   self.settings:SetPoint ("RIGHT", self.content, -10, 0)
@@ -1428,6 +1431,13 @@ function ReforgeLite:FillSettings()
       if self.methodWindow then
         self.methodWindow:SetClampedToScreen(val)
       end
+    end),
+    "LEFT")
+
+  self.settings:SetCell (getOrderId('settings'), 0, GUI:CreateCheckButton (self.settings, L["Show help buttons"],
+    self.db.showHelp, function (val)
+      self.db.showHelp = val
+      GUI:SetHelpButtonsShown(val)
     end),
     "LEFT")
 
@@ -1918,6 +1928,10 @@ function ReforgeLite:CreateMethodWindow()
   self.methodWindow.AttachToReforgingFrame = function(frame)
     frame:ClearAllPoints()
     frame:SetPoint("LEFT", ReforgingFrame, "RIGHT")
+  end
+  
+  if not self.db.showHelp then
+    GUI:SetHelpButtonsShown(false)
   end
 
   self:RefreshMethodWindow()

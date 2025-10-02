@@ -458,13 +458,19 @@ function GUI:CreateColorPicker (parent, width, height, color, handler)
 end
 
 GUI.helpButtons = {}
-function GUI:CreateHelpButton(parent, tooltip)
+function GUI:CreateHelpButton(parent, tooltip, opts)
   local btn = CreateFrame("Button", nil, parent, "MainHelpPlateButton")
   btn:SetFrameLevel(btn:GetParent():GetFrameLevel() + 1)
-  btn:SetScale(0.6)
+  btn:SetScale((opts or {}).scale or 0.6)
   self:SetTooltip(btn, tooltip)
   tinsert(self.helpButtons, btn)
   return btn
+end
+
+function GUI:SetHelpButtonsShown(shown)
+  for _, btn in ipairs(self.helpButtons) do
+    btn:SetShown(shown)
+  end
 end
 
 GUI.sliders = {}
