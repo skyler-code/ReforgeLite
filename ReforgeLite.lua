@@ -775,9 +775,8 @@ function ReforgeLite:CreateItemTable ()
 
   self.statHeaders = {}
   for i, v in ipairs (ITEM_STATS) do
-    self.statHeaders[i] = self.itemTable:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
-    self.statHeaders[i]:SetText(v.tip)
-    self.itemTable:SetCell (0, i, self.statHeaders[i])
+    self.itemTable:SetCellText (0, i, v.tip, nil, addonTable.FONTS.darkyellow)
+    self.statHeaders[i] = self.itemTable.cells[0][i]
   end
   self.itemData = {}
   for i, v in ipairs (ITEM_SLOTS) do
@@ -818,21 +817,17 @@ function ReforgeLite:CreateItemTable ()
     self.itemData[i].itemInfo = {}
     self.itemData[i].stats = {}
     for j, s in ipairs (ITEM_STATS) do
-      local statFontString = self.itemTable:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
-      self.itemData[i].stats[j] = statFontString
-      self.itemTable:SetCell (i, j, statFontString)
-      statFontString.fontColors = { grey = addonTable.FONTS.lightgrey, red = addonTable.FONTS.red, green = addonTable.FONTS.green, white = addonTable.FONTS.white  }
-      statFontString:SetTextColor(statFontString.fontColors.grey:GetRGB())
-      statFontString:SetText ("-")
+      local fontColors = { grey = addonTable.FONTS.lightgrey, red = addonTable.FONTS.red, green = addonTable.FONTS.green, white = addonTable.FONTS.white  }
+      self.itemTable:SetCellText(i, j, "-", nil, fontColors.grey)
+      self.itemData[i].stats[j] = self.itemTable.cells[i][j]
+      self.itemData[i].stats[j].fontColors = fontColors
     end
   end
   self.statTotals = {}
   self.itemTable:SetCellText (ITEM_SLOT_COUNT + 1, 0, L["Sum"], "CENTER", addonTable.FONTS.darkyellow)
   for i, v in ipairs (ITEM_STATS) do
-    self.statTotals[i] = self.itemTable:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
-    self.itemTable:SetCell (ITEM_SLOT_COUNT + 1, i, self.statTotals[i])
-    self.statTotals[i]:SetTextColor (addonTable.FONTS.darkyellow:GetRGB())
-    self.statTotals[i]:SetText("0")
+    self.itemTable:SetCellText(ITEM_SLOT_COUNT + 1, i, "0", nil, addonTable.FONTS.darkyellow)
+    self.statTotals[i] = self.itemTable.cells[ITEM_SLOT_COUNT + 1][i]
   end
 end
 
