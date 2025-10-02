@@ -766,10 +766,8 @@ function ReforgeLite:CreateItemTable ()
   self:RegisterEvent("PLAYER_AVG_ITEM_LEVEL_UPDATE")
   self:PLAYER_AVG_ITEM_LEVEL_UPDATE()
 
-  self.itemLockHelpButton = CreateFrame("Button",nil, self,"MainHelpPlateButton")
-  self.itemLockHelpButton:SetFrameLevel(self.itemLockHelpButton:GetParent():GetFrameLevel() + 1)
+  self.itemLockHelpButton = GUI:CreateHelpButton(self, L["The Item Table shows your currently equipped gear and their stats.\n\nEach row represents one equipped item. Only stats present on your gear are shown as columns.\n\nAfter computing, items being reforged show:\n• Red numbers: Stat being reduced\n• Green numbers: Stat being added\n\nClick an item icon to lock/unlock it. Locked items (shown with a lock icon) are ignored during optimization."])
   self.itemLockHelpButton:SetScale(0.5)
-  GUI:SetTooltip(self.itemLockHelpButton, L["The Item Table shows your currently equipped gear and their stats.\n\nEach row represents one equipped item. Only stats present on your gear are shown as columns.\n\nAfter computing, items being reforged show:\n• Red numbers: Stat being reduced\n• Green numbers: Stat being added\n\nClick an item icon to lock/unlock it. Locked items (shown with a lock icon) are ignored during optimization."])
 
   self.itemTable:SetCell(0, 0, self.itemLockHelpButton, "TOPLEFT", -5, 10)
 
@@ -841,10 +839,13 @@ function ReforgeLite:AddCapPoint (i, loading)
   end
 
   local rem = GUI:CreateImageButton (self.statCaps, 20, 20, "Interface\\PaperDollInfoFrame\\UI-GearManager-LeaveItem-Transparent",
-    "Interface\\PaperDollInfoFrame\\UI-GearManager-LeaveItem-Transparent", nil, nil, function ()
-    self:RemoveCapPoint (i, point)
-    self.statCaps:ToggleStatDropdownToCorrectState()
-  end)
+    "Interface\\PaperDollInfoFrame\\UI-GearManager-LeaveItem-Transparent", {
+      OnClick = function()
+        self:RemoveCapPoint(i, point)
+        self.statCaps:ToggleStatDropdownToCorrectState()
+      end,
+      tooltip = L["Remove cap"]
+    })
   local methodList = {
     {value = addonTable.StatCapMethods.AtLeast, name = L["At least"]},
     {value = addonTable.StatCapMethods.AtMost, name = L["At most"]},
@@ -875,7 +876,6 @@ function ReforgeLite:AddCapPoint (i, loading)
     self:RefreshMethodStats ()
   end)
 
-  GUI:SetTooltip (rem, L["Remove cap"])
   GUI:SetTooltip (value, function()
     local cap = self.pdb.caps[i]
     if cap.stat == statIds.SPIRIT then return end
@@ -1225,18 +1225,17 @@ function ReforgeLite:CreateOptionList ()
       end
     })
     self.statCaps[i].add = GUI:CreateImageButton (self.statCaps, 20, 20, "Interface\\Buttons\\UI-PlusButton-Up",
-      "Interface\\Buttons\\UI-PlusButton-Down", "Interface\\Buttons\\UI-PlusButton-Hilight", "Interface\\Buttons\\UI-PlusButton-Disabled", function()
-      self:AddCapPoint (i)
-    end)
-    GUI:SetTooltip (self.statCaps[i].add, L["Add cap"])
+      "Interface\\Buttons\\UI-PlusButton-Down", {
+        OnClick = function() self:AddCapPoint(i) end,
+        disabledTexture = "Interface\\Buttons\\UI-PlusButton-Disabled",
+        hlt = "Interface\\Buttons\\UI-PlusButton-Hilight",
+        tooltip = L["Add cap"]
+      })
     self.statCaps:SetCell (i, 0, self.statCaps[i].stat, "LEFT", 0, 0)
     self.statCaps:SetCell (i, 2, self.statCaps[i].add, "LEFT")
 
     if i == 1 and not self.statCapsHelpButton then
-      self.statCapsHelpButton = CreateFrame("Button", nil, self.content, "MainHelpPlateButton")
-      self.statCapsHelpButton:SetFrameLevel(self.statCapsHelpButton:GetParent():GetFrameLevel() + 1)
-      self.statCapsHelpButton:SetScale(0.6)
-      GUI:SetTooltip(self.statCapsHelpButton, L["Stat caps allow you to set minimum or maximum values for specific stats when reforging.\n\n'At least' (minimum): The optimizer will try to reach this value before prioritizing other stats. For example, setting Hit to 'At least 2550' ensures you reach the 7.5% hit cap before investing in other stats.\n\n'At most' (maximum): The optimizer will never exceed this value. For example, setting Hit to 'At most 2550' prevents wasting stats beyond the hit cap, redirecting excess reforges to other stats.\n\nUse caps to ensure you meet important breakpoints while maximizing your overall stat weights."])
+      self.statCapsHelpButton = GUI:CreateHelpButton(self.content, L["Stat caps allow you to set minimum or maximum values for specific stats when reforging.\n\n'At least' (minimum): The optimizer will try to reach this value before prioritizing other stats. For example, setting Hit to 'At least 2550' ensures you reach the 7.5% hit cap before investing in other stats.\n\n'At most' (maximum): The optimizer will never exceed this value. For example, setting Hit to 'At most 2550' prevents wasting stats beyond the hit cap, redirecting excess reforges to other stats.\n\nUse caps to ensure you meet important breakpoints while maximizing your overall stat weights."])
       self.statWeightsCategory:AddFrame(self.statCapsHelpButton)
       self.statCapsHelpButton:SetPoint("LEFT", self.statCaps[i].add, "RIGHT", 8, 0)
     end
@@ -1307,19 +1306,19 @@ function ReforgeLite:CreateOptionList ()
   self:SetAnchor (self.pauseButton, "LEFT", self.computeButton, "RIGHT", 4, 0)
   self.pauseButton:Disable()
 
-  self.fastModeButton = GUI:CreateCheckButton(self.content, L["Branch & Bound Mode"], self.pdb.useBranchBound, function (val) self.pdb.useBranchBound = val end)
+  self.fastModeButton = GUI:CreateCheckButton(self.content,
+    L["Branch & Bound Mode"],
+    self.pdb.useBranchBound,
+    function (val) self.pdb.useBranchBound = val end,
+    { tooltip = L["Branch & Bound Mode uses an alternative optimization algorithm designed to speed up calculations when using stat caps.\n\nPerformance depends on your cap configuration:\n• Multiple soft caps (low values): Nearly instant\n• Multiple hard caps (high values): May be slower than standard mode\n\nThe algorithm guarantees the same optimal result - only the computation speed varies.\n\nNote: Only available when both stat caps are configured."] }
+  )
   self:SetAnchor(self.fastModeButton, "LEFT", self.pauseButton, "RIGHT", 4, 0)
-  self.fastModeButton:SetShown(self.pdb.caps[#self.pdb.caps].stat ~= 0) 
-
-  GUI:SetTooltip(self.fastModeButton, L["Branch & Bound Mode uses an alternative optimization algorithm designed to speed up calculations when using stat caps.\n\nPerformance depends on your cap configuration:\n• Multiple soft caps (low values): Nearly instant\n• Multiple hard caps (high values): May be slower than standard mode\n\nThe algorithm guarantees the same optimal result - only the computation speed varies.\n\nNote: Only available when both stat caps are configured."])
+  self.fastModeButton:SetShown(self.pdb.caps[#self.pdb.caps].stat ~= 0)
 
 
   self:UpdateStatWeightList ()
 
-  self.statWeightsHelpButton = CreateFrame("Button", nil, self.content, "MainHelpPlateButton")
-  self.statWeightsHelpButton:SetFrameLevel(self.statWeightsHelpButton:GetParent():GetFrameLevel() + 1)
-  self.statWeightsHelpButton:SetScale(0.6)
-  GUI:SetTooltip(self.statWeightsHelpButton, L["Target Level: Select your raid difficulty to calculate stats at the appropriate level.\n\nBuffs: Enable active raid buffs to account for their stat bonuses in calculations.\n\nStat Weights: Assign relative values to each stat. Higher weights mean the optimizer will prioritize that stat more when reforging.\n\nExample: If Hit has weight 60 and Crit has weight 20, the optimizer values Hit three times more than Crit."])
+  self.statWeightsHelpButton = GUI:CreateHelpButton(self.content, L["Target Level: Select your raid difficulty to calculate stats at the appropriate level.\n\nBuffs: Enable active raid buffs to account for their stat bonuses in calculations.\n\nStat Weights: Assign relative values to each stat. Higher weights mean the optimizer will prioritize that stat more when reforging.\n\nExample: If Hit has weight 60 and Crit has weight 20, the optimizer values Hit three times more than Crit."])
   self.statWeightsCategory:AddFrame(self.statWeightsHelpButton)
   self.statWeightsHelpButton:SetPoint("LEFT", self.buffsContextMenu, "RIGHT", 8, 0)
 
@@ -1514,10 +1513,7 @@ function ReforgeLite:UpdateMethodCategory()
       self.methodStats[i] = { value = self.methodStats.cells[cell][1], delta = self.methodStats.cells[cell][2] }
     end
 
-    self.methodHelpButton = CreateFrame("Button", nil, self.content, "MainHelpPlateButton")
-    self.methodHelpButton:SetFrameLevel(self.methodHelpButton:GetParent():GetFrameLevel() + 1)
-    self.methodHelpButton:SetScale(0.6)
-    GUI:SetTooltip(self.methodHelpButton, L["The Result table shows the stat changes from the optimized reforge.\n\nThe left column shows your total stats after reforging.\n\nThe right column (in green) shows how much each stat increased or decreased compared to your current gear.\n\nClick 'Show' to see a detailed breakdown of which items to reforge.\n\nClick 'Reset' to clear the current reforge plan."])
+    self.methodHelpButton = GUI:CreateHelpButton(self.content, L["The Result table shows the stat changes from the optimized reforge.\n\nThe left column shows your total stats after reforging.\n\nThe right column (in green) shows how much each stat increased or decreased compared to your current gear.\n\nClick 'Show' to see a detailed breakdown of which items to reforge.\n\nClick 'Reset' to clear the current reforge plan."])
     self.methodCategory:AddFrame(self.methodHelpButton)
     self.methodHelpButton:SetPoint("TOPLEFT", self.methodStats, "TOPRIGHT", 8, 0)
 
@@ -1833,6 +1829,9 @@ function ReforgeLite:CreateMethodWindow()
   self.methodWindow.close:SetScript ("OnClick", function (btn)
     btn:GetParent():Hide()
   end)
+
+  self.methodWindow.helpButton = GUI:CreateHelpButton(self.methodWindow, L["The Apply window shows the reforge plan generated by the optimizer.\n\nEach row shows an item and its recommended reforge (e.g., '192 Haste > Spirit' means reforge 192 Haste to Spirit).\n\nCheck/uncheck items to select which reforges to apply.\n\nThe total gold cost is displayed at the bottom.\n\nClick 'Reforge' to apply all selected changes at once by visiting the reforge NPCs."])
+  self.methodWindow.helpButton:SetPoint("RIGHT", self.methodWindow.title, "LEFT", -4, 0)
   self.methodWindow:SetScript ("OnShow", function (frame)
     self:SetNewTopWindow(frame)
     self:RefreshMethodWindow()
@@ -1904,9 +1903,13 @@ function ReforgeLite:CreateMethodWindow()
     self.methodWindow.itemTable:SetCell (i, 1, self.methodWindow.items[i].check)
   end
 
-  self.methodWindow.reforge = GUI:CreatePanelButton(self.methodWindow, REFORGE, function(btn) self:DoReforge() end)
+  self.methodWindow.reforge = GUI:CreatePanelButton(
+    self.methodWindow,
+    REFORGE,
+    function(btn) self:DoReforge() end,
+    { tooltip = function() return not ReforgingFrameIsVisible() and L["Reforging window must be open"] end}
+  )
   self.methodWindow.reforge:SetPoint("BOTTOMLEFT", 12, 12)
-  GUI:SetTooltip (self.methodWindow.reforge, function() return not ReforgingFrameIsVisible() and L["Reforging window must be open"] end)
 
   self.methodWindow.cost = CreateFrame("Frame", "ReforgeLiteReforgeCost", self.methodWindow, "SmallMoneyFrameTemplate")
   MoneyFrame_SetType(self.methodWindow.cost, "REFORGE")

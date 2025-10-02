@@ -310,7 +310,7 @@ end
 
 GUI.checkButtons = {}
 GUI.unusedCheckButtons = {}
-function GUI:CreateCheckButton (parent, text, default, setter)
+function GUI:CreateCheckButton (parent, text, default, setter, opts)
   local btn
   if #self.unusedCheckButtons > 0 then
     btn = tremove (self.unusedCheckButtons)
@@ -343,12 +343,13 @@ function GUI:CreateCheckButton (parent, text, default, setter)
     self.Text.originalFontColor = {self.Text:GetTextColor()}
     self.Text:SetTextColor(addonTable.FONTS.disabled:GetRGB())
   end)
+  self:SetTooltip(btn, (opts or {}).tooltip)
   return btn
 end
 
 GUI.imgButtons = {}
 GUI.unusedImgButtons = {}
-function GUI:CreateImageButton (parent, width, height, img, pus, hlt, disabledTexture, handler)
+function GUI:CreateImageButton (parent, width, height, img, pus, opts)
   local btn
   if #self.unusedImgButtons > 0 then
     btn = tremove (self.unusedImgButtons)
@@ -367,12 +368,11 @@ function GUI:CreateImageButton (parent, width, height, img, pus, hlt, disabledTe
   end
   btn:SetNormalTexture (img)
   btn:SetPushedTexture (pus)
-  btn:SetHighlightTexture (hlt or img)
-  btn:SetDisabledTexture(disabledTexture or img)
+  btn:SetHighlightTexture ((opts or {}).hlt or img)
+  btn:SetDisabledTexture((opts or {}).disabledTexture or img)
   btn:SetSize(width, height)
-  if handler then
-    btn:SetScript ("OnClick", handler)
-  end
+  btn:SetScript ("OnClick", (opts or {}).OnClick)
+  self:SetTooltip(btn, (opts or {}).tooltip)
   return btn
 end
 
@@ -416,6 +416,7 @@ function GUI:CreatePanelButton(parent, text, handler, opts)
   btn:RenderText(text)
   btn:SetScript("OnClick", handler)
   btn:SetScript("PreClick", (opts or {}).PreClick)
+  self:SetTooltip(btn, (opts or {}).tooltip)
   return btn
 end
 
@@ -454,6 +455,16 @@ function GUI:CreateColorPicker (parent, width, height, color, handler)
   end)
 
   return box
+end
+
+GUI.helpButtons = {}
+function GUI:CreateHelpButton(parent, tooltip)
+  local btn = CreateFrame("Button", nil, parent, "MainHelpPlateButton")
+  btn:SetFrameLevel(btn:GetParent():GetFrameLevel() + 1)
+  btn:SetScale(0.6)
+  self:SetTooltip(btn, tooltip)
+  tinsert(self.helpButtons, btn)
+  return btn
 end
 
 GUI.sliders = {}
