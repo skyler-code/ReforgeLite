@@ -1061,42 +1061,58 @@ function ReforgeLite:CapUpdater()
   end
 end
 function ReforgeLite:UpdateStatWeightList ()
-  local rows = ITEM_STAT_COUNT
-  local extraRows = 0
+  local rows = ceil(ITEM_STAT_COUNT / 2)
   self.statWeights:ClearCells ()
   self.statWeights.inputs = {}
-  rows = ceil(rows / 2) + extraRows
+
   while self.statWeights.rows > rows do
     self.statWeights:DeleteRow (1)
   end
   if self.statWeights.rows < rows then
     self.statWeights:AddRow (1, rows - self.statWeights.rows)
   end
-  for i, v in ipairs (ITEM_STATS) do
-    local col = floor ((i - 1) / (self.statWeights.rows - extraRows))
-    local row = i - col * (self.statWeights.rows - extraRows) + extraRows
-    col = 1 + 2 * col
 
-    self.statWeights:SetCellText (row, col, v.long, "LEFT")
+  for i, v in ipairs (ITEM_STATS) do
+    local col = ((i - 1) % 2) + 1
+    local row = floor((i - 1) / 2) + 1
+
+    local container = CreateFrame("Frame", nil, self.statWeights)
+    container:SetSize(120, ITEM_SIZE + 4)
+
+    local label = container:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    label:SetPoint("LEFT", container, "LEFT", 6, 0)
+    label:SetText(v.long)
+    label:SetTextColor(0.8, 0.8, 0.8)
+
     self.statWeights.inputs[i] = GUI:CreateEditBox(
-      self.statWeights,
-      60,
+      container,
+      40,
       ITEM_SIZE,
       self.pdb.weights[i],
-        function (val)
+      function (val)
         self.pdb.weights[i] = val
         self:RefreshMethodStats()
       end,
       {
-      OnTabPressed = function(frame)
-        if self.statWeights.inputs[i+1] then
-          self.statWeights.inputs[i+1]:SetFocus()
-        else
-          frame:ClearFocus()
+        OnTabPressed = function(frame)
+          if self.statWeights.inputs[i+1] then
+            self.statWeights.inputs[i+1]:SetFocus()
+          else
+            frame:ClearFocus()
+          end
         end
-      end
-    })
-    self.statWeights:SetCell (row, col + 1, self.statWeights.inputs[i])
+      }
+    )
+    self.statWeights.inputs[i]:SetPoint("RIGHT", container, "RIGHT", -6, 0)
+
+    self.statWeights:SetCell(row, col, container)
+
+    if v.name == "ITEM_MOD_DODGE_RATING" then
+      self.statWeights.dodgeContainer = container
+    end
+    if v.name == "ITEM_MOD_MASTERY_RATING_SHORT" then
+      self.statWeights.masteryContainer = container
+    end
   end
 
   self.statCaps:Show2 ()
@@ -1180,11 +1196,13 @@ function ReforgeLite:CreateOptionList ()
     end
   end)
 
-  self.statWeights = GUI:CreateTable (ceil (ITEM_STAT_COUNT / 2), 4)
+  self.statWeights = GUI:CreateTable (ceil (ITEM_STAT_COUNT / 2), 2)
   self:SetAnchor (self.statWeights, "TOPLEFT", self.targetLevel.text, "BOTTOMLEFT", 0, -8)
   self.statWeights:SetPoint ("RIGHT", -5, 0)
   self.statWeightsCategory:AddFrame (self.statWeights)
-  self.statWeights:SetRowHeight (ITEM_SIZE + 2)
+  self.statWeights:SetRowHeight (ITEM_SIZE + 6)
+  self.statWeights:SetColumnWidth (1, 125)
+  self.statWeights:SetColumnWidth (2, 125)
 
   self.statCaps = GUI:CreateTable (2, 4, nil, ITEM_SIZE + 2)
   self.statWeightsCategory:AddFrame (self.statCaps)
@@ -1194,6 +1212,7 @@ function ReforgeLite:CreateOptionList ()
   self.statCaps:SetColumnWidth (1, 100)
   self.statCaps:SetColumnWidth (3, 50)
   self.statCaps:SetColumnWidth (4, 50)
+
   local statList = {{value = 0, name = NONE}}
   for i, v in ipairs (ITEM_STATS) do
     tinsert (statList, {value = i, name = v.long})
@@ -1261,6 +1280,7 @@ function ReforgeLite:CreateOptionList ()
   end
   self.statCaps:OnUpdate()
   RunNextFrame(function() self:CapUpdater() end)
+
   self.computeButton = GUI:CreatePanelButton (self.content, L["Compute"], function() self:StartCompute() end, {
     OnCalculateFinish = function(btn)
       btn:RenderText(L["Compute"])
@@ -1310,6 +1330,20 @@ function ReforgeLite:CreateOptionList ()
 
 
   self:UpdateStatWeightList ()
+
+  self.statWeightsHelpButton = CreateFrame("Button", nil, self.content, "MainHelpPlateButton")
+  self.statWeightsHelpButton:SetFrameLevel(self.statWeightsHelpButton:GetParent():GetFrameLevel() + 1)
+  self.statWeightsHelpButton:SetScale(0.6)
+  GUI:SetTooltip(self.statWeightsHelpButton, L["Stat weights determine the relative value of each stat.\n\nHigher weights mean the optimizer will prioritize that stat more when reforging.\n\nFor example, if Hit has weight 60 and Crit has weight 20, the optimizer values Hit three times more than Crit."])
+  self.statWeightsCategory:AddFrame(self.statWeightsHelpButton)
+  self.statWeightsHelpButton:SetPoint("TOPLEFT", self.statWeights.dodgeContainer, "TOPRIGHT", 8, 0)
+
+  self.statCapsHelpButton = CreateFrame("Button", nil, self.content, "MainHelpPlateButton")
+  self.statCapsHelpButton:SetFrameLevel(self.statCapsHelpButton:GetParent():GetFrameLevel() + 1)
+  self.statCapsHelpButton:SetScale(0.6)
+  GUI:SetTooltip(self.statCapsHelpButton, L["Stat caps allow you to set minimum or maximum values for specific stats when reforging.\n\n'At least' (minimum): The optimizer will try to reach this value before prioritizing other stats. For example, setting Hit to 'At least 2550' ensures you reach the 7.5% hit cap before investing in other stats.\n\n'At most' (maximum): The optimizer will never exceed this value. For example, setting Hit to 'At most 2550' prevents wasting stats beyond the hit cap, redirecting excess reforges to other stats.\n\nUse caps to ensure you meet important breakpoints while maximizing your overall stat weights."])
+  self.statWeightsCategory:AddFrame(self.statCapsHelpButton)
+  self.statCapsHelpButton:SetPoint("TOP", self.statWeights.masteryContainer, "BOTTOM", 0, -5)
 
   self.settingsCategory = self:CreateCategory (SETTINGS)
   self:SetAnchor (self.settingsCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
@@ -1509,6 +1543,13 @@ function ReforgeLite:UpdateMethodCategory()
       self.methodStats[i].delta:SetTextColor(addonTable.FONTS.grey:GetRGB())
       self.methodStats[i].delta:SetText ("+0")
     end
+
+    self.methodHelpButton = CreateFrame("Button", nil, self.content, "MainHelpPlateButton")
+    self.methodHelpButton:SetFrameLevel(self.methodHelpButton:GetParent():GetFrameLevel() + 1)
+    self.methodHelpButton:SetScale(0.6)
+    GUI:SetTooltip(self.methodHelpButton, L["The Result table shows the stat changes from the optimized reforge.\n\nThe left column shows your total stats after reforging.\n\nThe right column (in green) shows how much each stat increased or decreased compared to your current gear.\n\nClick 'Show' to see a detailed breakdown of which items to reforge.\n\nClick 'Reset' to clear the current reforge plan."])
+    self.methodCategory:AddFrame(self.methodHelpButton)
+    self.methodHelpButton:SetPoint("TOPLEFT", self.methodStats, "TOPRIGHT", 8, 0)
 
     self.methodShow = GUI:CreatePanelButton (self.content, SHOW, function(btn) self:ShowMethodWindow() end)
     self.methodShow:SetSize(85, 22)
