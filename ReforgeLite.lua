@@ -918,7 +918,7 @@ function ReforgeLite:AddCapPoint (i, loading)
     end
     return ("%s\n%s"):format(L["Cap value"], rating)
   end)
-  GUI:SetTooltip (after, L["Weight after cap"])
+  GUI:SetTooltip (after, L["Weight after cap - The stat weight value to use once the cap is reached.\n\nThis allows you to control whether the optimizer continues valuing this stat after hitting the cap.\n\nSet to 0 to stop reforging into this stat after the cap.\nSet to a positive value to continue prioritizing it (useful for soft caps)."])
 
   self.statCaps:SetCell (row, 0, rem, "LEFT", 0, 0)
   self.statCaps:SetCell (row, 1, method, "LEFT", 0, 0)
@@ -1322,11 +1322,11 @@ function ReforgeLite:CreateOptionList ()
   self:SetAnchor (self.pauseButton, "LEFT", self.computeButton, "RIGHT", 4, 0)
   self.pauseButton:Disable()
 
-  self.fastModeButton = GUI:CreateCheckButton(self.content, L["Experimental Fast Mode"], self.pdb.useBranchBound, function (val) self.pdb.useBranchBound = val end)
+  self.fastModeButton = GUI:CreateCheckButton(self.content, L["Branch & Bound Mode"], self.pdb.useBranchBound, function (val) self.pdb.useBranchBound = val end)
   self:SetAnchor(self.fastModeButton, "LEFT", self.pauseButton, "RIGHT", 4, 0)
   self.fastModeButton:SetShown(self.pdb.caps[#self.pdb.caps].stat ~= 0) 
 
-  GUI:SetTooltip(self.fastModeButton, L["Experimental Fast Mode uses the Branch & Bound algorithm to speed up optimization when using stat caps.\n\nPerformance depends on your cap configuration:\n• Multiple soft caps (low values): Nearly instant\n• Multiple hard caps (high values): May be slower than standard mode\n\nThe algorithm guarantees the same optimal result - only the computation speed varies.\n\nNote: Only available when both stat caps are configured."])
+  GUI:SetTooltip(self.fastModeButton, L["Branch & Bound Mode uses an alternative optimization algorithm designed to speed up calculations when using stat caps.\n\nPerformance depends on your cap configuration:\n• Multiple soft caps (low values): Nearly instant\n• Multiple hard caps (high values): May be slower than standard mode\n\nThe algorithm guarantees the same optimal result - only the computation speed varies.\n\nNote: Only available when both stat caps are configured."])
 
 
   self:UpdateStatWeightList ()
