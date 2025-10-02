@@ -1092,10 +1092,6 @@ function ReforgeLite:UpdateStatWeightList ()
       end
     })
     self.statWeights:SetCell (row, col + 1, self.statWeights.inputs[i])
-
-    if v.name == "ITEM_MOD_DODGE_RATING" then
-      self.statWeights.dodgeContainer = self.statWeights.inputs[i]
-    end
   end
 
   self.statCaps:Show2 ()
@@ -1323,9 +1319,9 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsHelpButton = CreateFrame("Button", nil, self.content, "MainHelpPlateButton")
   self.statWeightsHelpButton:SetFrameLevel(self.statWeightsHelpButton:GetParent():GetFrameLevel() + 1)
   self.statWeightsHelpButton:SetScale(0.6)
-  GUI:SetTooltip(self.statWeightsHelpButton, L["Stat weights determine the relative value of each stat.\n\nHigher weights mean the optimizer will prioritize that stat more when reforging.\n\nFor example, if Hit has weight 60 and Crit has weight 20, the optimizer values Hit three times more than Crit."])
+  GUI:SetTooltip(self.statWeightsHelpButton, L["Target Level: Select your raid difficulty to calculate stats at the appropriate level.\n\nBuffs: Enable active raid buffs to account for their stat bonuses in calculations.\n\nStat Weights: Assign relative values to each stat. Higher weights mean the optimizer will prioritize that stat more when reforging.\n\nExample: If Hit has weight 60 and Crit has weight 20, the optimizer values Hit three times more than Crit."])
   self.statWeightsCategory:AddFrame(self.statWeightsHelpButton)
-  self.statWeightsHelpButton:SetPoint("TOPLEFT", self.statWeights.dodgeContainer, "TOPRIGHT", 8, 0)
+  self.statWeightsHelpButton:SetPoint("LEFT", self.buffsContextMenu, "RIGHT", 8, 0)
 
   self.settingsCategory = self:CreateCategory (SETTINGS)
   self:SetAnchor (self.settingsCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
