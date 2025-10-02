@@ -1326,7 +1326,7 @@ function ReforgeLite:CreateOptionList ()
   self:SetAnchor(self.fastModeButton, "LEFT", self.pauseButton, "RIGHT", 4, 0)
   self.fastModeButton:SetShown(self.pdb.caps[#self.pdb.caps].stat ~= 0) 
 
-  GUI:SetTooltip(self.fastModeButton, L["EXPERIMENTAL!!\nThis feature utilizes the branch and bound method which attempts to speed up the process without sacrificing any accuracy. While it should be faster for most users, there are still some edge cases where it can be even slower than the original formula.\n\nThank you!"])
+  GUI:SetTooltip(self.fastModeButton, L["Experimental Fast Mode uses the Branch & Bound algorithm to speed up optimization when using stat caps.\n\nPerformance depends on your cap configuration:\n• Multiple soft caps (low values): Nearly instant\n• Multiple hard caps (high values): May be slower than standard mode\n\nThe algorithm guarantees the same optimal result - only the computation speed varies.\n\nNote: Only available when both stat caps are configured."])
 
 
   self:UpdateStatWeightList ()
@@ -1404,7 +1404,7 @@ function ReforgeLite:FillSettings()
     end
   )
 
-  GUI:SetTooltip(accuracySlider, L["Setting to Low will result in lower accuracy but faster results! Set this back to High if you're not getting the results you expect."])
+  GUI:SetTooltip(accuracySlider, L["The Accuracy slider controls the size of the optimization search space.\n\nLower accuracy = Faster computation but may miss the optimal solution\nHigher accuracy = Slower computation but more thorough search\n\nThe optimizer explores possible reforge combinations within this accuracy range. If you're not getting expected results, increase the accuracy."])
 
   self.settings:SetCell (getOrderId('settings'), 0, accuracySlider, "LEFT", 8)
 
