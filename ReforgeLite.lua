@@ -827,7 +827,7 @@ function ReforgeLite:CreateItemTable ()
     end
   end
   self.statTotals = {}
-  self.itemTable:SetCellText (ITEM_SLOT_COUNT + 1, 0, L["Sum"], "CENTER", {addonTable.FONTS.darkyellow:GetRGB()})
+  self.itemTable:SetCellText (ITEM_SLOT_COUNT + 1, 0, L["Sum"], "CENTER", addonTable.FONTS.darkyellow)
   for i, v in ipairs (ITEM_STATS) do
     self.statTotals[i] = self.itemTable:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
     self.itemTable:SetCell (ITEM_SLOT_COUNT + 1, i, self.statTotals[i])
@@ -1061,57 +1061,45 @@ function ReforgeLite:CapUpdater()
   end
 end
 function ReforgeLite:UpdateStatWeightList ()
-  local rows = ceil(ITEM_STAT_COUNT / 2)
+  local rows = ITEM_STAT_COUNT
+  local extraRows = 0
   self.statWeights:ClearCells ()
   self.statWeights.inputs = {}
-
+  rows = ceil(rows / 2) + extraRows
   while self.statWeights.rows > rows do
     self.statWeights:DeleteRow (1)
   end
   if self.statWeights.rows < rows then
     self.statWeights:AddRow (1, rows - self.statWeights.rows)
   end
-
   for i, v in ipairs (ITEM_STATS) do
-    local col = ((i - 1) % 2) + 1
-    local row = floor((i - 1) / 2) + 1
+    local col = floor ((i - 1) / (self.statWeights.rows - extraRows))
+    local row = i - col * (self.statWeights.rows - extraRows) + extraRows
+    col = 1 + 2 * col
 
-    local container = CreateFrame("Frame", nil, self.statWeights)
-    container:SetSize(120, ITEM_SIZE + 4)
-
-    local label = container:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    label:SetPoint("LEFT", container, "LEFT", 6, 0)
-    label:SetText(v.long)
-    label:SetTextColor(0.8, 0.8, 0.8)
-
+    self.statWeights:SetCellText (row, col, v.long, "LEFT", addonTable.FONTS.darkyellow, "GameFontNormal")
     self.statWeights.inputs[i] = GUI:CreateEditBox(
-      container,
-      40,
+      self.statWeights,
+      60,
       ITEM_SIZE,
       self.pdb.weights[i],
-      function (val)
+        function (val)
         self.pdb.weights[i] = val
         self:RefreshMethodStats()
       end,
       {
-        OnTabPressed = function(frame)
-          if self.statWeights.inputs[i+1] then
-            self.statWeights.inputs[i+1]:SetFocus()
-          else
-            frame:ClearFocus()
-          end
+      OnTabPressed = function(frame)
+        if self.statWeights.inputs[i+1] then
+          self.statWeights.inputs[i+1]:SetFocus()
+        else
+          frame:ClearFocus()
         end
-      }
-    )
-    self.statWeights.inputs[i]:SetPoint("RIGHT", container, "RIGHT", -6, 0)
-
-    self.statWeights:SetCell(row, col, container)
+      end
+    })
+    self.statWeights:SetCell (row, col + 1, self.statWeights.inputs[i])
 
     if v.name == "ITEM_MOD_DODGE_RATING" then
-      self.statWeights.dodgeContainer = container
-    end
-    if v.name == "ITEM_MOD_MASTERY_RATING_SHORT" then
-      self.statWeights.masteryContainer = container
+      self.statWeights.dodgeContainer = self.statWeights.inputs[i]
     end
   end
 
@@ -1196,13 +1184,10 @@ function ReforgeLite:CreateOptionList ()
     end
   end)
 
-  self.statWeights = GUI:CreateTable (ceil (ITEM_STAT_COUNT / 2), 2)
+  self.statWeights = GUI:CreateTable (ceil (ITEM_STAT_COUNT / 2), 4)
   self:SetAnchor (self.statWeights, "TOPLEFT", self.targetLevel.text, "BOTTOMLEFT", 0, -8)
-  self.statWeights:SetPoint ("RIGHT", -5, 0)
   self.statWeightsCategory:AddFrame (self.statWeights)
-  self.statWeights:SetRowHeight (ITEM_SIZE + 6)
-  self.statWeights:SetColumnWidth (1, 125)
-  self.statWeights:SetColumnWidth (2, 125)
+  self.statWeights:SetRowHeight (ITEM_SIZE + 2)
 
   self.statCaps = GUI:CreateTable (2, 4, nil, ITEM_SIZE + 2)
   self.statWeightsCategory:AddFrame (self.statCaps)
@@ -1255,6 +1240,15 @@ function ReforgeLite:CreateOptionList ()
     GUI:SetTooltip (self.statCaps[i].add, L["Add cap"])
     self.statCaps:SetCell (i, 0, self.statCaps[i].stat, "LEFT", 0, 0)
     self.statCaps:SetCell (i, 2, self.statCaps[i].add, "LEFT")
+
+    if i == 1 and not self.statCapsHelpButton then
+      self.statCapsHelpButton = CreateFrame("Button", nil, self.content, "MainHelpPlateButton")
+      self.statCapsHelpButton:SetFrameLevel(self.statCapsHelpButton:GetParent():GetFrameLevel() + 1)
+      self.statCapsHelpButton:SetScale(0.6)
+      GUI:SetTooltip(self.statCapsHelpButton, L["Stat caps allow you to set minimum or maximum values for specific stats when reforging.\n\n'At least' (minimum): The optimizer will try to reach this value before prioritizing other stats. For example, setting Hit to 'At least 2550' ensures you reach the 7.5% hit cap before investing in other stats.\n\n'At most' (maximum): The optimizer will never exceed this value. For example, setting Hit to 'At most 2550' prevents wasting stats beyond the hit cap, redirecting excess reforges to other stats.\n\nUse caps to ensure you meet important breakpoints while maximizing your overall stat weights."])
+      self.statWeightsCategory:AddFrame(self.statCapsHelpButton)
+      self.statCapsHelpButton:SetPoint("LEFT", self.statCaps[i].add, "RIGHT", 8, 0)
+    end
   end
   for i = 1, 2 do
     for point in ipairs(self.pdb.caps[i].points) do
@@ -1337,13 +1331,6 @@ function ReforgeLite:CreateOptionList ()
   GUI:SetTooltip(self.statWeightsHelpButton, L["Stat weights determine the relative value of each stat.\n\nHigher weights mean the optimizer will prioritize that stat more when reforging.\n\nFor example, if Hit has weight 60 and Crit has weight 20, the optimizer values Hit three times more than Crit."])
   self.statWeightsCategory:AddFrame(self.statWeightsHelpButton)
   self.statWeightsHelpButton:SetPoint("TOPLEFT", self.statWeights.dodgeContainer, "TOPRIGHT", 8, 0)
-
-  self.statCapsHelpButton = CreateFrame("Button", nil, self.content, "MainHelpPlateButton")
-  self.statCapsHelpButton:SetFrameLevel(self.statCapsHelpButton:GetParent():GetFrameLevel() + 1)
-  self.statCapsHelpButton:SetScale(0.6)
-  GUI:SetTooltip(self.statCapsHelpButton, L["Stat caps allow you to set minimum or maximum values for specific stats when reforging.\n\n'At least' (minimum): The optimizer will try to reach this value before prioritizing other stats. For example, setting Hit to 'At least 2550' ensures you reach the 7.5% hit cap before investing in other stats.\n\n'At most' (maximum): The optimizer will never exceed this value. For example, setting Hit to 'At most 2550' prevents wasting stats beyond the hit cap, redirecting excess reforges to other stats.\n\nUse caps to ensure you meet important breakpoints while maximizing your overall stat weights."])
-  self.statWeightsCategory:AddFrame(self.statCapsHelpButton)
-  self.statCapsHelpButton:SetPoint("TOP", self.statWeights.masteryContainer, "BOTTOM", 0, -5)
 
   self.settingsCategory = self:CreateCategory (SETTINGS)
   self:SetAnchor (self.settingsCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
@@ -1529,19 +1516,11 @@ function ReforgeLite:UpdateMethodCategory()
     self.methodStats:SetColumnWidth (60)
 
     for i, v in ipairs (ITEM_STATS) do
-      self.methodStats:SetCellText (i - 1, 0, v.tip, "LEFT")
-
-      self.methodStats[i] = {}
-
-      self.methodStats[i].value = self.methodStats:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
-      self.methodStats:SetCell (i - 1, 1, self.methodStats[i].value)
-      self.methodStats[i].value:SetTextColor(addonTable.FONTS.white:GetRGB())
-      self.methodStats[i].value:SetText ("0")
-
-      self.methodStats[i].delta = self.methodStats:CreateFontString (nil, "OVERLAY", "GameFontNormalSmall")
-      self.methodStats:SetCell (i - 1, 2, self.methodStats[i].delta)
-      self.methodStats[i].delta:SetTextColor(addonTable.FONTS.grey:GetRGB())
-      self.methodStats[i].delta:SetText ("+0")
+      local cell = i - 1
+      self.methodStats:SetCellText(cell, 0, v.tip, "LEFT")
+      self.methodStats:SetCellText(cell, 1, "0")
+      self.methodStats:SetCellText(cell, 2, "+0", nil, addonTable.FONTS.grey)
+      self.methodStats[i] = { value = self.methodStats.cells[cell][1], delta = self.methodStats.cells[cell][2] }
     end
 
     self.methodHelpButton = CreateFrame("Button", nil, self.content, "MainHelpPlateButton")
