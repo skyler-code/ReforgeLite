@@ -906,39 +906,34 @@ function ReforgeLite:AddCapPoint (i, loading)
   GUI:SetTooltip (value, function()
     local cap = self.pdb.caps[i]
     if cap.stat == statIds.SPIRIT then return end
+
     local pointValue = (cap.points[point].value or 0)
     local rating = pointValue / self:RatingPerPoint(cap.stat)
+
+    local function formatWithBonus(val, bonus)
+      val = RoundToSignificantDigits(val, 1)
+      if bonus > 0 then
+        return ("%.2f%% + %s%% = %.2f%%"):format(val, bonus, val + bonus)
+      else
+        return ("%.2f%%"):format(val)
+      end
+    end
+
+    local ratingText
     if cap.stat == statIds.HIT then
-      local meleeHitBonus = self:GetMeleeHitBonus()
-      rating = RoundToSignificantDigits(rating, 1)
-      if meleeHitBonus > 0 then
-        rating = ("%.2f%% + %s%% = %.2f"):format(rating, meleeHitBonus, rating + meleeHitBonus)
-      else
-        rating = ("%.2f"):format(rating)
-      end
-      local spellHitRating = RoundToSignificantDigits(pointValue / self:RatingPerPoint(statIds.SPELLHIT), 1)
-      local spellHitBonus = self:GetSpellHitBonus()
-      if spellHitBonus > 0 then
-        spellHitRating = ("%.2f%% + %s%% = %.2f"):format(spellHitRating,spellHitBonus,spellHitRating+spellHitBonus)
-      else
-        spellHitRating = ("%.2f"):format(spellHitRating)
-      end
-      rating = ("%s: %s%%\n%s: %s%%"):format(MELEE, rating, STAT_CATEGORY_SPELL, spellHitRating)
+      local meleeHit = formatWithBonus(rating, self:GetMeleeHitBonus())
+      local spellHit = formatWithBonus(pointValue / self:RatingPerPoint(statIds.SPELLHIT), self:GetSpellHitBonus())
+      ratingText = ("%s: %s\n%s: %s"):format(MELEE, meleeHit, STAT_CATEGORY_SPELL, spellHit)
     elseif cap.stat == statIds.EXP then
-      rating = RoundToSignificantDigits(rating, 1)
-      local expBonus = self:GetExpertiseBonus()
-      if expBonus > 0 then
-        rating = ("%.2f%% + %s%% = %.2f%%"):format(rating, expBonus, rating + expBonus)
-      else
-        rating = ("%.2f%%"):format(rating)
-      end
+      ratingText = formatWithBonus(rating, self:GetExpertiseBonus())
     elseif cap.stat == statIds.HASTE then
       local meleeHaste, rangedHaste, spellHaste = self:CalcHasteWithBonuses(rating)
-      rating = ("%s: %.2f%%\n%s: %.2f%%\n%s: %.2f%%"):format(MELEE, meleeHaste, RANGED, rangedHaste, STAT_CATEGORY_SPELL, spellHaste)
+      ratingText = ("%s: %.2f%%\n%s: %.2f%%\n%s: %.2f%%"):format(MELEE, meleeHaste, RANGED, rangedHaste, STAT_CATEGORY_SPELL, spellHaste)
     else
-      rating = ("%.2f"):format(rating)
+      ratingText = ("%.2f"):format(rating)
     end
-    return ("%s\n%s"):format(L["Cap value"], rating)
+
+    return ("%s\n%s"):format(L["Cap value"], ratingText)
   end)
   GUI:SetTooltip (after, L["Weight after cap - The stat weight value to use once the cap is reached.\n\nThis allows you to control whether the optimizer continues valuing this stat after hitting the cap.\n\nSet to 0 to stop reforging into this stat after the cap.\nSet to a positive value to continue prioritizing it (useful for soft caps)."])
 
@@ -1313,7 +1308,7 @@ function ReforgeLite:CreateOptionList ()
         btn:RenderText(KEY_PAUSE)
         btn:Enable()
       end,
-      OnCalculateFinish = function(btn) 
+      OnCalculateFinish = function(btn)
         btn:RenderText(KEY_PAUSE)
         btn:Disable()
       end
@@ -1472,7 +1467,7 @@ function ReforgeLite:FillSettings()
     GUI:CreatePanelButton(
         self.settings,
         L["Run Algorithm Comparison"],
-        function(btn) self:StartAlgorithmComparison() end, 
+        function(btn) self:StartAlgorithmComparison() end,
         {
           OnCalculateFinish = function(btn)
             btn:RenderText(L["Run Algorithm Comparison"])
