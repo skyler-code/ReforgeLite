@@ -239,6 +239,7 @@ local ITEM_STATS = {
 }
 local ITEM_STAT_COUNT = #ITEM_STATS
 addonTable.itemStats, addonTable.itemStatCount = ITEM_STATS, ITEM_STAT_COUNT
+ReforgeLite.itemStats = ITEM_STATS
 
 local REFORGE_TABLE_BASE = 112
 local reforgeTable = {
@@ -783,6 +784,7 @@ function ReforgeLite:CreateItemTable ()
   self.itemTable:SetPoint ("TOPLEFT", self.playerSpecTexture, "BOTTOMLEFT", 0, -6)
   self.itemTable:SetPoint ("BOTTOM", 0, 10)
   self.itemTable:SetWidth (400)
+  self.itemTable:EnableColumnAutoWidth(unpack(GetKeysArray(ITEM_STATS)))
 
   self.itemLevel = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   self.itemLevel:SetPoint ("BOTTOMRIGHT", self.itemTable, "TOPRIGHT", 0, 8)
@@ -1698,20 +1700,19 @@ function ReforgeLite:UpdateItems()
     end
   end
 
-  local visibleColumns = 0
+  local hasAnyData = next(columnHasData) ~= nil
+
   for i, v in ipairs (ITEM_STATS) do
-    local hasData = columnHasData[i]
-    self.itemTable:SetColumnWidth(i, hasData and 60 or 0)
+    local hasData = columnHasData[i] or not hasAnyData
+    self.itemTable:SetColumnWidth(i, hasData and 55 or 0)
     self.statHeaders[i]:SetShown(hasData)
     self.statTotals[i]:SetShown(hasData)
     self.statTotals[i]:SetText(v.getter())
-    if hasData then
-      visibleColumns = visibleColumns + 1
-    end
   end
 
-  local minWidth = 420 + (visibleColumns * 60)
-  self:SetResizeBounds(minWidth, 500, 1000, 800)
+  -- Calculate minimum width: itemTable + gap + min content width + scrollbar margin
+  local minWidth = self.itemTable:GetWidth() + 10 + 400 + 22
+  self:SetResizeBounds(minWidth, select(2, self:GetResizeBounds()))
   if self:GetWidth() < minWidth then
     self:SetWidth(minWidth)
   end

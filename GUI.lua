@@ -1051,7 +1051,7 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
     end
 
     local maxWidths = {}
-    for _, row in ipairs(self.cells) do
+    for _, row in pairs(self.cells) do
       for colIndex in pairs(columnsToProcess) do
         local cell = row[colIndex]
         if cell then
