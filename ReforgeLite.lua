@@ -878,8 +878,7 @@ function ReforgeLite:AddCapPoint (i, loading)
   local methodList = {
     {value = addonTable.StatCapMethods.AtLeast, name = L["At least"]},
     {value = addonTable.StatCapMethods.AtMost, name = L["At most"]},
-    {value = addonTable.StatCapMethods.Exactly, name = L["Exactly"]},
-    {value = addonTable.StatCapMethods.NewValue, name = ""}
+    {value = addonTable.StatCapMethods.Exactly, name = L["Exactly"]}
   }
   local method = GUI:CreateDropdown (self.statCaps, methodList, { default = 1, setter = function (_,val) self.pdb.caps[i].points[point].method = val end, width = 95 })
   local preset = GUI:CreateDropdown (self.statCaps, self.capPresets, {
