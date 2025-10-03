@@ -47,7 +47,7 @@ addonTable.MAX_SPEED = 20
 
 local DefaultDB = {
   global = {
-    maxLabelWidth = {},
+    maxStatLabelWidth = { enUS = 70 },
     windowLocation = false,
     methodWindowLocation = false,
     openOnReforge = true,
@@ -1199,21 +1199,21 @@ function ReforgeLite:CreateOptionList ()
   self.statWeights:SetRowHeight (ITEM_SIZE + 2)
 
   -- Calculate max label width based on actual stat names
-  local maxLabelWidth = self.db.maxLabelWidth[addonTable.Locale]
-  if not maxLabelWidth then
-    maxLabelWidth = 70
+  local maxStatLabelWidth = self.db.maxStatLabelWidth[addonTable.Locale]
+  if not maxStatLabelWidth then
+    maxStatLabelWidth = 70
     local testLabel = self.statWeights:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    for i, v in ipairs(ITEM_STATS) do
+    for _, v in ipairs(ITEM_STATS) do
       testLabel:SetText(v.long)
-      maxLabelWidth = math.max(maxLabelWidth, testLabel:GetStringWidth() + 5)
+      maxStatLabelWidth = max(maxStatLabelWidth, testLabel:GetStringWidth() + 5)
     end
     testLabel:Hide()
-    self.db.maxLabelWidth[addonTable.Locale] = maxLabelWidth
+    self.db.maxStatLabelWidth[addonTable.Locale] = maxStatLabelWidth
   end
 
-  self.statWeights:SetColumnWidth (1, maxLabelWidth)
+  self.statWeights:SetColumnWidth (1, maxStatLabelWidth)
   self.statWeights:SetColumnWidth (2, 55)
-  self.statWeights:SetColumnWidth (3, maxLabelWidth)
+  self.statWeights:SetColumnWidth (3, maxStatLabelWidth)
   self.statWeights:SetColumnWidth (4, 50)
 
   self.statCaps = GUI:CreateTable (2, 4, nil, ITEM_SIZE + 2)
