@@ -804,10 +804,15 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
     self:OnUpdateFix ()
   end
   t.SetColumnAutoWidth = function (self, n, enabled)
-    if n < 0 or n >= self.cols then
+    if n < 0 or n > self.cols then
       return
     end
     self.autoWidthColumns[n] = enabled
+  end
+  t.EnableColumnAutoWidth = function (self, ...)
+    for _, v in ipairs({...}) do
+      self:SetColumnAutoWidth(v, true)
+    end
   end
   t.AddRow = function (self, i, n)
     i = i or (self.rows + 1)
@@ -1034,6 +1039,42 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
     RunNextFrame(function() self:OnUpdateFix() end)
   end)
 
+  t.AutoSizeColumns = function(self, columnIndex)
+    -- Auto-adjust column width if enabled for this column
+    local columnsToProcess = {}
+    if columnIndex then
+      if self.autoWidthColumns[columnIndex] then
+        columnsToProcess[columnIndex] = true
+      end
+    else
+      columnsToProcess = self.autoWidthColumns
+    end
+
+    local maxWidths = {}
+    for _, row in ipairs(self.cells) do
+      for colIndex in pairs(columnsToProcess) do
+        local cell = row[colIndex]
+        if cell then
+          local foundWidth = 0
+          if cell.GetStringWidth then
+            foundWidth = cell:GetStringWidth()
+          elseif cell.GetWidth then
+            foundWidth = cell:GetWidth()
+          end
+          local currentMax = maxWidths[colIndex] or 0
+          if foundWidth > currentMax then
+            maxWidths[colIndex] = ceil(foundWidth) + 10
+          end
+        end
+      end
+    end
+
+    for colIndex, width in pairs(maxWidths) do
+      self.colWidth[colIndex] = width
+    end
+    self:OnUpdateFix()
+  end
+
   t.SetCell = function (self, i, j, value, align, offsX, offsY)
     align = align or "CENTER"
     self.cells[i][j] = value
@@ -1041,6 +1082,7 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
     self.cells[i][j].offsX = offsX
     self.cells[i][j].offsY = offsY
     self:AlignCell (i, j)
+    self:AutoSizeColumns(j)
   end
   t.textTagPool = {}
   t.SetCellText = function (self, i, j, text, align, color, font)
@@ -1076,16 +1118,7 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
     self.cells[i][j]:SetText (text)
     self.cells[i][j].align = align
     self:AlignCell (i, j)
-
-    -- Auto-adjust column width if enabled for this column
-    if self.autoWidthColumns[j] then
-      local textWidth = self.cells[i][j]:GetStringWidth() + 5
-      local colIndex = (j == 0 and 0 or j + 1)
-      if textWidth > self.colWidth[colIndex] then
-        self.colWidth[colIndex] = textWidth
-        self:OnUpdateFix()
-      end
-    end
+    self:AutoSizeColumns(j)
   end
 
   return t

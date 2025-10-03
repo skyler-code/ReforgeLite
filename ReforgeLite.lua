@@ -47,7 +47,6 @@ addonTable.MAX_SPEED = 20
 
 local DefaultDB = {
   global = {
-    maxStatLabelWidth = { enUS = 70 },
     windowLocation = false,
     methodWindowLocation = false,
     openOnReforge = true,
@@ -1091,15 +1090,8 @@ end
 function ReforgeLite:UpdateStatWeightList ()
   local rows = ITEM_STAT_COUNT
   local extraRows = 0
-  self.statWeights:ClearCells ()
   self.statWeights.inputs = {}
   rows = ceil(rows / 2) + extraRows
-  while self.statWeights.rows > rows do
-    self.statWeights:DeleteRow (1)
-  end
-  if self.statWeights.rows < rows then
-    self.statWeights:AddRow (1, rows - self.statWeights.rows)
-  end
   for i, v in ipairs (ITEM_STATS) do
     local col = floor ((i - 1) / (self.statWeights.rows - extraRows))
     local row = i - col * (self.statWeights.rows - extraRows) + extraRows
@@ -1197,24 +1189,9 @@ function ReforgeLite:CreateOptionList ()
   self:SetAnchor (self.statWeights, "TOPLEFT", self.targetLevel.text, "BOTTOMLEFT", 0, -8)
   self.statWeightsCategory:AddFrame (self.statWeights)
   self.statWeights:SetRowHeight (ITEM_SIZE + 2)
-
-  -- Calculate max label width based on actual stat names
-  local maxStatLabelWidth = self.db.maxStatLabelWidth[addonTable.Locale]
-  if not maxStatLabelWidth then
-    maxStatLabelWidth = 70
-    local testLabel = self.statWeights:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    for _, v in ipairs(ITEM_STATS) do
-      testLabel:SetText(v.long)
-      maxStatLabelWidth = max(maxStatLabelWidth, testLabel:GetStringWidth() + 5)
-    end
-    testLabel:Hide()
-    self.db.maxStatLabelWidth[addonTable.Locale] = maxStatLabelWidth
-  end
-
-  self.statWeights:SetColumnWidth (1, maxStatLabelWidth)
-  self.statWeights:SetColumnWidth (2, 55)
-  self.statWeights:SetColumnWidth (3, maxStatLabelWidth)
-  self.statWeights:SetColumnWidth (4, 50)
+  self.statWeights:SetColumnWidth(2, 61)
+  self.statWeights:SetColumnWidth(4, 61)
+  self.statWeights:EnableColumnAutoWidth(1, 3)
 
   self.statCaps = GUI:CreateTable (2, 4, nil, ITEM_SIZE + 2)
   self.statWeightsCategory:AddFrame (self.statCaps)
@@ -1549,14 +1526,14 @@ function ReforgeLite:UpdateMethodCategory()
     self:SetAnchor (self.methodStats, "TOPLEFT", self.methodCategory, "BOTTOMLEFT", 0, -5)
     self.methodStats:SetRowHeight (ITEM_SIZE + 2)
     self.methodStats:SetColumnWidth(60)
-    self.methodStats:SetColumnAutoWidth(0, true)
+    self.methodStats:EnableColumnAutoWidth(0)
 
     for i, v in ipairs (ITEM_STATS) do
       local cell = i - 1
       self.methodStats:SetCellText(cell, 0, v.long, "LEFT")
       self.methodStats:SetCellText(cell, 1, "0")
       self.methodStats:SetCellText(cell, 2, "+0", nil, addonTable.FONTS.grey)
-      self.methodStats[i] = { value = self.methodStats.cells[cell][1], delta = self.methodStats.cells[cell][2] }
+      self.methodStats[i] = { delta = self.methodStats.cells[cell][2] }
     end
 
     self.methodHelpButton = GUI:CreateHelpButton(self.content, L["The Result table shows the stat changes from the optimized reforge.\n\nThe left column shows your total stats after reforging.\n\nThe right column shows how much each stat increased or decreased compared to your current gear.\n\nClick 'Show' to see a detailed breakdown of which items to reforge.\n\nClick 'Reset' to clear the current reforge plan."])
@@ -1588,11 +1565,12 @@ function ReforgeLite:RefreshMethodStats()
   if self.pdb.method then
     if self.methodStats then
       for i, v in ipairs (ITEM_STATS) do
+        local cell = i - 1
         local mvalue = v.mgetter (self.pdb.method)
         if v.percent then
-          self.methodStats[i].value:SetFormattedText("%.2f%%", mvalue)
+          self.methodStats:SetCellText(cell, 1, ("%.2f%%"):format(mvalue))
         else
-          self.methodStats[i].value:SetText (mvalue)
+          self.methodStats:SetCellText(cell, 1, mvalue)
         end
         local override
         mvalue = v.mgetter (self.pdb.method, true)
