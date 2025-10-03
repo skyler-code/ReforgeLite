@@ -1121,17 +1121,6 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory:AddFrame (self.pawnButton)
   self:SetAnchor (self.pawnButton, "LEFT", self.presetsButton, "RIGHT", 8, 0)
 
-  --@debug@
-  self.exportPresetButton = CreateFrame("DropdownButton", nil, self.content, "WowStyle1FilterDropdownTemplate")
-  self.exportPresetButton:SetText(L["Export"])
-  self.exportPresetButton.resizeToTextPadding = 35
-  self.statWeightsCategory:AddFrame(self.exportPresetButton)
-  self.exportPresetButton:SetPoint("LEFT", self.pawnButton, "RIGHT", 5, 0)
-  if self.exportPresetMenuGenerator then
-    self.exportPresetButton:SetupMenu(self.exportPresetMenuGenerator)
-  end
-  --@end-debug@
-
   local levelList = function()
     return {
         {value=0,name=("%s (+%d)"):format(PVP, 0)},
