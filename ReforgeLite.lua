@@ -1548,11 +1548,12 @@ function ReforgeLite:UpdateMethodCategory()
     self.methodCategory:AddFrame (self.methodStats)
     self:SetAnchor (self.methodStats, "TOPLEFT", self.methodCategory, "BOTTOMLEFT", 0, -5)
     self.methodStats:SetRowHeight (ITEM_SIZE + 2)
-    self.methodStats:SetColumnWidth (60)
+    self.methodStats:SetColumnWidth(60)
+    self.methodStats:SetColumnAutoWidth(0, true)
 
     for i, v in ipairs (ITEM_STATS) do
       local cell = i - 1
-      self.methodStats:SetCellText(cell, 0, v.tip, "LEFT")
+      self.methodStats:SetCellText(cell, 0, v.long, "LEFT")
       self.methodStats:SetCellText(cell, 1, "0")
       self.methodStats:SetCellText(cell, 2, "+0", nil, addonTable.FONTS.grey)
       self.methodStats[i] = { value = self.methodStats.cells[cell][1], delta = self.methodStats.cells[cell][2] }

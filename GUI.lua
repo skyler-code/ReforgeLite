@@ -763,6 +763,7 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
   t.colPos = {}
   t.rowHeight = {}
   t.colWidth = {}
+  t.autoWidthColumns = {}
   t.rowPos[-1] = 0
   t.rowPos[0] = firstRow
   t.colPos[-1] = 0
@@ -801,6 +802,12 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
       end
     end
     self:OnUpdateFix ()
+  end
+  t.SetColumnAutoWidth = function (self, n, enabled)
+    if n < 0 or n >= self.cols then
+      return
+    end
+    self.autoWidthColumns[n] = enabled
   end
   t.AddRow = function (self, i, n)
     i = i or (self.rows + 1)
@@ -1069,6 +1076,16 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
     self.cells[i][j]:SetText (text)
     self.cells[i][j].align = align
     self:AlignCell (i, j)
+
+    -- Auto-adjust column width if enabled for this column
+    if self.autoWidthColumns[j] then
+      local textWidth = self.cells[i][j]:GetStringWidth() + 5
+      local colIndex = (j == 0 and 0 or j + 1)
+      if textWidth > self.colWidth[colIndex] then
+        self.colWidth[colIndex] = textWidth
+        self:OnUpdateFix()
+      end
+    end
   end
 
   return t
