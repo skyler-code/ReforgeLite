@@ -14,13 +14,25 @@
 ---@class ScrollFrame : Frame
 ---@class DropdownButton : Frame
 
+---Callback registry for addon events
+---@class CallbackRegistry
+---@field RegisterCallback fun(self: CallbackRegistry, event: string, callback: function, owner?: any, ...): any Register a callback for an event. Returns owner (auto-generated if nil). Additional args are bound to callback.
+---@field TriggerEvent fun(self: CallbackRegistry, event: string, ...) Trigger an event with optional arguments
+---@field UnregisterCallback fun(self: CallbackRegistry, event: string, owner: any) Unregister a callback (owner is required)
+---
+---Available events:
+--- - "PreCalculateStart" - Fired before computation begins (locks UI)
+--- - "OnCalculateStart" - Fired when computation starts
+--- - "OnCalculateFinish" - Fired when computation completes (unlocks UI)
+--- - "ToggleDebug" - Fired when debug mode is toggled
+
 ---@class AddonTable
 ---@field L table Localization strings
 ---@field GUI GUI GUI widget library
 ---@field ReforgeLite ReforgeLite Main addon frame
 ---@field GetItemStatsUp fun(itemInfo: table): table<string, number> Get item stats with upgrade scaling
 ---@field GetRandPropPoints fun(iLvl: number, t: number): number Get random property points
----@field callbacks table Callback registry
+---@field callbacks CallbackRegistry Callback registry for addon events
 ---@field FONTS table Font color constants
 ---@field playerClass string Player class name (e.g., "WARRIOR", "MAGE")
 ---@field localeClass string Localized player class name

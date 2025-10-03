@@ -3,6 +3,19 @@ local addonName, addonTable = ...
 local GUI = {}
 addonTable.GUI = GUI
 
+---Global callback registry for addon events
+---
+---Available callback events:
+--- - "PreCalculateStart" - Fired before computation begins (locks UI)
+--- - "OnCalculateStart" - Fired when computation starts
+--- - "OnCalculateFinish" - Fired when computation completes (unlocks UI)
+--- - "ToggleDebug" - Fired when debug mode is toggled
+---
+---Usage:
+--- callbacks:RegisterCallback("OnCalculateFinish", function() print("Done!") end)
+--- callbacks:RegisterCallback("OnCalculateFinish", function(owner) print(owner, "Done!") end, "MyAddon")
+--- callbacks:TriggerEvent("OnCalculateFinish")
+--- callbacks:UnregisterCallback("OnCalculateFinish", "MyAddon")
 local callbacks = CreateFromMixins(CallbackRegistryMixin)
 callbacks:OnLoad()
 callbacks:GenerateCallbackEvents({ "OnCalculateFinish", "PreCalculateStart", "OnCalculateStart", "ToggleDebug" })
