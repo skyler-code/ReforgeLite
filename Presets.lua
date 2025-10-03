@@ -1,3 +1,7 @@
+---@class Presets
+---Preset management for stat weights and caps
+---Handles class-specific presets, custom presets, and Pawn integration
+
 local _, addonTable = ...
 local L = addonTable.L
 local ReforgeLite = addonTable.ReforgeLite
@@ -31,6 +35,8 @@ local MASTERY_BUFFS = {
   116956, -- Grace of Air
 }
 
+---Checks if player has a spell haste buff active
+---@return boolean hasSpellHaste True if any spell haste buff is active
 function ReforgeLite:PlayerHasSpellHasteBuff()
   for _, v in ipairs(SPELL_HASTE_BUFFS) do
     if C_UnitAuras.GetPlayerAuraBySpellID(v) then
@@ -39,6 +45,8 @@ function ReforgeLite:PlayerHasSpellHasteBuff()
   end
 end
 
+---Checks if player has a melee haste buff active
+---@return boolean hasMeleeHaste True if any melee haste buff is active
 function ReforgeLite:PlayerHasMeleeHasteBuff()
   for _, v in ipairs(MELEE_HASTE_BUFFS) do
     if C_UnitAuras.GetPlayerAuraBySpellID(v) then
@@ -47,6 +55,8 @@ function ReforgeLite:PlayerHasMeleeHasteBuff()
   end
 end
 
+---Checks if player has a mastery buff active
+---@return boolean hasMastery True if any mastery buff is active
 function ReforgeLite:PlayerHasMasteryBuff()
   for _, v in ipairs(MASTERY_BUFFS) do
     if C_UnitAuras.GetPlayerAuraBySpellID(v) then
@@ -55,6 +65,10 @@ function ReforgeLite:PlayerHasMasteryBuff()
   end
 end
 
+---Gets the rating required per 1% of a stat at a given level
+---@param stat number The stat ID
+---@param level? number The target level (defaults to player level)
+---@return number rating Rating points needed per 1% of stat
 function ReforgeLite:RatingPerPoint (stat, level)
   level = level or UnitLevel("player")
   if stat == addonTable.statIds.SPELLHIT then
@@ -62,12 +76,18 @@ function ReforgeLite:RatingPerPoint (stat, level)
   end
   return addonTable.ScalingTable[stat][level] or 0
 end
+---Gets the melee hit bonus from talents and other sources
+---@return number bonus Melee hit percentage bonus
 function ReforgeLite:GetMeleeHitBonus ()
   return GetHitModifier () or 0
 end
+---Gets the spell hit bonus from talents and other sources
+---@return number bonus Spell hit percentage bonus
 function ReforgeLite:GetSpellHitBonus ()
   return GetSpellHitModifier () or 0
 end
+---Gets the expertise bonus from talents and racials
+---@return number bonus Expertise percentage bonus
 function ReforgeLite:GetExpertiseBonus()
   if addonTable.playerClass == "HUNTER" then
     return select(3, GetExpertise()) - GetCombatRatingBonus(CR_EXPERTISE)
@@ -75,6 +95,10 @@ function ReforgeLite:GetExpertiseBonus()
     return GetExpertise() - GetCombatRatingBonus(CR_EXPERTISE)
   end
 end
+---Calculates haste bonus from buffs for melee/ranged haste
+---@param hasteFunc function Function to get base haste (GetMeleeHaste or GetRangedHaste)
+---@param ratingBonusId number Combat rating type (CR_HASTE_MELEE or CR_HASTE_RANGED)
+---@return number bonus Haste multiplier bonus from buffs
 function ReforgeLite:GetNonSpellHasteBonus(hasteFunc, ratingBonusId)
   local baseBonus = RoundToSignificantDigits((hasteFunc()+100)/(GetCombatRatingBonus(ratingBonusId)+100), 4)
   if self.pdb.meleeHaste and not self:PlayerHasMeleeHasteBuff() then
@@ -82,12 +106,18 @@ function ReforgeLite:GetNonSpellHasteBonus(hasteFunc, ratingBonusId)
   end
   return baseBonus
 end
+---Gets melee haste bonus multiplier from buffs
+---@return number bonus Melee haste multiplier from buffs
 function ReforgeLite:GetMeleeHasteBonus()
   return self:GetNonSpellHasteBonus(GetMeleeHaste, CR_HASTE_MELEE)
 end
+---Gets ranged haste bonus multiplier from buffs
+---@return number bonus Ranged haste multiplier from buffs
 function ReforgeLite:GetRangedHasteBonus()
   return self:GetNonSpellHasteBonus(GetRangedHaste, CR_HASTE_RANGED)
 end
+---Gets spell haste bonus multiplier from buffs
+---@return number bonus Spell haste multiplier from buffs
 function ReforgeLite:GetSpellHasteBonus()
   local baseBonus = (UnitSpellHaste('PLAYER')+100)/(GetCombatRatingBonus(CR_HASTE_SPELL)+100)
   if self.pdb.spellHaste and not self:PlayerHasSpellHasteBuff() then
@@ -95,20 +125,37 @@ function ReforgeLite:GetSpellHasteBonus()
   end
   return RoundToSignificantDigits(baseBonus, 6)
 end
+---Gets all haste bonus multipliers (melee, ranged, spell)
+---@return number meleeBonus Melee haste multiplier
+---@return number rangedBonus Ranged haste multiplier
+---@return number spellBonus Spell haste multiplier
 function ReforgeLite:GetHasteBonuses()
   return self:GetMeleeHasteBonus(), self:GetRangedHasteBonus(), self:GetSpellHasteBonus()
 end
+---Calculates effective haste with a given bonus multiplier
+---@param haste number Base haste rating
+---@param hasteBonus number Haste multiplier from buffs
+---@return number effectiveHaste Effective haste percentage
 function ReforgeLite:CalcHasteWithBonus(haste, hasteBonus)
   return ((hasteBonus - 1) * 100) + haste * hasteBonus
 end
+---Calculates effective haste for all types (melee, ranged, spell)
+---@param haste number Base haste rating
+---@return number meleeHaste Effective melee haste percentage
+---@return number rangedHaste Effective ranged haste percentage
+---@return number spellHaste Effective spell haste percentage
 function ReforgeLite:CalcHasteWithBonuses(haste)
   local meleeBonus, rangedBonus, spellBonus = self:GetHasteBonuses()
   return self:CalcHasteWithBonus(haste, meleeBonus), self:CalcHasteWithBonus(haste, rangedBonus), self:CalcHasteWithBonus(haste, spellBonus)
 end
 
+---Calculates required melee hit percentage for target level
+---@return number hitPercent Required melee hit percentage
 function ReforgeLite:GetNeededMeleeHit ()
   return max(0, 3 + 1.5 * self.pdb.targetLevel)
 end
+---Calculates required spell hit percentage for target level
+---@return number hitPercent Required spell hit percentage
 function ReforgeLite:GetNeededSpellHit ()
   local diff = self.pdb.targetLevel
   if diff <= 3 then
@@ -118,10 +165,14 @@ function ReforgeLite:GetNeededSpellHit ()
   end
 end
 
+---Calculates required expertise percentage for soft cap (dodge)
+---@return number expertisePercent Required expertise percentage for soft cap
 function ReforgeLite:GetNeededExpertiseSoft()
   return max(0, 3 + 1.5 * self.pdb.targetLevel)
 end
 
+---Calculates required expertise percentage for hard cap (parry)
+---@return number expertisePercent Required expertise percentage for hard cap
 function ReforgeLite:GetNeededExpertiseHard()
   return max(0, 6 + 3 * self.pdb.targetLevel)
 end
@@ -317,6 +368,9 @@ local CasterCaps = { HitCapSpell }
 
 local specInfo = {}
 
+---Initializes class-specific stat weight and cap presets
+---Loads presets for all specs of the player's class (or all classes in debug mode)
+---@return nil
 function ReforgeLite:InitClassPresets()
   local specs = {
     DEATHKNIGHT = { blood = 250, frost = 251, unholy = 252 },
@@ -680,6 +734,8 @@ end
 
 local DYNAMIC_PRESETS = tInvert( { "Pawn", CUSTOM, REFORGE_CURRENT } )
 
+---Initializes custom user-created presets from saved variables
+---@return nil
 function ReforgeLite:InitCustomPresets()
   local customPresets = {}
   for k, v in pairs(self.cdb.customPresets) do
@@ -690,11 +746,16 @@ function ReforgeLite:InitCustomPresets()
   self.presets[CUSTOM] = customPresets
 end
 
+---Initializes all dynamic presets (class and custom)
+---@return nil
 function ReforgeLite:InitDynamicPresets()
   self:InitClassPresets()
   self:InitCustomPresets()
 end
 
+---Initializes all presets including Pawn integration and preset menu
+---Sets up class presets, custom presets, Pawn integration, and menu generator
+---@return nil
 function ReforgeLite:InitPresets()
   self:InitDynamicPresets()
   if PawnVersion then
