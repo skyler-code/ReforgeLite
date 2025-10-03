@@ -126,7 +126,8 @@ globals = {
     "Round",
     "date",
     "tostringall",
-    "join"
+    "join",
+    "GetItemStats"
 }
 
 -- Suppress undefined field warnings for AceGUI widgets

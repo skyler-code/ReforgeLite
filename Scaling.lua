@@ -2,10 +2,18 @@ local _, addonTable = ...
 
 local RandPropPoints, ItemUpgradeStats, ItemStatsRef = addonTable.RandPropPoints, addonTable.ItemUpgradeStats, addonTable.ItemStatsRef
 
+---Gets random property points for an item level and slot type
+---@param iLvl number Item level
+---@param t number Slot type index
+---@return number points Random property points for the item level and slot
 function addonTable.GetRandPropPoints(iLvl, t)
     return (RandPropPoints[iLvl] and RandPropPoints[iLvl][t] or 0)
 end
 
+---Gets item stats adjusted for upgrade level
+---Calculates base stats and applies upgrade scaling based on item level
+---@param itemInfo table Item information with link, itemId, ilvl, upgradeLevel
+---@return table<string, number> stats Table of stat names to values
 function addonTable.GetItemStatsUp(itemInfo)
     if not (itemInfo or {}).link then return {} end
     local result = GetItemStats(itemInfo.link)
