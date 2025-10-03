@@ -45,8 +45,7 @@ addonTable.MAX_SPEED = 20
 
 local DefaultDB = {
   global = {
-    windowWidth = 800,
-    windowHeight = 564,
+    maxLabelWidth = {},
     windowLocation = false,
     methodWindowLocation = false,
     openOnReforge = true,
@@ -60,6 +59,8 @@ local DefaultDB = {
     showHelp = true,
   },
   char = {
+    windowWidth = 720,
+    windowHeight = 564,
     targetLevel = 3,
     ilvlCap = 0,
     meleeHaste = true,
@@ -254,8 +255,8 @@ ReforgeLite.reforgeTable = reforgeTable
 addonTable.REFORGE_COEFF = 0.4
 
 function ReforgeLite:UpdateWindowSize ()
-  self.db.windowWidth = self:GetWidth ()
-  self.db.windowHeight = self:GetHeight ()
+  self.pdb.windowWidth = self:GetWidth ()
+  self.pdb.windowHeight = self:GetHeight ()
 end
 
 function ReforgeLite:GetCapScore (cap, value)
@@ -587,8 +588,8 @@ function ReforgeLite:CreateFrame()
   self:ClearAllPoints ()
   self:SetToplevel(true)
   self:SetClampedToScreen(self.db.clampedToScreen)
-  self:SetSize(self.db.windowWidth, self.db.windowHeight)
-  self:SetResizeBounds(780, 500, 1000, 800)
+  self:SetSize(self.pdb.windowWidth, self.pdb.windowHeight)
+  self:SetResizeBounds(680, 500, 1000, 800)
   if self.db.windowLocation then
     self:SetPoint (SafeUnpack(self.db.windowLocation))
   else
@@ -1078,7 +1079,7 @@ function ReforgeLite:UpdateStatWeightList ()
     self.statWeights:SetCellText (row, col, v.long, "LEFT", addonTable.FONTS.darkyellow, "GameFontNormal")
     self.statWeights.inputs[i] = GUI:CreateEditBox(
       self.statWeights,
-      60,
+      50,
       ITEM_SIZE,
       self.pdb.weights[i],
         function (val)
@@ -1171,6 +1172,24 @@ function ReforgeLite:CreateOptionList ()
   self:SetAnchor (self.statWeights, "TOPLEFT", self.targetLevel.text, "BOTTOMLEFT", 0, -8)
   self.statWeightsCategory:AddFrame (self.statWeights)
   self.statWeights:SetRowHeight (ITEM_SIZE + 2)
+
+  -- Calculate max label width based on actual stat names
+  local maxLabelWidth = self.db.maxLabelWidth[addonTable.Locale]
+  if not maxLabelWidth then
+    maxLabelWidth = 70
+    local testLabel = self.statWeights:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    for i, v in ipairs(ITEM_STATS) do
+      testLabel:SetText(v.long)
+      maxLabelWidth = math.max(maxLabelWidth, testLabel:GetStringWidth() + 5)
+    end
+    testLabel:Hide()
+    self.db.maxLabelWidth[addonTable.Locale] = maxLabelWidth
+  end
+
+  self.statWeights:SetColumnWidth (1, maxLabelWidth)
+  self.statWeights:SetColumnWidth (2, 55)
+  self.statWeights:SetColumnWidth (3, maxLabelWidth)
+  self.statWeights:SetColumnWidth (4, 50)
 
   self.statCaps = GUI:CreateTable (2, 4, nil, ITEM_SIZE + 2)
   self.statWeightsCategory:AddFrame (self.statCaps)
@@ -1690,8 +1709,11 @@ function ReforgeLite:UpdateItems()
     end
   end
 
-  local minWidth = 480 + (visibleColumns * 60)
+  local minWidth = 420 + (visibleColumns * 60)
   self:SetResizeBounds(minWidth, 500, 1000, 800)
+  if self:GetWidth() < minWidth then
+    self:SetWidth(minWidth)
+  end
 
   self:RefreshCaps()
   self:RefreshMethodStats()
