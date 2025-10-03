@@ -1354,9 +1354,11 @@ function ReforgeLite:GetInactiveWindows()
   end
   local activeWindow = self:GetActiveWindow()
   local bottomWindows = {}
-  for _, frame in ipairs(RFL_FRAMES) do
-    if frame:IsShown() and frame:GetRaisedFrameLevel() < activeWindow:GetRaisedFrameLevel() then
-      tinsert(bottomWindows, frame)
+  if activeWindow then
+    for _, frame in ipairs(RFL_FRAMES) do
+      if frame:IsShown() and frame:GetRaisedFrameLevel() < activeWindow:GetRaisedFrameLevel() then
+        tinsert(bottomWindows, frame)
+      end
     end
   end
   return bottomWindows
