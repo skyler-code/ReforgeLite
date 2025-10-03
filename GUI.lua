@@ -477,9 +477,20 @@ function GUI:CreateImageButton (parent, width, height, img, pus, opts)
   btn:SetNormalTexture (img)
   btn:SetPushedTexture (pus)
   btn:SetHighlightTexture (opts.hlt or img)
-  btn:SetDisabledTexture(opts.disabledTexture or img)
   btn:SetSize(width, height)
   btn:SetScript ("OnClick", opts.OnClick)
+
+  -- Set disabled texture - use custom or create desaturated version of normal texture
+  if opts.disabledTexture then
+    btn:SetDisabledTexture(opts.disabledTexture)
+  else
+    btn:SetDisabledTexture(img)
+    local disabledTexture = btn:GetDisabledTexture()
+    if disabledTexture then
+      disabledTexture:SetDesaturated(true)
+    end
+  end
+
   self:SetTooltip(btn, opts.tooltip)
   return btn
 end
