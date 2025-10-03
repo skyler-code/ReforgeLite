@@ -368,15 +368,15 @@ function ReforgeLite:ParsePawnString(values)
   local raw = {}
   local average = 0
   local total = 0
-  gsub (values .. ",", "[^,]*,", function (pair)
-    local pos, _, stat, value = strfind (pair, "^%s*([%a%d]+)%s*=%s*(%-?[%d%.]+)%s*,$")
+  for pair in (values .. ","):gmatch("[^,]*,") do
+    local stat, value = pair:match("^%s*([%a%d]+)%s*=%s*(%-?[%d%.]+)%s*,$")
     value = tonumber (value)
-    if pos and stat and stat ~= "" and value then
+    if stat and stat ~= "" and value then
       raw[stat] = value
       average = average + value
       total = total + 1
     end
-  end)
+  end
   local factor = 1
   if average / total < 10 then
     factor = 100
