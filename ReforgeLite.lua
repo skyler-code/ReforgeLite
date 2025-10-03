@@ -1129,6 +1129,9 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory = self:CreateCategory (L["Stat Weights"])
   self:SetAnchor (self.statWeightsCategory, "TOPLEFT", self.content, "TOPLEFT", 2, -2)
 
+  self.statWeightsHelpButton = GUI:CreateHelpButton(self.content, L["Presets: Load pre-configured stat weights and caps for your spec. Click to select from class-specific presets, custom saved presets, or Pawn imports.\n\nImport: Use stat weights from WoWSims, Pawn, or QuestionablyEpic. WoWSims and QE can also import pre-calculated reforge plans.\n\nTarget Level: Select your raid difficulty to calculate stat caps at the appropriate level (PvP, Heroic Dungeon, or Raid).\n\nBuffs: Enable raid buffs you'll have active (Spell Haste, Melee Haste, Mastery) to account for their stat bonuses in cap calculations.\n\nStat Weights: Assign relative values to each stat. Higher weights mean the optimizer will prioritize that stat more when reforging. For example, if Hit has weight 60 and Crit has weight 20, the optimizer values Hit three times more than Crit.\n\nStat Caps: Set minimum or maximum values for specific stats. Use presets (Hit Cap, Expertise Cap, Haste Breakpoints) or enter custom values. The optimizer will respect these caps when calculating the optimal reforge plan."], {scale = 0.5})
+  self.statWeightsHelpButton:SetPoint("LEFT", self.statWeightsCategory.name, "RIGHT", 4, 0)
+
   self.presetsButton = GUI:CreateFilterDropdown(self.content, L["Presets"], {resizeToTextPadding = 35})
   self.statWeightsCategory:AddFrame(self.presetsButton)
   self:SetAnchor(self.presetsButton, "TOPLEFT", self.statWeightsCategory, "BOTTOMLEFT", 0, -5)
@@ -1331,10 +1334,6 @@ function ReforgeLite:CreateOptionList ()
 
   self:UpdateStatWeightList ()
 
-  self.statWeightsHelpButton = GUI:CreateHelpButton(self.content, L["Target Level: Select your raid difficulty to calculate stats at the appropriate level.\n\nBuffs: Enable active raid buffs to account for their stat bonuses in calculations.\n\nStat Weights: Assign relative values to each stat. Higher weights mean the optimizer will prioritize that stat more when reforging.\n\nExample: If Hit has weight 60 and Crit has weight 20, the optimizer values Hit three times more than Crit."])
-  self.statWeightsCategory:AddFrame(self.statWeightsHelpButton)
-  self.statWeightsHelpButton:SetPoint("LEFT", self.buffsContextMenu, "RIGHT", 8, 0)
-
   self.settingsCategory = self:CreateCategory (SETTINGS)
   self:SetAnchor (self.settingsCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
   self.settings = GUI:CreateTable (11, 1, nil, 200)
@@ -1521,6 +1520,9 @@ function ReforgeLite:UpdateMethodCategory()
     self.methodCategory = self:CreateCategory (L["Result"])
     self:SetAnchor (self.methodCategory, "TOPLEFT", self.computeButton, "BOTTOMLEFT", 0, -10)
 
+    self.methodHelpButton = GUI:CreateHelpButton(self.content, L["The Result table shows the stat changes from the optimized reforge.\n\nThe left column shows your total stats after reforging.\n\nThe right column shows how much each stat changed:\n- Green: Stat increased and improved your weighted score\n- Red: Stat decreased and lowered your weighted score\n- Grey: No meaningful change (either unchanged, or changed but weighted score stayed the same)\n\nClick 'Show' to see a detailed breakdown of which items to reforge.\n\nClick 'Reset' to clear the current reforge plan."], {scale = 0.5})
+    self.methodHelpButton:SetPoint("LEFT", self.methodCategory.name, "RIGHT", 4, 0)
+
     self.methodStats = GUI:CreateTable (ITEM_STAT_COUNT - 1, 2, ITEM_SIZE, 60, {0.5, 0.5, 0.5, 1})
     self.methodCategory:AddFrame (self.methodStats)
     self:SetAnchor (self.methodStats, "TOPLEFT", self.methodCategory, "BOTTOMLEFT", 0, -5)
@@ -1535,10 +1537,6 @@ function ReforgeLite:UpdateMethodCategory()
       self.methodStats:SetCellText(cell, 2, "+0", nil, addonTable.FONTS.grey)
       self.methodStats[i] = { delta = self.methodStats.cells[cell][2] }
     end
-
-    self.methodHelpButton = GUI:CreateHelpButton(self.content, L["The Result table shows the stat changes from the optimized reforge.\n\nThe left column shows your total stats after reforging.\n\nThe right column shows how much each stat increased or decreased compared to your current gear.\n\nClick 'Show' to see a detailed breakdown of which items to reforge.\n\nClick 'Reset' to clear the current reforge plan."])
-    self.methodCategory:AddFrame(self.methodHelpButton)
-    self.methodHelpButton:SetPoint("TOPLEFT", self.methodStats, "TOPRIGHT", 8, 0)
 
     self.methodShow = GUI:CreatePanelButton (self.content, SHOW, function(btn) self:ShowMethodWindow() end)
     self.methodShow:SetSize(85, 22)
