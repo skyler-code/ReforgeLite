@@ -582,7 +582,7 @@ function ReforgeLite:InitClassPresets()
   --@end-debug@
 end
 
-local DYNAMIC_PRESETS = tInvert( { "Pawn", CUSTOM, REFORGE_CURRENT } )
+local DYNAMIC_PRESETS = tInvert( { "Pawn", CUSTOM } )
 
 ---Initializes custom user-created presets from saved variables
 ---@return nil
