@@ -2,7 +2,6 @@ local addonName, addonTable = ...
 local REFORGE_COEFF = addonTable.REFORGE_COEFF
 
 local ReforgeLite = addonTable.ReforgeLite
-local L = addonTable.L
 local playerClass = addonTable.playerClass
 local statIds = addonTable.statIds
 local print = addonTable.print
@@ -12,6 +11,9 @@ local playerRace = select(2, UnitRace("player"))
 
 ---------------------------------------------------------------------------------------
 
+---Gets stat multipliers from equipped amplification items
+---Calculates bonus factors for Haste, Mastery, and Spirit based on item level
+---@return table<number, number> multipliers Table of stat ID to multiplier (e.g., {[statIds.HASTE] = 1.05})
 function ReforgeLite:GetStatMultipliers()
   local result = {}
   for _, v in ipairs(self.itemData) do
@@ -63,6 +65,9 @@ local STAT_CONVERSIONS = {
   WARLOCK = { base = CASTER_SPEC },
 }
 
+---Gets stat conversion rules for the current class/spec
+---Handles special conversions like Spirit->Hit for casters, Expertise->Hit for hybrids
+---@return table<number, table<number, number>>|nil conversion Nested table of source stat to {dest stat = conversion rate}
 function ReforgeLite:GetConversion()
   self.conversion = wipe(self.conversion or {})
   local classInfo = STAT_CONVERSIONS[playerClass]
@@ -83,6 +88,10 @@ function ReforgeLite:GetConversion()
 end
 
 
+---Updates method stats with final calculations including conversions
+---Applies stat conversions, rating adjustments, and calculates final stat totals
+---@param method table The reforge method containing stats and orig_stats
+---@return nil
 function ReforgeLite:UpdateMethodStats (method)
   local mult = self:GetStatMultipliers()
   local oldstats = {}
@@ -129,6 +138,10 @@ function ReforgeLite:UpdateMethodStats (method)
   end
 end
 
+---Finalizes a reforge solution and displays results
+---Creates the method window, updates stats, and shows the reforge plan
+---@param data table The reforge solution data with item reforges
+---@return nil
 function ReforgeLite:FinalizeReforge (data)
   for _,item in ipairs(data.method.items) do
     item.reforge = nil
@@ -140,6 +153,9 @@ function ReforgeLite:FinalizeReforge (data)
   self:UpdateMethodStats (data.method)
 end
 
+---Resets the current reforge method
+---Clears all reforges and restores original stats
+---@return nil
 function ReforgeLite:ResetMethod ()
   local method = { items = {} }
   for k, v in ipairs(self.itemData) do
@@ -155,6 +171,10 @@ function ReforgeLite:ResetMethod ()
   self:UpdateMethodCategory()
 end
 
+---Checks if a stat value satisfies the cap constraints
+---@param cap table The cap configuration with stat, method (AtLeast/AtMost/etc), and value
+---@param value number The stat value to check
+---@return boolean allowed True if the value satisfies the cap constraint
 function ReforgeLite:CapAllows (cap, value)
   for _,v in ipairs(cap.points) do
     if v.method == addonTable.StatCapMethods.AtLeast and value < v.value then
@@ -168,6 +188,10 @@ function ReforgeLite:CapAllows (cap, value)
   return true
 end
 
+---Checks if an item slot is locked from reforging
+---Items are locked if empty, below ilvl 200, or manually locked by user
+---@param slot number The item slot index
+---@return boolean locked True if the item is locked
 function ReforgeLite:IsItemLocked (slot)
   local slotData = self.itemData[slot].itemInfo
   return not slotData.link
@@ -177,6 +201,13 @@ end
 
 ------------------------------------- CLASSIC REFORGE ------------------------------
 
+---Creates a reforge option for an item
+---Calculates stat deltas and score changes for reforging src stat to dst stat
+---@param item table The item data with stats
+---@param data table Global reforge data (caps, weights, conversions, multipliers)
+---@param src? number Source stat ID to reforge from (nil for no reforge)
+---@param dst? number Destination stat ID to reforge to (nil for no reforge)
+---@return table option Reforge option with src, dst, delta1, delta2, dscore
 function ReforgeLite:MakeReforgeOption(item, data, src, dst)
   local delta1, delta2, dscore = 0, 0, 0
   if src and dst then
@@ -225,6 +256,12 @@ function ReforgeLite:MakeReforgeOption(item, data, src, dst)
   return {d1 = delta1, d2 = delta2, src = src, dst = dst, score = dscore}
 end
 
+---Gets all valid reforge options for an item
+---Returns locked item's current reforge if locked, otherwise all possible reforges
+---@param item table The item data with stats
+---@param data table Global reforge data (caps, weights, conversions, multipliers)
+---@param slot number The item slot index
+---@return table<number, table> options Array of reforge options indexed by state key
 function ReforgeLite:GetItemReforgeOptions (item, data, slot)
   if self:IsItemLocked (slot) then
     local src, dst = nil, nil
@@ -412,6 +449,9 @@ end
 
 local chooseLoops = 0
 
+---Main entry point for Classic (DP) reforge algorithm
+---Initializes data, generates reforge options, computes optimal solution
+---@return nil
 function ReforgeLite:ComputeReforgeClassic()
   self.TABLE_SIZE = floor(10000 * (self.db.accuracy / addonTable.MAX_SPEED))
   local data = self:InitReforgeClassic()
@@ -448,6 +488,9 @@ function ReforgeLite:ComputeReforgeClassic()
   end
 end
 
+---Main compute dispatcher - chooses algorithm based on settings
+---Uses Branch & Bound if enabled and dual caps configured, otherwise uses DP
+---@return nil
 function ReforgeLite:ComputeReforge()
   if self.pdb.useBranchBound and self.pdb.caps[2].stat ~= 0 then
     self:ComputeReforgeBranchBound()
@@ -459,6 +502,9 @@ end
 local NORMAL_STATUS_CODES = { suspended = true, running = true }
 local routine
 
+---Resumes the compute coroutine from a yield
+---Handles errors and completes computation when coroutine finishes
+---@return nil
 function ReforgeLite:ResumeCompute()
   if not routine then return end
   local success, err = coroutine.resume(routine)
@@ -470,10 +516,16 @@ function ReforgeLite:ResumeCompute()
   end
 end
 
+---Schedules compute resume on next frame
+---@return nil
 function ReforgeLite:ResumeComputeNextFrame()
   RunNextFrame(function() self:ResumeCompute() end)
 end
 
+---Checks if coroutine should yield to prevent freezing
+---Yields every maxLoops iterations or when paused
+---@param maxLoops number Number of iterations before yielding
+---@return nil
 function ReforgeLite:RunYieldCheck(maxLoops)
   if addonTable.pauseRoutine then
     chooseLoops = 0
@@ -489,6 +541,9 @@ function ReforgeLite:RunYieldCheck(maxLoops)
   end
 end
 
+---Creates and starts a new computation coroutine
+---@param func function The computation function to run as a coroutine
+---@return nil
 function ReforgeLite:CreateRoutine(func)
   addonTable.pauseRoutine = nil
   addonTable.callbacks:TriggerEvent("PreCalculateStart")
@@ -500,14 +555,22 @@ function ReforgeLite:CreateRoutine(func)
   self:ResumeComputeNextFrame()
 end
 
+---Starts algorithm comparison mode (debug feature)
+---@return nil
 function ReforgeLite:StartAlgorithmComparison()
   self:CreateRoutine("RunAlgorithmComparison")
 end
 
+---Starts the main reforge computation
+---Creates coroutine and begins async calculation
+---@return nil
 function ReforgeLite:StartCompute()
   self:CreateRoutine("ComputeReforge")
 end
 
+---Ends the computation and cleans up
+---Triggers callbacks and garbage collection
+---@return nil
 function ReforgeLite:EndCompute()
   addonTable.callbacks:TriggerEvent("OnCalculateFinish")
   routine = nil

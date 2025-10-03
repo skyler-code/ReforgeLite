@@ -1,6 +1,9 @@
+
 local addonName, addonTable = ...
 local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "title")
 
+---@class ReforgeLite : Frame
+---Main addon frame for ReforgeLite
 local ReforgeLite = CreateFrame("Frame", addonName, UIParent, "BackdropTemplate")
 addonTable.ReforgeLite = ReforgeLite
 
@@ -254,11 +257,17 @@ ReforgeLite.reforgeTable = reforgeTable
 
 addonTable.REFORGE_COEFF = 0.4
 
+---Saves the current window dimensions to character database
+---@return nil
 function ReforgeLite:UpdateWindowSize ()
   self.pdb.windowWidth = self:GetWidth ()
   self.pdb.windowHeight = self:GetHeight ()
 end
 
+---Calculates the score for a stat value with cap points applied
+---@param cap table The stat cap configuration with points array
+---@param value number The stat value to score
+---@return number score The calculated score
 function ReforgeLite:GetCapScore (cap, value)
   local score = 0
   for i = #cap.points, 1, -1 do
@@ -271,6 +280,10 @@ function ReforgeLite:GetCapScore (cap, value)
   return score
 end
 
+---Gets the score for a stat value, applying caps if configured
+---@param stat number The stat ID
+---@param value number The stat value
+---@return number score The calculated score
 function ReforgeLite:GetStatScore (stat, value)
   if stat == self.pdb.caps[1].stat then
     return self:GetCapScore (self.pdb.caps[1], value)
@@ -582,6 +595,10 @@ function ReforgeLite:SetNewTopWindow(newTopWindow)
   end
 end
 
+---Creates and initializes the main addon UI frame
+---Sets up the backdrop, title bar, close button, scrolling content area,
+---item table, option list, compute button, and settings
+---@return nil
 function ReforgeLite:CreateFrame()
   self:InitPresets()
   self:SetFrameStrata ("DIALOG")
@@ -743,6 +760,10 @@ function ReforgeLite:CreateFrame()
   end
 end
 
+---Creates the item table UI showing equipped gear and stats
+---Initializes the table with headers, rows for each equipment slot,
+---totals row, and sets up item lock/unlock functionality
+---@return nil
 function ReforgeLite:CreateItemTable ()
   self.playerSpecTexture = self:CreateTexture (nil, "ARTWORK")
   self.playerSpecTexture:SetPoint ("TOPLEFT", 10, -28)
@@ -833,6 +854,10 @@ function ReforgeLite:CreateItemTable ()
   end
 end
 
+---Adds a cap point to a stat cap configuration
+---@param i number The cap index (1 or 2)
+---@param loading? boolean Whether this is being called during initialization
+---@return nil
 function ReforgeLite:AddCapPoint (i, loading)
   local row = (loading or #self.pdb.caps[i].points + 1) + (i == 1 and 1 or #self.pdb.caps[1].points + 2)
   local point = (loading or #self.pdb.caps[i].points + 1)
@@ -932,6 +957,11 @@ function ReforgeLite:AddCapPoint (i, loading)
   self.statCaps[i].add:Enable()
   self.statCaps:OnUpdateFix()
 end
+---Removes a cap point from a stat cap configuration
+---@param i number The cap index (1 or 2)
+---@param point number The point index to remove
+---@param loading? boolean Whether this is being called during initialization
+---@return nil
 function ReforgeLite:RemoveCapPoint (i, point, loading)
   local row = #self.pdb.caps[1].points + (i == 1 and 1 or #self.pdb.caps[2].points + 2)
   tremove (self.pdb.caps[i].points, point)
@@ -1206,7 +1236,7 @@ function ReforgeLite:CreateOptionList ()
   end
   self.statCaps.ToggleStatDropdownToCorrectState = function(caps)
     for i = 2, #caps do
-      caps[i].stat:SetDropDownEnabled(self.pdb.caps[i-1].stat ~= 0)
+      caps[i].stat:SetEnabled(self.pdb.caps[i-1].stat ~= 0)
     end
     if self.fastModeButton then
       self.fastModeButton:SetShown(self.pdb.caps[#self.pdb.caps].stat ~= 0)  
@@ -1637,6 +1667,10 @@ local function GetItemUpgradeLevel(item)
     return (item:GetCurrentItemLevel() - originalIlvl) / 4
 end
 
+---Updates the item table with current equipped gear
+---Reads all equipped items, calculates stats, detects reforges, and updates UI
+---Also dynamically adjusts visible stat columns and window resize bounds
+---@return nil
 function ReforgeLite:UpdateItems()
   local columnHasData = {}
 

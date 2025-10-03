@@ -1,4 +1,7 @@
 local addonName, addonTable = ...
+---@class GUI
+---GUI widget creation and management library
+---Provides consistent widget creation, tooltips, locking/unlocking, and tables
 local GUI = {}
 addonTable.GUI = GUI
 
@@ -20,21 +23,30 @@ addonTable.FONTS = {
   disabled = DISABLED_FONT_COLOR,
 }
 
+---Generates a unique widget name
+---@return string name Unique widget name (e.g., "ReforgeLiteWidget1")
 function GUI:GenerateWidgetName ()
   self.widgetCount = (self.widgetCount or 0) + 1
   return addonName .. "Widget" .. self.widgetCount
 end
 
+---Clears focus from all edit boxes
+---@return nil
 function GUI:ClearEditFocus()
   for _,v in ipairs(self.editBoxes) do
     v:ClearFocus()
   end
 end
 
+---Clears focus from all GUI elements
+---@return nil
 function GUI:ClearFocus()
   self:ClearEditFocus()
 end
 
+---Locks all GUI widgets to prevent interaction during computation
+---Disables buttons, edit boxes, checkboxes, sliders, and dropdowns
+---@return nil
 function GUI:Lock()
   for _, frames in ipairs({self.panelButtons, self.imgButtons, self.editBoxes, self.checkButtons, self.sliders}) do
     for _, frame in pairs(frames) do
@@ -57,12 +69,15 @@ function GUI:Lock()
   end
   for _, dropdown in pairs(self.dropdowns) do
     if not dropdown.isDisabled then
-      dropdown:DisableDropdown()
+      dropdown:SetEnabled(false)
       dropdown.locked = true
     end
   end
 end
 
+---Unlocks a single frame
+---@param frame Frame The frame to unlock
+---@return nil
 function GUI:UnlockFrame(frame)
   if frame.locked then
     frame:Enable()
@@ -81,6 +96,8 @@ function GUI:UnlockFrame(frame)
   end
 end
 
+---Unlocks all GUI widgets after computation completes
+---@return nil
 function GUI:Unlock()
   for _, frames in ipairs({self.panelButtons, self.imgButtons, self.editBoxes, self.checkButtons, self.sliders}) do
     for _, frame in pairs(frames) do
@@ -89,12 +106,16 @@ function GUI:Unlock()
   end
   for _, dropdown in pairs(self.dropdowns) do
     if dropdown.locked then
-      dropdown:EnableDropdown()
+      dropdown:SetEnabled(true)
       dropdown.locked = nil
     end
   end
 end
 
+---Sets a tooltip on a widget
+---@param widget Frame The widget to add tooltip to
+---@param tip? string|function Tooltip text or function returning tooltip text
+---@return nil
 function GUI:SetTooltip (widget, tip)
   if tip then
     widget:SetScript ("OnEnter", function (tipFrame)
@@ -126,6 +147,14 @@ end
 
 GUI.editBoxes = {}
 GUI.unusedEditBoxes = {}
+---Creates a numeric edit box with recycling support
+---@param parent Frame Parent frame
+---@param width number Width in pixels
+---@param height number Height in pixels
+---@param default number Default value
+---@param setter? function Callback when value changes (value)
+---@param opts? table Options: OnTabPressed callback
+---@return EditBox box The created edit box
 function GUI:CreateEditBox (parent, width, height, default, setter, opts)
   local box
   if #self.unusedEditBoxes > 0 then
@@ -181,6 +210,11 @@ end
 
 GUI.dropdowns = {}
 GUI.unusedDropdowns = {}
+---Creates a dropdown menu with recycling support
+---@param parent Frame Parent frame
+---@param values table|function Array of {value, name} pairs or function returning the array
+---@param options table Options: default, setter(dropdown, value, oldValue), width, hideArrow
+---@return DropdownButton dropdown The created dropdown
 function GUI:CreateDropdown (parent, values, options)
   local sel
   if #self.unusedDropdowns > 0 then
@@ -223,18 +257,6 @@ function GUI:CreateDropdown (parent, values, options)
       if dropdown.Text then
         dropdown.Text:SetText("")
       end
-    end
-
-    sel.EnableDropdown = function(dropdown)
-      dropdown:SetEnabled(true)
-    end
-
-    sel.DisableDropdown = function(dropdown)
-      dropdown:SetEnabled(false)
-    end
-
-    sel.SetDropDownEnabled = function(dropdown, enabled)
-      dropdown:SetEnabled(enabled)
     end
 
     sel:SetHeight(20)
@@ -310,6 +332,13 @@ end
 
 GUI.checkButtons = {}
 GUI.unusedCheckButtons = {}
+---Creates a checkbox with recycling support
+---@param parent Frame Parent frame
+---@param text string Label text
+---@param default boolean Default checked state
+---@param setter? function Callback when toggled (checked)
+---@param opts? table Options: tooltip
+---@return CheckButton btn The created checkbox
 function GUI:CreateCheckButton (parent, text, default, setter, opts)
   local btn
   if #self.unusedCheckButtons > 0 then
@@ -349,6 +378,14 @@ end
 
 GUI.imgButtons = {}
 GUI.unusedImgButtons = {}
+---Creates an image button with recycling support
+---@param parent Frame Parent frame
+---@param width number Width in pixels
+---@param height number Height in pixels
+---@param img string|number Normal texture path or file ID
+---@param pus string|number Pushed texture path or file ID
+---@param opts? table Options: hlt, disabledTexture, OnClick, tooltip
+---@return Button btn The created image button
 function GUI:CreateImageButton (parent, width, height, img, pus, opts)
   local btn
   if #self.unusedImgButtons > 0 then
@@ -378,6 +415,12 @@ end
 
 GUI.panelButtons = {}
 GUI.unusedPanelButtons = {}
+---Creates a standard panel button with recycling support
+---@param parent Frame Parent frame
+---@param text string Button text
+---@param handler? function OnClick callback
+---@param opts? table Options: tooltip
+---@return Button btn The created panel button
 function GUI:CreatePanelButton(parent, text, handler, opts)
   local btn
   if #self.unusedPanelButtons > 0 then
@@ -420,6 +463,13 @@ function GUI:CreatePanelButton(parent, text, handler, opts)
   return btn
 end
 
+---Creates a color picker button
+---@param parent Frame Parent frame
+---@param width number Width in pixels
+---@param height number Height in pixels
+---@param color table RGB color array {r, g, b}
+---@param handler? function Callback when color changes
+---@return Frame box The color picker frame
 function GUI:CreateColorPicker (parent, width, height, color, handler)
   local box = CreateFrame ("Frame", nil, parent)
   box:SetSize(width, height)
@@ -430,7 +480,7 @@ function GUI:CreateColorPicker (parent, width, height, color, handler)
   box.glow = box:CreateTexture (nil, "BACKGROUND")
   box.glow:SetPoint ("TOPLEFT", -2, 2)
   box.glow:SetPoint ("BOTTOMRIGHT", 2, -2)
-  
+
   box.glow:SetColorTexture (addonTable.FONTS.grey:GetRGB())
   box.glow:Hide ()
 
@@ -458,6 +508,11 @@ function GUI:CreateColorPicker (parent, width, height, color, handler)
 end
 
 GUI.helpButtons = {}
+---Creates a help button (question mark icon)
+---@param parent Frame Parent frame
+---@param tooltip string Help tooltip text
+---@param opts? table Options: scale (default 0.6)
+---@return Button btn The help button
 function GUI:CreateHelpButton(parent, tooltip, opts)
   local btn = CreateFrame("Button", nil, parent, "MainHelpPlateButton")
   btn:SetFrameLevel(btn:GetParent():GetFrameLevel() + 1)
@@ -467,6 +522,9 @@ function GUI:CreateHelpButton(parent, tooltip, opts)
   return btn
 end
 
+---Shows or hides all help buttons
+---@param shown boolean True to show, false to hide
+---@return nil
 function GUI:SetHelpButtonsShown(shown)
   for _, btn in ipairs(self.helpButtons) do
     btn:SetShown(shown)
@@ -475,6 +533,13 @@ end
 
 GUI.sliders = {}
 GUI.unusedSliders = {}
+---Creates a slider with recycling support
+---@param parent Frame Parent frame
+---@param text string Label text
+---@param value number Default value
+---@param max number Maximum value
+---@param onChange function Callback when value changes (value)
+---@return Slider slider The created slider
 function GUI:CreateSlider(parent, text, value, max, onChange)
   local slider
   if #self.unusedSliders > 0 then
@@ -521,6 +586,14 @@ end
 
 -------------------------------------------------------------------------------
 
+---Creates a horizontal line
+---@param x1 number Start X coordinate
+---@param x2 number End X coordinate
+---@param y number Y coordinate
+---@param w number Line width/thickness
+---@param color table RGB color array
+---@param parent? Frame Parent frame (defaults to defaultParent)
+---@return Texture line The line texture
 function GUI:CreateHLine (x1, x2, y, w, color, parent)
   parent = parent or self.defaultParent
   local line = parent:CreateTexture (nil, "ARTWORK")
@@ -546,6 +619,14 @@ function GUI:CreateHLine (x1, x2, y, w, color, parent)
   return line
 end
 
+---Creates a vertical line
+---@param x number X coordinate
+---@param y1 number Start Y coordinate
+---@param y2 number End Y coordinate
+---@param w number Line width/thickness
+---@param color table RGB color array
+---@param parent? Frame Parent frame (defaults to defaultParent)
+---@return Texture line The line texture
 function GUI:CreateVLine (x, y1, y2, w, color, parent)
   parent = parent or self.defaultParent
   local line = parent:CreateTexture (nil, "ARTWORK")
@@ -573,6 +654,14 @@ end
 
 --------------------------------------------------------------------------------
 
+---Creates a table widget with dynamic row/column management
+---@param rows number Initial number of rows
+---@param cols number Number of columns
+---@param firstRow? number First row height (defaults to 0)
+---@param firstColumn? number First column width (defaults to 0)
+---@param gridColor? table RGB color for grid lines
+---@param parent? Frame Parent frame (defaults to defaultParent)
+---@return table table The table object with methods: SetCell, SetCellText, AddRow, DeleteRow, SetRowHeight, SetColumnWidth, etc.
 function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
   parent = parent or self.defaultParent
   firstRow = firstRow or 0
@@ -901,6 +990,12 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
   return t
 end
 
+---Creates a static popup dialog
+---@param name string Unique popup name
+---@param text string Popup message text
+---@param onAccept function Callback when accepted (receives edit box text if hasEditBox)
+---@param opts? table Options: button1 (text), hasEditBox (boolean)
+---@return nil
 function GUI.CreateStaticPopup(name, text, onAccept, opts)
   StaticPopupDialogs[name] = {
     text = text,
