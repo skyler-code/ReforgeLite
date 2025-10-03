@@ -366,6 +366,30 @@ local TankCaps = { HitCap, HardExpCap }
 
 local CasterCaps = { HitCapSpell }
 
+-- Preset builder functions
+local function Preset(spirit, dodge, parry, hit, crit, haste, exp, mastery, caps)
+  return {
+    weights = {spirit or 0, dodge or 0, parry or 0, hit or 0, crit or 0, haste or 0, exp or 0, mastery or 0},
+    caps = caps
+  }
+end
+
+local function MeleePreset(hit, crit, haste, exp, mastery)
+  return Preset(0, 0, 0, hit, crit, haste, exp, mastery, MeleeCaps)
+end
+
+local function TankPreset(spirit, dodge, parry, hit, crit, haste, exp, mastery, caps)
+  return Preset(spirit, dodge, parry, hit, crit, haste, exp, mastery, caps or TankCaps)
+end
+
+local function CasterPreset(hit, crit, haste, mastery)
+  return Preset(0, 0, 0, hit, crit, haste, 0, mastery, CasterCaps)
+end
+
+local function HealerPreset(spirit, crit, haste, mastery)
+  return Preset(spirit, 0, 0, 0, crit, haste, 0, mastery)
+end
+
 local specInfo = {}
 
 ---Initializes class-specific stat weight and cap presets
@@ -389,53 +413,27 @@ function ReforgeLite:InitClassPresets()
   local presets = {
     ["DEATHKNIGHT"] = {
       [specs.DEATHKNIGHT.blood] = {
-        [PET_DEFENSIVE] = {
-          weights = {
-            0, 140, 150, 100, 50, 75, 95, 200
-          },
-          caps = AtMostMeleeCaps,
-        },
-        [BALANCE] = {
-          weights = {
-            0, 140, 150, 200, 125, 100, 200, 25
-          },
-          caps = MeleeCaps,
-        },
-        [PET_AGGRESSIVE] = {
-          weights = {
-            0, 90, 100, 200, 150, 125, 200, 25
-          },
-          caps = MeleeCaps,
-        },
+        [PET_DEFENSIVE] = TankPreset(0, 140, 150, 100, 50, 75, 95, 200, AtMostMeleeCaps),
+        [BALANCE] = TankPreset(0, 140, 150, 200, 125, 100, 200, 25),
+        [PET_AGGRESSIVE] = TankPreset(0, 90, 100, 200, 150, 125, 200, 25),
       },
       [specs.DEATHKNIGHT.frost] = {
         [C_Spell.GetSpellName(49020)] = { -- Obliterate
           icon = 135771,
-          weights = {
-            0, 0, 0, 87, 44, 35, 87, 39
-          },
+          weights = {0, 0, 0, 87, 44, 35, 87, 39},
           caps = MeleeCaps,
         },
         [L["Masterfrost"]] = {
           icon = 135833,
-          weights = {
-            0, 0, 0, 84, 36, 37, 83, 53
-          },
+          weights = {0, 0, 0, 84, 36, 37, 83, 53},
           caps = MeleeCaps,
         }
       },
-      [specs.DEATHKNIGHT.unholy] = {
-          weights = {
-            0, 0, 0, 73, 47, 43, 73, 40
-          },
-          caps = MeleeCaps,
-      },
+      [specs.DEATHKNIGHT.unholy] = MeleePreset(73, 47, 43, 73, 40),
     },
     ["DRUID"] = {
       [specs.DRUID.balance] = {
-        weights = {
-          0, 0, 0, 127, 56, 80, 0, 41
-        },
+        weights = {0, 0, 0, 127, 56, 80, 0, 41},
         caps = {
           HitCapSpell,
           {
@@ -450,22 +448,10 @@ function ReforgeLite:InitClassPresets()
           }
         },
       },
-      [specs.DRUID.feralcombat] = {
-          weights = {
-            0, 0, 0, 330, 320, 220, 330, 380
-          },
-          caps = AtMostMeleeCaps,
-      },
-      [specs.DRUID.guardian] = {
-          weights = {
-            0, 53, 0, 116, 105, 37, 116, 73
-          },
-          caps = TankCaps,
-      },
+      [specs.DRUID.feralcombat] = Preset(0, 0, 0, 330, 320, 220, 330, 380, AtMostMeleeCaps),
+      [specs.DRUID.guardian] = TankPreset(0, 53, 0, 116, 105, 37, 116, 73),
       [specs.DRUID.restoration] = {
-          weights = {
-            150, 0, 0, 0, 100, 200, 0, 150
-          },
+        weights = {150, 0, 0, 0, 100, 200, 0, 150},
         caps = {
           {
             stat = StatHaste,
@@ -481,87 +467,37 @@ function ReforgeLite:InitClassPresets()
       },
     },
     ["HUNTER"] = {
-      [specs.HUNTER.beastmastery] = {
-          weights = {
-            0, 0, 0, 63, 30, 37, 59, 32
-          },
-          caps = MeleeCaps,
-      },
-      [specs.HUNTER.marksmanship] = {
-          weights = {
-            0, 0, 0, 63, 40, 35, 59, 29
-          },
-          caps = MeleeCaps,
-      },
-      [specs.HUNTER.survival] = {
-          weights = {
-            0, 0, 0, 59, 33, 25, 57, 21
-          },
-          caps = MeleeCaps,
-      },
+      [specs.HUNTER.beastmastery] = MeleePreset(63, 30, 37, 59, 32),
+      [specs.HUNTER.marksmanship] = MeleePreset(63, 40, 35, 59, 29),
+      [specs.HUNTER.survival] = MeleePreset(59, 33, 25, 57, 21),
     },
     ["MAGE"] = {
-      [specs.MAGE.arcane] = {
-          weights = {
-            0, 0, 0, 131, 53, 70, 0, 68
-          },
-          caps = CasterCaps,
-      },
-      [specs.MAGE.fire] = {
-          weights = {
-            0, 0, 0, 121, 88, 73, 0, 73
-          },
-          caps = CasterCaps,
-      },
-      [specs.MAGE.frost] = {
-          weights = {
-            0, 0, 0, 115, 49, 60, 0, 47
-          },
-          caps = CasterCaps,
-      },
+      [specs.MAGE.arcane] = CasterPreset(131, 53, 70, 68),
+      [specs.MAGE.fire] = CasterPreset(121, 88, 73, 73),
+      [specs.MAGE.frost] = CasterPreset(115, 49, 60, 47),
     },
     ["MONK"] = {
       [specs.MONK.brewmaster] = {
-        [PET_DEFENSIVE] = {
-          weights = {
-            0, 0, 0, 150, 50, 50, 130, 100
-          },
-          caps = TankCaps,
-        },
-        [PET_AGGRESSIVE] = {
-          weights = {
-            0, 0, 0, 141, 46, 57, 99, 39
-          },
-          caps = TankCaps,
-        },
+        [PET_DEFENSIVE] = TankPreset(0, 0, 0, 150, 50, 50, 130, 100),
+        [PET_AGGRESSIVE] = TankPreset(0, 0, 0, 141, 46, 57, 99, 39),
       },
-      [specs.MONK.mistweaver] = {
-        weights = {
-          80, 0, 0, 0, 200, 40, 0, 30
-        },
-      },
+      [specs.MONK.mistweaver] = HealerPreset(80, 200, 40, 30),
       [specs.MONK.windwalker] = {
         [C_Spell.GetSpellName(114355)] = { -- Dual Wield
           icon = 132147,
-          weights = {
-            0, 0, 0, 141, 46, 57, 99, 39
-          },
+          weights = {0, 0, 0, 141, 46, 57, 99, 39},
           caps = MeleeCaps,
         },
         [AUCTION_SUBCATEGORY_TWO_HANDED] = { -- Two-Handed
           icon = 135145,
-          weights = {
-            0, 0, 0, 138, 46, 54, 122, 38
-          },
+          weights = {0, 0, 0, 138, 46, 54, 122, 38},
           caps = MeleeCaps,
         },
       },
     },
     ["PALADIN"] = {
       [specs.PALADIN.holy] = {
-          weights = {
-            200, 0, 0, 0, 50, 125, 0, 100
-          },
+        weights = {200, 0, 0, 0, 50, 125, 0, 100},
         caps = {
           {
             stat = StatHaste,
@@ -576,132 +512,46 @@ function ReforgeLite:InitClassPresets()
         },
       },
       [specs.PALADIN.protection] = {
-        [PET_DEFENSIVE] = {
-          weights = {
-            0, 50, 50, 200, 25, 100, 200, 125
-          },
-          caps = TankCaps,
-        },
-        [PET_AGGRESSIVE] = {
-          weights = {
-            0, 5, 5, 200, 75, 125, 200, 25
-          },
-          caps = TankCaps,
-        },
+        [PET_DEFENSIVE] = TankPreset(0, 50, 50, 200, 25, 100, 200, 125),
+        [PET_AGGRESSIVE] = TankPreset(0, 5, 5, 200, 75, 125, 200, 25),
       },
-      [specs.PALADIN.retribution] = {
-        weights = {
-          0, 0, 0, 100, 50, 52, 87, 51
-        },
-        caps = MeleeCaps,
-      },
+      [specs.PALADIN.retribution] = MeleePreset(100, 50, 52, 87, 51),
     },
     ["PRIEST"] = {
-      [specs.PRIEST.discipline] = {
-        weights = {
-          120, 0, 0, 0, 120, 40, 0, 80
-        },
-      },
-      [specs.PRIEST.holy] = {
-        weights = {
-          150, 0, 0, 0, 120, 40, 0, 80
-        },
-      },
-      [specs.PRIEST.shadow] = {
-        weights = {
-          0, 0, 0, 85, 42, 76, 0, 48
-        },
-        caps = CasterCaps
-      },
+      [specs.PRIEST.discipline] = HealerPreset(120, 120, 40, 80),
+      [specs.PRIEST.holy] = HealerPreset(150, 120, 40, 80),
+      [specs.PRIEST.shadow] = CasterPreset(85, 42, 76, 48),
     },
     ["ROGUE"] = {
-      [specs.ROGUE.assassination] = {
-        weights = {
-          0, 0, 0, 120, 35, 37, 120, 41
-        },
-        caps = MeleeCaps,
-      },
-      [specs.ROGUE.combat] = {
-        weights = {
-          0, 0, 0, 70, 29, 39, 56, 32
-        },
-        caps = MeleeCaps,
-      },
-      [specs.ROGUE.subtlety] = {
-        weights = {
-          0, 0, 0, 54, 31, 32, 35, 26
-        },
-        caps = MeleeCaps,
-      },
+      [specs.ROGUE.assassination] = MeleePreset(120, 35, 37, 120, 41),
+      [specs.ROGUE.combat] = MeleePreset(70, 29, 39, 56, 32),
+      [specs.ROGUE.subtlety] = MeleePreset(54, 31, 32, 35, 26),
     },
     ["SHAMAN"] = {
-      [specs.SHAMAN.elemental] = {
-        weights = {
-          0, 0, 0, 60, 20, 40, 0, 30
-        },
-        caps = CasterCaps,
-      },
-      [specs.SHAMAN.enhancement] = {
-        weights = {
-          0, 0, 0, 149, 66, 84, 130, 121
-        },
-        caps = MeleeCaps,
-      },
-      [specs.SHAMAN.restoration] = {
-        weights = {
-          120, 0, 0, 0, 100, 150, 0, 75
-        },
-      },
+      [specs.SHAMAN.elemental] = CasterPreset(60, 20, 40, 30),
+      [specs.SHAMAN.enhancement] = MeleePreset(149, 66, 84, 130, 121),
+      [specs.SHAMAN.restoration] = HealerPreset(120, 100, 150, 75),
     },
     ["WARLOCK"] = {
-      [specs.WARLOCK.afflication] = {
-        weights = {
-          0, 0, 0, 93, 38, 58, 0, 80
-        },
-        caps = CasterCaps,
-      },
-      [specs.WARLOCK.destruction] = {
-        weights = {
-          0, 0, 0, 83, 59, 57, 0, 61
-        },
-        caps = CasterCaps,
-      },
-      [specs.WARLOCK.demonology] = {
-        weights = {
-          0, 0, 0, 400, 51, 275, 0, 57
-        },
-        caps = CasterCaps,
-      },
+      [specs.WARLOCK.afflication] = CasterPreset(93, 38, 58, 80),
+      [specs.WARLOCK.destruction] = CasterPreset(83, 59, 57, 61),
+      [specs.WARLOCK.demonology] = CasterPreset(400, 51, 275, 57),
     },
     ["WARRIOR"] = {
-      [specs.WARRIOR.arms] = {
-        weights = {
-          0, 0, 0, 140, 59, 32, 120, 39
-        },
-        caps = MeleeCaps
-      },
+      [specs.WARRIOR.arms] = MeleePreset(140, 59, 32, 120, 39),
       [specs.WARRIOR.fury] = {
         [C_Spell.GetSpellName(46917)] = { -- Titan's Grip
           icon = 236316,
-          weights = {
-            0, 0, 0, 162, 107, 41, 142, 70
-          },
+          weights = {0, 0, 0, 162, 107, 41, 142, 70},
           caps = MeleeCaps,
         },
         [C_Spell.GetSpellName(81099)] = { -- Single-Minded Fury
           icon = 458974,
-          weights = {
-            0, 0, 0, 137, 94, 41, 119, 59
-          },
+          weights = {0, 0, 0, 137, 94, 41, 119, 59},
           caps = MeleeCaps,
         },
       },
-      [specs.WARRIOR.protection] = {
-        weights = {
-          0, 140, 150, 200, 25, 50, 200, 100
-        },
-        caps = TankCaps,
-      },
+      [specs.WARRIOR.protection] = TankPreset(0, 140, 150, 200, 25, 50, 200, 100),
     },
   }
 
