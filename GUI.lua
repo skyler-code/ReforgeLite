@@ -84,6 +84,12 @@ function GUI:Lock()
       dropdown.locked = true
     end
   end
+  for _, dropdown in pairs(self.filterDropdowns) do
+    if dropdown:IsEnabled() and not dropdown.preventLock then
+      dropdown:SetEnabled(false)
+      dropdown.locked = true
+    end
+  end
 end
 
 ---Unlocks a single frame
@@ -116,6 +122,12 @@ function GUI:Unlock()
     end
   end
   for _, dropdown in pairs(self.dropdowns) do
+    if dropdown.locked then
+      dropdown:SetEnabled(true)
+      dropdown.locked = nil
+    end
+  end
+  for _, dropdown in pairs(self.filterDropdowns) do
     if dropdown.locked then
       dropdown:SetEnabled(true)
       dropdown.locked = nil
@@ -167,6 +179,7 @@ GUI.unusedEditBoxes = {}
 ---@param opts? table Options: OnTabPressed callback
 ---@return EditBox box The created edit box
 function GUI:CreateEditBox (parent, width, height, default, setter, opts)
+  opts = opts or {}
   local box
   if #self.unusedEditBoxes > 0 then
     box = tremove(self.unusedEditBoxes)
@@ -214,13 +227,58 @@ function GUI:CreateEditBox (parent, width, height, default, setter, opts)
     end
     frame.prevValue = nil
   end)
-  box:SetScript("OnTabPressed", (opts or {}).OnTabPressed)
+  box:SetScript("OnTabPressed", opts.OnTabPressed)
   return box
 end
 
 
 GUI.dropdowns = {}
 GUI.unusedDropdowns = {}
+GUI.filterDropdowns = {}
+GUI.unusedFilterDropdowns = {}
+
+---Creates a WowStyle1FilterDropdownTemplate button with recycling support
+---@param parent Frame Parent frame
+---@param text string Button text
+---@param options? table Options: resizeToTextPadding (number), tooltip (string)
+---@return DropdownButton dropdown The created filter dropdown
+function GUI:CreateFilterDropdown (parent, text, options)
+  options = options or {}
+  local dropdown
+  if #self.unusedFilterDropdowns > 0 then
+    dropdown = tremove (self.unusedFilterDropdowns)
+    dropdown:SetParent (parent)
+    dropdown:Show ()
+    dropdown:SetEnabled(true)
+    if dropdown.originalResizeToTextPadding then
+      dropdown.resizeToTextPadding = dropdown.originalResizeToTextPadding
+      dropdown.originalResizeToTextPadding = nil
+    end
+    self.filterDropdowns[dropdown:GetName()] = dropdown
+  else
+    local name = self:GenerateWidgetName()
+    dropdown = CreateFrame("DropdownButton", name, parent, "WowStyle1FilterDropdownTemplate")
+    self.filterDropdowns[name] = dropdown
+    dropdown.originalResizeToTextPadding = dropdown.resizeToTextPadding
+
+    dropdown.Recycle = function (frame)
+      frame:Hide ()
+      frame:ClearScripts()
+      frame.originalResizeToTextPadding = frame.resizeToTextPadding
+      frame.resizeToTextPadding = nil
+      self.filterDropdowns[frame:GetName()] = nil
+      tinsert(self.unusedFilterDropdowns, frame)
+    end
+  end
+
+  if options.resizeToTextPadding then
+    dropdown.resizeToTextPadding = options.resizeToTextPadding
+  end
+  dropdown:SetText(text)
+  self:SetTooltip(dropdown, options.tooltip)
+  return dropdown
+end
+
 ---Creates a dropdown menu with recycling support
 ---@param parent Frame Parent frame
 ---@param values table|function Array of {value, name} pairs or function returning the array
@@ -351,6 +409,7 @@ GUI.unusedCheckButtons = {}
 ---@param opts? table Options: tooltip
 ---@return CheckButton btn The created checkbox
 function GUI:CreateCheckButton (parent, text, default, setter, opts)
+  opts = opts or {}
   local btn
   if #self.unusedCheckButtons > 0 then
     btn = tremove (self.unusedCheckButtons)
@@ -383,7 +442,7 @@ function GUI:CreateCheckButton (parent, text, default, setter, opts)
     self.Text.originalFontColor = {self.Text:GetTextColor()}
     self.Text:SetTextColor(addonTable.FONTS.disabled:GetRGB())
   end)
-  self:SetTooltip(btn, (opts or {}).tooltip)
+  self:SetTooltip(btn, opts.tooltip)
   return btn
 end
 
@@ -398,6 +457,7 @@ GUI.unusedImgButtons = {}
 ---@param opts? table Options: hlt, disabledTexture, OnClick, tooltip
 ---@return Button btn The created image button
 function GUI:CreateImageButton (parent, width, height, img, pus, opts)
+  opts = opts or {}
   local btn
   if #self.unusedImgButtons > 0 then
     btn = tremove (self.unusedImgButtons)
@@ -416,11 +476,11 @@ function GUI:CreateImageButton (parent, width, height, img, pus, opts)
   end
   btn:SetNormalTexture (img)
   btn:SetPushedTexture (pus)
-  btn:SetHighlightTexture ((opts or {}).hlt or img)
-  btn:SetDisabledTexture((opts or {}).disabledTexture or img)
+  btn:SetHighlightTexture (opts.hlt or img)
+  btn:SetDisabledTexture(opts.disabledTexture or img)
   btn:SetSize(width, height)
-  btn:SetScript ("OnClick", (opts or {}).OnClick)
-  self:SetTooltip(btn, (opts or {}).tooltip)
+  btn:SetScript ("OnClick", opts.OnClick)
+  self:SetTooltip(btn, opts.tooltip)
   return btn
 end
 
@@ -433,6 +493,7 @@ GUI.unusedPanelButtons = {}
 ---@param opts? table Options: tooltip
 ---@return Button btn The created panel button
 function GUI:CreatePanelButton(parent, text, handler, opts)
+  opts = opts or {}
   local btn
   if #self.unusedPanelButtons > 0 then
     btn = tremove(self.unusedPanelButtons)
@@ -459,7 +520,7 @@ function GUI:CreatePanelButton(parent, text, handler, opts)
       f:FitToText()
     end
   end
-  btn.preventLock = (opts or {}).preventLock
+  btn.preventLock = opts.preventLock
   if opts then
     for event in pairs(callbacks.Event) do
       if opts[event] then
@@ -469,8 +530,8 @@ function GUI:CreatePanelButton(parent, text, handler, opts)
   end
   btn:RenderText(text)
   btn:SetScript("OnClick", handler)
-  btn:SetScript("PreClick", (opts or {}).PreClick)
-  self:SetTooltip(btn, (opts or {}).tooltip)
+  btn:SetScript("PreClick", opts.PreClick)
+  self:SetTooltip(btn, opts.tooltip)
   return btn
 end
 
@@ -525,9 +586,10 @@ GUI.helpButtons = {}
 ---@param opts? table Options: scale (default 0.6)
 ---@return Button btn The help button
 function GUI:CreateHelpButton(parent, tooltip, opts)
+  opts = opts or {}
   local btn = CreateFrame("Button", nil, parent, "MainHelpPlateButton")
   btn:SetFrameLevel(btn:GetParent():GetFrameLevel() + 1)
-  btn:SetScale((opts or {}).scale or 0.6)
+  btn:SetScale(opts.scale or 0.6)
   self:SetTooltip(btn, tooltip)
   tinsert(self.helpButtons, btn)
   return btn
@@ -1008,11 +1070,12 @@ end
 ---@param opts? table Options: button1 (text), hasEditBox (boolean)
 ---@return nil
 function GUI.CreateStaticPopup(name, text, onAccept, opts)
+  opts = opts or {}
   StaticPopupDialogs[name] = {
     text = text,
-    button1 = (opts or {}).button1 or ACCEPT,
+    button1 = opts.button1 or ACCEPT,
     button2 = CANCEL,
-    hasEditBox = (opts or {}).hasEditBox,
+    hasEditBox = opts.hasEditBox,
     timeout = 0,
     whileDead = 1,
     OnAccept = function(self)

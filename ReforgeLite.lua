@@ -1137,9 +1137,7 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory = self:CreateCategory (L["Stat Weights"])
   self:SetAnchor (self.statWeightsCategory, "TOPLEFT", self.content, "TOPLEFT", 2, -2)
 
-  self.presetsButton = CreateFrame("DropdownButton", nil, self.content, "WowStyle1FilterDropdownTemplate")
-  self.presetsButton:SetText(L["Presets"])
-  self.presetsButton.resizeToTextPadding = 35
+  self.presetsButton = GUI:CreateFilterDropdown(self.content, L["Presets"], {resizeToTextPadding = 35})
   self.statWeightsCategory:AddFrame(self.presetsButton)
   self:SetAnchor(self.presetsButton, "TOPLEFT", self.statWeightsCategory, "BOTTOMLEFT", 0, -5)
 
@@ -1171,9 +1169,7 @@ function ReforgeLite:CreateOptionList ()
   self:SetAnchor(self.targetLevel.text, "TOPLEFT", self.presetsButton, "BOTTOMLEFT", 0, -12)
   self.targetLevel:SetPoint("LEFT", self.targetLevel.text, "RIGHT", 5, 0)
 
-  self.buffsContextMenu = CreateFrame("DropdownButton", nil, self.content, "WowStyle1FilterDropdownTemplate")
-  self.buffsContextMenu:SetText(L["Buffs"])
-  self.buffsContextMenu.resizeToTextPadding = 25
+  self.buffsContextMenu = GUI:CreateFilterDropdown(self.content, L["Buffs"], {resizeToTextPadding = 25})
   self.statWeightsCategory:AddFrame(self.buffsContextMenu)
   self:SetAnchor(self.buffsContextMenu, "LEFT", self.targetLevel, "RIGHT", 10, 0)
 
