@@ -1,8 +1,19 @@
 -- Luacheck configuration for ReforgeLite
 
 std = "lua51"
+max_line_length = false
+exclude_files = {
+	".luacheckrc"
+}
 
+-- Variables the addon writes to
 globals = {
+    "ReforgeLiteDB",
+}
+
+-- WoW API functions and constants (read-only)
+read_globals = {
+    "_G",
     "AceGUI",
     "LibStub", 
     "EMPTY",
@@ -130,9 +141,17 @@ globals = {
     "GetItemStats"
 }
 
--- Suppress undefined field warnings for AceGUI widgets
--- These are false positives as AceGUI creates properties dynamically
--- Most WoW addons suppress undefined field warnings globally due to AceGUI
+-- Allow accessing the vararg table (...) to get addon table
+-- This is the standard WoW addon pattern: local _, addonTable = ...
+allow_defined_top = true
+
+-- Suppress undefined field warnings for AceGUI widgets and addonTable
+-- These are false positives as:
+-- - AceGUI creates properties dynamically
+-- - addonTable fields are defined across multiple files
+-- - ReforgeLite methods are injected across multiple files
 ignore = {
-    "113/undefined field"
+    "113/undefined field",
+    "143/addonTable",  -- Accessing undefined field of addonTable
+    "inject-field",    -- Allow field injection (WoW addon pattern)
 }

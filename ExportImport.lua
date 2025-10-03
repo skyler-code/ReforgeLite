@@ -1,3 +1,4 @@
+---@type string, AddonTable
 local addonName, addonTable = ...
 
 local ReforgeLite = addonTable.ReforgeLite

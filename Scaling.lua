@@ -1,3 +1,4 @@
+---@type string, AddonTable
 local _, addonTable = ...
 
 local RandPropPoints, ItemUpgradeStats, ItemStatsRef = addonTable.RandPropPoints, addonTable.ItemUpgradeStats, addonTable.ItemStatsRef

@@ -1,3 +1,4 @@
+---@type string, AddonTable
 local addonName, addonTable = ...
 local REFORGE_COEFF = addonTable.REFORGE_COEFF
 

@@ -1,9 +1,8 @@
-
+---@type string, AddonTable
 local addonName, addonTable = ...
 local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "title")
 
----@class ReforgeLite : Frame
----Main addon frame for ReforgeLite
+---@type ReforgeLite
 local ReforgeLite = CreateFrame("Frame", addonName, UIParent, "BackdropTemplate")
 addonTable.ReforgeLite = ReforgeLite
 

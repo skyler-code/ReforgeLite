@@ -1,7 +1,4 @@
----@class Presets
----Preset management for stat weights and caps
----Handles class-specific presets, custom presets, and Pawn integration
-
+---@type string, AddonTable
 local _, addonTable = ...
 local L = addonTable.L
 local ReforgeLite = addonTable.ReforgeLite
@@ -43,6 +40,7 @@ function ReforgeLite:PlayerHasSpellHasteBuff()
       return true
     end
   end
+  return false
 end
 
 ---Checks if player has a melee haste buff active
@@ -53,6 +51,7 @@ function ReforgeLite:PlayerHasMeleeHasteBuff()
       return true
     end
   end
+  return false
 end
 
 ---Checks if player has a mastery buff active
@@ -63,6 +62,7 @@ function ReforgeLite:PlayerHasMasteryBuff()
       return true
     end
   end
+  return false
 end
 
 ---Gets the rating required per 1% of a stat at a given level

@@ -1,0 +1,188 @@
+---@meta
+
+---Type definitions for ReforgeLite addon
+---This file contains EmmyLua annotations for IDE autocomplete and type checking
+
+---WoW UI widget types (simplified definitions)
+---@class Frame
+---@class Button : Frame
+---@class CheckButton : Frame
+---@class EditBox : Frame
+---@class Slider : Frame
+---@class FontString : Frame
+---@class Texture : Frame
+---@class ScrollFrame : Frame
+---@class DropdownButton : Frame
+
+---@class AddonTable
+---@field L table Localization strings
+---@field GUI GUI GUI widget library
+---@field ReforgeLite ReforgeLite Main addon frame
+---@field GetItemStatsUp fun(itemInfo: table): table<string, number> Get item stats with upgrade scaling
+---@field GetRandPropPoints fun(iLvl: number, t: number): number Get random property points
+---@field callbacks table Callback registry
+---@field FONTS table Font color constants
+---@field playerClass string Player class name (e.g., "WARRIOR", "MAGE")
+---@field localeClass string Localized player class name
+---@field playerClassID number Player class ID
+---@field statIds table Stat ID constants (HIT, CRIT, HASTE, etc.)
+---@field itemStats table Item stat definitions
+---@field itemStatCount number Number of item stats
+---@field Locale string Current locale (e.g., "enUS")
+---@field print fun(...) Print function with addon prefix
+---@field printLog table Print log history
+---@field ScalingTable table Stat scaling table by level
+---@field RandPropPoints table Random property points table
+---@field ItemUpgradeStats table Item upgrade stats table
+---@field ItemStatsRef table Item stats reference table
+---@field AmplificationItems table Amplification item IDs
+---@field MASTERY_BY_LEVEL table Mastery rating per level
+---@field CreateIconMarkup fun(icon: number): string Create icon texture markup
+---@field REFORGE_COEFF number Reforge coefficient (0.4)
+---@field MAX_SPEED number Maximum accuracy/speed value (20)
+---@field StatCapMethods table Stat cap method enum (AtLeast, AtMost, etc.)
+---@field WoWSimsOriginTag string WoWSims origin tag
+---@field isDev boolean Development mode flag
+---@field pauseRoutine boolean|nil Flag to pause computation coroutine
+---@field methodDebug table|nil Debug info for reforge methods
+
+---@class ReforgeLite : Frame
+---Main addon frame for ReforgeLite
+---Methods are defined across multiple files and injected at runtime
+---@field db table Global database
+---@field pdb table Per-character database
+---@field cdb table Cross-character database
+---@field itemData table Array of equipped item data
+---@field statWeights table Stat weights UI table
+---@field presets table Preset configurations
+---@field conversion table Stat conversion rules
+---@field initialized boolean Initialization flag
+---@field autoOpened boolean Auto-opened flag
+---@field moving boolean Window is being moved
+---@field backdropInfo table Backdrop configuration
+---@field content Frame Content frame
+---@field close Button Close button
+---@field itemTable table Item table widget
+---@field itemLevel FontString Item level text
+---@field itemLockHelpButton Button Item lock help button
+---@field computeButton Button Compute button
+---@field pauseButton Button Pause button
+---@field importButton DropdownButton Import dropdown button
+---@field pawnButton Button Pawn import button
+---@field fastModeButton CheckButton Fast mode checkbox
+---@field methodWindow Frame Method window
+---@field methodShow Button Method show button
+---@field methodReset Button Method reset button
+---@field methodCategory DropdownButton Method category dropdown
+---@field methodStats table Method stats table
+---@field methodOverride table Method override settings
+---@field methodHelpButton Button Method help button
+---@field buffsContextMenu Frame Buffs context menu
+---@field leftGrip Frame Left resize grip
+---@field lastElement Frame Last UI element for positioning
+---@field lastRan number Last computation timestamp
+---@field presetMenuGenerator function Preset menu generator
+---@field targetLevel Slider Target level slider
+---@field playerSpecTexture Texture Player spec icon
+---@field playerTalents table Player talents data
+---@field reforgeTable table Reforge table widget
+---@field presetsButton DropdownButton Presets dropdown button
+---@field rightGrip Frame Right resize grip
+---@field scrollBar Slider Scroll bar
+---@field scrollBarShown boolean Scroll bar visibility
+---@field scrollBg Texture Scroll background
+---@field scrollFrame ScrollFrame Scroll frame
+---@field scrollOffset number Scroll offset
+---@field scrollValue number Scroll value
+---@field settings table Settings table widget
+---@field settingsCategory table Settings category
+---@field statCaps table Stat caps table widget
+---@field statCapsHelpButton Button Stat caps help button
+---@field statHeaders table Stat headers
+---@field statTotals table Stat totals
+---@field statWeightsCategory table Stat weights category
+---@field statWeightsHelpButton Button Stat weights help button
+---@field title FontString Title text
+---@field titleIcon Texture Title icon
+---@field titlebar Frame Title bar
+---@field tooltipsHooked boolean Tooltips hooked flag
+---
+--- Preset and buff methods
+---@field PlayerHasSpellHasteBuff fun(self: ReforgeLite): boolean
+---@field PlayerHasMeleeHasteBuff fun(self: ReforgeLite): boolean
+---@field PlayerHasMasteryBuff fun(self: ReforgeLite): boolean
+---@field RatingPerPoint fun(self: ReforgeLite, stat: number, level?: number): number
+---@field GetMeleeHitBonus fun(self: ReforgeLite): number
+---@field GetSpellHitBonus fun(self: ReforgeLite): number
+---@field GetExpertiseBonus fun(self: ReforgeLite): number
+---@field GetNonSpellHasteBonus fun(self: ReforgeLite, hasteFunc: function, ratingBonusId: number): number
+---@field GetMeleeHasteBonus fun(self: ReforgeLite): number
+---@field GetRangedHasteBonus fun(self: ReforgeLite): number
+---@field GetSpellHasteBonus fun(self: ReforgeLite): number
+---@field GetHasteBonuses fun(self: ReforgeLite): number, number, number
+---@field CalcHasteWithBonus fun(self: ReforgeLite, haste: number, hasteBonus: number): number
+---@field CalcHasteWithBonuses fun(self: ReforgeLite, haste: number): number, number, number
+---@field GetNeededMeleeHit fun(self: ReforgeLite): number
+---@field GetNeededSpellHit fun(self: ReforgeLite): number
+---@field GetNeededExpertiseSoft fun(self: ReforgeLite): number
+---@field GetNeededExpertiseHard fun(self: ReforgeLite): number
+---@field InitClassPresets fun(self: ReforgeLite)
+---@field InitCustomPresets fun(self: ReforgeLite)
+---@field InitDynamicPresets fun(self: ReforgeLite)
+---@field InitPresets fun(self: ReforgeLite)
+---
+--- Core methods
+---@field CreateFrame fun(self: ReforgeLite)
+---@field UpdateItems fun(self: ReforgeLite)
+---@field GetCapScore fun(self: ReforgeLite, cap: table, value: number): number
+---@field GetStatScore fun(self: ReforgeLite, stat: number, value: number): number
+---@field UpdateWindowSize fun(self: ReforgeLite)
+---@field CreateItemTable fun(self: ReforgeLite)
+---@field AddCapPoint fun(self: ReforgeLite, i: number, loading?: boolean)
+---@field RemoveCapPoint fun(self: ReforgeLite, i: number, point: number, loading?: boolean)
+---@field CreateOptionList fun(self: ReforgeLite)
+---@field SetStatWeights fun(self: ReforgeLite, weights: table, caps: table)
+---
+--- Reforge engine methods
+---@field GetStatMultipliers fun(self: ReforgeLite): table
+---@field GetConversion fun(self: ReforgeLite): table|nil
+---@field UpdateMethodStats fun(self: ReforgeLite, method: table)
+---@field FinalizeReforge fun(self: ReforgeLite, data: table)
+---@field ResetMethod fun(self: ReforgeLite)
+---@field CapAllows fun(self: ReforgeLite, cap: table, value: number): boolean
+---@field IsItemLocked fun(self: ReforgeLite, slot: number): boolean
+---@field MakeReforgeOption fun(self: ReforgeLite, item: table, data: table, src?: number, dst?: number): table
+---@field GetItemReforgeOptions fun(self: ReforgeLite, item: table, data: table, slot: number): table
+---@field ComputeReforgeClassic fun(self: ReforgeLite)
+---@field ComputeReforge fun(self: ReforgeLite)
+---@field ResumeCompute fun(self: ReforgeLite)
+---@field ResumeComputeNextFrame fun(self: ReforgeLite)
+---@field RunYieldCheck fun(self: ReforgeLite, maxLoops: number)
+---@field CreateRoutine fun(self: ReforgeLite, func: string)
+---@field StartAlgorithmComparison fun(self: ReforgeLite)
+---@field StartCompute fun(self: ReforgeLite)
+---@field EndCompute fun(self: ReforgeLite)
+---
+--- Initialization and event methods
+---@field Initialize fun(self: ReforgeLite)
+---@field UpgradeDB fun(self: ReforgeLite)
+---@field OnEvent fun(self: ReforgeLite, event: string, ...)
+---@field OnCommand fun(self: ReforgeLite, msg: string)
+---@field OnShow fun(self: ReforgeLite)
+---@field OnHide fun(self: ReforgeLite)
+---@field QueueUpdate fun(self: ReforgeLite)
+---@field RegisterQueueUpdateEvents fun(self: ReforgeLite)
+---@field UnregisterQueueUpdateEvents fun(self: ReforgeLite)
+---@field ADDON_LOADED fun(self: ReforgeLite, addonName: string)
+---@field FORGE_MASTER_OPENED fun(self: ReforgeLite)
+---@field FORGE_MASTER_CLOSED fun(self: ReforgeLite)
+---@field FORGE_MASTER_ITEM_CHANGED fun(self: ReforgeLite)
+---@field PLAYER_ENTERING_WORLD fun(self: ReforgeLite)
+---@field PLAYER_REGEN_DISABLED fun(self: ReforgeLite)
+---@field PLAYER_SPECIALIZATION_CHANGED fun(self: ReforgeLite)
+---@field ACTIVE_TALENT_GROUP_CHANGED fun(self: ReforgeLite)
+---@field PLAYER_AVG_ITEM_LEVEL_UPDATE fun(self: ReforgeLite)
+
+---@class GUI
+---GUI widget creation and management library
+---Provides consistent widget creation, tooltips, locking/unlocking, and tables

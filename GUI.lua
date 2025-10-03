@@ -1,7 +1,5 @@
+---@type string, AddonTable
 local addonName, addonTable = ...
----@class GUI
----GUI widget creation and management library
----Provides consistent widget creation, tooltips, locking/unlocking, and tables
 local GUI = {}
 addonTable.GUI = GUI
 
