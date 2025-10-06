@@ -772,7 +772,7 @@ function ReforgeLite:CreateItemTable ()
   self.playerTalents = {}
   for tier = 1, MAX_NUM_TALENT_TIERS do
     self.playerTalents[tier] = self:CreateTexture(nil, "ARTWORK")
-    self.playerTalents[tier]:SetPoint("TOPLEFT", self.playerTalents[tier-1] or self.playerSpecTexture, "TOPRIGHT", 0, 0)
+    self.playerTalents[tier]:SetPoint("TOPLEFT", self.playerTalents[tier-1] or self.playerSpecTexture, "TOPRIGHT", 4, 0)
     self.playerTalents[tier]:SetSize(18, 18)
     self.playerTalents[tier]:SetTexCoord(self.playerSpecTexture:GetTexCoord())
     self.playerTalents[tier]:SetScript("OnLeave", GameTooltip_Hide)
@@ -947,7 +947,6 @@ function ReforgeLite:AddCapPoint (i, loading)
   if not loading then
     self:UpdateCapPoints (i)
     self:UpdateContentSize ()
-    self:UpdateItems()  -- Update resize bounds when caps change
   end
   self.statCaps[i].add:Enable()
   self.statCaps:OnUpdateFix()
@@ -964,13 +963,11 @@ function ReforgeLite:RemoveCapPoint (i, point, loading)
   if not loading then
     self:UpdateCapPoints (i)
     self:UpdateContentSize ()
-    -- Check if this was the last cap point and reset stat before updating resize bounds
-    if #self.pdb.caps[i].points == 0 then
-      self.pdb.caps[i].stat = 0
-      self.statCaps[i].add:Disable()
-      self.statCaps[i].stat:SetValue(0)
-    end
-    self:UpdateItems()  -- Update resize bounds when caps change
+  end
+  if #self.pdb.caps[i].points == 0 then
+    self.pdb.caps[i].stat = 0
+    self.statCaps[i].add:Disable()
+    self.statCaps[i].stat:SetValue(0)
   end
 end
 function ReforgeLite:ReorderCapPoint (i, point)
@@ -1139,18 +1136,9 @@ function ReforgeLite:CreateOptionList ()
     self.presetsButton:SetupMenu(self.presetMenuGenerator)
   end
 
-  self.pawnButton = GUI:CreatePanelButton (self.content, L["WoWSims/Pawn/QE"], function(btn) self:ImportData() end)
+  self.pawnButton = GUI:CreatePanelButton (self.content, L["Import WoWSims/Pawn/QE"], function(btn) self:ImportData() end)
   self.statWeightsCategory:AddFrame (self.pawnButton)
   self:SetAnchor (self.pawnButton, "LEFT", self.presetsButton, "RIGHT", 8, 0)
-
-  -- Create a single row table for Target Level and Buffs
-  self.targetLevelBuffsTable = GUI:CreateTable(1, 3)
-  self.statWeightsCategory:AddFrame(self.targetLevelBuffsTable)
-  self:SetAnchor(self.targetLevelBuffsTable, "TOPLEFT", self.presetsButton, "BOTTOMLEFT", -4, -20)
-  self.targetLevelBuffsTable:SetRowHeight(ITEM_SIZE + 2)
-  self.targetLevelBuffsTable:EnableColumnAutoWidth(0)
-  self.targetLevelBuffsTable:SetColumnWidth(1, 150)  -- Target Level dropdown
-  self.targetLevelBuffsTable:SetColumnWidth(2, 80)   -- Buffs label
 
   local levelList = function()
     return {
@@ -1161,20 +1149,20 @@ function ReforgeLite:CreateOptionList ()
     }
   end
 
-  -- Target Level label
-  self.targetLevelBuffsTable:SetCellText(0, 0, STAT_TARGET_LEVEL, nil, addonTable.FONTS.darkyellow, "GameFontNormal")
-
-  -- Target Level dropdown
-  self.targetLevel = GUI:CreateDropdown(self.targetLevelBuffsTable, levelList, {
+  self.targetLevel = GUI:CreateDropdown(self.content, levelList, {
     default =  self.pdb.targetLevel,
     setter = function(_,val) self.pdb.targetLevel = val; self:UpdateItems() end,
     width = 150,
   })
-  self.targetLevelBuffsTable:SetCell(0, 1, self.targetLevel)
+  self.statWeightsCategory:AddFrame(self.targetLevel)
+  self.targetLevel.text = self.targetLevel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+  self.targetLevel.text:SetText(STAT_TARGET_LEVEL)
+  self:SetAnchor(self.targetLevel.text, "TOPLEFT", self.presetsButton, "BOTTOMLEFT", 0, -12)
+  self.targetLevel:SetPoint("LEFT", self.targetLevel.text, "RIGHT", 5, 0)
 
-  -- Buffs dropdown
-  self.buffsContextMenu = GUI:CreateFilterDropdown(self.targetLevelBuffsTable, L["Buffs"], {resizeToTextPadding = 25})
-  self.targetLevelBuffsTable:SetCell(0, 2, self.buffsContextMenu)
+  self.buffsContextMenu = GUI:CreateFilterDropdown(self.content, L["Buffs"], {resizeToTextPadding = 25})
+  self.statWeightsCategory:AddFrame(self.buffsContextMenu)
+  self:SetAnchor(self.buffsContextMenu, "LEFT", self.targetLevel, "RIGHT", 10, 0)
 
   local buffsContextValues = {
     spellHaste = { text = addonTable.CreateIconMarkup(136092) .. L["Spell Haste"], selected = self.PlayerHasSpellHasteBuff },
@@ -1197,7 +1185,7 @@ function ReforgeLite:CreateOptionList ()
   end)
 
   self.statWeights = GUI:CreateTable (ceil (ITEM_STAT_COUNT / 2), 4)
-  self:SetAnchor (self.statWeights, "TOPLEFT", self.targetLevelBuffsTable, "BOTTOMLEFT", 4, 8)
+  self:SetAnchor (self.statWeights, "TOPLEFT", self.targetLevel.text, "BOTTOMLEFT", 0, -8)
   self.statWeightsCategory:AddFrame (self.statWeights)
   self.statWeights:SetRowHeight (ITEM_SIZE + 2)
   self.statWeights:SetColumnWidth(2, 61)
@@ -1242,7 +1230,6 @@ function ReforgeLite:CreateOptionList ()
           self:CollapseStatCaps()
         end
         self.statCaps:ToggleStatDropdownToCorrectState()
-        self:UpdateItems()  -- Update resize bounds when caps are enabled/disabled
       end,
       width = 125,
       menuItemDisabled = function(val)
@@ -1722,18 +1709,15 @@ function ReforgeLite:UpdateItems()
     self.statTotals[i]:SetText(v.getter())
   end
 
-  self:RefreshCaps()
-  self:RefreshMethodStats()
-
   -- Calculate minimum width: itemTable + gap + min content width + scrollbar margin
-  -- Use smaller content width when no caps are configured
-  local hasCaps = (self.pdb.caps[1].stat ~= 0) or (self.pdb.caps[2].stat ~= 0)
-  local minContentWidth = hasCaps and 400 or 350
-  local minWidth = self.itemTable:GetWidth() + 10 + minContentWidth + 22
+  local minWidth = self.itemTable:GetWidth() + 10 + 400 + 22
   self:SetResizeBounds(minWidth, select(2, self:GetResizeBounds()))
   if self:GetWidth() < minWidth then
     self:SetWidth(minWidth)
   end
+
+  self:RefreshCaps()
+  self:RefreshMethodStats()
 end
 
 function ReforgeLite:UpdatePlayerSpecInfo()
