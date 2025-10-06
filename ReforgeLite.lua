@@ -784,9 +784,7 @@ function ReforgeLite:CreateItemTable ()
   self.itemTable:SetPoint ("TOPLEFT", self.playerSpecTexture, "BOTTOMLEFT", 0, -6)
   self.itemTable:SetPoint ("BOTTOM", 0, 10)
   self.itemTable:SetWidth (400)
-  for i = 1, ITEM_STAT_COUNT do
-    self.itemTable:SetColumnWidth(i, 55)
-  end
+  self.itemTable:EnableColumnAutoWidth(unpack(GetKeysArray(ITEM_STATS)))
 
   self.itemLevel = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
   self.itemLevel:SetPoint ("BOTTOMRIGHT", self.itemTable, "TOPRIGHT", 0, 8)
@@ -1588,12 +1586,6 @@ function ReforgeLite:RefreshMethodStats()
           override = 0
         end
         SetTextDelta (self.methodStats[i].delta, mvalue, value, override)
-        -- Hide rows with zero values by setting row height to 0
-        if mvalue <= 0 or (v.name == "ITEM_MOD_SPIRIT_SHORT" and not UnitHasMana("player")) then
-          self.methodStats:CollapseRow(cell)
-        else
-          self.methodStats:ExpandRow(cell)
-        end
       end
     end
   end
@@ -1723,12 +1715,11 @@ function ReforgeLite:UpdateItems()
   local hasAnyData = next(columnHasData) ~= nil
 
   for i, v in ipairs (ITEM_STATS) do
+    local hasData = columnHasData[i] or not hasAnyData
+    self.itemTable:SetColumnWidth(i, hasData and 55 or 0)
+    self.statHeaders[i]:SetShown(hasData)
+    self.statTotals[i]:SetShown(hasData)
     self.statTotals[i]:SetText(v.getter())
-    if columnHasData[i] or not hasAnyData then
-      self.itemTable:ExpandColumn(i)
-    else
-      self.itemTable:CollapseColumn(i)
-    end
   end
 
   self:RefreshCaps()

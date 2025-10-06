@@ -1120,56 +1120,6 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
     self:AlignCell (i, j)
     self:AutoSizeColumns(j)
   end
-  t.CollapseRow = function(self, i)
-    if not self.collapsedRows then
-      self.collapsedRows = {}
-    end
-    if self.collapsedRows[i] then
-      return
-    end
-    self.collapsedRows[i] = self.rowHeight[i]
-    self.rowHeight[i] = 0
-    for j = 0, self.cols do
-      self.cells[i][j]:SetAlpha(0)
-    end
-    self:OnUpdateFix()
-  end
-  t.ExpandRow = function(self, i)
-    if self.collapsedRows and self.collapsedRows[i] then
-      self.rowHeight[i] = self.collapsedRows[i]
-      self.collapsedRows[i] = nil
-      for j = 0, self.cols do
-        self.cells[i][j]:SetAlpha(1)
-      end
-      self:OnUpdateFix()
-    end
-  end
-  t.CollapseColumn = function(self, j)
-    self.colWidth[j] = 0
-    self:OnUpdateFix()
-    if not self.collapsedColumns then
-      self.collapsedColumns = {}
-    end
-    if self.collapsedColumns[j] then
-      return
-    end
-    self.collapsedColumns[j] = self.colWidth[j]
-    self.colWidth[j] = 0
-    for i = 0, self.rows do
-      self.cells[i][j]:SetAlpha(0)
-    end
-    self:OnUpdateFix()
-  end
-  t.ExpandColumn = function(self, j)
-    if self.collapsedColumns and self.collapsedColumns[j] then
-      self.colWidth[j] = self.collapsedColumns[j]
-      self.collapsedColumns[j] = nil
-      for i = 0, self.rows do
-        self.cells[i][j]:SetAlpha(1)
-      end
-      self:OnUpdateFix()
-    end
-  end
 
   return t
 end
