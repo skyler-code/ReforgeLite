@@ -420,7 +420,7 @@ function ReforgeLite:InitClassPresets()
       [specs.DEATHKNIGHT.frost] = {
         [C_Spell.GetSpellName(49020)] = { -- Obliterate
           icon = 135771,
-          weights = {0, 0, 0, 87, 44, 35, 87, 39},
+          weights = {0, 0, 0, 87, 44, 48, 87, 35},
           caps = MeleeCaps,
         },
         [L["Masterfrost"]] = {
