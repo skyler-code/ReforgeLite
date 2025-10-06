@@ -425,7 +425,7 @@ function ReforgeLite:InitClassPresets()
         },
         [L["Masterfrost"]] = {
           icon = 135833,
-          weights = {0, 0, 0, 84, 36, 37, 83, 53},
+          weights = {0, 0, 0, 73, 36, 47, 73, 50},
           caps = MeleeCaps,
         }
       },
@@ -433,7 +433,7 @@ function ReforgeLite:InitClassPresets()
     },
     ["DRUID"] = {
       [specs.DRUID.balance] = {
-        weights = {0, 0, 0, 127, 56, 80, 0, 41},
+        weights = {0, 0, 0, 127, 61, 63, 0, 38},
         caps = {
           HitCapSpell,
           {
@@ -448,7 +448,7 @@ function ReforgeLite:InitClassPresets()
           }
         },
       },
-      [specs.DRUID.feralcombat] = Preset(0, 0, 0, 330, 320, 220, 330, 380, AtMostMeleeCaps),
+      [specs.DRUID.feralcombat] = Preset(0, 0, 0, 44, 49, 42, 44, 39, AtMostMeleeCaps),
       [specs.DRUID.guardian] = TankPreset(0, 53, 0, 116, 105, 37, 116, 73),
       [specs.DRUID.restoration] = {
         weights = {150, 0, 0, 0, 100, 200, 0, 150},
@@ -467,14 +467,14 @@ function ReforgeLite:InitClassPresets()
       },
     },
     ["HUNTER"] = {
-      [specs.HUNTER.beastmastery] = MeleePreset(63, 30, 37, 59, 32),
+      [specs.HUNTER.beastmastery] = MeleePreset(63, 28, 27, 59, 25),
       [specs.HUNTER.marksmanship] = MeleePreset(63, 40, 35, 59, 29),
-      [specs.HUNTER.survival] = MeleePreset(59, 33, 25, 57, 21),
+      [specs.HUNTER.survival] = MeleePreset(59, 29, 25, 57, 21),
     },
     ["MAGE"] = {
-      [specs.MAGE.arcane] = CasterPreset(131, 53, 70, 68),
-      [specs.MAGE.fire] = CasterPreset(121, 88, 73, 73),
-      [specs.MAGE.frost] = CasterPreset(115, 49, 60, 47),
+      [specs.MAGE.arcane] = CasterPreset(145, 52, 60, 63),
+      [specs.MAGE.fire] = CasterPreset(121, 94, 95, 59),
+      [specs.MAGE.frost] = CasterPreset(115, 49, 51, 44),
     },
     ["MONK"] = {
       [specs.MONK.brewmaster] = {
@@ -485,12 +485,12 @@ function ReforgeLite:InitClassPresets()
       [specs.MONK.windwalker] = {
         [C_Spell.GetSpellName(114355)] = { -- Dual Wield
           icon = 132147,
-          weights = {0, 0, 0, 141, 46, 57, 99, 39},
+          weights = {0, 0, 0, 141, 44, 49, 99, 39},
           caps = MeleeCaps,
         },
         [AUCTION_SUBCATEGORY_TWO_HANDED] = { -- Two-Handed
           icon = 135145,
-          weights = {0, 0, 0, 138, 46, 54, 122, 38},
+          weights = {0, 0, 0, 141, 64, 63, 141, 62},
           caps = MeleeCaps,
         },
       },
@@ -520,25 +520,25 @@ function ReforgeLite:InitClassPresets()
     ["PRIEST"] = {
       [specs.PRIEST.discipline] = HealerPreset(120, 120, 40, 80),
       [specs.PRIEST.holy] = HealerPreset(150, 120, 40, 80),
-      [specs.PRIEST.shadow] = CasterPreset(85, 42, 76, 48),
+      [specs.PRIEST.shadow] = CasterPreset(85, 46, 59, 44),
     },
     ["ROGUE"] = {
-      [specs.ROGUE.assassination] = MeleePreset(120, 35, 37, 120, 41),
+      [specs.ROGUE.assassination] = MeleePreset(46, 37, 35, 42, 41),
       [specs.ROGUE.combat] = MeleePreset(70, 29, 39, 56, 32),
       [specs.ROGUE.subtlety] = MeleePreset(54, 31, 32, 35, 26),
     },
     ["SHAMAN"] = {
-      [specs.SHAMAN.elemental] = CasterPreset(60, 20, 40, 30),
-      [specs.SHAMAN.enhancement] = MeleePreset(149, 66, 84, 130, 121),
+      [specs.SHAMAN.elemental] = CasterPreset(118, 71, 48, 73),
+      [specs.SHAMAN.enhancement] = MeleePreset(97, 41, 42, 97, 46),
       [specs.SHAMAN.restoration] = HealerPreset(120, 100, 150, 75),
     },
     ["WARLOCK"] = {
-      [specs.WARLOCK.afflication] = CasterPreset(93, 38, 58, 80),
-      [specs.WARLOCK.destruction] = CasterPreset(83, 59, 57, 61),
-      [specs.WARLOCK.demonology] = CasterPreset(400, 51, 275, 57),
+      [specs.WARLOCK.afflication] = CasterPreset(90, 56, 80, 68),
+      [specs.WARLOCK.destruction] = CasterPreset(93, 55, 50, 61),
+      [specs.WARLOCK.demonology] = CasterPreset(400, 60, 66, 63),
     },
     ["WARRIOR"] = {
-      [specs.WARRIOR.arms] = MeleePreset(140, 59, 32, 120, 39),
+      [specs.WARRIOR.arms] = MeleePreset(188, 65, 30, 139, 49),
       [specs.WARRIOR.fury] = {
         [C_Spell.GetSpellName(46917)] = { -- Titan's Grip
           icon = 236316,
