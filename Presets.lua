@@ -406,7 +406,7 @@ function ReforgeLite:InitClassPresets()
     PRIEST = { discipline = 256, holy = 257, shadow = 258 },
     ROGUE = { assassination = 259, combat = 260, subtlety = 261 },
     SHAMAN = { elemental = 262, enhancement = 263, restoration = 264 },
-    WARLOCK = { afflication = 265, demonology = 266, destruction = 267 },
+    WARLOCK = { affliction = 265, demonology = 266, destruction = 267 },
     WARRIOR = { arms = 71, fury = 72, protection = 73 }
   }
 
@@ -533,7 +533,7 @@ function ReforgeLite:InitClassPresets()
       [specs.SHAMAN.restoration] = HealerPreset(120, 100, 150, 75),
     },
     ["WARLOCK"] = {
-      [specs.WARLOCK.afflication] = CasterPreset(90, 56, 80, 68),
+      [specs.WARLOCK.affliction] = CasterPreset(90, 56, 80, 68),
       [specs.WARLOCK.destruction] = CasterPreset(93, 55, 50, 61),
       [specs.WARLOCK.demonology] = CasterPreset(400, 60, 66, 63),
     },
