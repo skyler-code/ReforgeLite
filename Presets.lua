@@ -570,16 +570,6 @@ function ReforgeLite:InitClassPresets()
       specInfo[id] = { name = tabName, icon = icon }
     end
   end
-
-  --[===[@non-debug@
-  self.presets = presets[addonTable.playerClass]
-  for _, id in pairs(specs[addonTable.playerClass]) do
-    local _, tabName, _, icon = GetSpecializationInfoByID(id)
-    specInfo[id] = { name = tabName, icon = icon }
-  end
-  --@end-non-debug@]===]
-  --@debug@
-  --@end-debug@
 end
 
 local DYNAMIC_PRESETS = tInvert( { "Pawn", CUSTOM } )
