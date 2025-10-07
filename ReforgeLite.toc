@@ -19,7 +19,6 @@ data\ItemUpgradeStats.lua
 data\RandPropPoints.lua
 data\ScalingTable.lua
 
-Scaling.lua
 GUI.lua
 ReforgeLite.lua
 ReforgeEngine.lua
