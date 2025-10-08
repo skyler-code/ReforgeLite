@@ -528,7 +528,10 @@ function ReforgeLite:InitClassPresets()
       [specs.ROGUE.subtlety] = MeleePreset(54, 31, 32, 35, 26),
     },
     ["SHAMAN"] = {
-      [specs.SHAMAN.elemental] = CasterPreset(118, 71, 48, 73),
+      [specs.SHAMAN.elemental] = {
+        [L["Single Target"]] = CasterPreset(110, 37, 47, 44),
+        [L["AoE"]] = CasterPreset(118, 71, 48, 73),
+      },
       [specs.SHAMAN.enhancement] = MeleePreset(97, 41, 42, 97, 46),
       [specs.SHAMAN.restoration] = HealerPreset(120, 100, 150, 75),
     },
