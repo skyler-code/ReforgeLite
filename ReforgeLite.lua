@@ -240,15 +240,6 @@ addonTable.itemStats, addonTable.itemStatCount = ITEM_STATS, ITEM_STAT_COUNT
 ReforgeLite.itemStats = ITEM_STATS
 
 local RandPropPoints, ItemUpgradeStats, ItemStatsRef = addonTable.RandPropPoints, addonTable.ItemUpgradeStats, addonTable.ItemStatsRef
-
----Gets random property points for an item level and slot type
----@param iLvl number Item level
----@param t number Slot type index
----@return number points Random property points for the item level and slot
-function addonTable.GetRandPropPoints(iLvl, t)
-    return (RandPropPoints[iLvl] and RandPropPoints[iLvl][t] or 0)
-end
-
 local baseGetItemStats = GetItemStats
 ---Gets item stats adjusted for upgrade level
 ---Calculates base stats and applies upgrade scaling based on item level
@@ -260,9 +251,10 @@ function addonTable.GetItemStatsUp(itemInfo)
     if result and itemInfo.upgradeLevel > 0 then
         local iLvlBase = C_Item.GetDetailedItemLevelInfo(itemInfo.itemId)
         local budget, ref
-        if RandPropPoints[itemInfo.ilvl] and ItemUpgradeStats[itemInfo.itemId] then
-            budget = RandPropPoints[itemInfo.ilvl][ItemUpgradeStats[itemInfo.itemId][1]]
-            ref = ItemStatsRef[ItemUpgradeStats[itemInfo.itemId][2] + 1]
+        local upgradeStats = ItemUpgradeStats[itemInfo.itemId]
+        if upgradeStats and RandPropPoints[itemInfo.ilvl] then
+            budget = RandPropPoints[itemInfo.ilvl][upgradeStats[1]]
+            ref = ItemStatsRef[upgradeStats[2] + 1]
         end
         for sid, sv in ipairs(addonTable.itemStats) do
             if result[sv.name] then

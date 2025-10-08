@@ -1002,3 +1002,11 @@ addonTable.RandPropPoints = {
     {252343, 187455, 140591, 108147, 79308},
     {254705, 189210, 141907, 109159, 80050},
 }
+
+---Gets random property points for an item level and slot type
+---@param iLvl number Item level
+---@param t number Slot type index
+---@return number points Random property points for the item level and slot
+function addonTable.GetRandPropPoints(iLvl, t)
+    return (addonTable.RandPropPoints[iLvl] and addonTable.RandPropPoints[iLvl][t] or 0)
+end
