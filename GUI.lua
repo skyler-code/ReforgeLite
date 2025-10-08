@@ -1199,9 +1199,10 @@ function GUI.CreateStaticPopup(name, text, OnAccept, opts)
       self:GetButton2():Enable()
     end,
     EditBoxOnEnterPressed = function(self)
-      if self:GetParent():GetButton1():IsEnabled() then
-        OnAccept(self:GetParent())
-        self:GetParent():Hide()
+      local parent = self:GetParent()
+      if parent:GetButton1():IsEnabled() then
+        OnAccept(parent)
+        parent:Hide()
       end
     end,
     EditBoxOnTextChanged = function(self)
