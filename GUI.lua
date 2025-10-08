@@ -32,6 +32,7 @@ addonTable.FONTS = {
   gold = GOLD_FONT_COLOR,
   darkyellow = DARKYELLOW_FONT_COLOR,
   disabled = DISABLED_FONT_COLOR,
+  normal = NORMAL_FONT_COLOR,
 }
 
 ---Generates a unique widget name

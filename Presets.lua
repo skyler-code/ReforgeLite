@@ -367,10 +367,11 @@ local TankCaps = { HitCap, HardExpCap }
 local CasterCaps = { HitCapSpell }
 
 -- Preset builder functions
-local function Preset(spirit, dodge, parry, hit, crit, haste, exp, mastery, caps)
+local function Preset(spirit, dodge, parry, hit, crit, haste, exp, mastery, caps, icon)
   return {
     weights = {spirit or 0, dodge or 0, parry or 0, hit or 0, crit or 0, haste or 0, exp or 0, mastery or 0},
-    caps = caps
+    caps = caps,
+    icon = icon,
   }
 end
 
@@ -418,16 +419,8 @@ function ReforgeLite:InitClassPresets()
         [PET_AGGRESSIVE] = TankPreset(0, 90, 100, 200, 150, 125, 200, 25),
       },
       [specs.DEATHKNIGHT.frost] = {
-        [C_Spell.GetSpellName(49020)] = { -- Obliterate
-          icon = 135771,
-          weights = {0, 0, 0, 87, 44, 48, 87, 35},
-          caps = MeleeCaps,
-        },
-        [L["Masterfrost"]] = {
-          icon = 135833,
-          weights = {0, 0, 0, 73, 36, 47, 73, 50},
-          caps = MeleeCaps,
-        }
+        [C_Spell.GetSpellName(49020)] = Preset(0, 0, 0, 87, 44, 48, 87, 35, MeleeCaps, 135771), -- Obliterate
+        [L["Masterfrost"]] = Preset(0, 0, 0, 73, 36, 47, 73, 50, MeleeCaps, 135833),
       },
       [specs.DEATHKNIGHT.unholy] = MeleePreset(73, 47, 43, 73, 40),
     },
@@ -483,16 +476,8 @@ function ReforgeLite:InitClassPresets()
       },
       [specs.MONK.mistweaver] = HealerPreset(80, 200, 40, 30),
       [specs.MONK.windwalker] = {
-        [C_Spell.GetSpellName(114355)] = { -- Dual Wield
-          icon = 132147,
-          weights = {0, 0, 0, 141, 44, 49, 99, 39},
-          caps = MeleeCaps,
-        },
-        [AUCTION_SUBCATEGORY_TWO_HANDED] = { -- Two-Handed
-          icon = 135145,
-          weights = {0, 0, 0, 141, 64, 63, 141, 62},
-          caps = MeleeCaps,
-        },
+        [C_Spell.GetSpellName(114355)] = Preset(0, 0, 0, 141, 44, 49, 99, 39, MeleeCaps, 132147), -- Dual Wield
+        [AUCTION_SUBCATEGORY_TWO_HANDED] = Preset(0, 0, 0, 141, 64, 63, 141, 62, MeleeCaps, 135145), -- Two-Handed
       },
     },
     ["PALADIN"] = {
@@ -529,8 +514,8 @@ function ReforgeLite:InitClassPresets()
     },
     ["SHAMAN"] = {
       [specs.SHAMAN.elemental] = {
-        [L["Single Target"]] = CasterPreset(110, 37, 47, 44),
-        [L["AoE"]] = CasterPreset(118, 71, 48, 73),
+        [L["Single Target"]] = Preset(0, 0, 0, 110, 37, 47, 0, 44, CasterCaps, 136048),
+        [L["AoE"]] = Preset(0, 0, 0, 118, 71, 48, 0, 73, CasterCaps, 136015),
       },
       [specs.SHAMAN.enhancement] = MeleePreset(97, 41, 42, 97, 46),
       [specs.SHAMAN.restoration] = HealerPreset(120, 100, 150, 75),
@@ -543,16 +528,8 @@ function ReforgeLite:InitClassPresets()
     ["WARRIOR"] = {
       [specs.WARRIOR.arms] = MeleePreset(188, 65, 30, 139, 49),
       [specs.WARRIOR.fury] = {
-        [C_Spell.GetSpellName(46917)] = { -- Titan's Grip
-          icon = 236316,
-          weights = {0, 0, 0, 162, 107, 41, 142, 70},
-          caps = MeleeCaps,
-        },
-        [C_Spell.GetSpellName(81099)] = { -- Single-Minded Fury
-          icon = 458974,
-          weights = {0, 0, 0, 137, 94, 41, 119, 59},
-          caps = MeleeCaps,
-        },
+        [C_Spell.GetSpellName(46917)] = Preset(0, 0, 0, 162, 107, 41, 142, 70, MeleeCaps, 236316), -- Titan's Grip
+        [C_Spell.GetSpellName(81099)] = Preset(0, 0, 0, 137, 94, 41, 119, 59, MeleeCaps, 458974), -- Single-Minded Fury
       },
       [specs.WARRIOR.protection] = TankPreset(0, 140, 150, 200, 25, 50, 200, 100),
     },
@@ -663,6 +640,34 @@ function ReforgeLite:InitPresets()
 
     rootDescription:CreateDivider()
 
+    local function FormatWeightsTooltip(tooltip, element, weights, addBlank)
+      if not weights then return end
+      local statWeights = {}
+      for i, weight in ipairs(weights) do
+        if weight and weight > 0 then
+          tinsert(statWeights, {stat = addonTable.itemStats[i].long, weight = weight, index = i})
+        end
+      end
+      if #statWeights > 0 then
+        tooltip:AddLine(element.text)
+        tsort(statWeights, function(a, b)
+          if a.weight == b.weight then
+            return a.index < b.index
+          end
+          return a.weight > b.weight
+        end)
+        local weightsText = ""
+        for _, entry in ipairs(statWeights) do
+          tooltip:AddDoubleLine(entry.stat, entry.weight, addonTable.FONTS.normal:GetRGB())
+          weightsText = weightsText .. entry.stat .. ": " .. entry.weight .. "\n"
+        end
+        --tooltip:AddLine(weightsText, addonTable.FONTS.normal:GetRGB())
+        if addBlank then
+          tooltip:AddLine(" ")
+        end
+      end
+    end
+
     local function AddPresetButton(desc, info)
       if info.hasDelete then
         local button = desc:CreateButton(info.text, function(mouseButton)
@@ -682,17 +687,21 @@ function ReforgeLite:InitPresets()
             self:SetStatWeights(info.value.weights, info.value.caps or {})
           end
         end)
-        button:SetTooltip(function(tooltip, elementDescription)
+        button:SetTooltip(function(tooltip, element)
+          FormatWeightsTooltip(tooltip, element, info.value.weights, true)
           GameTooltip_AddNormalLine(tooltip, L["Click to load preset"])
           GameTooltip_AddColoredLine(tooltip, L["Shift+Click to delete"], RED_FONT_COLOR)
         end)
       else
-        desc:CreateButton(info.text, function()
+        local button = desc:CreateButton(info.text, function()
           if info.value.targetLevel then
             self.pdb.targetLevel = info.value.targetLevel
             self.targetLevel:SetValue(info.value.targetLevel)
           end
           self:SetStatWeights(info.value.weights, info.value.caps or {})
+        end)
+        button:SetTooltip(function(tooltip, element)
+          FormatWeightsTooltip(tooltip, element, info.value.weights)
         end)
       end
     end
