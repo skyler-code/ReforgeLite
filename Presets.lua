@@ -656,12 +656,9 @@ function ReforgeLite:InitPresets()
           end
           return a.weight > b.weight
         end)
-        local weightsText = ""
         for _, entry in ipairs(statWeights) do
           tooltip:AddDoubleLine(entry.stat, entry.weight, addonTable.FONTS.normal:GetRGB())
-          weightsText = weightsText .. entry.stat .. ": " .. entry.weight .. "\n"
         end
-        --tooltip:AddLine(weightsText, addonTable.FONTS.normal:GetRGB())
         if addBlank then
           tooltip:AddLine(" ")
         end
