@@ -1178,10 +1178,10 @@ end
 ---Creates a static popup dialog
 ---@param name string Unique popup name
 ---@param text string Popup message text
----@param onAccept function Callback when accepted (receives edit box text if hasEditBox)
+---@param OnAccept function Callback when accepted (receives edit box text if hasEditBox)
 ---@param opts? table Options: button1 (text), hasEditBox (boolean)
 ---@return nil
-function GUI.CreateStaticPopup(name, text, onAccept, opts)
+function GUI.CreateStaticPopup(name, text, OnAccept, opts)
   opts = opts or {}
   StaticPopupDialogs[name] = {
     text = text,
@@ -1190,9 +1190,7 @@ function GUI.CreateStaticPopup(name, text, onAccept, opts)
     hasEditBox = opts.hasEditBox,
     timeout = 0,
     whileDead = 1,
-    OnAccept = function(self)
-      onAccept(self)
-    end,
+    OnAccept = OnAccept,
     OnShow = function(self)
       if self:GetEditBox():IsVisible() then
         self:GetButton1():Disable()
@@ -1200,13 +1198,9 @@ function GUI.CreateStaticPopup(name, text, onAccept, opts)
       end
       self:GetButton2():Enable()
     end,
-    OnHide = function(self)
-      ChatEdit_FocusActiveWindow()
-      self:GetEditBox():SetText("")
-    end,
     EditBoxOnEnterPressed = function(self)
       if self:GetParent():GetButton1():IsEnabled() then
-        onAccept(self:GetText())
+        OnAccept(self:GetParent())
         self:GetParent():Hide()
       end
     end,
