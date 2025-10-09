@@ -208,7 +208,8 @@
     "LFG_TYPE_RAID",
     "CreateSimpleTextureMarkup",
     "CreateAtlasMarkup",
-    "WrapTextInColorCode"
+    "WrapTextInColorCode",
+    "debugprofilestop"
   ],
   "diagnostics.disable": [
     "inject-field",

@@ -111,6 +111,7 @@ read_globals = {
     "INACTIVE_COLOR",
     "TUTORIAL_FONT_COLOR",
     "DISABLED_FONT_COLOR",
+    "NORMAL_FONT_COLOR",
     "PANEL_BACKGROUND_COLOR",
     "DARKYELLOW_FONT_COLOR",
     -- Additional constants used in ReforgeLite
@@ -139,7 +140,8 @@ read_globals = {
     "date",
     "tostringall",
     "join",
-    "GetItemStats"
+    "GetItemStats",
+    "debugprofilestop",
 }
 
 -- Allow accessing the vararg table (...) to get addon table
