@@ -2,6 +2,7 @@
 local addonName, addonTable = ...
 
 local ReforgeLite = addonTable.ReforgeLite
+local print = addonTable.print
 
 addonTable.isDev = true
 
