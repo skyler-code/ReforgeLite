@@ -625,7 +625,7 @@ function ReforgeLite:InitPresets()
   self.presetMenuGenerator = function(owner, rootDescription)
     GUI:ClearEditFocus()
 
-    rootDescription:CreateButton(SAVE, function()
+    local saveButton = rootDescription:CreateButton(SAVE, function()
       GUI.CreateStaticPopup("REFORGE_LITE_SAVE_PRESET",
         L["Enter the preset name"],
         function(popup)
@@ -637,6 +637,8 @@ function ReforgeLite:InitPresets()
         end, { hasEditBox = 1 })
       StaticPopup_Show("REFORGE_LITE_SAVE_PRESET")
     end)
+
+    saveButton:SetTitleAndTextTooltip(L["Save current stat weights and caps as a custom preset"], L["Custom presets are shared across all characters of this class"])
 
     rootDescription:CreateDivider()
 
