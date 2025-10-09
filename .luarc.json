@@ -215,6 +215,8 @@
     "undefined-field",
     "missing-return"
   ],
-  "workspace.library": [],
+  "workspace.library": [
+    "dev"
+  ],
   "workspace.checkThirdParty": false
 }

@@ -26,6 +26,23 @@
 --- - "OnCalculateFinish" - Fired when computation completes (unlocks UI)
 --- - "ToggleDebug" - Fired when debug mode is toggled
 
+---Color object with RGB values
+---@class ColorMixin
+---@field GetRGB fun(self: ColorMixin): number, number, number Get RGB values (returns r, g, b)
+
+---Font color constants for UI styling
+---@class FontColors
+---@field grey ColorMixin INACTIVE_COLOR (0.502, 0.502, 0.502) - Inactive/disabled text
+---@field lightgrey ColorMixin TUTORIAL_FONT_COLOR (0.800, 0.800, 0.800) - Tutorial/hint text
+---@field white ColorMixin WHITE_FONT_COLOR (1, 1, 1) - Standard white text
+---@field green ColorMixin Custom green (0.6, 1, 0.6) - Positive values/gains
+---@field red ColorMixin Custom red (1, 0.4, 0.4) - Negative values/losses
+---@field panel ColorMixin PANEL_BACKGROUND_COLOR (0.122, 0.118, 0.129) - Panel backgrounds
+---@field gold ColorMixin GOLD_FONT_COLOR (0.949, 0.902, 0.600) - Important gold text
+---@field darkyellow ColorMixin DARKYELLOW_FONT_COLOR (1, 0.820, 0) - Headers/labels
+---@field disabled ColorMixin DISABLED_FONT_COLOR (0.502, 0.502, 0.502) - Disabled UI elements
+---@field normal ColorMixin NORMAL_FONT_COLOR (1, 0.820, 0) - Normal tooltip text
+
 ---@class AddonTable
 ---@field L table Localization strings
 ---@field GUI GUI GUI widget library
@@ -33,7 +50,7 @@
 ---@field GetItemStatsUp fun(itemInfo: table): table<string, number> Get item stats with upgrade scaling
 ---@field GetRandPropPoints fun(iLvl: number, t: number): number Get random property points
 ---@field callbacks CallbackRegistry Callback registry for addon events
----@field FONTS table Font color constants
+---@field FONTS FontColors Font color constants
 ---@field playerClass string Player class name (e.g., "WARRIOR", "MAGE")
 ---@field localeClass string Localized player class name
 ---@field playerClassID number Player class ID
