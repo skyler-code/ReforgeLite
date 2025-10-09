@@ -651,7 +651,8 @@ function ReforgeLite:InitPresets()
         end
       end
       if #statWeights > 0 then
-        tooltip:AddLine(element.text)
+        local rightR, rightG, rightB = addonTable.FONTS.white:GetRGB()
+        tooltip:AddLine(element.text, rightR, rightG, rightB)
         tsort(statWeights, function(a, b)
           if a.weight == b.weight then
             return a.index < b.index
@@ -659,7 +660,7 @@ function ReforgeLite:InitPresets()
           return a.weight > b.weight
         end)
         for _, entry in ipairs(statWeights) do
-          tooltip:AddDoubleLine(entry.stat, entry.weight, addonTable.FONTS.normal:GetRGB())
+          tooltip:AddDoubleLine(entry.stat, entry.weight, nil, nil, nil, rightR, rightG, rightB)
         end
         if addBlank then
           tooltip:AddLine(" ")
