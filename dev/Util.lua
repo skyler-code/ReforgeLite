@@ -1,6 +1,10 @@
 ---@type string, AddonTable
 local addonName, addonTable = ...
 
+local ReforgeLite = addonTable.ReforgeLite
+
+addonTable.isDev = true
+
 ---Compares execution time of two functions by running them multiple times
 ---@param func1 function First function to benchmark
 ---@param func2 function Second function to benchmark
@@ -32,4 +36,11 @@ function addonTable.CompareFunctionTiming(func1, func2, opts)
   ))
 
   return time1, time2
+end
+
+function ReforgeLite:PreviewColors()
+  for _, dbColor in ipairs(C_UIColor.GetColors()) do
+    local color = _G[dbColor.baseTag]
+    print(color:WrapTextInColorCode((", "):join(dbColor.baseTag, color:GetRGB())))
+  end
 end

@@ -378,24 +378,6 @@ function ReforgeLite:ApplyWoWSimsImport(newItems, attachToReforge)
   self:ShowMethodWindow(attachToReforge)
 end
 
---@debug@
-addonTable.isDev = true
-function ReforgeLite:ParsePresetString(presetStr)
-  local success, preset = pcall(function () return C_EncodingUtil.DeserializeJSON(presetStr) end)
-  if success and type(preset.caps) == "table" then
-    DevTools_Dump(preset)
-  end
-end
-
-function ReforgeLite:PreviewColors()
-  for _, dbColor in ipairs(C_UIColor.GetColors()) do
-    local color = _G[dbColor.baseTag]
-    print(color:WrapTextInColorCode(string.join(", ", dbColor.baseTag, color:GetRGB())))
-  end
-end
-
---@end-debug@
-
 function ReforgeLite:ValidatePawnString(importStr)
   local pos, _, version, name, values = strfind (importStr, "^%s*%(%s*Pawn%s*:%s*v(%d+)%s*:%s*\"([^\"]+)\"%s*:%s*(.+)%s*%)%s*$")
   version = tonumber (version)
