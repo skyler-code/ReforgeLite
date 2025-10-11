@@ -305,62 +305,62 @@ local tooltipStatsCache = setmetatable({}, {
 ---@param itemInfo table Item information with link, itemId, ilvl, upgradeLevel, slotId, reforge
 ---@return table<string, number> stats Table of stat names to values (before reforge)
 function addonTable.GetItemStatsFromTooltip(itemInfo)
-    if not (itemInfo or {}).link then return {} end
+  if not (itemInfo or {}).link then return {} end
 
-    if itemInfo.ilvl == itemInfo.originalIlvl then
-        return GetItemStats(itemInfo.link)
+  if itemInfo.ilvl == itemInfo.originalIlvl then
+    return GetItemStats(itemInfo.link)
+  end
+
+  local cached = tooltipStatsCache[itemInfo.itemId][itemInfo.ilvl]
+  if cached then
+    return CopyTable(cached)
+  end
+
+  local srcName, destName
+  if itemInfo.reforge then
+    local srcId, dstId = unpack(reforgeTable[itemInfo.reforge])
+    srcName, destName = ITEM_STATS[srcId].name, ITEM_STATS[dstId].name
+  end
+
+  local stats = {}
+  scanTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+  scanTooltip:SetInventoryItem("player", itemInfo.slotId)
+  local reforgeAmount = 0
+  local foundStats = 0
+
+  for _, region in ipairs({scanTooltip:GetRegions()}) do
+    if foundStats == (itemInfo.reforge ~= nil and 3 or 2) then
+      break
     end
-
-    local cached = tooltipStatsCache[itemInfo.itemId][itemInfo.ilvl]
-    if cached then
-        return CopyTable(cached)
-    end
-
-    local srcName, destName
-    if itemInfo.reforge then
-       local srcId, dstId = unpack(reforgeTable[itemInfo.reforge])
-       srcName, destName = ITEM_STATS[srcId].name, ITEM_STATS[dstId].name
-    end
-
-    local stats = {}
-    scanTooltip:SetOwner(UIParent, "ANCHOR_NONE")
-    scanTooltip:SetInventoryItem("player", itemInfo.slotId)
-    local reforgeAmount = 0
-    local foundStats = 0
-
-    for _, region in ipairs({scanTooltip:GetRegions()}) do
-        if foundStats == (itemInfo.reforge ~= nil and 3 or 2) then
-            break
-        end
-        if region.GetText then
-            local text = region:GetText()
-            if text and text ~= "" then
-                for _, statInfo in ipairs(ITEM_STATS) do
-                  if not stats[statInfo.name] then
-                    local pattern = "^%+([%d,]+)%s+" .. statInfo.long
-                    local value = text:match(pattern)
-                    if value then
-                        foundStats = foundStats + 1
-                        local numValue = tonumber((value:gsub(",", "")))
-                        if statInfo.name == destName then
-                            reforgeAmount = numValue
-                        end
-                        stats[statInfo.name] = numValue
-                        break
-                    end
-                  end
-                end
+    if region.GetText then
+      local text = region:GetText()
+      if text and text ~= "" then
+        for _, statInfo in ipairs(ITEM_STATS) do
+          if not stats[statInfo.name] then
+            local pattern = "^%+([%d,]+)%s+" .. statInfo.long
+            local value = text:match(pattern)
+            if value then
+              foundStats = foundStats + 1
+              local numValue = tonumber((value:gsub(",", "")))
+              if statInfo.name == destName then
+                reforgeAmount = numValue
+              end
+              stats[statInfo.name] = numValue
+              break
             end
+          end
         end
+      end
     end
+  end
 
-    if srcName and destName then
-        stats[srcName] = (stats[srcName] or 0) + reforgeAmount
-        stats[destName] = nil
-    end
+  if srcName and destName then
+      stats[srcName] = (stats[srcName] or 0) + reforgeAmount
+      stats[destName] = nil
+  end
 
-    tooltipStatsCache[itemInfo.itemId][itemInfo.ilvl] = stats
-    return CopyTable(stats)
+  tooltipStatsCache[itemInfo.itemId][itemInfo.ilvl] = stats
+  return CopyTable(stats)
 end
 
 local GetItemStats = addonTable.GetItemStatsFromTooltip
