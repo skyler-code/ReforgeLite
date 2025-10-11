@@ -275,7 +275,6 @@ local function GetReforgeIDFromString(item)
   end
 end
 
-local REFORGE_DEST_STAT_PATTERN = REFORGE_TOOLTIP_LINE:gsub("%%c", ""):gsub("%%s", "(.-)"):gsub("%s+", "%%s*")
 local scanTooltip = CreateFrame("GameTooltip", "ReforgeLiteScanTooltip", nil, "GameTooltipTemplate")
 local tooltipStatsCache = setmetatable({}, {
   __index = function(t, k)
@@ -297,7 +296,7 @@ function addonTable.GetItemStatsFromTooltip(itemInfo)
         return GetItemStats(itemInfo.link)
     end
 
-    local cached = tooltipStatsCache[itemInfo.itemId][itemInfo.upgradeLevel]
+    local cached = tooltipStatsCache[itemInfo.itemId][itemInfo.ilvl]
     if cached then
         return CopyTable(cached)
     end
@@ -307,6 +306,10 @@ function addonTable.GetItemStatsFromTooltip(itemInfo)
     scanTooltip:SetInventoryItem("player", itemInfo.slotId)
 
     local actualReforgeID = GetReforgeIDFromString(select(2,scanTooltip:GetItem()))
+    local srcId, dstId
+    if actualReforgeID then
+       srcId, dstId = unpack(reforgeTable[actualReforgeID])
+    end
 
     local reforgeAmount = 0
     local foundStats
@@ -318,8 +321,7 @@ function addonTable.GetItemStatsFromTooltip(itemInfo)
                 if foundStats and text:match("^%s*$") then
                     break
                 end
-                local isReforged = text:match(REFORGE_DEST_STAT_PATTERN)
-                for _, statInfo in ipairs(ITEM_STATS) do
+                for statIndex, statInfo in ipairs(ITEM_STATS) do
                   if not stats[statInfo.name] then
                     local escapedStat = statInfo.long:gsub("[%(%)%.%%%+%-%*%?%[%]%^%$]", "%%%1")
                     local pattern = "^%+([%d,]+)%s+" .. escapedStat
@@ -327,7 +329,7 @@ function addonTable.GetItemStatsFromTooltip(itemInfo)
                     if value then
                         foundStats = true
                         local numValue = tonumber((value:gsub(",", "")))
-                        if isReforged then
+                        if statIndex == dstId then
                             reforgeAmount = numValue
                         end
                         stats[statInfo.name] = numValue
@@ -339,15 +341,14 @@ function addonTable.GetItemStatsFromTooltip(itemInfo)
         end
     end
 
-    if actualReforgeID and reforgeAmount > 0 then
-        local srcId, dstId = unpack(reforgeTable[actualReforgeID])
+    if srcId and dstId then
         local srcName = ITEM_STATS[srcId].name
         local destName = ITEM_STATS[dstId].name
         stats[srcName] = (stats[srcName] or 0) + reforgeAmount
         stats[destName] = nil
     end
 
-    tooltipStatsCache[itemInfo.itemId][itemInfo.upgradeLevel] = stats
+    tooltipStatsCache[itemInfo.itemId][itemInfo.ilvl] = stats
     return CopyTable(stats)
 end
 
