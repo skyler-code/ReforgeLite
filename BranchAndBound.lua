@@ -1036,9 +1036,9 @@ function ReforgeLite:RunAlgorithmComparison()
 
   -- Run DP algorithm
   print("Running Dynamic Programming...")
-  local dpStart = GetTime()
+  local dpStart = debugprofilestop()
   self:ComputeReforgeClassic()
-  local dpTime = GetTime() - dpStart
+  local dpTime = debugprofilestop() - dpStart
   local dpMethod = CopyTable(self.pdb.method)
   local dpScore = self:CalculateMethodScore(dpMethod)
   local dpConstraintsMet = self:CheckConstraintsSatisfied(dpMethod)
@@ -1088,18 +1088,18 @@ function ReforgeLite:RunAlgorithmComparison()
 
   -- Run Branch and Bound
   print("Running Branch and Bound...")
-  local bbStart = GetTime()
+  local bbStart = debugprofilestop()
   self:ComputeReforgeBranchBound()
-  local bbTime = GetTime() - bbStart
+  local bbTime = debugprofilestop() - bbStart
   local bbMethod = CopyTable(self.pdb.method)
   local bbScore = self:CalculateMethodScore(bbMethod)
   local bbConstraintsMet = self:CheckConstraintsSatisfied(bbMethod)
 
   -- Print comparison
   print("=== Results ===")
-  print(("DP: Score %.1f, Time %.3fs, Constraints %s"):format(
+  print(("DP: Score %.1f, Time %.3fms, Constraints %s"):format(
     dpScore, dpTime, dpConstraintsMet and "Pass" or "Fail"))
-  print(("B&B: Score %.1f, Time %.3fs, Constraints %s"):format(
+  print(("B&B: Score %.1f, Time %.3fms, Constraints %s"):format(
     bbScore, bbTime, bbConstraintsMet and "Pass" or "Fail"))
 
   -- Compare individual choices
