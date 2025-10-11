@@ -797,6 +797,7 @@ function ReforgeLite:CreateItemTable ()
   self.itemTable:SetWidth (400)
   for i = 1, ITEM_STAT_COUNT do
     self.itemTable:SetColumnWidth(i, 55)
+    self.itemTable:EnableColumnAutoWidth(i)
   end
 
   self.itemLevel = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
@@ -1304,7 +1305,7 @@ function ReforgeLite:CreateOptionList ()
 
   self.pauseButton = GUI:CreatePanelButton(
     self.content,
-    KEY_PAUSE,
+    L["Pause"],
     function(btn)
       if addonTable.pauseRoutine then
         addonTable.pauseRoutine = 'kill'
@@ -1319,11 +1320,11 @@ function ReforgeLite:CreateOptionList ()
     {
       preventLock = true,
       PreCalculateStart = function(btn)
-        btn:RenderText(KEY_PAUSE)
+        btn:RenderText(L["Pause"])
         btn:Enable()
       end,
       OnCalculateFinish = function(btn)
-        btn:RenderText(KEY_PAUSE)
+        btn:RenderText(L["Pause"])
         btn:Disable()
       end
     }

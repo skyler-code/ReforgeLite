@@ -808,7 +808,11 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
     if n < 0 or n > self.cols then
       return
     end
-    self.autoWidthColumns[n] = enabled
+    if self.colWidth[n] and type(self.colWidth[n]) == "number" then
+      self.autoWidthColumns[n] = self.colWidth[n]
+    else
+      self.autoWidthColumns[n] = enabled
+    end
   end
   t.EnableColumnAutoWidth = function (self, ...)
     for _, v in ipairs({...}) do
@@ -1045,7 +1049,7 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
     local columnsToProcess = {}
     if columnIndex then
       if self.autoWidthColumns[columnIndex] then
-        columnsToProcess[columnIndex] = true
+        columnsToProcess[columnIndex] = self.autoWidthColumns[columnIndex]
       end
     else
       columnsToProcess = self.autoWidthColumns
@@ -1053,7 +1057,7 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
 
     local maxWidths = {}
     for _, row in pairs(self.cells) do
-      for colIndex in pairs(columnsToProcess) do
+      for colIndex, width in pairs(columnsToProcess) do
         local cell = row[colIndex]
         if cell then
           local foundWidth = 0
@@ -1061,6 +1065,9 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
             foundWidth = cell:GetStringWidth()
           elseif cell.GetWidth then
             foundWidth = cell:GetWidth()
+          end
+          if type(width) == "number" then
+            foundWidth = max(foundWidth, width)
           end
           local currentMax = maxWidths[colIndex] or 0
           if foundWidth > currentMax then
