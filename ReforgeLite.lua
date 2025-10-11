@@ -356,9 +356,8 @@ function addonTable.GetItemStatsFromTooltip(itemInfo)
 
     if srcId and dstId then
         local srcName = ITEM_STATS[srcId].name
-        local destName = ITEM_STATS[dstId].name
         stats[srcName] = (stats[srcName] or 0) + reforgeAmount
-        stats[destName] = nil
+        stats[ITEM_STATS[dstId].name] = nil
     end
 
     tooltipStatsCache[itemInfo.itemId][itemInfo.ilvl] = stats
