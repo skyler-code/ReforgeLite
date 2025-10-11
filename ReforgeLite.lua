@@ -2245,8 +2245,11 @@ function ReforgeLite:PLAYER_REGEN_DISABLED()
   RFL_FRAMES:CloseAll()
 end
 
-local currentSpec -- hack because this event likes to fire twice
+local currentSpec -- hack because this event likes to fire twice and when entering world.
 function ReforgeLite:ACTIVE_TALENT_GROUP_CHANGED(curr)
+  if not currentSpec then
+    currentSpec = curr
+  end
   if currentSpec ~= curr then
     currentSpec = curr
     self:SwapSpecProfiles()
@@ -2260,6 +2263,9 @@ end
 
 function ReforgeLite:PLAYER_ENTERING_WORLD()
   self:GetConversion()
+  if not currentSpec then
+    currentSpec = C_SpecializationInfo.GetActiveSpecGroup()
+  end
 end
 
 function ReforgeLite:PLAYER_AVG_ITEM_LEVEL_UPDATE()
