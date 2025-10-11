@@ -7,7 +7,7 @@ local playerClass = addonTable.playerClass
 local statIds = addonTable.statIds
 local print = addonTable.print
 
-local GetItemStats = addonTable.GetItemStatsUp
+local GetItemStats = addonTable.GetItemStatsFromTooltip
 local playerRace = select(2, UnitRace("player"))
 
 ---------------------------------------------------------------------------------------

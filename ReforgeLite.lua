@@ -239,37 +239,6 @@ local ITEM_STAT_COUNT = #ITEM_STATS
 addonTable.itemStats, addonTable.itemStatCount = ITEM_STATS, ITEM_STAT_COUNT
 ReforgeLite.itemStats = ITEM_STATS
 
-local RandPropPoints, ItemUpgradeStats, ItemStatsRef = addonTable.RandPropPoints, addonTable.ItemUpgradeStats, addonTable.ItemStatsRef
-local baseGetItemStats = GetItemStats
----Gets item stats adjusted for upgrade level
----Calculates base stats and applies upgrade scaling based on item level
----@param itemInfo table Item information with link, itemId, ilvl, upgradeLevel
----@return table<string, number> stats Table of stat names to values
-function addonTable.GetItemStatsUp(itemInfo)
-    if not (itemInfo or {}).link then return {} end
-    local result = baseGetItemStats(itemInfo.link)
-    if result and itemInfo.upgradeLevel > 0 then
-        local iLvlBase = C_Item.GetDetailedItemLevelInfo(itemInfo.itemId)
-        local budget, ref
-        local upgradeStats = ItemUpgradeStats[itemInfo.itemId]
-        if upgradeStats and RandPropPoints[itemInfo.ilvl] then
-            budget = RandPropPoints[itemInfo.ilvl][upgradeStats[1]]
-            ref = ItemStatsRef[upgradeStats[2] + 1]
-        end
-        for sid, sv in ipairs(addonTable.itemStats) do
-            if result[sv.name] then
-                if budget and ref and ref[sid] then
-                    result[sv.name] = floor(ref[sid][1] * budget * 0.0001 - ref[sid][2] * 160 + 0.5)
-                else
-                    result[sv.name] = floor(tonumber(result[sv.name]) * math.pow(1.15, (itemInfo.ilvl - iLvlBase) / 15))
-                end
-            end
-        end
-    end
-    return result
-end
-local GetItemStats = addonTable.GetItemStatsUp
-
 local REFORGE_TABLE_BASE = 112
 local reforgeTable = {
   {statIds.SPIRIT, statIds.DODGE}, {statIds.SPIRIT, statIds.PARRY}, {statIds.SPIRIT, statIds.HIT}, {statIds.SPIRIT, statIds.CRIT}, {statIds.SPIRIT, statIds.HASTE}, {statIds.SPIRIT, statIds.EXP}, {statIds.SPIRIT, statIds.MASTERY},
@@ -282,6 +251,121 @@ local reforgeTable = {
   {statIds.MASTERY, statIds.SPIRIT}, {statIds.MASTERY, statIds.DODGE}, {statIds.MASTERY, statIds.PARRY}, {statIds.MASTERY, statIds.HIT}, {statIds.MASTERY, statIds.CRIT}, {statIds.MASTERY, statIds.HASTE}, {statIds.MASTERY, statIds.EXP},
 }
 ReforgeLite.reforgeTable = reforgeTable
+
+local reforgeIdStringCache = setmetatable({}, {
+  __index = function(self, key)
+    local _, itemOptions = GetItemInfoFromHyperlink(key)
+    if not itemOptions then return false end
+    local reforgeId = select(10, LinkUtil.SplitLinkOptions(itemOptions))
+    reforgeId = tonumber(reforgeId)
+    if not reforgeId then
+      reforgeId = UNFORGE_INDEX
+    else
+      reforgeId = reforgeId - REFORGE_TABLE_BASE
+    end
+    rawset(self, key, reforgeId)
+    return reforgeId
+  end
+})
+
+local function GetReforgeIDFromString(item)
+  local id = reforgeIdStringCache[item]
+  if id and id ~= UNFORGE_INDEX then
+    return id
+  end
+end
+
+local function GetReforgeID(slotId)
+  if ignoredSlots[slotId] then return end
+  return GetReforgeIDFromString(PLAYER_ITEM_DATA[slotId]:GetItemLink())
+end
+
+function ReforgeLite:GetReforgeTableIndex(src, dst)
+  for k,v in ipairs(reforgeTable) do
+    if v[1] == src and v[2] == dst then
+      return k
+    end
+  end
+  return UNFORGE_INDEX
+end
+
+
+local scanTooltip = CreateFrame("GameTooltip", "ReforgeLiteScanTooltip", nil, "GameTooltipTemplate")
+local tooltipStatsCache = setmetatable({}, {
+  __index = function(t, k)
+    rawset(t, k, {})
+    return t[k]
+  end
+})
+
+---Scans tooltip to get actual item stats (handles upgraded items accurately)
+---Uses Blizzard's GetItemStats for base items, tooltip scanning for upgraded items
+---Only scans for reforge-able secondary stats (Spirit, Dodge, Parry, Hit, Crit, Haste, Expertise, Mastery)
+---Reverses any active reforge to return original item stats
+---@param itemInfo table Item information with link, itemId, ilvl, upgradeLevel, slotId, reforge
+---@return table<string, number> stats Table of stat names to values (before reforge)
+function addonTable.GetItemStatsFromTooltip(itemInfo)
+    if not (itemInfo or {}).link then return {} end
+
+    if itemInfo.ilvl == itemInfo.originalIlvl then
+        return GetItemStats(itemInfo.link)
+    end
+
+    local cached = tooltipStatsCache[itemInfo.itemId][itemInfo.ilvl]
+    if cached then
+        return CopyTable(cached)
+    end
+
+    local stats = {}
+    scanTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+    scanTooltip:SetInventoryItem("player", itemInfo.slotId)
+
+    local srcId, dstId
+    if itemInfo.reforge then
+       srcId, dstId = unpack(reforgeTable[itemInfo.reforge])
+    end
+
+    local reforgeAmount = 0
+    local foundStats
+
+    for _, region in ipairs({scanTooltip:GetRegions()}) do
+        if region.GetText then
+            local text = region:GetText()
+            if text then
+                if foundStats and text:match("^%s*$") then
+                    break
+                end
+                for statIndex, statInfo in ipairs(ITEM_STATS) do
+                  if not stats[statInfo.name] then
+                    local pattern = "^%+([%d,]+)%s+" .. statInfo.long
+                    local value = text:match(pattern)
+                    if value then
+                        foundStats = true
+                        local numValue = tonumber((value:gsub(",", "")))
+                        if statIndex == dstId then
+                            reforgeAmount = numValue
+                        end
+                        stats[statInfo.name] = numValue
+                        break
+                    end
+                  end
+                end
+            end
+        end
+    end
+
+    if srcId and dstId then
+        local srcName = ITEM_STATS[srcId].name
+        local destName = ITEM_STATS[dstId].name
+        stats[srcName] = (stats[srcName] or 0) + reforgeAmount
+        stats[destName] = nil
+    end
+
+    tooltipStatsCache[itemInfo.itemId][itemInfo.ilvl] = stats
+    return CopyTable(stats)
+end
+
+local GetItemStats = addonTable.GetItemStatsFromTooltip
 
 addonTable.REFORGE_COEFF = 0.4
 
@@ -1601,57 +1685,19 @@ function ReforgeLite:UpdateContentSize ()
   self.content:SetHeight (-self:GetFrameY (self.lastElement))
   RunNextFrame(function() self:FixScroll() end)
 end
-
-function ReforgeLite:GetReforgeTableIndex(src, dst)
-  for k,v in ipairs(reforgeTable) do
-    if v[1] == src and v[2] == dst then
-      return k
-    end
-  end
-  return UNFORGE_INDEX
-end
-
-local reforgeIdStringCache = setmetatable({}, {
-  __index = function(self, key)
-    local _, itemOptions = GetItemInfoFromHyperlink(key)
-    if not itemOptions then return false end
-    local reforgeId = select(10, LinkUtil.SplitLinkOptions(itemOptions))
-    reforgeId = tonumber(reforgeId)
-    if not reforgeId then
-      reforgeId = UNFORGE_INDEX
-    else
-      reforgeId = reforgeId - REFORGE_TABLE_BASE
-    end
-    rawset(self, key, reforgeId)
-    return reforgeId
-  end
-})
-
-local function GetReforgeIDFromString(item)
-  local id = reforgeIdStringCache[item]
-  if id and id ~= UNFORGE_INDEX then
-    return id
-  end
-end
-
-local function GetReforgeID(slotId)
-  if ignoredSlots[slotId] then return end
-  return GetReforgeIDFromString(PLAYER_ITEM_DATA[slotId]:GetItemLink())
-end
-
 local function GetItemUpgradeLevel(item)
     if item:IsItemEmpty()
     or not item:HasItemLocation()
     or item:GetItemQuality() < Enum.ItemQuality.Rare
     or item:GetCurrentItemLevel() < 458 then
-        return 0
+        return 0, item:GetCurrentItemLevel()
     end
     local originalIlvl = C_Item.GetDetailedItemLevelInfo(item:GetItemID())
     if not originalIlvl then
-        return 0
+        return 0, item:GetCurrentItemLevel()
     end
 
-    return (item:GetCurrentItemLevel() - originalIlvl) / 4
+    return (item:GetCurrentItemLevel() - originalIlvl) / 4, originalIlvl
 end
 
 ---Updates the item table with current equipped gear
@@ -1670,13 +1716,16 @@ function ReforgeLite:UpdateItems()
       v.texture:SetTexture(v.slotTexture)
       v.quality:SetVertexColor(addonTable.FONTS.white:GetRGB())
     else
+      local upgradeLevel, originalIlvl = GetItemUpgradeLevel(item)
       v.itemInfo = {
         link = item:GetItemLink(),
         itemId = item:GetItemID(),
         ilvl = item:GetCurrentItemLevel(),
         itemGUID = item:GetItemGUID(),
-        upgradeLevel = GetItemUpgradeLevel(item),
-        reforge = GetReforgeID(v.slotId)
+        upgradeLevel = upgradeLevel,
+        originalIlvl = originalIlvl,
+        reforge = GetReforgeID(v.slotId),
+        slotId = v.slotId,
       }
       v.texture:SetTexture(item:GetItemIcon())
       v.quality:SetVertexColor(item:GetItemQualityColor().color:GetRGB())
