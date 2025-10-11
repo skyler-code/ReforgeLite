@@ -570,7 +570,7 @@ function ReforgeLite:FixScroll ()
   local height = self.content:GetHeight ()
   if height < viewheight + 2 then
     if self.scrollBarShown then
-      self.scrollBarShown = false
+      self.scrollBarShown = nil
       self.scrollBar:Hide ()
       self.scrollBar:SetValue (0)
     end
@@ -716,7 +716,6 @@ function ReforgeLite:CreateFrame()
 
   self.scrollValue = 0
   self.scrollOffset = 0
-  self.scrollBarShown = false
 
   self.scrollFrame = CreateFrame ("ScrollFrame", nil, self)
   self.scrollFrame:ClearAllPoints ()
