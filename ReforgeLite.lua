@@ -2050,6 +2050,8 @@ end
 
 function ReforgeLite:SwapSpecProfiles()
   if not self.db.specProfiles then return end
+  self:Initialize()
+  self:UpdateItems()
 
   local currentSettings = {
     caps = CopyTable(self.pdb.caps),
