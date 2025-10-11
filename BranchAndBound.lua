@@ -4,7 +4,7 @@ local REFORGE_COEFF = addonTable.REFORGE_COEFF
 
 local ReforgeLite = addonTable.ReforgeLite
 local print = addonTable.print
-local GetItemStats = addonTable.GetItemStatsUp
+local GetItemStats = addonTable.GetItemStatsFromTooltip
 local ITEM_STATS = addonTable.itemStats
 
 local huge = math.huge

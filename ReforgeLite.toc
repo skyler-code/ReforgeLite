@@ -14,8 +14,6 @@ embeds.xml
 
 locales.xml
 
-data\ItemStatsRef.lua
-data\ItemUpgradeStats.lua
 data\RandPropPoints.lua
 data\ScalingTable.lua
 

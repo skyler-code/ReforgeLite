@@ -47,7 +47,7 @@
 ---@field L table Localization strings
 ---@field GUI GUI GUI widget library
 ---@field ReforgeLite ReforgeLite Main addon frame
----@field GetItemStatsUp fun(itemInfo: table): table<string, number> Get item stats with upgrade scaling
+---@field GetItemStatsFromTooltip fun(itemInfo: table): table<string, number> Get item stats by scanning tooltip (accurate for all upgrade levels)
 ---@field GetRandPropPoints fun(iLvl: number, t: number): number Get random property points
 ---@field callbacks CallbackRegistry Callback registry for addon events
 ---@field FONTS FontColors Font color constants
