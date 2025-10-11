@@ -292,7 +292,7 @@ local tooltipStatsCache = setmetatable({}, {
 function addonTable.GetItemStatsFromTooltip(itemInfo)
     if not (itemInfo or {}).link then return {} end
 
-    if not itemInfo.upgradeLevel or itemInfo.upgradeLevel == 0 then
+    if itemInfo.ilvl == itemInfo.originalIlvl then
         return GetItemStats(itemInfo.link)
     end
 
@@ -305,10 +305,9 @@ function addonTable.GetItemStatsFromTooltip(itemInfo)
     scanTooltip:SetOwner(UIParent, "ANCHOR_NONE")
     scanTooltip:SetInventoryItem("player", itemInfo.slotId)
 
-    local actualReforgeID = GetReforgeIDFromString(select(2,scanTooltip:GetItem()))
     local srcId, dstId
-    if actualReforgeID then
-       srcId, dstId = unpack(reforgeTable[actualReforgeID])
+    if itemInfo.reforge then
+       srcId, dstId = unpack(reforgeTable[itemInfo.reforge])
     end
 
     local reforgeAmount = 0
@@ -323,8 +322,7 @@ function addonTable.GetItemStatsFromTooltip(itemInfo)
                 end
                 for statIndex, statInfo in ipairs(ITEM_STATS) do
                   if not stats[statInfo.name] then
-                    local escapedStat = statInfo.long:gsub("[%(%)%.%%%+%-%*%?%[%]%^%$]", "%%%1")
-                    local pattern = "^%+([%d,]+)%s+" .. escapedStat
+                    local pattern = "^%+([%d,]+)%s+" .. statInfo.long
                     local value = text:match(pattern)
                     if value then
                         foundStats = true
@@ -1692,14 +1690,14 @@ local function GetItemUpgradeLevel(item)
     or not item:HasItemLocation()
     or item:GetItemQuality() < Enum.ItemQuality.Rare
     or item:GetCurrentItemLevel() < 458 then
-        return 0
+        return 0, item:GetCurrentItemLevel()
     end
     local originalIlvl = C_Item.GetDetailedItemLevelInfo(item:GetItemID())
     if not originalIlvl then
-        return 0
+        return 0, item:GetCurrentItemLevel()
     end
 
-    return (item:GetCurrentItemLevel() - originalIlvl) / 4
+    return (item:GetCurrentItemLevel() - originalIlvl) / 4, originalIlvl
 end
 
 ---Updates the item table with current equipped gear
@@ -1718,14 +1716,16 @@ function ReforgeLite:UpdateItems()
       v.texture:SetTexture(v.slotTexture)
       v.quality:SetVertexColor(addonTable.FONTS.white:GetRGB())
     else
+      local upgradeLevel, originalIlvl = GetItemUpgradeLevel(item)
       v.itemInfo = {
         link = item:GetItemLink(),
         itemId = item:GetItemID(),
         ilvl = item:GetCurrentItemLevel(),
         itemGUID = item:GetItemGUID(),
-        upgradeLevel = GetItemUpgradeLevel(item),
+        upgradeLevel = upgradeLevel,
+        originalIlvl = originalIlvl,
         reforge = GetReforgeID(v.slotId),
-        slotId = v.slotId
+        slotId = v.slotId,
       }
       v.texture:SetTexture(item:GetItemIcon())
       v.quality:SetVertexColor(item:GetItemQualityColor().color:GetRGB())
