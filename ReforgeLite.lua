@@ -334,7 +334,7 @@ function addonTable.GetItemStatsFromTooltip(itemInfo)
         end
         if region.GetText then
             local text = region:GetText()
-            if text then
+            if text and text ~= "" then
                 for _, statInfo in ipairs(ITEM_STATS) do
                   if not stats[statInfo.name] then
                     local pattern = "^%+([%d,]+)%s+" .. statInfo.long
