@@ -316,33 +316,33 @@ function addonTable.GetItemStatsFromTooltip(itemInfo)
         return CopyTable(cached)
     end
 
+    local srcName, destName
+    if itemInfo.reforge then
+       local srcId, dstId = unpack(reforgeTable[itemInfo.reforge])
+       srcName, destName = ITEM_STATS[srcId].name, ITEM_STATS[dstId].name
+    end
+
     local stats = {}
     scanTooltip:SetOwner(UIParent, "ANCHOR_NONE")
     scanTooltip:SetInventoryItem("player", itemInfo.slotId)
-
-    local srcId, dstId
-    if itemInfo.reforge then
-       srcId, dstId = unpack(reforgeTable[itemInfo.reforge])
-    end
-
     local reforgeAmount = 0
-    local foundStats
+    local foundStats = 0
 
     for _, region in ipairs({scanTooltip:GetRegions()}) do
+        if foundStats == (itemInfo.reforge ~= nil and 3 or 2) then
+            break
+        end
         if region.GetText then
             local text = region:GetText()
             if text then
-                if foundStats and text:match("^%s*$") then
-                    break
-                end
-                for statIndex, statInfo in ipairs(ITEM_STATS) do
+                for _, statInfo in ipairs(ITEM_STATS) do
                   if not stats[statInfo.name] then
                     local pattern = "^%+([%d,]+)%s+" .. statInfo.long
                     local value = text:match(pattern)
                     if value then
-                        foundStats = true
+                        foundStats = foundStats + 1
                         local numValue = tonumber((value:gsub(",", "")))
-                        if statIndex == dstId then
+                        if statInfo.name == destName then
                             reforgeAmount = numValue
                         end
                         stats[statInfo.name] = numValue
@@ -354,10 +354,9 @@ function addonTable.GetItemStatsFromTooltip(itemInfo)
         end
     end
 
-    if srcId and dstId then
-        local srcName = ITEM_STATS[srcId].name
+    if srcName and destName then
         stats[srcName] = (stats[srcName] or 0) + reforgeAmount
-        stats[ITEM_STATS[dstId].name] = nil
+        stats[destName] = nil
     end
 
     tooltipStatsCache[itemInfo.itemId][itemInfo.ilvl] = stats
