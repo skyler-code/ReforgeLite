@@ -325,7 +325,6 @@ function addonTable.GetItemStatsFromTooltip(itemInfo)
   local stats = {}
   scanTooltip:SetOwner(UIParent, "ANCHOR_NONE")
   scanTooltip:SetInventoryItem("player", itemInfo.slotId)
-  local reforgeAmount = 0
   local foundStats = 0
 
   for _, region in ipairs({scanTooltip:GetRegions()}) do
@@ -342,9 +341,6 @@ function addonTable.GetItemStatsFromTooltip(itemInfo)
             if value then
               foundStats = foundStats + 1
               local numValue = tonumber((value:gsub(",", "")))
-              if statInfo.name == destName then
-                reforgeAmount = numValue
-              end
               stats[statInfo.name] = numValue
               break
             end
@@ -354,9 +350,9 @@ function addonTable.GetItemStatsFromTooltip(itemInfo)
     end
   end
 
-  if srcName and destName then
-      stats[srcName] = (stats[srcName] or 0) + reforgeAmount
-      stats[destName] = nil
+  if stats[srcName] and stats[destName] then
+    stats[srcName] = stats[srcName] + stats[destName]
+    stats[destName] = nil
   end
 
   tooltipStatsCache[itemInfo.itemId][itemInfo.ilvl] = stats
