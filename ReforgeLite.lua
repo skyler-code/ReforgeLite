@@ -796,7 +796,7 @@ function ReforgeLite:CreateItemTable ()
   self.itemTable:SetPoint ("BOTTOM", 0, 10)
   self.itemTable:SetWidth (400)
   for i = 1, ITEM_STAT_COUNT do
-    self.itemTable:SetColumnWidth(i, 55)
+    self.itemTable:SetColumnWidth(i, 45)
     self.itemTable:EnableColumnAutoWidth(i)
   end
 
