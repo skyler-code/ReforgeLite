@@ -178,6 +178,7 @@ local StatAdditives = {
   end
 }
 
+local tooltipStatPrefix = "^%+([%d,]+)%s+"
 local function RatingStat (i, name_, tip_, long_, id_)
   return {
     name = name_,
@@ -192,7 +193,8 @@ local function RatingStat (i, name_, tip_, long_, id_)
     end,
     mgetter = function (method, orig)
       return (orig and method.orig_stats and method.orig_stats[i]) or method.stats[i]
-    end
+    end,
+    tooltipPattern = tooltipStatPrefix .. long_
   }
 end
 
@@ -210,7 +212,8 @@ local ITEM_STATS = {
       end,
       mgetter = function (method, orig)
         return (orig and method.orig_stats and method.orig_stats[statIds.SPIRIT]) or method.stats[statIds.SPIRIT]
-      end
+      end,
+      tooltipPattern = tooltipStatPrefix .. ITEM_MOD_SPIRIT_SHORT
     },
     RatingStat (statIds.DODGE,   "ITEM_MOD_DODGE_RATING",         STAT_DODGE,     STAT_DODGE,           CR_DODGE),
     RatingStat (statIds.PARRY,   "ITEM_MOD_PARRY_RATING",         STAT_PARRY,     STAT_PARRY,           CR_PARRY),
@@ -218,7 +221,7 @@ local ITEM_STATS = {
     {
       name = "ITEM_MOD_HIT_RATING",
       tip = HIT,
-      long = HIT,
+      long = ITEM_MOD_HIT_RATING_SHORT,
       getter = function()
         local hit = GetCombatRating(CR_HIT)
         if (ReforgeLite.conversion[statIds.EXP] or {})[statIds.HIT] then
@@ -228,7 +231,8 @@ local ITEM_STATS = {
       end,
       mgetter = function (method, orig)
         return (orig and method.orig_stats and method.orig_stats[statIds.HIT]) or method.stats[statIds.HIT]
-      end
+      end,
+      tooltipPattern = tooltipStatPrefix .. ITEM_MOD_HIT_RATING_SHORT
     },
     RatingStat (statIds.CRIT,    "ITEM_MOD_CRIT_RATING",          CRIT_ABBR,      CRIT_ABBR,            CR_CRIT),
     RatingStat (statIds.HASTE,   "ITEM_MOD_HASTE_RATING",         STAT_HASTE,     STAT_HASTE,           CR_HASTE),

@@ -58,6 +58,7 @@ read_globals = {
     "SECONDARYHANDSLOT",
     -- Stat Constants
     "ITEM_MOD_SPIRIT_SHORT",
+    "ITEM_MOD_HIT_RATING_SHORT",
     "SPELL_STAT5_NAME",
     "STAT_DODGE",
     "STAT_PARRY",
