@@ -275,6 +275,21 @@ local function GetReforgeIDFromString(item)
   end
 end
 
+local function GetReforgeID(slotId)
+  if ignoredSlots[slotId] then return end
+  return GetReforgeIDFromString(PLAYER_ITEM_DATA[slotId]:GetItemLink())
+end
+
+function ReforgeLite:GetReforgeTableIndex(src, dst)
+  for k,v in ipairs(reforgeTable) do
+    if v[1] == src and v[2] == dst then
+      return k
+    end
+  end
+  return UNFORGE_INDEX
+end
+
+
 local scanTooltip = CreateFrame("GameTooltip", "ReforgeLiteScanTooltip", nil, "GameTooltipTemplate")
 local tooltipStatsCache = setmetatable({}, {
   __index = function(t, k)
@@ -1670,21 +1685,6 @@ function ReforgeLite:UpdateContentSize ()
   self.content:SetHeight (-self:GetFrameY (self.lastElement))
   RunNextFrame(function() self:FixScroll() end)
 end
-
-function ReforgeLite:GetReforgeTableIndex(src, dst)
-  for k,v in ipairs(reforgeTable) do
-    if v[1] == src and v[2] == dst then
-      return k
-    end
-  end
-  return UNFORGE_INDEX
-end
-
-local function GetReforgeID(slotId)
-  if ignoredSlots[slotId] then return end
-  return GetReforgeIDFromString(PLAYER_ITEM_DATA[slotId]:GetItemLink())
-end
-
 local function GetItemUpgradeLevel(item)
     if item:IsItemEmpty()
     or not item:HasItemLocation()
