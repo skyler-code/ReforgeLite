@@ -543,6 +543,11 @@ function ReforgeLite:InitClassPresets()
 
   if self.db.debug then
     self.presets = presets
+    for classId = 1, GetNumClasses() do
+      local className, classFile = GetClassInfo(classId)
+      self.presets[className] = self.presets[classFile]
+      self.presets[classFile] = nil
+    end
     for _,ids in pairs(specs) do
       for _, id in pairs(ids) do
         local _, tabName, _, icon = GetSpecializationInfoByID(id)
