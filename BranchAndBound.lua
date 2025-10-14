@@ -5,7 +5,7 @@ local REFORGE_COEFF = addonTable.REFORGE_COEFF
 local ReforgeLite = addonTable.ReforgeLite
 local print = addonTable.print
 local GetItemStats = addonTable.GetItemStatsFromTooltip
-local ITEM_STATS = addonTable.itemStats
+local ITEM_STATS, ITEM_STAT_COUNT = addonTable.itemStats, addonTable.itemStatCount
 
 local huge = math.huge
 
@@ -79,7 +79,7 @@ function ReforgeLite:GetItemSortingOrder(data, priorityCap)
 
     -- Calculate sum of all reforgeable stats
     local reforgePotential = 0
-    for stat = 1, #ITEM_STATS do
+    for stat = 1, ITEM_STAT_COUNT do
       reforgePotential = reforgePotential + (itemStats[stat] or 0)
     end
 
@@ -867,7 +867,7 @@ function ReforgeLite:ComputeReforgeBranchBound()
       local primaryContrib = (priorityCapStat > 0) and (itemStats[priorityCapStat] or 0) or 0
       local secondaryContrib = (otherCapStat > 0) and (itemStats[otherCapStat] or 0) or 0
       local reforgeSum = 0
-      for stat = 1, #ITEM_STATS do
+      for stat = 1, ITEM_STAT_COUNT do
         reforgeSum = reforgeSum + (itemStats[stat] or 0)
       end
       orderStr = orderStr .. (" slot%d(%d/%d/%d)"):format(slot, primaryContrib, secondaryContrib, reforgeSum)
@@ -881,13 +881,13 @@ function ReforgeLite:ComputeReforgeBranchBound()
 
   -- Initialize starting stats
   local initialStats = {}
-  for i = 1, #ITEM_STATS do
+  for i = 1, ITEM_STAT_COUNT do
     initialStats[i] = data.initial[i] or 0
   end
 
   -- Add base item stats to initial
   for i = 1, #data.method.items do
-    for stat = 1, #ITEM_STATS do
+    for stat = 1, ITEM_STAT_COUNT do
       initialStats[stat] = (initialStats[stat] or 0) + (data.method.items[i].stats[stat] or 0)
     end
   end
@@ -1009,7 +1009,7 @@ function ReforgeLite:RunAlgorithmComparison()
     -- Get item stats
     local stats = GetItemStats(itemInfo)
     local statsStr = ""
-    for statIdx = 1, #ITEM_STATS do
+    for statIdx = 1, ITEM_STAT_COUNT do
       local statValue = stats[ITEM_STATS[statIdx].name] or 0
       if statValue > 0 then
         statsStr = statsStr .. (" %s:%d"):format(ITEM_STATS[statIdx].tip, statValue)
