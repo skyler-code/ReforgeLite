@@ -170,7 +170,7 @@
 ---@field AddCapPoint fun(self: ReforgeLite, i: number, loading?: boolean)
 ---@field RemoveCapPoint fun(self: ReforgeLite, i: number, point: number, loading?: boolean)
 ---@field CreateOptionList fun(self: ReforgeLite)
----@field SetStatWeights fun(self: ReforgeLite, weights: table, caps: table)
+---@field SetStatWeights fun(self: ReforgeLite, weights?: table, caps?: table)
 ---
 --- Reforge engine methods
 ---@field GetStatMultipliers fun(self: ReforgeLite): table
