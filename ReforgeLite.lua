@@ -934,7 +934,7 @@ function ReforgeLite:CreateItemTable ()
     self.itemData[i].quality:SetPoint ("CENTER", self.itemData[i])
     self.itemData[i].itemInfo = {}
     self.itemData[i].stats = {}
-    for j, s in ipairs (ITEM_STATS) do
+    for j = 1, ITEM_STAT_COUNT do
       local fontColors = { grey = addonTable.FONTS.lightgrey, red = addonTable.FONTS.red, green = addonTable.FONTS.green, white = addonTable.FONTS.white  }
       self.itemTable:SetCellText(i, j, "-", nil, fontColors.grey)
       self.itemData[i].stats[j] = self.itemTable.cells[i][j]
@@ -942,8 +942,7 @@ function ReforgeLite:CreateItemTable ()
     end
   end
   self.statTotals = {}
-  self.itemTable:SetCellText (ITEM_SLOT_COUNT + 1, 0, L["Sum"], "CENTER", addonTable.FONTS.darkyellow)
-  for i, v in ipairs (ITEM_STATS) do
+  for i = 1, ITEM_STAT_COUNT do
     self.itemTable:SetCellText(ITEM_SLOT_COUNT + 1, i, "0", nil, addonTable.FONTS.darkyellow)
     self.statTotals[i] = self.itemTable.cells[ITEM_SLOT_COUNT + 1][i]
   end
