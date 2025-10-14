@@ -414,9 +414,15 @@ function ReforgeLite:InitClassPresets()
   local presets = {
     ["DEATHKNIGHT"] = {
       [specs.DEATHKNIGHT.blood] = {
-        [PET_DEFENSIVE] = TankPreset(0, 140, 150, 100, 50, 75, 95, 200, AtMostMeleeCaps),
-        [BALANCE] = TankPreset(0, 140, 150, 200, 125, 100, 200, 25),
-        [PET_AGGRESSIVE] = TankPreset(0, 90, 100, 200, 150, 125, 200, 25),
+        [L["Defensive"]] = Preset(0, 140, 150, 100, 50, 75, 95, 200, AtMostMeleeCaps),
+        [L["Balanced"]] = Preset(0, 140, 150, 200, 100, 125, 200, 25, MeleeCaps),
+        [L["Offensive"]] = {
+          weights = {0, 90, 100, 200, 150, 125, 200, 0},
+          caps = {
+            HitCap,
+            { stat = StatExp, points = { { method = AtLeast, preset = CAPS.ExpSoftCap, after = 50 } } }
+          },
+        },
       },
       [specs.DEATHKNIGHT.frost] = {
         [C_Spell.GetSpellName(49020)] = Preset(0, 0, 0, 87, 44, 48, 87, 35, MeleeCaps, 135771), -- Obliterate
