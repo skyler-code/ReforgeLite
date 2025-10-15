@@ -541,8 +541,7 @@ function ReforgeLite:InitClassPresets()
 
   if self.db.debug then
     self.presets = presets
-    for classId = 1, GetNumClasses() do
-      local className, classFile = GetClassInfo(classId)
+    for classFile, className in pairs(LOCALIZED_CLASS_NAMES_MALE) do
       self.presets[className] = self.presets[classFile]
       self.presets[classFile] = nil
     end
