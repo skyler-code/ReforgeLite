@@ -89,11 +89,9 @@ end
 ---Gets the expertise bonus from talents and racials
 ---@return number bonus Expertise percentage bonus
 function ReforgeLite:GetExpertiseBonus()
-  if addonTable.playerClass == "HUNTER" then
-    return select(3, GetExpertise()) - GetCombatRatingBonus(CR_EXPERTISE)
-  else
-    return GetExpertise() - GetCombatRatingBonus(CR_EXPERTISE)
-  end
+  local mhExpertise, _, rangedExpertise = GetExpertise()
+  local expertise = addonTable.playerClass == "HUNTER" and rangedExpertise or mhExpertise
+  return RoundToSignificantDigits(expertise - GetCombatRatingBonus(CR_EXPERTISE), 4)
 end
 ---Calculates haste bonus from buffs for melee/ranged haste
 ---@param hasteFunc function Function to get base haste (GetMeleeHaste or GetRangedHaste)
