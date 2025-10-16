@@ -1653,6 +1653,10 @@ function ReforgeLite:RefreshMethodStats()
   end
   if self.pdb.method then
     if self.methodStats then
+      local showSpirit = self.pdb.weights[statIds.SPIRIT] > 0 or self.currentSpecRole == "HEALER" or (self.conversion[statIds.SPIRIT] or {})[statIds.HIT]
+      local isEnabled = (self.conversion[statIds.EXP] or {})[statIds.HIT] and ITEM_STATS[statIds.EXP].mgetter(self.pdb.method) > 0
+      self.expertiseToHitHelpButton:SetShown(self.db.showHelp and isEnabled)
+      self.expertiseToHitHelpButton:SetEnabled(isEnabled)
       for statId, v in ipairs (ITEM_STATS) do
         local cell = statId - 1
         local mvalue = v.mgetter (self.pdb.method)
@@ -1668,11 +1672,8 @@ function ReforgeLite:RefreshMethodStats()
           override = 0
         end
         SetTextDelta (self.methodStats[statId].delta, mvalue, value, override)
-        self.methodStats:SetRowExpanded(cell, mvalue > 0 and (statId ~= statIds.SPIRIT or UnitHasMana("player")))
+        self.methodStats:SetRowExpanded(cell, mvalue > 0 and (statId ~= statIds.SPIRIT or showSpirit))
       end
-      local isEnabled = (self.conversion[statIds.EXP] or {})[statIds.HIT] and ITEM_STATS[statIds.EXP].mgetter(self.pdb.method) > 0
-      self.expertiseToHitHelpButton:SetShown(self.db.showHelp and isEnabled)
-      self.expertiseToHitHelpButton:SetEnabled(isEnabled)
     end
   end
 end
@@ -1787,10 +1788,11 @@ end
 
 function ReforgeLite:UpdatePlayerSpecInfo()
   if not self.playerSpecTexture then return end
-  local _, specName, _, icon = C_SpecializationInfo.GetSpecializationInfo(C_SpecializationInfo.GetSpecialization())
+  local _, specName, _, icon, specRole = C_SpecializationInfo.GetSpecializationInfo(C_SpecializationInfo.GetSpecialization())
   if specName == "" then
     specName, icon = NONE, 132222
   end
+  self.currentSpecRole = specRole
   self.playerSpecTexture:SetTexture(icon)
   local activeSpecGroup = C_SpecializationInfo.GetActiveSpecGroup()
   for tier = 1, MAX_NUM_TALENT_TIERS do
