@@ -1674,12 +1674,10 @@ function ReforgeLite:RefreshMethodStats()
         else
           self.methodStats:ExpandRow(cell)
         end
-        if statId == statIds.EXP then
-          local isEnabled = (self.conversion[statIds.EXP] or {})[statIds.HIT] and mvalue > 0
-          self.expertiseToHitHelpButton:SetShown(self.db.showHelp and isEnabled)
-          self.expertiseToHitHelpButton:SetEnabled(isEnabled)
-        end
       end
+      local isEnabled = (self.conversion[statIds.EXP] or {})[statIds.HIT] and ITEM_STATS[statIds.EXP].mgetter(self.pdb.method) > 0
+      self.expertiseToHitHelpButton:SetShown(self.db.showHelp and isEnabled)
+      self.expertiseToHitHelpButton:SetEnabled(isEnabled)
     end
   end
 end
