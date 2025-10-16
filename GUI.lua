@@ -612,7 +612,7 @@ end
 ---@return nil
 function GUI:SetHelpButtonsShown(shown)
   for _, btn in ipairs(self.helpButtons) do
-    btn:SetShown(shown)
+    btn:SetShown(btn:IsEnabled() and shown)
   end
 end
 

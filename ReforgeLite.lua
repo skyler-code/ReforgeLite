@@ -1625,6 +1625,10 @@ function ReforgeLite:UpdateMethodCategory()
       self.methodStats[i] = { delta = self.methodStats.cells[cell][2] }
     end
 
+    self.expertiseToHitHelpButton = GUI:CreateHelpButton(self.methodStats, L["Your Expertise rating is being converted to spell hit.\n\nIn Mists of Pandaria, casters benefit from Expertise due to it automatically converting to Hit at a 1:1 ratio.\n\nThe Hit value shown above includes this converted Expertise rating.\n\nNote: The character sheet is bugged and doesn't show Expertise converted to spell hit, but the conversion works correctly in combat."], { scale = 0.45 })
+    self.expertiseToHitHelpButton:SetPoint("LEFT", self.methodStats.cells[statIds.EXP - 1][0], "RIGHT", -8, 0)
+    self.expertiseToHitHelpButton:Hide()
+
     self.methodShow = GUI:CreatePanelButton (self.content, SHOW, function(btn) self:ShowMethodWindow() end)
     self.methodShow:SetSize(85, 22)
     self.methodCategory:AddFrame (self.methodShow)
@@ -1649,8 +1653,8 @@ function ReforgeLite:RefreshMethodStats()
   end
   if self.pdb.method then
     if self.methodStats then
-      for i, v in ipairs (ITEM_STATS) do
-        local cell = i - 1
+      for statId, v in ipairs (ITEM_STATS) do
+        local cell = statId - 1
         local mvalue = v.mgetter (self.pdb.method)
         if v.percent then
           self.methodStats:SetCellText(cell, 1, ("%.2f%%"):format(mvalue))
@@ -1660,15 +1664,20 @@ function ReforgeLite:RefreshMethodStats()
         local override
         mvalue = v.mgetter (self.pdb.method, true)
         local value = v.getter ()
-        if self:GetStatScore (i, mvalue) == self:GetStatScore (i, value) then
+        if self:GetStatScore (statId, mvalue) == self:GetStatScore (statId, value) then
           override = 0
         end
-        SetTextDelta (self.methodStats[i].delta, mvalue, value, override)
+        SetTextDelta (self.methodStats[statId].delta, mvalue, value, override)
         -- Hide rows with zero values by setting row height to 0
-        if mvalue <= 0 or (v.name == "ITEM_MOD_SPIRIT_SHORT" and not UnitHasMana("player")) then
+        if mvalue <= 0 or (statId == statIds.SPIRIT and not UnitHasMana("player")) then
           self.methodStats:CollapseRow(cell)
         else
           self.methodStats:ExpandRow(cell)
+        end
+        if statId == statIds.EXP then
+          local isEnabled = (self.conversion[statIds.EXP] or {})[statIds.HIT] and mvalue > 0
+          self.expertiseToHitHelpButton:SetShown(self.db.showHelp and isEnabled)
+          self.expertiseToHitHelpButton:SetEnabled(isEnabled)
         end
       end
     end
