@@ -890,14 +890,6 @@ function ReforgeLite:ComputeReforgeBranchBound()
     end
   end
 
-  -- Add initial cap values
-  if data.caps[1].stat > 0 then
-    initialStats[data.caps[1].stat] = data.caps[1].init or 0
-  end
-  if data.caps[2].stat > 0 then
-    initialStats[data.caps[2].stat] = data.caps[2].init or 0
-  end
-
   -- Run branch and bound search
   local currentPath = {}
   self:BranchAndBoundSearch(1, initialStats, currentPath, data, suffixBounds, allItemOptions, sortedSlots)
