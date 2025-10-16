@@ -837,8 +837,6 @@ function ReforgeLite:ComputeReforgeBranchBound()
   bbConstraintPrunes = 0
   bbScorePrunes = 0
   bbFoundExactDPPath = false
-  bbLastDebugTime = 0
-  bbFoundDPOptimal = false
 
   -- Calculate priority cap once at the beginning
   local priorityCap = self:CalculatePriorityCap(data)
