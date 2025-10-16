@@ -340,8 +340,7 @@ function addonTable.GetItemStatsFromTooltip(itemInfo)
       if text and text ~= "" then
         for _, statInfo in ipairs(ITEM_STATS) do
           if not stats[statInfo.name] then
-            local pattern = "^%+([%d,]+)%s+" .. statInfo.long
-            local value = text:match(pattern)
+            local value = text:match(statInfo.tooltipPattern)
             if value then
               foundStats = foundStats + 1
               local numValue = tonumber((value:gsub(",", "")))
