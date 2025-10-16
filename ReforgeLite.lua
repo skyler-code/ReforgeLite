@@ -367,9 +367,8 @@ addonTable.REFORGE_COEFF = 0.4
 
 ---Saves the current window dimensions to character database
 ---@return nil
-function ReforgeLite:UpdateWindowSize ()
-  self.pdb.windowWidth = self:GetWidth ()
-  self.pdb.windowHeight = self:GetHeight ()
+function ReforgeLite:UpdateWindowSize()
+  self.pdb.windowWidth, self.pdb.windowHeight = self:GetSize()
 end
 
 ---Calculates the score for a stat value with cap points applied
