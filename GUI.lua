@@ -23,15 +23,15 @@ callbacks:GenerateCallbackEvents({ "OnCalculateFinish", "PreCalculateStart", "On
 addonTable.callbacks = callbacks
 
 addonTable.FONTS = {
+  darkyellow = DARKYELLOW_FONT_COLOR,
+  gold = GOLD_FONT_COLOR,
+  green = CreateColor(0.6, 1, 0.6),
   grey = INACTIVE_COLOR,
   lightgrey = TUTORIAL_FONT_COLOR,
-  white = WHITE_FONT_COLOR,
-  green = CreateColor(0.6, 1, 0.6),
-  red = CreateColor(1, 0.4, 0.4),
-  panel = PANEL_BACKGROUND_COLOR,
-  gold = GOLD_FONT_COLOR,
-  darkyellow = DARKYELLOW_FONT_COLOR,
   normal = NORMAL_FONT_COLOR,
+  panel = PANEL_BACKGROUND_COLOR,
+  red = CreateColor(1, 0.4, 0.4),
+  white = WHITE_FONT_COLOR,
 }
 
 ---Generates a unique widget name
