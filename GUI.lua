@@ -22,13 +22,14 @@ callbacks:GenerateCallbackEvents({ "OnCalculateFinish", "PreCalculateStart", "On
 
 addonTable.callbacks = callbacks
 
-addonTable.FONTS = {
+addonTable.COLORS = {
   darkyellow = DARKYELLOW_FONT_COLOR,
   gold = GOLD_FONT_COLOR,
   green = CreateColor(0.6, 1, 0.6),
   grey = INACTIVE_COLOR,
   lightgrey = TUTORIAL_FONT_COLOR,
   normal = NORMAL_FONT_COLOR,
+  maroon = CreateColor(0.6, 0, 0),
   panel = PANEL_BACKGROUND_COLOR,
   red = CreateColor(1, 0.4, 0.4),
   white = WHITE_FONT_COLOR,
@@ -73,7 +74,7 @@ function GUI:Lock()
         end
         if frame.SetTextColor then
           frame.prevColor = {frame:GetTextColor()}
-          frame:SetTextColor(addonTable.FONTS.grey:GetRGB())
+          frame:SetTextColor(addonTable.COLORS.grey:GetRGB())
         end
       end
     end
@@ -185,7 +186,7 @@ function GUI:CreateEditBox (parent, width, height, default, setter, opts)
     box = tremove(self.unusedEditBoxes)
     box:SetParent(parent)
     box:Show()
-    box:SetTextColor(addonTable.FONTS.white:GetRGB())
+    box:SetTextColor(addonTable.COLORS.white:GetRGB())
     box:EnableMouse(true)
     self.editBoxes[box:GetName()] = box
   else
@@ -193,7 +194,7 @@ function GUI:CreateEditBox (parent, width, height, default, setter, opts)
     self.editBoxes[box:GetName()] = box
     box:SetAutoFocus (false)
     box:SetFontObject(ChatFontNormal)
-    box:SetTextColor(addonTable.FONTS.white:GetRGB())
+    box:SetTextColor(addonTable.COLORS.white:GetRGB())
     box:SetNumeric ()
     box:SetTextInsets (0, 0, 3, 3)
     box:SetMaxLetters (8)
@@ -331,7 +332,7 @@ function GUI:CreateDropdown (parent, values, options)
     sel:SetHeight(20)
     sel:SetEnabled(true)
     if sel.Text then
-      sel.Text:SetTextColor(addonTable.FONTS.white:GetRGB())
+      sel.Text:SetTextColor(addonTable.COLORS.white:GetRGB())
     end
 
     sel.Recycle = function (frame)
@@ -440,7 +441,7 @@ function GUI:CreateCheckButton (parent, text, default, setter, opts)
   end)
   btn:SetScript("OnDisable", function(self)
     self.Text.originalFontColor = {self.Text:GetTextColor()}
-    self.Text:SetTextColor(addonTable.FONTS.grey:GetRGB())
+    self.Text:SetTextColor(addonTable.COLORS.grey:GetRGB())
   end)
   self:SetTooltip(btn, opts.tooltip)
   return btn
@@ -564,7 +565,7 @@ function GUI:CreateColorPicker (parent, width, height, color, handler)
   box.glow:SetPoint ("TOPLEFT", -2, 2)
   box.glow:SetPoint ("BOTTOMRIGHT", 2, -2)
 
-  box.glow:SetColorTexture (addonTable.FONTS.grey:GetRGB())
+  box.glow:SetColorTexture (addonTable.COLORS.grey:GetRGB())
   box.glow:Hide ()
 
   box:SetScript ("OnEnter", function (b) b.glow:Show() end)
@@ -661,7 +662,7 @@ function GUI:CreateSlider(parent, text, value, max, onChange)
   slider:SetScript("OnDisable", function(self)
     for k, v in ipairs({self.Text, self.Low, self.High}) do
       v.originalFontColor = {v:GetTextColor()}
-      v:SetTextColor(addonTable.FONTS.grey:GetRGB())
+      v:SetTextColor(addonTable.COLORS.grey:GetRGB())
     end
   end)
 
@@ -1094,7 +1095,7 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
   t.textTagPool = {}
   t.SetCellText = function (self, i, j, text, align, color, font)
     align = align or "CENTER"
-    color = color or addonTable.FONTS.white
+    color = color or addonTable.COLORS.white
     font = font or "GameFontNormalSmall"
 
     if self.cells[i][j] and not self.cells[i][j].istag then

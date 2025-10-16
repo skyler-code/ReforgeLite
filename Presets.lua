@@ -659,7 +659,7 @@ function ReforgeLite:InitPresets()
         end
       end
       if #statWeights > 0 then
-        local rightR, rightG, rightB = addonTable.FONTS.white:GetRGB()
+        local rightR, rightG, rightB = addonTable.COLORS.white:GetRGB()
         tooltip:AddLine(element.text, rightR, rightG, rightB)
         tsort(statWeights, function(a, b)
           if a.weight == b.weight then

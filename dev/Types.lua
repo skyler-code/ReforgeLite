@@ -31,7 +31,7 @@
 ---@field GetRGB fun(self: ColorMixin): number, number, number Get RGB values (returns r, g, b)
 
 ---Font color constants for UI styling
----@class FontColors
+---@class Colors
 ---@field grey ColorMixin INACTIVE_COLOR (0.502, 0.502, 0.502) - Inactive/disabled text
 ---@field lightgrey ColorMixin TUTORIAL_FONT_COLOR (0.800, 0.800, 0.800) - Tutorial/hint text
 ---@field white ColorMixin WHITE_FONT_COLOR (1, 1, 1) - Standard white text
@@ -41,6 +41,7 @@
 ---@field gold ColorMixin GOLD_FONT_COLOR (0.949, 0.902, 0.600) - Important gold text
 ---@field darkyellow ColorMixin DARKYELLOW_FONT_COLOR (1, 0.820, 0) - Headers/labels
 ---@field normal ColorMixin NORMAL_FONT_COLOR (1, 0.820, 0) - Normal tooltip text
+---@field maroon ColorMixin Custom red (0.6, 0, 0) - Active window
 
 ---@class AddonTable
 ---@field L table Localization strings
@@ -49,7 +50,7 @@
 ---@field GetItemStatsFromTooltip fun(itemInfo: table): table<string, number> Get item stats by scanning tooltip (accurate for all upgrade levels)
 ---@field GetRandPropPoints fun(iLvl: number, t: number): number Get random property points
 ---@field callbacks CallbackRegistry Callback registry for addon events
----@field FONTS FontColors Font color constants
+---@field COLORS Colors Font color constants
 ---@field playerClass string Player class name (e.g., "WARRIOR", "MAGE")
 ---@field localeClass string Localized player class name
 ---@field playerClassID number Player class ID
