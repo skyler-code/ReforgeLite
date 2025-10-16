@@ -31,7 +31,6 @@ addonTable.FONTS = {
   panel = PANEL_BACKGROUND_COLOR,
   gold = GOLD_FONT_COLOR,
   darkyellow = DARKYELLOW_FONT_COLOR,
-  disabled = DISABLED_FONT_COLOR,
   normal = NORMAL_FONT_COLOR,
 }
 
@@ -441,7 +440,7 @@ function GUI:CreateCheckButton (parent, text, default, setter, opts)
   end)
   btn:SetScript("OnDisable", function(self)
     self.Text.originalFontColor = {self.Text:GetTextColor()}
-    self.Text:SetTextColor(addonTable.FONTS.disabled:GetRGB())
+    self.Text:SetTextColor(addonTable.FONTS.grey:GetRGB())
   end)
   self:SetTooltip(btn, opts.tooltip)
   return btn
@@ -662,7 +661,7 @@ function GUI:CreateSlider(parent, text, value, max, onChange)
   slider:SetScript("OnDisable", function(self)
     for k, v in ipairs({self.Text, self.Low, self.High}) do
       v.originalFontColor = {v:GetTextColor()}
-      v:SetTextColor(addonTable.FONTS.disabled:GetRGB())
+      v:SetTextColor(addonTable.FONTS.grey:GetRGB())
     end
   end)
 

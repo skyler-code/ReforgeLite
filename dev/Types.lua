@@ -40,7 +40,6 @@
 ---@field panel ColorMixin PANEL_BACKGROUND_COLOR (0.122, 0.118, 0.129) - Panel backgrounds
 ---@field gold ColorMixin GOLD_FONT_COLOR (0.949, 0.902, 0.600) - Important gold text
 ---@field darkyellow ColorMixin DARKYELLOW_FONT_COLOR (1, 0.820, 0) - Headers/labels
----@field disabled ColorMixin DISABLED_FONT_COLOR (0.502, 0.502, 0.502) - Disabled UI elements
 ---@field normal ColorMixin NORMAL_FONT_COLOR (1, 0.820, 0) - Normal tooltip text
 
 ---@class AddonTable

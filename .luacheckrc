@@ -111,7 +111,6 @@ read_globals = {
     "GOLD_FONT_COLOR",
     "INACTIVE_COLOR",
     "TUTORIAL_FONT_COLOR",
-    "DISABLED_FONT_COLOR",
     "NORMAL_FONT_COLOR",
     "PANEL_BACKGROUND_COLOR",
     "DARKYELLOW_FONT_COLOR",
@@ -143,6 +142,12 @@ read_globals = {
     "join",
     "GetItemStats",
     "debugprofilestop",
+    "strupper",
+    "SPEC_DRUID_BALANCE",
+    "SPEC_MONK_MISTWEAVER",
+    "SPEC_PRIEST_SHADOW",
+    "SPEC_SHAMAN_RESTORATION",
+    "MergeTable",
 }
 
 -- Allow accessing the vararg table (...) to get addon table

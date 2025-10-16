@@ -150,7 +150,6 @@
     "GOLD_FONT_COLOR",
     "INACTIVE_COLOR",
     "TUTORIAL_FONT_COLOR",
-    "DISABLED_FONT_COLOR",
     "NORMAL_FONT_COLOR",
     "PANEL_BACKGROUND_COLOR",
     "DARKYELLOW_FONT_COLOR",
@@ -210,7 +209,13 @@
     "CreateSimpleTextureMarkup",
     "CreateAtlasMarkup",
     "WrapTextInColorCode",
-    "debugprofilestop"
+    "debugprofilestop",
+    "strupper",
+    "SPEC_DRUID_BALANCE",
+    "SPEC_MONK_MISTWEAVER",
+    "SPEC_PRIEST_SHADOW",
+    "SPEC_SHAMAN_RESTORATION",
+    "MergeTable"
   ],
   "diagnostics.disable": [
     "inject-field",
