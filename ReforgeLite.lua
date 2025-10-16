@@ -343,8 +343,7 @@ function addonTable.GetItemStatsFromTooltip(itemInfo)
             local value = text:match(statInfo.tooltipPattern)
             if value then
               foundStats = foundStats + 1
-              local numValue = tonumber((value:gsub(",", "")))
-              stats[statInfo.name] = numValue
+              stats[statInfo.name] = tonumber((value:gsub(",", "")))
               break
             end
           end
