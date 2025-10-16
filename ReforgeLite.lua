@@ -1668,12 +1668,7 @@ function ReforgeLite:RefreshMethodStats()
           override = 0
         end
         SetTextDelta (self.methodStats[statId].delta, mvalue, value, override)
-        -- Hide rows with zero values by setting row height to 0
-        if mvalue <= 0 or (statId == statIds.SPIRIT and not UnitHasMana("player")) then
-          self.methodStats:CollapseRow(cell)
-        else
-          self.methodStats:ExpandRow(cell)
-        end
+        self.methodStats:SetRowExpanded(cell, mvalue > 0 and (statId ~= statIds.SPIRIT or UnitHasMana("player")))
       end
       local isEnabled = (self.conversion[statIds.EXP] or {})[statIds.HIT] and ITEM_STATS[statIds.EXP].mgetter(self.pdb.method) > 0
       self.expertiseToHitHelpButton:SetShown(self.db.showHelp and isEnabled)

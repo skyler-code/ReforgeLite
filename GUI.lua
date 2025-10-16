@@ -1152,6 +1152,13 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
       self:OnUpdateFix()
     end
   end
+  t.SetRowExpanded = function(self, i, expanded)
+    if expanded then
+      self:ExpandRow(i)
+    else
+      self:CollapseRow(i)
+    end
+  end
   t.CollapseColumn = function(self, j)
     self.colWidth[j] = 0
     self:OnUpdateFix()
