@@ -72,7 +72,7 @@
 ---@field StatCapMethods table Stat cap method enum (AtLeast, AtMost, etc.)
 ---@field WoWSimsOriginTag string WoWSims origin tag
 ---@field isDev boolean Development mode flag
----@field pauseRoutine boolean|nil Flag to pause computation coroutine
+---@field pauseRoutine 'kill'|'pause'|nil Flag to pause computation coroutine
 ---@field methodDebug table|nil Debug info for reforge methods
 
 ---@class ReforgeLite : Frame

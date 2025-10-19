@@ -1386,14 +1386,14 @@ function ReforgeLite:CreateOptionList ()
     function(btn)
       if addonTable.pauseRoutine then
         addonTable.pauseRoutine = 'kill'
-        self:EndCompute(addonTable.pauseRoutine)
+        self:EndCompute()
       else
         addonTable.pauseRoutine = 'pause'
         btn:RenderText(CANCEL)
         self.computeButton:RenderText(CONTINUE)
         addonTable.GUI:UnlockFrame(self.computeButton)
       end
-    end, 
+    end,
     {
       preventLock = true,
       PreCalculateStart = function(btn)
