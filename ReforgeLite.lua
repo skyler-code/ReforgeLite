@@ -1758,11 +1758,11 @@ function ReforgeLite:UpdateItems()
     end
   end
 
-  local hasAnyData = next(columnHasData) ~= nil
+  local hasNoData = next(columnHasData) == nil
 
   for i, v in ipairs (ITEM_STATS) do
     self.statTotals[i]:SetText(v.getter())
-    if columnHasData[i] or not hasAnyData then
+    if columnHasData[i] or hasNoData then
       self.itemTable:ExpandColumn(i)
     else
       self.itemTable:CollapseColumn(i)
