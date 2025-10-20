@@ -1821,25 +1821,24 @@ local queueUpdateEvents = {
   UNIT_SPELL_HASTE = "player",
 }
 
-local queueEventsRegistered = false
 function ReforgeLite:RegisterQueueUpdateEvents()
-  if queueEventsRegistered then return end
   for event, unitID in pairs(queueUpdateEvents) do
-    if unitID == true then
-      self:RegisterEvent(event)
-    else
-      self:RegisterUnitEvent(event, unitID)
+    if not self:IsEventRegistered(event) then
+      if unitID == true then
+        self:RegisterEvent(event)
+      else
+        self:RegisterUnitEvent(event, unitID)
+      end
     end
   end
-  queueEventsRegistered = true
 end
 
 function ReforgeLite:UnregisterQueueUpdateEvents()
-  if not queueEventsRegistered then return end
   for event in pairs(queueUpdateEvents) do
-    self:UnregisterEvent(event)
+    if self:IsEventRegistered(event) then
+      self:UnregisterEvent(event)
+    end
   end
-  queueEventsRegistered = false
 end
 
 function ReforgeLite:QueueUpdate()
