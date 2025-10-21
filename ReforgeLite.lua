@@ -6,8 +6,14 @@ local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "title")
 local ReforgeLite = CreateFrame("Frame", addonName, UIParent, "BackdropTemplate")
 addonTable.ReforgeLite = ReforgeLite
 
-local L = addonTable.L
 local GUI = addonTable.GUI
+
+local L = setmetatable({}, {
+  __index = function(self, key)
+    rawset(self, key, key or "")
+    return self[key]
+end})
+addonTable.L = L
 
 addonTable.printLog = {}
 local gprint = print

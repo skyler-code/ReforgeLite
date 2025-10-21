@@ -12,8 +12,6 @@
 embeds.xml
 #@end-no-lib-strip@
 
-locales.xml
-
 data\RandPropPoints.lua
 data\ScalingTable.lua
 
@@ -23,6 +21,8 @@ ReforgeEngine.lua
 BranchAndBound.lua
 Presets.lua
 ExportImport.lua
+
+locales\[TextLocale].lua
 
 #@do-not-package@
 dev\Util.lua
