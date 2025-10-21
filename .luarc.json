@@ -189,7 +189,6 @@
     "CopyTable",
     "Round",
     "tostringall",
-    "GetLocale",
     "select",
     "unpack",
     "tonumber",

@@ -57,7 +57,6 @@
 ---@field statIds table Stat ID constants (HIT, CRIT, HASTE, etc.)
 ---@field itemStats table Item stat definitions
 ---@field itemStatCount number Number of item stats
----@field Locale string Current locale (e.g., "enUS")
 ---@field print fun(...) Print function with addon prefix
 ---@field printLog table Print log history
 ---@field ScalingTable table Stat scaling table by level
