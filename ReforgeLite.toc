@@ -1,4 +1,4 @@
-## Interface: 50501
+## Interface: 50502
 ## Author: d07.RiV (Iroared) (Continued by Brues)
 ## Title: ReforgeLite Classic
 ## Notes: Calculates optimal reforging for given weights/caps.
