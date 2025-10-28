@@ -23,7 +23,6 @@ Presets.lua
 ExportImport.lua
 
 locales\[TextLocale].lua
-
 #@do-not-package@
 dev\Util.lua
 #@end-do-not-package@
