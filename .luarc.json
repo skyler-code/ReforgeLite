@@ -214,7 +214,8 @@
     "SPEC_MONK_MISTWEAVER",
     "SPEC_PRIEST_SHADOW",
     "SPEC_SHAMAN_RESTORATION",
-    "MergeTable"
+    "MergeTable",
+    "sort"
   ],
   "diagnostics.disable": [
     "inject-field",

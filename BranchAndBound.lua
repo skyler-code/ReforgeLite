@@ -92,7 +92,7 @@ function ReforgeLite:GetItemSortingOrder(data, priorityCap)
   end
 
   -- Sort by primary cap DESC, secondary cap DESC, then reforge potential DESC
-  table.sort(itemOrder, function(a, b)
+  sort(itemOrder, function(a, b)
     if a.primaryCapContrib ~= b.primaryCapContrib then
       return a.primaryCapContrib > b.primaryCapContrib
     elseif a.secondaryCapContrib ~= b.secondaryCapContrib then
@@ -383,7 +383,7 @@ function ReforgeLite:GetSmartReforgeOptions(data, slot, priorityCap)
   -- Sort reforge options by cap priority
   local otherCap = priorityCap == 1 and 2 or 1
 
-  table.sort(uniqueOptions, function(a, b)
+  sort(uniqueOptions, function(a, b)
     -- Priority 1: Reforges involving priority cap stat (TO or FROM)
     local aInvolvesPriorityCap = (a.src == data.caps[priorityCap].stat) or (a.dst == data.caps[priorityCap].stat)
     local bInvolvesPriorityCap = (b.src == data.caps[priorityCap].stat) or (b.dst == data.caps[priorityCap].stat)

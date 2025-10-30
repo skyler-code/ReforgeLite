@@ -3,7 +3,6 @@ local _, addonTable = ...
 local L = addonTable.L
 local ReforgeLite = addonTable.ReforgeLite
 local GUI = addonTable.GUI
-local tsort, tinsert = table.sort, tinsert
 
 local StatHit = addonTable.statIds.HIT
 local StatCrit = addonTable.statIds.CRIT
@@ -661,7 +660,7 @@ function ReforgeLite:InitPresets()
       if #statWeights > 0 then
         local rightR, rightG, rightB = addonTable.COLORS.white:GetRGB()
         tooltip:AddLine(element.text, rightR, rightG, rightB)
-        tsort(statWeights, function(a, b)
+        sort(statWeights, function(a, b)
           if a.weight == b.weight then
             return a.index < b.index
           end
@@ -763,7 +762,7 @@ function ReforgeLite:InitPresets()
             end
 
             if #specSubmenu.submenuItems > 0 then
-              tsort(specSubmenu.submenuItems, function (a, b)
+              sort(specSubmenu.submenuItems, function (a, b)
                 if a.prioritySort ~= b.prioritySort then
                   return a.prioritySort > b.prioritySort
                 end
@@ -791,7 +790,7 @@ function ReforgeLite:InitPresets()
           end
         end
 
-        tsort(classInfo.submenuItems, function (a, b)
+        sort(classInfo.submenuItems, function (a, b)
           if a.prioritySort ~= b.prioritySort then
             return a.prioritySort > b.prioritySort
           end
@@ -817,7 +816,7 @@ function ReforgeLite:InitPresets()
       end
     end
 
-    tsort(menuList, function (a, b)
+    sort(menuList, function (a, b)
       if a.prioritySort ~= b.prioritySort then
         return a.prioritySort > b.prioritySort
       end

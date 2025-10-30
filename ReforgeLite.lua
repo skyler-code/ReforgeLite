@@ -1121,7 +1121,7 @@ function ReforgeLite:RefreshCaps()
 end
 function ReforgeLite:CollapseStatCaps()
   local caps = CopyTable(self.pdb.caps)
-  table.sort(caps, function(a,b)
+  sort(caps, function(a,b)
     local aIsNone = a.stat == 0 and 1 or 0
     local bIsNone = b.stat == 0 and 1 or 0
     return aIsNone < bIsNone
