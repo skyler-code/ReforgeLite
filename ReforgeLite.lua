@@ -662,6 +662,16 @@ function ReforgeLite:GetFrameY (frame)
   return offs
 end
 
+local function FormatNumber(num)
+  local formatted = FormatLargeNumber(abs(num))
+  if num > 0 then
+    return "+" .. formatted
+  elseif num < 0 then
+    return "-" .. formatted
+  end
+  return formatted
+end
+
 local function SetTextDelta (text, value, cur, override)
   override = override or (value - cur)
   if override == 0 then
@@ -671,7 +681,7 @@ local function SetTextDelta (text, value, cur, override)
   else
     text:SetTextColor(addonTable.COLORS.red:GetRGB())
   end
-  text:SetFormattedText(value - cur > 0 and "+%s" or "%s", value - cur)
+  text:SetText(FormatNumber(value - cur))
 end
 
 ------------------------------------------------------------------------
@@ -1709,7 +1719,7 @@ function ReforgeLite:RefreshMethodStats()
     for statId, v in ipairs (ITEM_STATS) do
       local cell = statId - 1
       local mvalue = v.mgetter (self.pdb.method)
-      self.methodStats:SetCellText(cell, 1, mvalue)
+      self.methodStats:SetCellText(cell, 1, FormatLargeNumber(mvalue))
       local override
       mvalue = v.mgetter (self.pdb.method, true)
       local value = v.getter ()
@@ -1793,7 +1803,7 @@ function ReforgeLite:UpdateItems()
       end
 
       if currentValue and currentValue ~= 0 then
-        v.stats[j]:SetText(currentValue)
+        v.stats[j]:SetText(FormatLargeNumber(currentValue))
         if s.name == reforgeSrc then
           v.stats[j]:SetTextColor(v.stats[j].fontColors.red:GetRGB())
         elseif s.name == reforgeDst then
@@ -1811,7 +1821,7 @@ function ReforgeLite:UpdateItems()
   local hasNoData = next(columnHasData) == nil
 
   for i, v in ipairs (ITEM_STATS) do
-    self.statTotals[i]:SetText(v.getter())
+    self.statTotals[i]:SetText(FormatLargeNumber(v.getter()))
     if columnHasData[i] or hasNoData then
       self.itemTable:ExpandColumn(i)
     else
