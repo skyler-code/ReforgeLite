@@ -393,7 +393,7 @@ function addonTable.GetItemStatsFromTooltip(itemInfo)
             end
             if value then
               foundStats = foundStats + 1
-              stats[statInfo.name] = tonumber((value:gsub(",", ".")))
+              stats[statInfo.name] = tonumber((value:gsub("[^%d]", "")))
               break
             end
           end
