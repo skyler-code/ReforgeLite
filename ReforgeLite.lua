@@ -663,13 +663,8 @@ function ReforgeLite:GetFrameY (frame)
 end
 
 local function FormatNumber(num)
-  local formatted = FormatLargeNumber(abs(num))
-  if num > 0 then
-    return "+" .. formatted
-  elseif num < 0 then
-    return "-" .. formatted
-  end
-  return formatted
+  if num == 0 then return num end
+  return (num > 0 and "+" or "-") .. FormatLargeNumber(abs(num))
 end
 
 local function SetTextDelta (text, value, cur, override)

@@ -148,7 +148,8 @@ read_globals = {
     "SPEC_PRIEST_SHADOW",
     "SPEC_SHAMAN_RESTORATION",
     "MergeTable",
-    "sort"
+    "sort",
+    "FormatLargeNumber"
 }
 
 -- Allow accessing the vararg table (...) to get addon table
