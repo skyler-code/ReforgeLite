@@ -1160,8 +1160,6 @@ function GUI:CreateTable (rows, cols, firstRow, firstColumn, gridColor, parent)
     end
   end
   t.CollapseColumn = function(self, j)
-    self.colWidth[j] = 0
-    self:OnUpdateFix()
     if not self.collapsedColumns then
       self.collapsedColumns = {}
     end
