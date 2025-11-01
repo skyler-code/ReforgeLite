@@ -185,9 +185,9 @@ local StatAdditives = {
 }
 
 local function Stat(options)
-  local tooltipConst = _G[options.tooltipConstant or options.name]
   return {
     name = options.name,
+    tooltipConstant = options.tooltipConstant,
     tip = options.tip,
     long = options.long,
     getter = options.getter or function()
@@ -200,10 +200,16 @@ local function Stat(options)
     mgetter = options.mgetter or function(method, orig)
       return (orig and method.orig_stats and method.orig_stats[options.statId]) or method.stats[options.statId]
     end,
-    tooltipPatterns = {
-      "^%+([%d,]+)%s*" .. tooltipConst,
-      "^" .. tooltipConst .. "%s*%+([%d,]+)"
-    }
+    getTooltipPatterns = function(self)
+      local tooltipConst = _G[self.tooltipConstant or self.name]
+      if not tooltipConst then
+        return {}
+      end
+      return {
+        "^%+([%d,]+)%s*" .. tooltipConst .. "%s*$",
+        "^" .. tooltipConst .. "%s*%+([%d,]+)%s*$"
+      }
+    end
   }
 end
 
@@ -350,7 +356,7 @@ local tooltipStatsCache = setmetatable({}, {
 ---Uses Blizzard's GetItemStats for base items, tooltip scanning for upgraded items
 ---Only scans for reforge-able secondary stats (Spirit, Dodge, Parry, Hit, Crit, Haste, Expertise, Mastery)
 ---Reverses any active reforge to return original item stats
----@param itemInfo table Item information with link, itemId, ilvl, upgradeLevel, slotId, reforge
+---@param itemInfo table Item information with link, itemId, ilvl, slotId, reforge
 ---@return table<string, number> stats Table of stat names to values (before reforge)
 function addonTable.GetItemStatsFromTooltip(itemInfo)
   if not (itemInfo or {}).link then return {} end
@@ -382,11 +388,14 @@ function addonTable.GetItemStatsFromTooltip(itemInfo)
     if region.GetText then
       local text = region:GetText()
       if text and text ~= "" then
+        local cleanText = text:gsub("%b()", ""):gsub("%b ()", "")
+        cleanText = cleanText:match("^(.-)%s*$")
+
         for _, statInfo in ipairs(ITEM_STATS) do
           if not stats[statInfo.name] then
             local value
-            for _, pattern in ipairs(statInfo.tooltipPatterns) do
-              value = text:match(pattern)
+            for _, pattern in ipairs(statInfo:getTooltipPatterns()) do
+              value = cleanText:match(pattern)
               if value then
                 break
               end
@@ -1731,20 +1740,6 @@ function ReforgeLite:UpdateContentSize ()
   self.content:SetHeight (-self:GetFrameY (self.lastElement))
   RunNextFrame(function() self:FixScroll() end)
 end
-local function GetItemUpgradeLevel(item)
-    if item:IsItemEmpty()
-    or not item:HasItemLocation()
-    or item:GetItemQuality() < Enum.ItemQuality.Rare
-    or item:GetCurrentItemLevel() < 458 then
-        return 0, item:GetCurrentItemLevel()
-    end
-    local originalIlvl = C_Item.GetDetailedItemLevelInfo(item:GetItemID())
-    if not originalIlvl then
-        return 0, item:GetCurrentItemLevel()
-    end
-
-    return (item:GetCurrentItemLevel() - originalIlvl) / 4, originalIlvl
-end
 
 ---Updates the item table with current equipped gear
 ---Reads all equipped items, calculates stats, detects reforges, and updates UI
@@ -1762,14 +1757,12 @@ function ReforgeLite:UpdateItems()
       v.texture:SetTexture(v.slotTexture)
       v.quality:SetVertexColor(addonTable.COLORS.white:GetRGB())
     else
-      local upgradeLevel, originalIlvl = GetItemUpgradeLevel(item)
       v.itemInfo = {
         link = item:GetItemLink(),
         itemId = item:GetItemID(),
         ilvl = item:GetCurrentItemLevel(),
         itemGUID = item:GetItemGUID(),
-        upgradeLevel = upgradeLevel,
-        originalIlvl = originalIlvl,
+        originalIlvl = C_Item.GetDetailedItemLevelInfo(item:GetItemID()) or item:GetCurrentItemLevel(),
         reforge = GetReforgeID(v.slotId),
         slotId = v.slotId,
       }
