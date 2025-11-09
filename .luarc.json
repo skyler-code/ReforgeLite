@@ -216,7 +216,8 @@
     "SPEC_SHAMAN_RESTORATION",
     "MergeTable",
     "sort",
-    "FormatLargeNumber"
+    "FormatLargeNumber",
+    "GetInventoryItemID"
   ],
   "diagnostics.disable": [
     "inject-field",

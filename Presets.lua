@@ -231,20 +231,6 @@ ReforgeLite.capPresets = {
   },
 }
 
--- local function GetActiveItemSet()
---   local itemSets = {}
---   for _,v in ipairs({INVSLOT_HEAD,INVSLOT_SHOULDER,INVSLOT_CHEST,INVSLOT_LEGS,INVSLOT_HAND}) do
---     local item = Item:CreateFromEquipmentSlot(v)
---     if not item:IsItemEmpty() then
---       local itemSetId = select(16, C_Item.GetItemInfo(item:GetItemID()))
---       if itemSetId then
---         itemSets[itemSetId] = (itemSets[itemSetId] or 0) + 1
---       end
---     end
---   end
---   return itemSets
--- end
-
 local function GetSpellHasteRequired(percentNeeded)
   return function()
     local hasteMod = ReforgeLite:GetSpellHasteBonus()

@@ -45,3 +45,17 @@ function ReforgeLite:PreviewColors()
     print(color:WrapTextInColorCode((", "):join(dbColor.baseTag, color:GetRGB())))
   end
 end
+
+function ReforgeLite:GetActiveItemSet()
+  local itemSets = {}
+  for slotID = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED do
+    local itemID = GetInventoryItemID('player', slotID)
+    if itemID then
+      local itemSetId = select(16, C_Item.GetItemInfo(itemID))
+      if itemSetId then
+        itemSets[itemSetId] = (itemSets[itemSetId] or 0) + 1
+      end
+    end
+  end
+  return itemSets
+end

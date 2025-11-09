@@ -149,7 +149,8 @@ read_globals = {
     "SPEC_SHAMAN_RESTORATION",
     "MergeTable",
     "sort",
-    "FormatLargeNumber"
+    "FormatLargeNumber",
+    "GetInventoryItemID"
 }
 
 -- Allow accessing the vararg table (...) to get addon table
