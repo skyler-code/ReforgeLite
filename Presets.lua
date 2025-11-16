@@ -408,14 +408,14 @@ function ReforgeLite:InitClassPresets()
         },
       },
       [specs.DEATHKNIGHT.frost] = {
-        [C_Spell.GetSpellName(49020)] = Preset(0, 0, 0, 87, 44, 48, 87, 35, MeleeCaps, 135771), -- Obliterate
-        [L["Masterfrost"]] = Preset(0, 0, 0, 73, 36, 47, 73, 50, MeleeCaps, 135833),
+        [C_Spell.GetSpellName(49020)] = Preset(0, 0, 0, 82, 44, 45, 82, 35, MeleeCaps, 135771), -- Obliterate
+        [L["Masterfrost"]] = Preset(0, 0, 0, 84, 36, 37, 83, 53, MeleeCaps, 135833),
       },
       [specs.DEATHKNIGHT.unholy] = MeleePreset(73, 47, 43, 73, 40),
     },
     ["DRUID"] = {
       [specs.DRUID.balance] = {
-        weights = {0, 0, 0, 127, 61, 63, 0, 38},
+        weights = {0, 0, 0, 88, 54, 55, 0, 46},
         caps = {
           HitCapSpell,
           {
@@ -449,9 +449,9 @@ function ReforgeLite:InitClassPresets()
       },
     },
     ["HUNTER"] = {
-      [specs.HUNTER.beastmastery] = MeleePreset(63, 28, 27, 59, 25),
-      [specs.HUNTER.marksmanship] = MeleePreset(63, 40, 35, 59, 29),
-      [specs.HUNTER.survival] = MeleePreset(59, 29, 25, 57, 21),
+      [specs.HUNTER.beastmastery] = MeleePreset(30, 28, 29, 30, 25),
+      [specs.HUNTER.marksmanship] = MeleePreset(44, 43, 35, 44, 19),
+      [specs.HUNTER.survival] = MeleePreset(33, 32, 27, 33, 21),
     },
     ["MAGE"] = {
       [specs.MAGE.arcane] = CasterPreset(145, 52, 60, 63),
@@ -510,7 +510,7 @@ function ReforgeLite:InitClassPresets()
       [specs.SHAMAN.restoration] = HealerPreset(120, 100, 150, 75),
     },
     ["WARLOCK"] = {
-      [specs.WARLOCK.affliction] = CasterPreset(90, 56, 80, 68),
+      [specs.WARLOCK.affliction] = CasterPreset(90, 56, 73, 68),
       [specs.WARLOCK.destruction] = CasterPreset(93, 55, 50, 61),
       [specs.WARLOCK.demonology] = CasterPreset(400, 60, 66, 63),
     },
