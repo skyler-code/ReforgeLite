@@ -59,3 +59,18 @@ function ReforgeLite:GetActiveItemSet()
   end
   return itemSets
 end
+
+local playerMoney
+EventRegistry:RegisterFrameEventAndCallback("FORGE_MASTER_OPENED", function()
+    playerMoney = GetMoney()
+end)
+
+EventRegistry:RegisterFrameEventAndCallback("FORGE_MASTER_CLOSED", function()
+  if playerMoney then
+    local moneySpent = playerMoney - GetMoney()
+    if moneySpent > 0 then
+      print("Spent -", C_CurrencyInfo.GetCoinTextureString(moneySpent))
+    end
+    playerMoney = nil
+  end
+end)
