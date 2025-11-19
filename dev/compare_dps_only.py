@@ -155,8 +155,9 @@ def compare_weights(ws_weights, rfl_weights):
 
 
 def main():
-    base_path = Path('/mnt/c/Git/ReforgeLite')
-    wowsims_file = base_path / 'wowsims_weights.lua'
+    script_dir = Path(__file__).parent
+    base_path = script_dir.parent
+    wowsims_file = script_dir / 'wowsims_weights.lua'
     presets_file = base_path / 'Presets.lua'
 
     print("Parsing WoWSims weights...")

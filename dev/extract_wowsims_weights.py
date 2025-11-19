@@ -170,8 +170,9 @@ def main():
     # Generate Lua output
     lua_output = generate_lua_output(results)
 
-    # Save to file
-    output_file = '/mnt/c/Git/ReforgeLite/wowsims_weights.lua'
+    # Save to file in same directory as script
+    script_dir = Path(__file__).parent
+    output_file = script_dir / 'wowsims_weights.lua'
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(lua_output)
 
