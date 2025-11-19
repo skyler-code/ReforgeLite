@@ -942,11 +942,14 @@ function ReforgeLite:CreateItemTable ()
     self.itemTable:EnableColumnAutoWidth(i)
   end
 
-  self.itemLevel = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
+  self.itemLevel = self:CreateFontString (nil, "OVERLAY", "GameFontWhite")
   self.itemLevel:SetPoint ("BOTTOMRIGHT", self.itemTable, "TOPRIGHT", 0, 8)
-  self.itemLevel:SetTextColor(addonTable.COLORS.gold:GetRGB())
   self:RegisterEvent("PLAYER_AVG_ITEM_LEVEL_UPDATE")
   self:PLAYER_AVG_ITEM_LEVEL_UPDATE()
+
+  self.itemLevelLabel = self:CreateFontString (nil, "OVERLAY", "GameFontNormal")
+  self.itemLevelLabel:SetPoint ("BOTTOMRIGHT", self.itemLevel, "BOTTOMLEFT", -2, 0)
+  self.itemLevelLabel:SetFormattedText(STAT_FORMAT, STAT_AVERAGE_ITEM_LEVEL)
 
   self.itemLockHelpButton = GUI:CreateHelpButton(self, L["The Item Table shows your currently equipped gear and their stats.\n\nEach row represents one equipped item. Only stats present on your gear are shown as columns.\n\nAfter computing, items being reforged show:\n• Red numbers: Stat being reduced\n• Green numbers: Stat being added\n\nClick an item icon to lock/unlock it. Locked items (shown with a lock icon) are ignored during optimization."], { scale = 0.5 })
 
@@ -2359,7 +2362,8 @@ function ReforgeLite:PLAYER_ENTERING_WORLD()
 end
 
 function ReforgeLite:PLAYER_AVG_ITEM_LEVEL_UPDATE()
-  self.itemLevel:SetFormattedText(CHARACTER_LINK_ITEM_LEVEL_TOOLTIP, select(2,GetAverageItemLevel()))
+  local _, ilvl = GetAverageItemLevel()
+  self.itemLevel:SetFormattedText("%d", ilvl)
 end
 
 function ReforgeLite:ADDON_LOADED (addon)
