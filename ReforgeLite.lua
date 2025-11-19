@@ -388,9 +388,7 @@ function addonTable.GetItemStatsFromTooltip(itemInfo)
     if region.GetText then
       local text = region:GetText()
       if text and text ~= "" then
-        local cleanText = text:gsub("%b()", ""):gsub("%b ()", "")
-        cleanText = cleanText:match("^(.-)%s*$")
-
+        local cleanText = strtrim((text:gsub("%b()", "")))
         for _, statInfo in ipairs(ITEM_STATS) do
           if not stats[statInfo.name] then
             local value
