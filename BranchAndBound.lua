@@ -1022,7 +1022,7 @@ function ReforgeLite:RunAlgorithmComparison()
   end
 
   -- Store original method
-  local originalMethod = CopyTable(self.pdb.method)
+  local originalMethod = self.pdb.method and CopyTable(self.pdb.method) or nil
 
   -- Run DP algorithm
   print("Running Dynamic Programming...")
@@ -1074,7 +1074,7 @@ function ReforgeLite:RunAlgorithmComparison()
   end
 
   -- Reset to original
-  self.pdb.method = CopyTable(originalMethod)
+  self.pdb.method = originalMethod and CopyTable(originalMethod) or nil
 
   -- Run Branch and Bound
   print("Running Branch and Bound...")
