@@ -181,7 +181,7 @@ addonTable.CreateIconMarkup = CreateIconMarkup
 
 local AtLeast = addonTable.StatCapMethods.AtLeast
 local AtMost = addonTable.StatCapMethods.AtMost
-local CAPS = EnumUtil.MakeEnum("ManualCap", "MeleeHitCap", "SpellHitCap", "MeleeDWHitCap", "ExpSoftCap", "ExpHardCap", "FirstHasteBreak", "SecondHasteBreak", "ThirdHasteBreak", "FourthHasteBreak", "FifthHasteBreak")
+local CAPS = EnumUtil.MakeEnum("ManualCap", "MeleeHitCap", "SpellHitCap", "MeleeDWHitCap", "ExpSoftCap", "ExpHardCap", "FirstHasteBreak", "SecondHasteBreak", "ThirdHasteBreak", "FourthHasteBreak", "FifthHasteBreak", "SixthHasteBreak")
 
 ReforgeLite.capPresets = {
   {
@@ -260,32 +260,38 @@ do
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.FirstHasteBreak,
       category = StatHaste,
-      name = nameFormatWithTicks:format(eternalFlameMarkup, 8.25, 1, eternalFlame),
-      getter = GetSpellHasteRequired(8.245)
+      name = nameFormatWithTicks:format(eternalFlameMarkup, 4.99, 1, eternalFlame),
+      getter = GetSpellHasteRequired(4.986880)
     })
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.SecondHasteBreak,
       category = StatHaste,
-      name = nameFormatWithTicks:format(sacredShieldMarkup, 12.55, 1, sacredShield),
-      getter = GetSpellHasteRequired(12.55),
+      name = nameFormatWithTicks:format(sacredShieldMarkup, 10.00, 1, sacredShield),
+      getter = GetSpellHasteRequired(10.000919),
     })
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.ThirdHasteBreak,
       category = StatHaste,
-      name = nameFormatWithTicks:format(eternalFlameMarkup, 16.87, 2, eternalFlame),
-      getter = GetSpellHasteRequired(16.87),
+      name = nameFormatWithTicks:format(eternalFlameMarkup, 15.01, 2, eternalFlame),
+      getter = GetSpellHasteRequired(15.008630),
     })
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.FourthHasteBreak,
       category = StatHaste,
-      name = nameFormatWithTicks:format(eternalFlameMarkup, 25.57, 3, eternalFlame),
-      getter = GetSpellHasteRequired(25.57),
+      name = nameFormatWithTicks:format(eternalFlameMarkup, 25.03, 3, eternalFlame),
+      getter = GetSpellHasteRequired(25.026052),
     })
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.FifthHasteBreak,
       category = StatHaste,
-      name = nameFormatWithTicks:format(sacredShieldMarkup, 29.85, 2, sacredShield),
-      getter = GetSpellHasteRequired(29.85),
+      name = nameFormatWithTicks:format(sacredShieldMarkup, 30.00, 2, sacredShield),
+      getter = GetSpellHasteRequired(29.996753),
+    })
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.SixthHasteBreak,
+      category = StatHaste,
+      name = nameFormatWithTicks:format(eternalFlameMarkup, 34.99, 4, eternalFlame),
+      getter = GetSpellHasteRequired(34.983133),
     })
   elseif addonTable.playerClass == "PRIEST" then
     local renew, renewMarkup = C_Spell.GetSpellName(139), CreateIconMarkup(135953)
