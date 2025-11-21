@@ -150,7 +150,8 @@ read_globals = {
     "MergeTable",
     "sort",
     "FormatLargeNumber",
-    "GetInventoryItemID"
+    "GetInventoryItemID",
+    "PlayerUtil"
 }
 
 -- Allow accessing the vararg table (...) to get addon table

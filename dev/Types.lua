@@ -43,6 +43,76 @@
 ---@field normal ColorMixin NORMAL_FONT_COLOR (1, 0.820, 0) - Normal tooltip text
 ---@field maroon ColorMixin Custom red (0.6, 0, 0) - Active window
 
+---Spec ID definitions by class
+---@class DeathKnightSpecs
+---@field blood number
+---@field frost number
+---@field unholy number
+
+---@class DruidSpecs
+---@field balance number
+---@field feralcombat number
+---@field guardian number
+---@field restoration number
+
+---@class HunterSpecs
+---@field beastmastery number
+---@field marksmanship number
+---@field survival number
+
+---@class MageSpecs
+---@field arcane number
+---@field fire number
+---@field frost number
+
+---@class MonkSpecs
+---@field brewmaster number
+---@field mistweaver number
+---@field windwalker number
+
+---@class PaladinSpecs
+---@field holy number
+---@field protection number
+---@field retribution number
+
+---@class PriestSpecs
+---@field discipline number
+---@field holy number
+---@field shadow number
+
+---@class RogueSpecs
+---@field assassination number
+---@field combat number
+---@field subtlety number
+
+---@class ShamanSpecs
+---@field elemental number
+---@field enhancement number
+---@field restoration number
+
+---@class WarlockSpecs
+---@field affliction number
+---@field demonology number
+---@field destruction number
+
+---@class WarriorSpecs
+---@field arms number
+---@field fury number
+---@field protection number
+
+---@class SpecIDs
+---@field DEATHKNIGHT DeathKnightSpecs
+---@field DRUID DruidSpecs
+---@field HUNTER HunterSpecs
+---@field MAGE MageSpecs
+---@field MONK MonkSpecs
+---@field PALADIN PaladinSpecs
+---@field PRIEST PriestSpecs
+---@field ROGUE RogueSpecs
+---@field SHAMAN ShamanSpecs
+---@field WARLOCK WarlockSpecs
+---@field WARRIOR WarriorSpecs
+
 ---@class AddonTable
 ---@field L table Localization strings
 ---@field GUI GUI GUI widget library
@@ -54,6 +124,7 @@
 ---@field playerClass string Player class name (e.g., "WARRIOR", "MAGE")
 ---@field localeClass string Localized player class name
 ---@field playerClassID number Player class ID
+---@field SPEC_IDS SpecIDs Spec ID constants by class
 ---@field statIds table Stat ID constants (HIT, CRIT, HASTE, etc.)
 ---@field itemStats table Item stat definitions
 ---@field itemStatCount number Number of item stats

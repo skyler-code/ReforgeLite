@@ -4,6 +4,8 @@ local L = addonTable.L
 local ReforgeLite = addonTable.ReforgeLite
 local GUI = addonTable.GUI
 
+local SPEC_IDS = addonTable.SPEC_IDS
+
 local StatHit = addonTable.statIds.HIT
 local StatCrit = addonTable.statIds.CRIT
 local StatHaste = addonTable.statIds.HASTE
@@ -237,21 +239,6 @@ local function GetSpellHasteRequired(percentNeeded)
     return ceil((percentNeeded - (hasteMod - 1) * 100) * ReforgeLite:RatingPerPoint(addonTable.statIds.HASTE) / hasteMod)
   end
 end
-
-
-local SPEC_IDS = {
-  DEATHKNIGHT = { blood = 250, frost = 251, unholy = 252 },
-  DRUID = { balance = 102, feralcombat = 103, guardian = 104, restoration = 105 },
-  HUNTER = { beastmastery = 253, marksmanship = 254, survival = 255 },
-  MAGE = { arcane = 62, fire = 63, frost = 64 },
-  MONK = { brewmaster = 268, mistweaver = 270, windwalker = 269 },
-  PALADIN = { holy = 65, protection = 66, retribution = 70 },
-  PRIEST = { discipline = 256, holy = 257, shadow = 258 },
-  ROGUE = { assassination = 259, combat = 260, subtlety = 261 },
-  SHAMAN = { elemental = 262, enhancement = 263, restoration = 264 },
-  WARLOCK = { affliction = 265, demonology = 266, destruction = 267 },
-  WARRIOR = { arms = 71, fury = 72, protection = 73 }
-}
 
 local function AddHasteBreakpoint(name, getter, classID, specID)
   if classID ~= addonTable.playerClass then return CAPS.ManualCap end

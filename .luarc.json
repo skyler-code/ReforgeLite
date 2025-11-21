@@ -217,7 +217,8 @@
     "MergeTable",
     "sort",
     "FormatLargeNumber",
-    "GetInventoryItemID"
+    "GetInventoryItemID",
+    "PlayerUtil"
   ],
   "diagnostics.disable": [
     "inject-field",
