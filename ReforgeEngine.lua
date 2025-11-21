@@ -71,6 +71,7 @@ local STAT_CONVERSIONS = {
 ---@return table<number, table<number, number>>|nil conversion Nested table of source stat to {dest stat = conversion rate}
 function ReforgeLite:GetConversion()
   self.conversion = wipe(self.conversion or {})
+  self.specID = PlayerUtil.GetCurrentSpecID()
   local classInfo = STAT_CONVERSIONS[playerClass]
   if classInfo then
     if classInfo.base then

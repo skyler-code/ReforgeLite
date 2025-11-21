@@ -1047,7 +1047,15 @@ function ReforgeLite:AddCapPoint (i, loading)
       self:RefreshMethodStats ()
     end,
     menuItemHidden = function(info)
-      return info.category and info.category ~= self.statCaps[i].stat.selectedValue
+      if info.category and info.category ~= self.statCaps[i].stat.selectedValue then
+        return true
+      end
+      if info.classID and info.classID ~= addonTable.playerClass then
+        return true
+      end
+      if info.specID and info.specID ~= self.specID then
+        return true
+      end
     end
   })
   local value = GUI:CreateEditBox (self.statCaps, 40, 30, 0, function (val)
