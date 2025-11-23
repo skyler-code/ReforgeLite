@@ -916,15 +916,15 @@ end
 ---@return nil
 function ReforgeLite:CreateItemTable ()
   self.playerSpecTexture = self:CreateTexture (nil, "ARTWORK")
-  self.playerSpecTexture:SetPoint ("TOPLEFT", 10, -28)
-  self.playerSpecTexture:SetSize(18, 18)
+  self.playerSpecTexture:SetPoint ("TOPLEFT", 10, -26)
+  self.playerSpecTexture:SetSize(16, 16)
   self.playerSpecTexture:SetTexCoord(0.0825, 0.0825, 0.0825, 0.9175, 0.9175, 0.0825, 0.9175, 0.9175)
 
   self.playerTalents = {}
   for tier = 1, MAX_NUM_TALENT_TIERS do
     self.playerTalents[tier] = self:CreateTexture(nil, "ARTWORK")
-    self.playerTalents[tier]:SetPoint("TOPLEFT", self.playerTalents[tier-1] or self.playerSpecTexture, "TOPRIGHT", 4, 0)
-    self.playerTalents[tier]:SetSize(18, 18)
+    self.playerTalents[tier]:SetPoint("TOPLEFT", self.playerTalents[tier-1] or self.playerSpecTexture, "TOPRIGHT", 2, 0)
+    self.playerTalents[tier]:SetSize(16, 16)
     self.playerTalents[tier]:SetTexCoord(self.playerSpecTexture:GetTexCoord())
     self.playerTalents[tier]:SetScript("OnLeave", GameTooltip_Hide)
   end
@@ -932,7 +932,7 @@ function ReforgeLite:CreateItemTable ()
   self:UpdatePlayerSpecInfo()
 
   self.itemTable = GUI:CreateTable (ITEM_SLOT_COUNT + 1, ITEM_STAT_COUNT, ITEM_SIZE, ITEM_SIZE + 4, {0.5, 0.5, 0.5, 1}, self)
-  self.itemTable:SetPoint ("TOPLEFT", self.playerSpecTexture, "BOTTOMLEFT", 0, -6)
+  self.itemTable:SetPoint ("TOPLEFT", self.playerSpecTexture, "BOTTOMLEFT", 0, -4)
   self.itemTable:SetPoint ("BOTTOM", 0, 10)
   self.itemTable:SetWidth (400)
   for i = 1, ITEM_STAT_COUNT do
