@@ -447,7 +447,13 @@ local function HealerPreset(spirit, crit, haste, mastery)
   return Preset(spirit, 0, 0, 0, crit, haste, 0, mastery)
 end
 
-local specInfo = {}
+local specInfo
+local function UpdateSpecInfo(ids)
+  for _, id in pairs(ids) do
+    local _, tabName, _, icon = GetSpecializationInfoByID(id)
+    specInfo[id] = { name = tabName, icon = icon }
+  end
+end
 
 ---Initializes class-specific stat weight and cap presets
 ---Loads presets for all specs of the player's class (or all classes in debug mode)
@@ -584,24 +590,16 @@ function ReforgeLite:InitClassPresets()
     },
   }
 
+  self.presets = wipe(self.presets or {})
+  specInfo = wipe(specInfo or {})
   if self.db.debug then
-    self.presets = presets
     for classFile, className in pairs(LOCALIZED_CLASS_NAMES_MALE) do
-      self.presets[className] = self.presets[classFile]
-      self.presets[classFile] = nil
+      self.presets[className] = presets[classFile]
     end
-    for _,ids in pairs(SPEC_IDS) do
-      for _, id in pairs(ids) do
-        local _, tabName, _, icon = GetSpecializationInfoByID(id)
-        specInfo[id] = { name = tabName, icon = icon }
-      end
-    end
+    TableUtil.Execute(SPEC_IDS, UpdateSpecInfo)
   else
     self.presets = presets[addonTable.playerClass]
-    for _, id in pairs(SPEC_IDS[addonTable.playerClass]) do
-      local _, tabName, _, icon = GetSpecializationInfoByID(id)
-      specInfo[id] = { name = tabName, icon = icon }
-    end
+    UpdateSpecInfo(SPEC_IDS[addonTable.playerClass])
   end
 end
 
